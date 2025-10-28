@@ -29,7 +29,7 @@ temp/
 # Build artifacts (if added in the future)
 dist/
 build/
-public/
+# Note: public/ is not ignored as it's used by GitLab CI/CD
 
 # Dependencies (if added in the future)
 node_modules/

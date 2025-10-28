@@ -202,11 +202,36 @@ footer {
     }
 }
 
+@keyframes sparkle {
+    0% {
+        transform: scale(0) rotate(0deg);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.5) rotate(180deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(0) rotate(360deg);
+        opacity: 0;
+    }
+}
+
 .ripple {
     position: absolute;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.5);
     animation: ripple 1s ease-out;
+}
+
+.sparkle {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    background: white;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: sparkle 2s ease-out;
 }
 
 /* Responsive Design */

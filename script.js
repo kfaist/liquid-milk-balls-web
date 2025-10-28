@@ -97,13 +97,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 300);
     }
     
-    // Add ambient animation
-    setInterval(() => {
+    // Add ambient animation using requestAnimationFrame
+    let animationFrameId;
+    function animateMirror() {
         if (echoCount > 0) {
             const scale = 1 + Math.sin(Date.now() / 1000) * 0.02;
             mirror.style.transform = `scale(${scale})`;
+            animationFrameId = requestAnimationFrame(animateMirror);
         }
-    }, 50);
+    }
+    
+    // Start animation when echo count changes
+    let lastEchoCount = 0;
+    function checkAnimation() {
+        if (echoCount > 0 && lastEchoCount === 0) {
+            animateMirror();
+        } else if (echoCount === 0 && lastEchoCount > 0) {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+        }
+        lastEchoCount = echoCount;
+    }
+    
+    // Update animation state when buttons are clicked
+    echoBtn.addEventListener('click', () => setTimeout(checkAnimation, 0));
+    clearBtn.addEventListener('click', () => setTimeout(checkAnimation, 0));
     
     // Easter egg: Konami code
     let konamiCode = [];
@@ -127,15 +146,9 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let i = 0; i < 20; i++) {
             setTimeout(() => {
                 const sparkle = document.createElement('div');
-                sparkle.style.position = 'fixed';
+                sparkle.className = 'sparkle';
                 sparkle.style.left = Math.random() * window.innerWidth + 'px';
                 sparkle.style.top = Math.random() * window.innerHeight + 'px';
-                sparkle.style.width = '10px';
-                sparkle.style.height = '10px';
-                sparkle.style.background = 'white';
-                sparkle.style.borderRadius = '50%';
-                sparkle.style.pointerEvents = 'none';
-                sparkle.style.animation = 'ripple 2s ease-out';
                 document.body.appendChild(sparkle);
                 
                 setTimeout(() => sparkle.remove(), 2000);
