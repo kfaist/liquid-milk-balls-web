@@ -1,8 +1,8 @@
 # Railway Deployment Guide
 
-## Deploy WebRTC Signaling Server to Railway
+## Deploy Unified HTTP+WebSocket Server to Railway
 
-This guide will help you deploy the WebRTC signaling server to Railway so you can access it from anywhere.
+This guide will help you deploy the unified server (static files + WebSocket signaling) to Railway so you can access it from anywhere.
 
 ### Prerequisites
 
@@ -12,7 +12,11 @@ This guide will help you deploy the WebRTC signaling server to Railway so you ca
 
 ### Step 1: Prepare for Deployment
 
-The signaling server is already configured to work with Railway. It will automatically use the PORT environment variable that Railway provides.
+The unified server is already configured to work with Railway:
+- **Single Port**: Both HTTP (static files) and WebSocket (signaling at /ws) run on the same port
+- **Health Check**: GET /healthz endpoint for Railway health monitoring
+- **Auto-configuration**: Railway will automatically use the PORT environment variable
+- **Config as Code**: railway.json specifies the start command and health check path
 
 ### Step 2: Deploy to Railway
 
@@ -48,30 +52,72 @@ railway domain
 
 1. Go to https://railway.app/new
 2. Click "Deploy from GitHub repo"
-3. Select this repository
-4. Railway will automatically detect it's a Node.js project
-5. The deployment will start automatically
+3. Select this repository: `kfaist/liquid-milk-balls-web`
+4. **Important**: Select the branch with the unified server (main or the merged branch)
+5. Railway will automatically:
+   - Detect it's a Node.js project
+   - Use railway.json for configuration
+   - Run `node server.js` as the start command
+   - Enable health checks at /healthz
 6. Once deployed, click "Generate Domain" to get a public URL
 
-### Step 3: Configure the Web App
+### Step 3: Configure Railway Service Settings
+
+In your Railway project dashboard:
+
+#### Deployment Source
+- **Source**: GitHub → `kfaist/liquid-milk-balls-web`
+- **Branch**: `main` (or the branch with the unified server)
+
+#### Build System
+- Leave as default (Nixpacks) - railway.json specifies this
+
+#### Start Command
+- Automatically picked up from railway.json: `node server.js`
+- You can verify this in Settings → Deploy → Start Command
+
+#### Health Check (Configured in railway.json)
+- Path: `/healthz`
+- This is automatically configured via railway.json
+- You can verify it's working by visiting: `https://your-app.up.railway.app/healthz`
+
+#### Sleep Mode (Optional)
+- If you want WebSocket connections to stay available 24/7, disable sleep mode
+- Settings → Service → Sleep Mode → Disable
+
+### Step 3: Verify Configuration
 
 After deploying to Railway, you'll get a URL like: `https://your-app-name.up.railway.app`
 
-1. Open `config.js` in your local repository
-2. Update the `SIGNALING_SERVER_URL` to use your Railway URL with `wss://`:
-```javascript
-window.SIGNALING_SERVER_URL = 'wss://your-app-name.up.railway.app';
-```
-
-3. Commit and push the changes (or deploy the static files to GitLab Pages/Vercel/Netlify)
+**No configuration changes needed!** The app is already configured to automatically detect the correct WebSocket URL:
+- `config.js` now dynamically determines the WebSocket URL based on your current location
+- On Railway (HTTPS): automatically uses `wss://your-app-name.up.railway.app/ws`
+- On localhost (HTTP): automatically uses `ws://localhost:3000/ws`
 
 ### Step 4: Test the Deployment
 
-1. Open your web app (either locally or on GitLab Pages)
-2. Click "Start Camera"
+#### A. Test HTTP (Static Files)
+1. Open the root page: `https://your-app.up.railway.app/`
+   - Should serve your interactive mirror website
+2. Test health check: `https://your-app.up.railway.app/healthz`
+   - Should return: `ok`
+
+#### B. Test WebSocket (Signaling)
+From a terminal:
+```bash
+npx wscat -c wss://your-app.up.railway.app/ws
+```
+- Should connect successfully
+- Type a message and press enter
+- Open another terminal and connect again - messages should relay between clients
+
+#### C. Test WebRTC in Browser
+1. Open `https://your-app.up.railway.app/` in your browser
+2. Click "Start Camera" (grant camera permissions)
 3. Click "Start WebRTC Call"
-4. The status should show "Connected to signaling server"
-5. Open another browser window/tab and repeat - you should establish a peer connection
+4. Status should show "Connected to signaling server"
+5. Open another browser window/tab and repeat steps 2-3
+6. You should establish a peer-to-peer WebRTC connection
 
 ### Environment Variables (Optional)
 
