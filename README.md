@@ -2,17 +2,15 @@
 
 An interactive web experience where reflections tell their stories.
 
-## 🚀 Quick Start: Deploy to Railway
+---
 
-**Want to see a live site right away?** Follow the step-by-step guide:
+## 🚀 **WANT TO SEE A LIVE SITE? START HERE!**
 
-👉 **[NEXT-STEPS.md](NEXT-STEPS.md)** - Complete deployment walkthrough for Railway
+### 👉 **[START-HERE.md](START-HERE.md)** ← Your deployment guide
 
-Have an invite link like `https://railway.com/invite/v4BSx3LBApG`? The guide walks you through everything!
+Have a Railway invite link? We've got you covered with complete step-by-step instructions!
 
-**One-click deploy:**
-
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/Vq1K7C?referralCode=v4BSx3LBApG)
+---
 
 ## 🌟 About
 
@@ -251,6 +249,17 @@ To use WebRTC from anywhere (not just localhost), deploy the signaling server to
 
 ### Quick Deploy
 
+**🎯 NEW: Complete Deployment Guides Available!**
+
+- **[START-HERE.md](START-HERE.md)** - Overview and quick navigation
+- **[NEXT-STEPS.md](NEXT-STEPS.md)** - Step-by-step walkthrough (recommended)
+- **[DEPLOYMENT-CHECKLIST.md](DEPLOYMENT-CHECKLIST.md)** - Quick reference checklist
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture details
+
+**Quick validation:** Run `./railway-readiness-check.sh` before deploying
+
+### Railway CLI Quick Start
+
 1. **Deploy to Railway:**
    ```bash
    # Install Railway CLI
@@ -278,7 +287,10 @@ To use WebRTC from anywhere (not just localhost), deploy the signaling server to
    - Push to GitLab for automatic Pages deployment, or
    - Deploy to Vercel/Netlify/GitHub Pages
 
-📖 **Full guide:** See [RAILWAY.md](RAILWAY.md) for detailed deployment instructions
+📖 **Full guides:** 
+- Detailed walkthrough: [NEXT-STEPS.md](NEXT-STEPS.md)
+- Railway specifics: [RAILWAY.md](RAILWAY.md)
+- Quick checklist: [DEPLOYMENT-CHECKLIST.md](DEPLOYMENT-CHECKLIST.md)
 
 **Benefits:**
 - ✅ Access from any device/location
