@@ -47,10 +47,10 @@ The Mirror's Echo is a mesmerizing interactive website featuring:
 cd /path/to/the-mirrors-echo
 
 # Add GitLab as a remote (replace USERNAME with your GitLab username)
-git remote add gitlab https://gitlab.com/kfaist/the-mirrors-echo.git
+git remote add gitlab https://gitlab.com/USERNAME/the-mirrors-echo.git
 
 # Or if you want to replace the origin:
-# git remote set-url origin https://gitlab.com/kfaist/the-mirrors-echo.git
+# git remote set-url origin https://gitlab.com/USERNAME/the-mirrors-echo.git
 
 # Push to GitLab
 git push -u gitlab main
@@ -75,10 +75,10 @@ You can monitor the deployment:
 
 After successful deployment, your site will be available at:
 ```
-https://kfaist.gitlab.io/the-mirrors-echo/
+https://USERNAME.gitlab.io/the-mirrors-echo/
 ```
 
-Or for custom domains:
+Replace USERNAME with your GitLab username. For example:
 ```
 https://USERNAME.gitlab.io/the-mirrors-echo/
 ```
@@ -343,4 +343,4 @@ For issues or questions:
 
 **Made with ✨ for GitLab Pages**
 
-Deployed at: https://kfaist.gitlab.io/the-mirrors-echo/
+Example deployment: https://username.gitlab.io/the-mirrors-echo/
