@@ -6,7 +6,8 @@
   "scripts": {
     "start": "python3 -m http.server 8000",
     "signaling": "node webrtc-signaling-server.js",
-    "dev": "python3 -m http.server 8000 & node webrtc-signaling-server.js"
+    "dev": "python3 -m http.server 8000 & node webrtc-signaling-server.js",
+    "health": "./health-check.sh"
   },
   "keywords": [
     "webrtc",
