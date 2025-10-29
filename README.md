@@ -128,6 +128,84 @@ npx http-server
 
 Or simply open `index.html` directly in your browser.
 
+## 🎥 Local Testing with OBS / WebRTC
+
+The project now includes WebRTC camera preview and signaling capabilities for testing video streaming workflows with OBS and TouchDesigner.
+
+### Quick Start
+
+1. **Start a local web server** (required for camera access):
+```bash
+python -m http.server 8000
+```
+
+2. **Install WebSocket dependency** (one-time setup):
+```bash
+npm install ws
+```
+
+3. **Start the signaling server**:
+```bash
+node webrtc-signaling-server.js
+```
+
+4. **Open the web app** in your browser:
+```
+http://localhost:8000
+```
+
+5. **Test the WebRTC connection**:
+   - Click **"Start Camera"** to access your webcam
+   - Click **"Start WebRTC Call"** to connect to the signaling server
+   - Open a second browser tab/window and repeat the steps to test peer-to-peer connection
+   - The local video shows your camera feed, the remote video shows the peer's feed
+
+### OBS to TouchDesigner Workflow
+
+For streaming video from the browser to TouchDesigner via OBS and NDI:
+
+#### Prerequisites
+- **OBS Studio**: Download from [obsproject.com](https://obsproject.com/)
+- **obs-ndi plugin**: Download from [obs-ndi GitHub releases](https://github.com/obs-ndi/obs-ndi/releases)
+- **NDI Runtime**: Download from [ndi.tv](https://ndi.tv/tools/)
+
+#### Steps
+
+1. **Start the web app** (steps 1-5 above) and verify camera preview is working
+
+2. **Configure OBS**:
+   - Open OBS Studio
+   - Add a new source:
+     - **Option A**: Window Capture - Select your browser window
+     - **Option B**: Browser Source - Enter `http://localhost:8000` as the URL
+   - Crop and position the video feed as desired
+
+3. **Enable NDI output in OBS**:
+   - Go to **Tools** > **NDI Output Settings**
+   - Check **"Main Output"**
+   - Give it a recognizable name (e.g., "Mirror Echo WebRTC")
+
+4. **Receive in TouchDesigner**:
+   - Add an **NDI In TOP** operator
+   - In the NDI In TOP parameters, select your OBS NDI source from the dropdown
+   - The video feed should now appear in TouchDesigner
+   - Process the stream with your preferred effects pipeline
+
+### Signaling Server Notes
+
+- The included `webrtc-signaling-server.js` is a **minimal relay for local testing only**
+- It is **not secure** and should not be deployed to production
+- For local testing, it relays WebRTC signaling messages (SDP offers/answers and ICE candidates) between peers
+- The WebRTC client uses Google's public STUN server (`stun:stun.l.google.com:19302`)
+- For production or non-local testing, add TURN servers for NAT traversal
+
+### Troubleshooting
+
+- **Camera not accessible**: Ensure you're using `http://localhost` (not `file://`) and grant camera permissions
+- **Signaling server connection fails**: Check that `node webrtc-signaling-server.js` is running and port 8888 is available
+- **NDI source not visible in TouchDesigner**: Verify NDI Runtime is installed and OBS NDI output is enabled
+- **Video quality issues**: Adjust camera constraints in `webrtc-client.js` or OBS output settings
+
 ## 📱 Browser Compatibility
 
 - ✅ Chrome (recommended)
