@@ -54,7 +54,24 @@ document.addEventListener('DOMContentLoaded', function() {
             
         } catch (error) {
             console.error('Error accessing camera:', error);
-            updateStatus('Error: Could not access camera - ' + error.message);
+            let errorMessage = 'Error: Could not access camera';
+            
+            // Provide more specific error messages
+            if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                errorMessage = 'Error: Camera permission denied. Please allow camera access and try again.';
+            } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                errorMessage = 'Error: No camera found. Please connect a camera and try again.';
+            } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+                errorMessage = 'Error: Camera is already in use by another application.';
+            } else if (error.name === 'OverconstrainedError' || error.name === 'ConstraintNotSatisfiedError') {
+                errorMessage = 'Error: Camera does not support the requested settings.';
+            } else if (error.name === 'NotSupportedError') {
+                errorMessage = 'Error: Camera access is not supported in this browser. Please use HTTPS or localhost.';
+            } else {
+                errorMessage = 'Error: ' + error.message;
+            }
+            
+            updateStatus(errorMessage);
         }
     }
     
@@ -98,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             signalingSocket.onerror = (error) => {
                 console.error('WebSocket error:', error);
-                updateStatus('Error: Could not connect to signaling server');
+                updateStatus('Error: Could not connect to signaling server at ' + SIGNALING_SERVER_URL + '. Make sure the server is running.');
             };
             
             signalingSocket.onclose = () => {
