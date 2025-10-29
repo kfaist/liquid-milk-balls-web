@@ -54,7 +54,7 @@ header {
 .echo-section {
     background: #1a1a1a;
     border-radius: 20px;
-    padding: 3rem;
+    padding: 2rem;
     margin-bottom: 2rem;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
     border: 2px solid #333333;
@@ -67,17 +67,18 @@ header {
 }
 
 .mirror {
-    width: 400px;
-    height: 400px;
+    width: 100%;
+    max-width: 600px;
+    aspect-ratio: 1;
     background: #0a0a0a;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 5px solid #ffffff;
+    border: 3px solid #ffffff;
     box-shadow: 
-        inset 0 0 50px rgba(255, 255, 255, 0.05),
-        0 0 50px rgba(255, 255, 255, 0.2);
+        inset 0 0 80px rgba(255, 255, 255, 0.05),
+        0 0 60px rgba(255, 255, 255, 0.2);
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
@@ -85,10 +86,10 @@ header {
 }
 
 .mirror:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
     box-shadow: 
-        inset 0 0 50px rgba(255, 255, 255, 0.1),
-        0 0 80px rgba(255, 255, 255, 0.4);
+        inset 0 0 80px rgba(255, 255, 255, 0.1),
+        0 0 80px rgba(255, 255, 255, 0.3);
 }
 
 .mirror::before {
@@ -101,11 +102,11 @@ header {
     background: linear-gradient(
         45deg,
         transparent,
-        rgba(255, 255, 255, 0.05),
+        rgba(255, 255, 255, 0.03),
         transparent
     );
     transform: rotate(45deg);
-    animation: shimmer 3s infinite;
+    animation: shimmer 4s infinite;
 }
 
 .echo-text {
@@ -121,6 +122,13 @@ header {
     justify-content: center;
     gap: 1rem;
     flex-wrap: wrap;
+}
+
+.controls-compact {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
 }
 
 .btn {
@@ -146,6 +154,27 @@ header {
 
 .btn:active {
     transform: translateY(0);
+}
+
+.btn-small {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+}
+
+.btn-ndi {
+    background: #000000;
+    border: 2px solid #00ff00;
+    color: #00ff00;
+}
+
+.btn-ndi:hover {
+    background: #00ff00;
+    color: #000000;
+}
+
+.btn-ndi:disabled {
+    border-color: #555555;
+    color: #555555;
 }
 
 .about-section {
@@ -360,17 +389,21 @@ footer {
     }
     
     .mirror {
-        width: 300px;
-        height: 300px;
+        max-width: 400px;
     }
     
     .echo-section {
-        padding: 2rem 1rem;
+        padding: 1.5rem 1rem;
     }
     
     .btn {
         padding: 0.8rem 1.5rem;
         font-size: 1rem;
+    }
+    
+    .btn-small {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
     }
     
     .webrtc-section {
@@ -400,8 +433,7 @@ footer {
     }
     
     .mirror {
-        width: 250px;
-        height: 250px;
+        max-width: 300px;
     }
     
     .echo-text {

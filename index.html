@@ -15,19 +15,6 @@
         </header>
         
         <main>
-            <section class="echo-section">
-                <div class="mirror-container">
-                    <div class="mirror" id="mirror">
-                        <p class="echo-text" id="echoText">Look into the mirror...</p>
-                    </div>
-                </div>
-                
-                <div class="controls">
-                    <button class="btn" id="echoBtn">Create Echo</button>
-                    <button class="btn" id="clearBtn">Clear</button>
-                </div>
-            </section>
-            
             <section class="webrtc-section">
                 <h2>WebRTC Preview</h2>
                 <div class="video-container">
@@ -46,10 +33,22 @@
                     <button class="btn" id="stopCameraBtn" disabled>Stop Camera</button>
                     <button class="btn" id="startCallBtn" disabled>Start WebRTC Call</button>
                     <button class="btn" id="hangupBtn" disabled>Hang Up</button>
+                    <button class="btn btn-ndi" id="ndiBtn" disabled>Enable NDI Output</button>
                 </div>
                 
                 <div class="webrtc-status">
                     <p id="statusText">Ready to start</p>
+                </div>
+            </section>
+            
+            <section class="echo-section">
+                <div class="mirror-container">
+                    <div class="mirror" id="mirror"></div>
+                </div>
+                
+                <div class="controls-compact">
+                    <button class="btn btn-small" id="echoBtn">Create Echo</button>
+                    <button class="btn btn-small" id="clearBtn">Clear</button>
                 </div>
             </section>
             

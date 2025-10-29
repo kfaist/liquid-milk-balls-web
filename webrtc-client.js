@@ -33,6 +33,11 @@ document.addEventListener('DOMContentLoaded', function() {
     startCallBtn.addEventListener('click', startCall);
     hangupBtn.addEventListener('click', hangup);
     
+    const ndiBtn = document.getElementById('ndiBtn');
+    if (ndiBtn) {
+        ndiBtn.addEventListener('click', enableNDI);
+    }
+    
     // Start camera using getUserMedia
     async function startCamera() {
         try {
@@ -301,12 +306,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Update button states based on current state
     function updateButtonStates(state) {
+        const ndiBtn = document.getElementById('ndiBtn');
+        
         switch (state) {
             case 'cameraStarted':
                 startCameraBtn.disabled = true;
                 stopCameraBtn.disabled = false;
                 startCallBtn.disabled = false;
                 hangupBtn.disabled = true;
+                if (ndiBtn) ndiBtn.disabled = false;
                 break;
                 
             case 'cameraStopped':
@@ -314,6 +322,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 stopCameraBtn.disabled = true;
                 startCallBtn.disabled = true;
                 hangupBtn.disabled = true;
+                if (ndiBtn) ndiBtn.disabled = true;
                 break;
                 
             case 'callStarted':
@@ -321,6 +330,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 stopCameraBtn.disabled = true;
                 startCallBtn.disabled = true;
                 hangupBtn.disabled = false;
+                if (ndiBtn) ndiBtn.disabled = false;
                 break;
                 
             case 'callEnded':
@@ -328,8 +338,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 stopCameraBtn.disabled = false;
                 startCallBtn.disabled = false;
                 hangupBtn.disabled = true;
+                if (ndiBtn) ndiBtn.disabled = false;
                 break;
         }
+    }
+    
+    // Enable NDI output
+    function enableNDI() {
+        updateStatus('NDI output simulation enabled. In production, this would connect to an NDI source.');
+        
+        // Show instructions for actual NDI setup
+        const instructions = `
+To enable NDI output:
+
+1. Install OBS Studio and obs-ndi plugin
+2. In OBS, add a Browser Source pointing to this page
+3. Go to Tools > NDI Output Settings
+4. Enable "Main Output"
+5. In TouchDesigner, add an NDI In TOP
+6. Select the OBS NDI source from the dropdown
+
+Note: This is a client-side web app. Actual NDI output requires OBS as a bridge.
+        `.trim();
+        
+        console.log(instructions);
+        alert(instructions);
     }
     
     // Update status text
