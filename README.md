@@ -2,6 +2,18 @@
 
 An interactive web experience where reflections tell their stories.
 
+## 🚀 Quick Start: Deploy to Railway
+
+**Want to see a live site right away?** Follow the step-by-step guide:
+
+👉 **[NEXT-STEPS.md](NEXT-STEPS.md)** - Complete deployment walkthrough for Railway
+
+Have an invite link like `https://railway.com/invite/v4BSx3LBApG`? The guide walks you through everything!
+
+**One-click deploy:**
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/Vq1K7C?referralCode=v4BSx3LBApG)
+
 ## 🌟 About
 
 The Mirror's Echo is a mesmerizing interactive website featuring:

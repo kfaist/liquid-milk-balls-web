@@ -4,6 +4,12 @@
 
 This guide will help you deploy the WebRTC signaling server to Railway so you can access it from anywhere.
 
+### Quick Start
+
+**Have a Railway invite link?** Check out [NEXT-STEPS.md](NEXT-STEPS.md) for a step-by-step walkthrough!
+
+Example invite link: https://railway.com/invite/v4BSx3LBApG
+
 ### Prerequisites
 
 - A Railway account (sign up at https://railway.app)
