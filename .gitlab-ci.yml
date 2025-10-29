@@ -17,6 +17,9 @@ pages:
     - cp index.html public/
     - cp styles.css public/
     - cp script.js public/
+    - cp webrtc-client.js public/
+    - cp webrtc-signaling-server.js public/
+    - cp README.md public/
     
     # Optionally, you can add any build steps here
     # For example: minification, optimization, etc.
