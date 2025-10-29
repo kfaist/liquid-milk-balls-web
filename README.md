@@ -11,7 +11,34 @@ The Mirror's Echo is a mesmerizing interactive website featuring:
 - **Easter Eggs**: Hidden surprises await the curious
 - **Modern Design**: Glassmorphism effects with smooth animations
 
-## 🚀 Deployment to GitLab Pages
+## 🚀 Deployment
+
+### GitHub Pages (Recommended for GitHub Repositories)
+
+This repository is configured for automatic deployment to GitHub Pages via GitHub Actions.
+
+#### Prerequisites
+- A GitHub account
+- Repository hosted on GitHub
+
+#### Automatic Deployment
+
+Once you push to the `main` branch, GitHub Actions will automatically:
+1. Build the site
+2. Deploy to GitHub Pages
+3. Make it available at `https://kfaist.github.io/liquid-milk-balls-web/`
+
+#### Manual Setup (One-Time)
+
+If deploying to a new repository, enable GitHub Pages:
+1. Go to your repository on GitHub
+2. Click **Settings** > **Pages**
+3. Under "Source", select **GitHub Actions**
+4. Push to the `main` branch to trigger deployment
+
+The workflow file is located at `.github/workflows/deploy.yml`
+
+### GitLab Pages (Alternative)
 
 ### Prerequisites
 - A GitLab account
@@ -83,6 +110,9 @@ https://USERNAME.gitlab.io/the-mirrors-echo/
 
 ```
 liquid-milk-balls-web/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml          # GitHub Actions deployment workflow
 ├── index.html                  # Main HTML file
 ├── styles.css                  # Stylesheet with animations
 ├── script.js                   # Mirror interaction logic
@@ -272,10 +302,13 @@ Quick start for contributors:
 For issues or questions:
 - Open an issue on GitHub/GitLab
 - Check the [CONTRIBUTING.md](CONTRIBUTING.md) for common questions
+- GitHub Pages documentation: https://docs.github.com/en/pages
 - GitLab Pages documentation: https://docs.gitlab.com/ee/user/project/pages/
 
 ---
 
-**Made with ✨ for GitLab Pages**
+**Made with ✨ for GitHub Pages & GitLab Pages**
 
-Deployed at: https://kfaist.gitlab.io/the-mirrors-echo/
+**Live Sites:**
+- GitHub: https://kfaist.github.io/liquid-milk-balls-web/
+- GitLab: https://kfaist.gitlab.io/the-mirrors-echo/
