@@ -2,6 +2,16 @@
 
 An interactive web experience where reflections tell their stories.
 
+---
+
+## 🚀 **WANT TO SEE A LIVE SITE? START HERE!**
+
+### 👉 **[START-HERE.md](START-HERE.md)** ← Your deployment guide
+
+Have a Railway invite link? We've got you covered with complete step-by-step instructions!
+
+---
+
 ## 🌟 About
 
 The Mirror's Echo is a mesmerizing interactive website featuring:
@@ -37,10 +47,10 @@ The Mirror's Echo is a mesmerizing interactive website featuring:
 cd /path/to/the-mirrors-echo
 
 # Add GitLab as a remote (replace USERNAME with your GitLab username)
-git remote add gitlab https://gitlab.com/kfaist/the-mirrors-echo.git
+git remote add gitlab https://gitlab.com/USERNAME/the-mirrors-echo.git
 
 # Or if you want to replace the origin:
-# git remote set-url origin https://gitlab.com/kfaist/the-mirrors-echo.git
+# git remote set-url origin https://gitlab.com/USERNAME/the-mirrors-echo.git
 
 # Push to GitLab
 git push -u gitlab main
@@ -65,10 +75,10 @@ You can monitor the deployment:
 
 After successful deployment, your site will be available at:
 ```
-https://kfaist.gitlab.io/the-mirrors-echo/
+https://USERNAME.gitlab.io/the-mirrors-echo/
 ```
 
-Or for custom domains:
+Replace USERNAME with your GitLab username. For example:
 ```
 https://USERNAME.gitlab.io/the-mirrors-echo/
 ```
@@ -239,6 +249,17 @@ To use WebRTC from anywhere (not just localhost), deploy the signaling server to
 
 ### Quick Deploy
 
+**🎯 NEW: Complete Deployment Guides Available!**
+
+- **[START-HERE.md](START-HERE.md)** - Overview and quick navigation
+- **[NEXT-STEPS.md](NEXT-STEPS.md)** - Step-by-step walkthrough (recommended)
+- **[DEPLOYMENT-CHECKLIST.md](DEPLOYMENT-CHECKLIST.md)** - Quick reference checklist
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture details
+
+**Quick validation:** Run `./railway-readiness-check.sh` before deploying
+
+### Railway CLI Quick Start
+
 1. **Deploy to Railway:**
    ```bash
    # Install Railway CLI
@@ -266,7 +287,10 @@ To use WebRTC from anywhere (not just localhost), deploy the signaling server to
    - Push to GitLab for automatic Pages deployment, or
    - Deploy to Vercel/Netlify/GitHub Pages
 
-📖 **Full guide:** See [RAILWAY.md](RAILWAY.md) for detailed deployment instructions
+📖 **Full guides:** 
+- Detailed walkthrough: [NEXT-STEPS.md](NEXT-STEPS.md)
+- Railway specifics: [RAILWAY.md](RAILWAY.md)
+- Quick checklist: [DEPLOYMENT-CHECKLIST.md](DEPLOYMENT-CHECKLIST.md)
 
 **Benefits:**
 - ✅ Access from any device/location
@@ -319,4 +343,4 @@ For issues or questions:
 
 **Made with ✨ for GitLab Pages**
 
-Deployed at: https://kfaist.gitlab.io/the-mirrors-echo/
+Example deployment: https://username.gitlab.io/the-mirrors-echo/
