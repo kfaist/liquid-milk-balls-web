@@ -82,12 +82,19 @@ https://USERNAME.gitlab.io/the-mirrors-echo/
 ## 📁 Project Structure
 
 ```
-the-mirrors-echo/
-├── index.html          # Main HTML file
-├── styles.css          # Stylesheet with animations
-├── script.js           # Interactive JavaScript
-├── .gitlab-ci.yml      # GitLab CI/CD configuration
-└── README.md           # This file
+liquid-milk-balls-web/
+├── index.html                  # Main HTML file
+├── styles.css                  # Stylesheet with animations
+├── script.js                   # Mirror interaction logic
+├── webrtc-client.js           # WebRTC client implementation
+├── webrtc-signaling-server.js # WebSocket signaling server
+├── package.json               # Node.js dependencies and scripts
+├── setup.sh                   # Automated setup script
+├── .gitlab-ci.yml             # GitLab CI/CD configuration
+├── .gitignore                 # Git ignore rules
+├── LICENSE                    # MIT License
+├── CONTRIBUTING.md            # Contribution guidelines
+└── README.md                  # This file
 ```
 
 ## 🎮 Features & Interactions
@@ -108,12 +115,28 @@ To run locally:
 
 1. Clone the repository:
 ```bash
-git clone https://gitlab.com/kfaist/the-mirrors-echo.git
-cd the-mirrors-echo
+git clone https://github.com/kfaist/liquid-milk-balls-web.git
+cd liquid-milk-balls-web
 ```
 
-2. Open with a local server (recommended):
+2. **Quick setup** (on Unix-like systems):
 ```bash
+./setup.sh
+```
+
+   Or **manual setup**:
+```bash
+npm install
+```
+
+3. **Start the development servers**:
+```bash
+# Using npm scripts (recommended):
+npm start              # Start web server on port 8000
+npm run signaling      # Start signaling server on port 8888
+npm run dev            # Start both servers at once
+
+# Or manually:
 # Using Python 3
 python -m http.server 8000
 
@@ -124,9 +147,9 @@ python -m SimpleHTTPServer 8000
 npx http-server
 ```
 
-3. Open your browser to `http://localhost:8000`
+4. Open your browser to `http://localhost:8000`
 
-Or simply open `index.html` directly in your browser.
+**Note**: For WebRTC features, you need to run both the web server and the signaling server.
 
 ## 🎥 Local Testing with OBS / WebRTC
 
@@ -134,27 +157,31 @@ The project now includes WebRTC camera preview and signaling capabilities for te
 
 ### Quick Start
 
-1. **Start a local web server** (required for camera access):
+1. **Run the setup script** (one-time setup):
 ```bash
-python -m http.server 8000
+./setup.sh
 ```
 
-2. **Install WebSocket dependency** (one-time setup):
+2. **Start both servers**:
 ```bash
-npm install ws
+npm run dev
 ```
 
-3. **Start the signaling server**:
+   Or start them separately in different terminals:
 ```bash
-node webrtc-signaling-server.js
+# Terminal 1
+npm start
+
+# Terminal 2
+npm run signaling
 ```
 
-4. **Open the web app** in your browser:
+3. **Open the web app** in your browser:
 ```
 http://localhost:8000
 ```
 
-5. **Test the WebRTC connection**:
+4. **Test the WebRTC connection**:
    - Click **"Start Camera"** to access your webcam
    - Click **"Start WebRTC Call"** to connect to the signaling server
    - Open a second browser tab/window and repeat the steps to test peer-to-peer connection
@@ -223,20 +250,29 @@ Feel free to customize:
 
 ## 📄 License
 
-This project is open source and available for personal and educational use.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Feel free to:
+Contributions are welcome! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for details on:
+- Development setup and workflow
+- Code style guidelines
+- How to submit pull requests
+- Reporting bugs and suggesting features
+
+Quick start for contributors:
 1. Fork the repository
-2. Create a feature branch
-3. Submit a pull request
+2. Run `./setup.sh` to set up your environment
+3. Create a feature branch: `git checkout -b feature/your-feature-name`
+4. Make your changes and test thoroughly
+5. Submit a pull request
 
 ## 📞 Support
 
 For issues or questions:
-- Open an issue on GitLab
-- Check the GitLab Pages documentation: https://docs.gitlab.com/ee/user/project/pages/
+- Open an issue on GitHub/GitLab
+- Check the [CONTRIBUTING.md](CONTRIBUTING.md) for common questions
+- GitLab Pages documentation: https://docs.gitlab.com/ee/user/project/pages/
 
 ---
 
