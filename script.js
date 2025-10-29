@@ -2,49 +2,35 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     const mirror = document.getElementById('mirror');
-    const echoText = document.getElementById('echoText');
     const echoBtn = document.getElementById('echoBtn');
     const clearBtn = document.getElementById('clearBtn');
-    
-    const echoMessages = [
-        "Your reflection whispers...",
-        "Time stands still in the mirror...",
-        "What do you see?",
-        "The echo remembers...",
-        "Look deeper...",
-        "Your essence is captured...",
-        "The mirror knows your truth...",
-        "Reflections never lie...",
-        "You are seen...",
-        "The echo grows stronger..."
-    ];
     
     let echoCount = 0;
     
     // Create ripple effect on mirror click
     mirror.addEventListener('click', function(e) {
         createRipple(e);
-        changeEchoText();
     });
     
     // Echo button functionality
     echoBtn.addEventListener('click', function() {
         createMultipleRipples();
-        changeEchoText();
         echoCount++;
         
         // Change mirror appearance based on echo count
         if (echoCount % 5 === 0) {
-            mirror.style.background = `linear-gradient(145deg, 
-                hsl(${echoCount * 10}, 70%, 50%), 
-                hsl(${echoCount * 15}, 60%, 40%))`;
+            const hue = (echoCount * 30) % 360;
+            mirror.style.background = `radial-gradient(circle, 
+                hsl(${hue}, 70%, 10%), 
+                #0a0a0a)`;
+            mirror.style.borderColor = `hsl(${hue}, 70%, 50%)`;
         }
     });
     
     // Clear button functionality
     clearBtn.addEventListener('click', function() {
-        echoText.textContent = "Look into the mirror...";
-        mirror.style.background = "linear-gradient(145deg, #ffffff15, #ffffff05)";
+        mirror.style.background = "#0a0a0a";
+        mirror.style.borderColor = "#ffffff";
         echoCount = 0;
         
         // Visual feedback
@@ -75,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function createMultipleRipples() {
-        const count = 5;
+        const count = 8;
         for (let i = 0; i < count; i++) {
             setTimeout(() => {
                 const fakeEvent = {
@@ -83,25 +69,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     clientY: mirror.getBoundingClientRect().top + Math.random() * mirror.offsetHeight
                 };
                 createRipple(fakeEvent);
-            }, i * 100);
+            }, i * 80);
         }
-    }
-    
-    function changeEchoText() {
-        const randomMessage = echoMessages[Math.floor(Math.random() * echoMessages.length)];
-        echoText.style.opacity = '0';
-        
-        setTimeout(() => {
-            echoText.textContent = randomMessage;
-            echoText.style.opacity = '1';
-        }, 300);
     }
     
     // Add ambient animation using requestAnimationFrame
     let animationFrameId;
     function animateMirror() {
         if (echoCount > 0) {
-            const scale = 1 + Math.sin(Date.now() / 1000) * 0.02;
+            const scale = 1 + Math.sin(Date.now() / 1500) * 0.015;
             mirror.style.transform = `scale(${scale})`;
             animationFrameId = requestAnimationFrame(animateMirror);
         }

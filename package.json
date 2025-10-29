@@ -4,7 +4,8 @@
   "description": "The Mirror's Echo - An interactive web experience with WebRTC preview for OBS/TouchDesigner integration",
   "main": "webrtc-signaling-server.js",
   "scripts": {
-    "start": "python3 -m http.server 8000",
+    "start": "node webrtc-signaling-server.js",
+    "web": "python3 -m http.server 8000",
     "signaling": "node webrtc-signaling-server.js",
     "dev": "python3 -m http.server 8000 & node webrtc-signaling-server.js",
     "health": "./health-check.sh"
@@ -23,6 +24,6 @@
     "ws": "^8.14.2"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=16.0.0"
   }
 }

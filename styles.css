@@ -1,5 +1,8 @@
 /* The Mirror's Echo - Styles */
 
+/* Import JetBrains Mono from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -7,13 +10,13 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    background: #000000;
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
+    color: #ffffff;
     overflow-x: hidden;
 }
 
@@ -31,30 +34,30 @@ header {
 }
 
 .title {
+    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
     font-size: 3.5rem;
     font-weight: 700;
-    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.1);
     margin-bottom: 0.5rem;
-    background: linear-gradient(45deg, #fff, #e0e0ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #ffffff;
+    letter-spacing: 0.05em;
 }
 
 .subtitle {
+    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
     font-size: 1.2rem;
-    opacity: 0.9;
+    opacity: 0.7;
     font-style: italic;
+    color: #cccccc;
 }
 
 .echo-section {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
+    background: #1a1a1a;
     border-radius: 20px;
-    padding: 3rem;
+    padding: 2rem;
     margin-bottom: 2rem;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+    border: 2px solid #333333;
 }
 
 .mirror-container {
@@ -64,17 +67,18 @@ header {
 }
 
 .mirror {
-    width: 400px;
-    height: 400px;
-    background: linear-gradient(145deg, #ffffff15, #ffffff05);
+    width: 100%;
+    max-width: 600px;
+    aspect-ratio: 1;
+    background: #0a0a0a;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 5px solid rgba(255, 255, 255, 0.3);
+    border: 3px solid #ffffff;
     box-shadow: 
-        inset 0 0 50px rgba(255, 255, 255, 0.1),
-        0 0 50px rgba(0, 0, 0, 0.3);
+        inset 0 0 80px rgba(255, 255, 255, 0.05),
+        0 0 60px rgba(255, 255, 255, 0.2);
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
@@ -82,9 +86,9 @@ header {
 }
 
 .mirror:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
     box-shadow: 
-        inset 0 0 50px rgba(255, 255, 255, 0.2),
+        inset 0 0 80px rgba(255, 255, 255, 0.1),
         0 0 80px rgba(255, 255, 255, 0.3);
 }
 
@@ -98,11 +102,11 @@ header {
     background: linear-gradient(
         45deg,
         transparent,
-        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0.03),
         transparent
     );
     transform: rotate(45deg);
-    animation: shimmer 3s infinite;
+    animation: shimmer 4s infinite;
 }
 
 .echo-text {
@@ -120,74 +124,123 @@ header {
     flex-wrap: wrap;
 }
 
+.controls-compact {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+}
+
 .btn {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
     padding: 1rem 2rem;
     font-size: 1.1rem;
-    border: none;
+    border: 2px solid #ffffff;
     border-radius: 50px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: #000000;
+    color: #ffffff;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
     font-weight: 600;
 }
 
 .btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
 }
 
 .btn:active {
     transform: translateY(0);
 }
 
+.btn-small {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+}
+
+.btn-ndi {
+    background: #000000;
+    border: 2px solid #00ff00;
+    color: #00ff00;
+}
+
+.btn-ndi:hover {
+    background: #00ff00;
+    color: #000000;
+}
+
+.btn-ndi:disabled {
+    border-color: #555555;
+    color: #555555;
+}
+
 .about-section {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
+    background: #1a1a1a;
     border-radius: 20px;
     padding: 2rem;
     margin-bottom: 2rem;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+    border: 2px solid #333333;
 }
 
 .about-section h2 {
+    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
     font-size: 2rem;
     margin-bottom: 1rem;
+    color: #ffffff;
 }
 
 .about-section p {
     font-size: 1.1rem;
     line-height: 1.6;
     opacity: 0.9;
+    color: #cccccc;
 }
 
 .about-section p + p {
     margin-top: 1rem;
 }
 
+.about-section ul {
+    color: #cccccc;
+    font-size: 1rem;
+}
+
+.about-section ul li {
+    margin-bottom: 0.5rem;
+}
+
+.about-section strong {
+    color: #ffffff;
+}
+
 /* WebRTC Section Styles */
 .webrtc-section {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
+    background: #1a1a1a;
     border-radius: 20px;
     padding: 2rem;
     margin-bottom: 2rem;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+    border: 2px solid #333333;
 }
 
 .webrtc-section h2 {
+    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
     font-size: 2rem;
     margin-bottom: 1.5rem;
     text-align: center;
+    color: #ffffff;
 }
 
 .webrtc-section h3 {
+    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
     font-size: 1.2rem;
     margin-bottom: 0.5rem;
     text-align: center;
+    color: #cccccc;
 }
 
 .video-container {
@@ -209,7 +262,8 @@ header {
     height: auto;
     border-radius: 10px;
     background: #000;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+    border: 2px solid #ffffff;
 }
 
 .webrtc-controls {
@@ -228,12 +282,16 @@ header {
 .webrtc-controls .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    background: linear-gradient(135deg, #999 0%, #666 100%);
+    background: #333333;
+    color: #666666;
+    border: 2px solid #555555;
 }
 
 .webrtc-controls .btn:disabled:hover {
     transform: none;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    background: #333333;
+    color: #666666;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
 }
 
 .webrtc-status {
@@ -245,16 +303,19 @@ header {
     font-size: 1rem;
     opacity: 0.9;
     padding: 0.5rem;
-    background: rgba(0, 0, 0, 0.2);
+    background: #0a0a0a;
+    border: 1px solid #333333;
     border-radius: 8px;
     display: inline-block;
+    color: #cccccc;
 }
 
 footer {
     text-align: center;
     padding: 2rem 0;
-    opacity: 0.8;
+    opacity: 0.6;
     font-size: 0.9rem;
+    color: #666666;
 }
 
 /* Animations */
@@ -328,17 +389,21 @@ footer {
     }
     
     .mirror {
-        width: 300px;
-        height: 300px;
+        max-width: 400px;
     }
     
     .echo-section {
-        padding: 2rem 1rem;
+        padding: 1.5rem 1rem;
     }
     
     .btn {
         padding: 0.8rem 1.5rem;
         font-size: 1rem;
+    }
+    
+    .btn-small {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
     }
     
     .webrtc-section {
@@ -368,8 +433,7 @@ footer {
     }
     
     .mirror {
-        width: 250px;
-        height: 250px;
+        max-width: 300px;
     }
     
     .echo-text {

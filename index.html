@@ -15,19 +15,6 @@
         </header>
         
         <main>
-            <section class="echo-section">
-                <div class="mirror-container">
-                    <div class="mirror" id="mirror">
-                        <p class="echo-text" id="echoText">Look into the mirror...</p>
-                    </div>
-                </div>
-                
-                <div class="controls">
-                    <button class="btn" id="echoBtn">Create Echo</button>
-                    <button class="btn" id="clearBtn">Clear</button>
-                </div>
-            </section>
-            
             <section class="webrtc-section">
                 <h2>WebRTC Preview</h2>
                 <div class="video-container">
@@ -46,10 +33,22 @@
                     <button class="btn" id="stopCameraBtn" disabled>Stop Camera</button>
                     <button class="btn" id="startCallBtn" disabled>Start WebRTC Call</button>
                     <button class="btn" id="hangupBtn" disabled>Hang Up</button>
+                    <button class="btn btn-ndi" id="ndiBtn" disabled>Enable NDI Output</button>
                 </div>
                 
                 <div class="webrtc-status">
                     <p id="statusText">Ready to start</p>
+                </div>
+            </section>
+            
+            <section class="echo-section">
+                <div class="mirror-container">
+                    <div class="mirror" id="mirror"></div>
+                </div>
+                
+                <div class="controls-compact">
+                    <button class="btn btn-small" id="echoBtn">Create Echo</button>
+                    <button class="btn btn-small" id="clearBtn">Clear</button>
                 </div>
             </section>
             
@@ -58,6 +57,27 @@
                 <p>The Mirror's Echo is an interactive experience where each click creates a ripple in time, echoing your presence in this digital space.</p>
                 <p>Use the WebRTC preview to test camera access and local signaling for video streaming to TouchDesigner via OBS and NDI.</p>
             </section>
+            
+            <section class="about-section">
+                <h2>UI Guide</h2>
+                <p><strong>Mirror Section:</strong></p>
+                <ul style="margin-left: 2rem; margin-bottom: 1rem; line-height: 1.8;">
+                    <li><strong>Mirror Circle:</strong> Click anywhere on the mirror to create ripple effects and change the echo message</li>
+                    <li><strong>Create Echo:</strong> Generates multiple ripples at once and changes the mirror's color every 5 clicks</li>
+                    <li><strong>Clear:</strong> Resets the mirror to its initial state and message</li>
+                </ul>
+                
+                <p><strong>WebRTC Section:</strong></p>
+                <ul style="margin-left: 2rem; line-height: 1.8;">
+                    <li><strong>Local Camera:</strong> Video preview of your webcam feed (displays after clicking Start Camera)</li>
+                    <li><strong>Remote Stream:</strong> Video preview of the peer's webcam feed (displays after WebRTC connection)</li>
+                    <li><strong>Start Camera:</strong> Requests access to your webcam and displays it in Local Camera preview</li>
+                    <li><strong>Stop Camera:</strong> Stops the camera feed and releases the webcam (enabled after camera starts)</li>
+                    <li><strong>Start WebRTC Call:</strong> Connects to the signaling server and establishes peer-to-peer connection (enabled after camera starts)</li>
+                    <li><strong>Hang Up:</strong> Ends the WebRTC call and closes the peer connection (enabled during active call)</li>
+                    <li><strong>Status Display:</strong> Shows real-time status messages about camera and connection state</li>
+                </ul>
+            </section>
         </main>
         
         <footer>
@@ -65,6 +85,7 @@
         </footer>
     </div>
     
+    <script src="config.js"></script>
     <script src="script.js"></script>
     <script src="webrtc-client.js"></script>
 </body>

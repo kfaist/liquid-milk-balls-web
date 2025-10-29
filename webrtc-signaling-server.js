@@ -4,7 +4,7 @@
 
 const WebSocket = require('ws');
 
-const PORT = 8888;
+const PORT = process.env.PORT || 8888;
 const wss = new WebSocket.Server({ port: PORT });
 
 // Store connected clients
