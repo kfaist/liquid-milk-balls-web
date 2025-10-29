@@ -24,8 +24,9 @@ document.addEventListener('DOMContentLoaded', function() {
         ]
     };
     
-    // Signaling server URL
-    const SIGNALING_SERVER_URL = 'ws://localhost:8888';
+    // Signaling server URL - auto-detect deployed vs local
+    // For Railway deployment, set this to your Railway WebSocket URL
+    const SIGNALING_SERVER_URL = window.SIGNALING_SERVER_URL || 'ws://localhost:8888';
     
     // Button event listeners
     startCameraBtn.addEventListener('click', startCamera);

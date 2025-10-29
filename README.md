@@ -233,6 +233,47 @@ For streaming video from the browser to TouchDesigner via OBS and NDI:
 - **NDI source not visible in TouchDesigner**: Verify NDI Runtime is installed and OBS NDI output is enabled
 - **Video quality issues**: Adjust camera constraints in `webrtc-client.js` or OBS output settings
 
+## 🚀 Deploy to Railway (Remote Access)
+
+To use WebRTC from anywhere (not just localhost), deploy the signaling server to Railway:
+
+### Quick Deploy
+
+1. **Deploy to Railway:**
+   ```bash
+   # Install Railway CLI
+   npm install -g @railway/cli
+   
+   # Login and deploy
+   railway login
+   railway init
+   railway up
+   ```
+
+2. **Get your deployment URL:**
+   ```bash
+   railway domain
+   ```
+   Example: `https://your-app.up.railway.app`
+
+3. **Update configuration:**
+   Edit `config.js` and set:
+   ```javascript
+   window.SIGNALING_SERVER_URL = 'wss://your-app.up.railway.app';
+   ```
+
+4. **Deploy the web app:**
+   - Push to GitLab for automatic Pages deployment, or
+   - Deploy to Vercel/Netlify/GitHub Pages
+
+📖 **Full guide:** See [RAILWAY.md](RAILWAY.md) for detailed deployment instructions
+
+**Benefits:**
+- ✅ Access from any device/location
+- ✅ Share with others via public URL
+- ✅ Free tier available ($5 credit/month)
+- ✅ Automatic HTTPS/WSS encryption
+
 ## 📱 Browser Compatibility
 
 - ✅ Chrome (recommended)
