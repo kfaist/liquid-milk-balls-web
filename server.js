@@ -6,11 +6,18 @@ const { WebSocketServer } = require("ws");
 const PORT = process.env.PORT || 3000;
 const app = express();
 
+// Parse JSON bodies
+app.use(express.json());
+
 // Serve static site (index.html, css, js, etc.)
 app.use(express.static(path.join(__dirname)));
 
 // Health check for Railway
 app.get("/healthz", (_req, res) => res.status(200).send("ok"));
+
+// LiveKit token endpoint
+const { requireAuth, joinRoom } = require("./server/api/join");
+app.post("/api/join", requireAuth, joinRoom);
 
 const server = http.createServer(app);
 

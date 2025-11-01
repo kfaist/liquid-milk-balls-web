@@ -152,9 +152,27 @@ We welcome contributions in these areas:
 
 If you discover a security vulnerability, please email the maintainer directly instead of creating a public issue.
 
-## 📄 License
+## 📄 License and CLA
 
-By contributing, you agree that your contributions will be licensed under the same license as the project (MIT).
+This project uses a dual-license model:
+- **AGPLv3** for open source use
+- **Commercial licenses** available for proprietary use (see COMMERCIAL-LICENSE.md)
+
+### Contributor License Agreement
+
+**Important**: By contributing to this project, you must agree to the Contributor License Agreement (CLA) detailed in CLA.md.
+
+The CLA allows us to:
+- Distribute your contributions under AGPLv3 (open source)
+- Offer commercial licenses to support the project's sustainability
+- Maintain flexibility for future licensing needs
+
+**How to sign the CLA:**
+1. Read CLA.md carefully
+2. Add your name to CONTRIBUTORS.md (if not already listed)
+3. In your first pull request, add a comment: "I have read and agree to the CLA in CLA.md"
+
+Your contributions will be dual-licensed under AGPLv3 and available for commercial licensing.
 
 ## 🙏 Thank You
 

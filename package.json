@@ -19,10 +19,11 @@
     "ndi"
   ],
   "author": "kfaist",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "dependencies": {
     "ws": "^8.18.0",
-    "express": "^4.21.1"
+    "express": "^4.21.1",
+    "livekit-server-sdk": "^2.7.2"
   },
   "engines": {
     "node": ">=18"
