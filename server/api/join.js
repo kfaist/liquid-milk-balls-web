@@ -91,7 +91,7 @@ async function joinRoom(req, res) {
     const livekitUrl = process.env.LIVEKIT_URL || 'wss://your-livekit-server.com';
 
     if (!apiKey || !apiSecret) {
-      console.error('[join] LIVEKIT_API_KEY or LIVEKIT_API_SECRET not configured');
+      console.error('[join] LiveKit credentials not configured');
       return res.status(500).json({ 
         error: 'Server Configuration Error',
         message: 'LiveKit credentials not configured'
@@ -139,7 +139,7 @@ async function joinRoom(req, res) {
     });
 
   } catch (error) {
-    console.error('[join] Error minting token:', error);
+    console.error('[join] Error minting token:', error.message);
     res.status(500).json({ 
       error: 'Internal Server Error',
       message: 'Failed to mint token'
