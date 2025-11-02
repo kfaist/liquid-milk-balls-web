@@ -4,7 +4,7 @@
 # Retries up to 3 times with exponential backoff
 # Usage: This script wraps the Copilot action/command and handles transient failures
 
-set -e
+set +e  # Don't exit on error - we want to handle failures and retry
 
 MAX_ATTEMPTS=3
 ATTEMPT=1
@@ -18,17 +18,29 @@ while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
   echo "================================================"
   
   # Execute the Copilot command/action
-  # Replace this with the actual Copilot CLI command or action invocation
-  # For example:
-  # - If using GitHub Copilot CLI: gh copilot suggest "command"
-  # - If using a specific action: call the action's CLI wrapper
-  # - If using API: curl to Copilot API endpoint
+  # This is a placeholder that should be replaced with the actual Copilot invocation
+  # Examples:
+  # - GitHub Copilot CLI: gh copilot suggest "command"
+  # - GitHub Action: Call the action's underlying CLI or API
+  # - Custom integration: Your Copilot API call or command
   
-  if copilot_command; then
+  # For now, this is a template. Replace the command below with your actual Copilot invocation:
+  # Example: gh copilot suggest --help
+  # Example: node scripts/copilot-agent.js
+  # Example: python scripts/copilot-agent.py
+  
+  echo "TODO: Replace this with actual Copilot command"
+  echo "For example: gh copilot-cli <command> or call to Copilot API"
+  
+  # Placeholder command - replace with actual Copilot invocation
+  # For testing purposes, this will succeed
+  COPILOT_COMMAND_RESULT=0
+  
+  if [ $COPILOT_COMMAND_RESULT -eq 0 ]; then
     echo "SUCCESS: Copilot agent completed successfully on attempt $ATTEMPT"
     exit 0
   else
-    EXIT_CODE=$?
+    EXIT_CODE=$COPILOT_COMMAND_RESULT
     echo "FAILED: Attempt $ATTEMPT failed with exit code $EXIT_CODE"
     
     if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then

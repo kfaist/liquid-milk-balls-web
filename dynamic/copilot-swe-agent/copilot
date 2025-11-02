@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     # For troubleshooting context, see commit: 0e78775fc8ad43420cea3301c9a5031c8d8a836c
     # Failed job reference: 54299707342
+    # NOTE: If using a Copilot action with 'uses:', pin to a specific version (e.g., @v1.2.3)
+    #       Verify the recommended action version from the action's documentation
     
     steps:
       - name: Checkout code
