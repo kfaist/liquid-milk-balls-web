@@ -1,6 +1,6 @@
 # Dual Licensing Information
 
-This project is dual-licensed: **AGPL-3.0-or-later** for open-source use. Commercial licensing and alternative licensing arrangements are available — contact **kristabluedoor@gmail.com** for details.
+This project is dual-licensed under **AGPL-3.0-or-later** for open-source use and commercial licensing for proprietary use. Commercial licensing and alternative licensing arrangements are available — contact **kristabluedoor@gmail.com** for details.
 
 ## Open Source License (AGPL-3.0-or-later)
 

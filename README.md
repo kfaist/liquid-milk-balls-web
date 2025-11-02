@@ -295,12 +295,6 @@ Feel free to customize:
 - **Messages**: Edit the `echoMessages` array in `script.js`
 - **Animations**: Adjust timing and effects in both CSS and JS files
 
-## 📄 License
-
-This project is licensed under the **GNU AGPL-3.0-or-later** - see the [LICENSE](LICENSE) file for full details.
-
-Commercial licensing is available. For alternative licensing arrangements or enterprise terms, please see [LICENSE-INFO.md](LICENSE-INFO.md) or contact kristabluedoor@gmail.com.
-
 ## 🤝 Contributing
 
 Contributions are welcome! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for details on:
