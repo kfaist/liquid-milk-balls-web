@@ -1,30 +1,13 @@
 {
   "name": "liquid-milk-balls-web",
-  "version": "1.0.0",
-  "description": "The Mirror's Echo - An interactive web experience with WebRTC preview for OBS/TouchDesigner integration",
-  "main": "webrtc-signaling-server.js",
+  "version": "2.0.0",
+  "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "web": "python3 -m http.server 8000",
-    "signaling": "node webrtc-signaling-server.js",
-    "dev": "node server.js",
-    "health": "./health-check.sh"
+    "start": "node server.js"
   },
-  "keywords": [
-    "webrtc",
-    "interactive",
-    "mirror",
-    "obs",
-    "touchdesigner",
-    "ndi"
-  ],
-  "author": "kfaist",
-  "license": "MIT",
   "dependencies": {
     "ws": "^8.18.0",
-    "express": "^4.21.1"
-  },
-  "engines": {
-    "node": ">=18"
+    "express": "^4.21.1",
+    "livekit-server-sdk": "^2.0.0"
   }
 }
