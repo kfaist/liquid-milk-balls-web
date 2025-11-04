@@ -287,9 +287,11 @@ npm start
 ```
 
 4. **Test LiveKit streaming**:
-   - **Publisher**: Use OBS with LiveKit WHIP output or the LiveKit SDK
-   - **Viewer**: Open `http://localhost:3000/ndi-viewer.html` in your browser
-   - Click "Join Live Stream" to view the published stream
+   - **Publisher**: Open `http://localhost:3000/publisher.html` in your browser
+     - Click "Start Publishing" to stream your webcam to LiveKit
+     - Alternative: Use OBS with LiveKit WHIP output or the LiveKit SDK
+   - **Viewer**: Open `http://localhost:3000/ndi-viewer.html` in your browser or another tab
+     - Click "Join Live Stream" to view the published stream
 
 ### Complete Setup Guide
 

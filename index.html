@@ -59,6 +59,25 @@
             </section>
             
             <section class="about-section">
+                <h2>🎥 LiveKit Streaming Setup</h2>
+                <p>For production-quality streaming with OBS, NDI, and TouchDesigner integration:</p>
+                <div style="margin: 1.5rem 0; padding: 1.5rem; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 4px solid #0cf;">
+                    <p style="margin-bottom: 1rem;"><strong>Complete Workflow:</strong></p>
+                    <ol style="margin-left: 2rem; line-height: 2;">
+                        <li><strong><a href="/publisher.html" style="color: #0cf; text-decoration: none;">Publisher Page</a>:</strong> Capture webcam and publish to LiveKit room</li>
+                        <li><strong><a href="/ndi-viewer.html" style="color: #0cf; text-decoration: none;">Viewer Page</a>:</strong> View the LiveKit stream (capture this in OBS)</li>
+                        <li><strong>OBS:</strong> Capture viewer page and enable NDI output (Tools → NDI Output Settings)</li>
+                        <li><strong>TouchDesigner:</strong> Use NDI In TOP to receive stream from OBS</li>
+                        <li><strong>Process & Return:</strong> Process in TD, output back to LiveKit or browser</li>
+                    </ol>
+                    <p style="margin-top: 1rem; opacity: 0.8; font-size: 0.9rem;">
+                        <strong>Note:</strong> Requires LiveKit credentials in server environment variables.<br>
+                        See <a href="https://github.com/kfaist/liquid-milk-balls-web/blob/main/WEBRTC-SETUP.md" style="color: #0cf;">WEBRTC-SETUP.md</a> for full setup instructions.
+                    </p>
+                </div>
+            </section>
+            
+            <section class="about-section">
                 <h2>UI Guide</h2>
                 <p><strong>Mirror Section:</strong></p>
                 <ul style="margin-left: 2rem; margin-bottom: 1rem; line-height: 1.8;">
