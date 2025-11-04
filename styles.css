@@ -518,16 +518,277 @@ footer {
     .title {
         font-size: 2rem;
     }
-    
+
     .mirror {
         max-width: 300px;
     }
-    
+
     .echo-text {
         font-size: 1.2rem;
     }
-    
+
     .webrtc-section h2 {
         font-size: 1.5rem;
+    }
+}
+
+/* Video Watermark Styles */
+.video-wrapper {
+    position: relative;
+}
+
+.video-raindrop {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(
+        circle at 30% 30%,
+        rgba(255, 255, 255, var(--raindrop-intensity, 0.3)) 0%,
+        rgba(255, 255, 255, calc(var(--raindrop-intensity, 0.3) * 0.6)) 30%,
+        rgba(200, 230, 255, calc(var(--raindrop-intensity, 0.3) * 0.3)) 60%,
+        transparent 100%
+    );
+    box-shadow:
+        inset 0 0 20px rgba(255, 255, 255, calc(var(--raindrop-intensity, 0.3) * 0.8)),
+        0 0 30px rgba(255, 255, 255, calc(var(--raindrop-intensity, 0.3) * 0.4));
+    backdrop-filter: blur(4px);
+    animation: videoRaindrop 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    transform: translate(-50%, -50%) scale(0);
+}
+
+@keyframes videoRaindrop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    15% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.3);
+    }
+    85% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+}
+
+/* Glassmorphism Text Overlay */
+.watermark-text-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 100;
+    animation: fadeInOverlay 2s ease-in forwards;
+}
+
+@keyframes fadeInOverlay {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.watermark-glass-panel {
+    background: rgba(20, 20, 20, 0.4);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 2rem 3rem;
+    box-shadow:
+        0 8px 32px 0 rgba(0, 0, 0, 0.6),
+        inset 0 0 20px rgba(255, 255, 255, 0.05);
+    text-align: center;
+    animation: glassBreath 4s ease-in-out infinite;
+}
+
+@keyframes glassBreath {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.9;
+    }
+    50% {
+        transform: scale(1.02);
+        opacity: 1;
+    }
+}
+
+.watermark-title {
+    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+}
+
+.watermark-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 1px 5px rgba(0, 0, 0, 0.8);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.watermark-licensing {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    line-height: 1.6;
+}
+
+/* Payment Section Styles */
+.payment-section {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+    border: 2px solid #444;
+}
+
+.payment-section h2 {
+    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
+    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #ffffff;
+    text-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+}
+
+.payment-tiers {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.payment-tier {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.payment-tier:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 24px rgba(255, 255, 255, 0.1);
+}
+
+.payment-tier.featured {
+    border-color: #0cf;
+    background: rgba(0, 204, 255, 0.05);
+}
+
+.tier-header {
+    margin-bottom: 1rem;
+}
+
+.tier-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.tier-title {
+    font-family: 'Futura', 'Century Gothic', sans-serif;
+    font-size: 1.5rem;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+}
+
+.tier-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    color: #0cf;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.tier-description {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #cccccc;
+    margin-bottom: 1.5rem;
+    min-height: 80px;
+}
+
+.tier-features {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0;
+    text-align: left;
+}
+
+.tier-features li {
+    padding: 0.5rem 0;
+    color: #aaaaaa;
+    font-size: 0.9rem;
+}
+
+.tier-features li::before {
+    content: "✓ ";
+    color: #0cf;
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+.tier-cta {
+    font-family: 'JetBrains Mono', monospace;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    border: 2px solid #ffffff;
+    border-radius: 50px;
+    background: #000000;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: 600;
+}
+
+.tier-cta:hover {
+    transform: translateY(-2px);
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+}
+
+.tier-cta.featured {
+    border-color: #0cf;
+    color: #0cf;
+}
+
+.tier-cta.featured:hover {
+    background: #0cf;
+    color: #000000;
+}
+
+/* Responsive payment section */
+@media (max-width: 768px) {
+    .payment-tiers {
+        grid-template-columns: 1fr;
+    }
+
+    .payment-section {
+        padding: 1.5rem;
     }
 }
