@@ -17,9 +17,15 @@ app.use(express.static(path.join(__dirname)));
 
 app.get("/healthz", (_req, res) => res.status(200).send("ok"));
 
-app.get("/api/viewer-token", (req, res) => {
+// FIXED: Made async and awaited toJwt()
+app.get("/api/viewer-token", async (req, res) => {
   try {
     if (!LIVEKIT_API_KEY || !LIVEKIT_API_SECRET || !LIVEKIT_URL) {
+      console.error('[token] Missing env vars:', {
+        hasKey: !!LIVEKIT_API_KEY,
+        hasSecret: !!LIVEKIT_API_SECRET,
+        hasUrl: !!LIVEKIT_URL
+      });
       return res.status(500).json({
         error: 'LiveKit not configured',
         message: 'Set LIVEKIT_API_KEY, LIVEKIT_API_SECRET, and LIVEKIT_URL'
@@ -36,7 +42,8 @@ app.get("/api/viewer-token", (req, res) => {
       canSubscribe: true,
       canPublish: false,
     });
-    const jwt = token.toJwt();
+    const jwt = await token.toJwt(); // FIXED: Added await
+    console.log(`[token] Generated for ${participantIdentity} in room ${LIVEKIT_ROOM_NAME}`);
     res.json({
       token: jwt,
       url: LIVEKIT_URL,
@@ -44,8 +51,11 @@ app.get("/api/viewer-token", (req, res) => {
       identity: participantIdentity
     });
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Token generation failed' });
+    console.error('[token] Error generating token:', error);
+    res.status(500).json({ 
+      error: 'Token generation failed', 
+      details: error.message 
+    });
   }
 });
 
@@ -68,6 +78,6 @@ server.listen(PORT, "0.0.0.0", () => {
   if (LIVEKIT_API_KEY && LIVEKIT_API_SECRET && LIVEKIT_URL) {
     console.log(`[server] LiveKit configured for room: ${LIVEKIT_ROOM_NAME}`);
   } else {
-    console.log(`[server] LiveKit not configured`);
+    console.log(`[server] WARNING: LiveKit not configured!`);
   }
 });
