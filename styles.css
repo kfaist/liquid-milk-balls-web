@@ -341,11 +341,25 @@ footer {
 
 @keyframes ripple {
     0% {
-        transform: scale(0);
-        opacity: 1;
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.8;
+    }
+    50% {
+        opacity: 0.4;
     }
     100% {
-        transform: scale(2);
+        transform: translate(-50%, -50%) scale(4);
+        opacity: 0;
+    }
+}
+
+@keyframes ripplePulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.6;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.5);
         opacity: 0;
     }
 }
@@ -368,8 +382,16 @@ footer {
 .ripple {
     position: absolute;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.5);
-    animation: ripple 1s ease-out;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    background: transparent;
+    animation: ripple 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    pointer-events: none;
+}
+
+.ripple.pulse {
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    animation: ripplePulse 0.8s ease-out;
 }
 
 .sparkle {
@@ -380,6 +402,71 @@ footer {
     border-radius: 50%;
     pointer-events: none;
     animation: sparkle 2s ease-out;
+}
+
+/* Watermark Overlay Styles */
+.watermark-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 3s ease-in;
+}
+
+.watermark-overlay.active {
+    opacity: 1;
+}
+
+.watermark-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    height: 300px;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    box-shadow: 
+        inset 0 0 40px rgba(255, 255, 255, 0.05),
+        0 0 30px rgba(255, 255, 255, 0.1);
+}
+
+.watermark-raindrop {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%);
+    pointer-events: none;
+    opacity: 0;
+}
+
+@keyframes raindrop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    20% {
+        opacity: 0.6;
+    }
+    80% {
+        opacity: 0.6;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+}
+
+@keyframes breathe {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.03);
+    }
 }
 
 /* Responsive Design */
