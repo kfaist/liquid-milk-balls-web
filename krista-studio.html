@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Control - The Mirror's Echo</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
+        }
+
+        .studio-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .stream-panel {
+            flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #333;
+        }
+
+        .stream-panel.left {
+            border-right: 1px solid #333;
+        }
+
+        .stream-panel.right {
+            border-left: 1px solid #333;
+        }
+
+        .stream-header {
+            padding: 1.5rem;
+            background: #1a1a1a;
+            border-bottom: 2px solid #333;
+            text-align: center;
+        }
+
+        .stream-header h2 {
+            font-family: 'Futura', 'Century Gothic', sans-serif;
+            font-size: 1.5rem;
+            margin: 0;
+            color: #ffffff;
+        }
+
+        .stream-header .status {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stream-header .status.live {
+            color: #00ff00;
+        }
+
+        .video-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            position: relative;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .popout-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            padding: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 10;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: breathe 3s ease-in-out infinite;
+        }
+
+        .popout-button.visible {
+            display: flex;
+        }
+
+        .popout-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #ffffff;
+            transform: scale(1.1);
+            animation: none;
+        }
+
+        .popout-button::before {
+            content: "⤢";
+        }
+
+        @keyframes breathe {
+            0%, 100% {
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+        }
+
+        .connection-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #333;
+            border-radius: 8px;
+            color: #666;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+
+        .connection-indicator.connected {
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+
+        .fullscreen-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .fullscreen-overlay.active {
+            display: flex;
+        }
+
+        .fullscreen-header {
+            padding: 1.5rem 2rem;
+            background: rgba(26, 26, 26, 0.98);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #444;
+        }
+
+        .fullscreen-header h2 {
+            font-family: 'Futura', 'Century Gothic', sans-serif;
+            color: #ffffff;
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .close-button {
+            padding: 10px 24px;
+            background: transparent;
+            border: 2px solid #ffffff;
+            border-radius: 8px;
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-button:hover {
+            background: #ffffff;
+            color: #000;
+        }
+
+        .fullscreen-video {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .fullscreen-video video {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .studio-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="studio-container">
+        <!-- LEFT: Remote Person's Input -->
+        <div class="stream-panel left">
+            <div class="stream-header">
+                <h2>Remote Input</h2>
+                <div class="status" id="inputStatus">⚪ Waiting for participant...</div>
+            </div>
+            <div class="video-container">
+                <video id="inputVideo" autoplay playsinline></video>
+                <button class="popout-button" id="popoutBtn"></button>
+                <div class="connection-indicator" id="inputIndicator">Connecting...</div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Your Output Preview -->
+        <div class="stream-panel right">
+            <div class="stream-header">
+                <h2>Your Output (use td-publisher.html to broadcast)</h2>
+                <div class="status" id="outputStatus">⚪ Preview only</div>
+            </div>
+            <div class="video-container">
+                <video id="outputVideo" autoplay muted playsinline></video>
+                <div class="connection-indicator" id="outputIndicator">Use OBS Virtual Camera</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Overlay -->
+    <div class="fullscreen-overlay" id="fullscreenOverlay">
+        <div class="fullscreen-header">
+            <h2>Remote Input - Fullscreen</h2>
+            <button class="close-button" id="closeBtn">✕ Close</button>
+        </div>
+        <div class="fullscreen-video">
+            <video id="fullscreenVideo" autoplay playsinline></video>
+        </div>
+    </div>
+
+    <script>
+        const inputVideo = document.getElementById('inputVideo');
+        const outputVideo = document.getElementById('outputVideo');
+        const fullscreenVideo = document.getElementById('fullscreenVideo');
+        const popoutBtn = document.getElementById('popoutBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const fullscreenOverlay = document.getElementById('fullscreenOverlay');
+        
+        const inputStatus = document.getElementById('inputStatus');
+        const outputStatus = document.getElementById('outputStatus');
+        const inputIndicator = document.getElementById('inputIndicator');
+        const outputIndicator = document.getElementById('outputIndicator');
+
+        let subscriberConnection = null;
+        let subscriberSocket = null;
+
+        const rtcConfig = {
+            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        };
+
+        const SIGNALING_URL = window.location.protocol === 'https:' 
+            ? `wss://${window.location.host}/ws`
+            : `ws://${window.location.hostname}:${window.location.port || 3000}/ws`;
+
+        // Auto-connect to receive from input-room
+        window.addEventListener('DOMContentLoaded', connectSubscriber);
+
+        // Preview your local OBS camera
+        async function startLocalPreview() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: true, 
+                    audio: false 
+                });
+                outputVideo.srcObject = stream;
+                updateOutputStatus('📹 Local preview', false);
+            } catch (e) {
+                console.log('Local preview not available');
+            }
+        }
+
+        // Try to show local preview
+        startLocalPreview();
+
+        // SUBSCRIBER: Receive from input-room
+        async function connectSubscriber() {
+            subscriberSocket = new WebSocket(SIGNALING_URL);
+            
+            subscriberSocket.onopen = () => {
+                console.log('✅ Connected to input-room');
+                subscriberSocket.send(JSON.stringify({ type: 'join-room', room: 'input-room' }));
+                updateInputStatus('⚪ Waiting for participant...', false);
+            };
+            
+            subscriberSocket.onmessage = (event) => handleSubscriberSignal(JSON.parse(event.data));
+            
+            subscriberSocket.onerror = (e) => {
+                console.error('Socket error:', e);
+                updateInputStatus('❌ Connection error', false);
+            };
+            
+            subscriberSocket.onclose = () => {
+                console.log('Disconnected - reconnecting...');
+                updateInputStatus('⚪ Reconnecting...', false);
+                setTimeout(connectSubscriber, 3000);
+            };
+        }
+
+        async function handleSubscriberSignal(message) {
+            if (message.type === 'offer') {
+                if (!subscriberConnection) await createSubscriberConnection();
+                await subscriberConnection.setRemoteDescription(new RTCSessionDescription(message.offer));
+                const answer = await subscriberConnection.createAnswer();
+                await subscriberConnection.setLocalDescription(answer);
+                subscriberSocket.send(JSON.stringify({ type: 'answer', answer }));
+            } else if (message.type === 'candidate' && subscriberConnection) {
+                await subscriberConnection.addIceCandidate(new RTCIceCandidate(message.candidate));
+            }
+        }
+
+        async function createSubscriberConnection() {
+            subscriberConnection = new RTCPeerConnection(rtcConfig);
+            
+            subscriberConnection.ontrack = (event) => {
+                console.log('🎥 Received remote input');
+                inputVideo.srcObject = event.streams[0];
+                fullscreenVideo.srcObject = event.streams[0];
+                updateInputStatus('🎥 Live!', true);
+                popoutBtn.classList.add('visible');
+            };
+            
+            subscriberConnection.onicecandidate = (event) => {
+                if (event.candidate && subscriberSocket.readyState === WebSocket.OPEN) {
+                    subscriberSocket.send(JSON.stringify({ 
+                        type: 'candidate', 
+                        candidate: event.candidate 
+                    }));
+                }
+            };
+
+            subscriberConnection.onconnectionstatechange = () => {
+                if (subscriberConnection.connectionState === 'disconnected' ||
+                    subscriberConnection.connectionState === 'failed') {
+                    updateInputStatus('⚠️ Connection lost', false);
+                    popoutBtn.classList.remove('visible');
+                }
+            };
+        }
+
+        function updateInputStatus(message, isLive) {
+            inputStatus.textContent = message;
+            inputIndicator.textContent = message;
+            if (isLive) {
+                inputStatus.classList.add('live');
+                inputIndicator.classList.add('connected');
+            } else {
+                inputStatus.classList.remove('live');
+                inputIndicator.classList.remove('connected');
+            }
+        }
+
+        function updateOutputStatus(message, isLive) {
+            outputStatus.textContent = message;
+            outputIndicator.textContent = message;
+        }
+
+        // Fullscreen controls
+        popoutBtn.addEventListener('click', () => {
+            fullscreenOverlay.classList.add('active');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            fullscreenOverlay.classList.remove('active');
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') fullscreenOverlay.classList.remove('active');
+        });
+    </script>
+</body>
+</html>
