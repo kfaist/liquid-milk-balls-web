@@ -173,7 +173,7 @@
             <h3>📋 How to Use:</h3>
             <ul>
                 <li>Click "Start Publishing" to begin streaming your camera</li>
-                <li>Open <code>/ndi-viewer.html</code> in another browser tab/window to view the stream</li>
+                <li>Open <code>ndi-viewer.html</code> in another browser tab/window to view the stream</li>
                 <li>Capture the viewer page in OBS (Browser Source or Window Capture)</li>
                 <li>Enable NDI output in OBS (Tools → NDI Output Settings)</li>
                 <li>Use NDI In TOP in TouchDesigner to receive the stream</li>
@@ -229,6 +229,12 @@
                 
                 // Connect to LiveKit room
                 updateStatus('🔄 Connecting to LiveKit...', 'connecting');
+                
+                // Check if LiveKit client is loaded
+                if (typeof LivekitClient === 'undefined') {
+                    throw new Error('LiveKit client library failed to load');
+                }
+                
                 room = new LivekitClient.Room({
                     adaptiveStream: true,
                     dynacast: true,
