@@ -172,10 +172,26 @@ Add this to your GitHub README for one-click deployment:
 
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/kfaist/liquid-milk-balls-web)
 
+### Configuring LiveKit (Optional)
+
+If you want to use LiveKit instead of simple peer-to-peer WebRTC:
+
+1. Set environment variables in Railway dashboard:
+   - `LIVEKIT_API_KEY`: Your LiveKit API key
+   - `LIVEKIT_API_SECRET`: Your LiveKit API secret
+   - `LIVEKIT_URL`: Your LiveKit WebSocket URL (e.g., `wss://your-project.livekit.cloud`)
+   - `LIVEKIT_ROOM_NAME`: Optional, defaults to `claymation-live`
+
+2. Redeploy the service
+
+3. Access the LiveKit viewer at: `https://your-app.up.railway.app/ndi-viewer.html`
+
+See [WEBRTC-SETUP.md](WEBRTC-SETUP.md) for detailed LiveKit setup instructions.
+
 ### Next Steps
 
-After deploying the signaling server:
-1. Deploy the web app to GitLab Pages (already configured) or another host
-2. Update `config.js` with your Railway WebSocket URL
-3. Test the complete workflow with OBS and TouchDesigner
-4. Share the deployed web app URL with others!
+After deploying to Railway:
+1. Test both simple WebRTC and LiveKit modes (if configured)
+2. Try the complete workflow with OBS and TouchDesigner
+3. Share the deployed web app URL with others!
+4. For production use, consider adding authentication and rate limiting

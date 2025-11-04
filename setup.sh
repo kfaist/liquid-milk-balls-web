@@ -23,13 +23,8 @@ fi
 
 echo "✅ npm is installed: $(npm --version)"
 
-# Check if Python is installed
-if ! command -v python3 &> /dev/null; then
-    echo "⚠️  Python 3 is not installed. You'll need it to run the local web server."
-    echo "   You can install it from https://www.python.org/"
-else
-    echo "✅ Python 3 is installed: $(python3 --version)"
-fi
+# Python is no longer required - we use the Node.js server
+# (Keeping this comment for backwards compatibility reference)
 
 echo ""
 echo "📦 Installing dependencies..."
@@ -46,10 +41,14 @@ echo ""
 echo "🎉 Setup complete!"
 echo ""
 echo "To start the application:"
-echo "  1. Start the web server: npm start"
-echo "  2. In another terminal, start the signaling server: npm run signaling"
-echo "  3. Open http://localhost:8000 in your browser"
+echo "  1. Start the server: npm start"
+echo "  2. Open http://localhost:3000 in your browser"
 echo ""
-echo "Or run both servers at once: npm run dev"
+echo "The server includes:"
+echo "  • HTTP server for static files"
+echo "  • WebSocket signaling for simple WebRTC (peer-to-peer)"
+echo "  • LiveKit token generation (requires environment variables)"
+echo ""
+echo "For detailed WebRTC setup instructions, see WEBRTC-SETUP.md"
 echo ""
 echo "Happy coding! ✨"
