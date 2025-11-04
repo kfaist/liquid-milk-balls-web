@@ -3,7 +3,13 @@
   "version": "2.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "npm ci --prefer-offline --no-audit",
+    "validate": "node --version && npm --version && npm ls"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=7.0.0"
   },
   "keywords": [
     "webrtc",
