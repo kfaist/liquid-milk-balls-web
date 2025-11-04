@@ -84,18 +84,22 @@ If NDI Out is not working or you prefer a simpler method:
 
 Now that OBS has the processed video, you have several options:
 
-#### Option 1: Use return-viewer.html (Easiest)
+#### Option 1: Use return-viewer.html (Web Browser - Recommended for Remote Viewers)
 
-**Current Limitation:** The `return-viewer.html` currently connects to the same LiveKit room as the input, so it shows the original camera feed, not the processed video.
+**How it works:** OBS publishes processed video to a second LiveKit room, and return-viewer.html displays it.
 
-**To make this work, you need to create a second publishing path:**
+**Current State:** The `return-viewer.html` connects to the same LiveKit room as the input (shows original camera). To show the processed video, you need to set up a second LiveKit room.
 
-1. **Configure OBS to publish the processed video to LiveKit:**
-   - You'll need to use OBS's **Browser Source** with a custom HTML page that publishes to LiveKit
-   - OR use OBS WHIP plugin to publish to a different LiveKit room
-   - OR use the OBS Virtual Camera and capture it in another browser
+**Complete instructions:** See **[WEB-BROWSER-RETURN-PATH.md](WEB-BROWSER-RETURN-PATH.md)** for detailed step-by-step setup.
 
-2. **For now, the simplest solution is Option 2 below.**
+**Quick overview:**
+1. Add new API endpoints to server.js for a "processed-room"
+2. Install OBS WHIP plugin
+3. Configure OBS to stream to LiveKit's WHIP endpoint
+4. Update return-viewer.html to use the processed-viewer-token
+5. Remote users can now view processed video in their web browser!
+
+**Why use this?** Works across any network, browser-native, production-ready.
 
 #### Option 2: Use OBS Virtual Camera (Quick Solution)
 

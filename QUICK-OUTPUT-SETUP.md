@@ -25,18 +25,18 @@ WebRTC Camera → OBS → NDI → TouchDesigner → [YOUR OUTPUT NODE] → NDI �
 2. Select **"COMPUTER-NAME (TD-Output)"** from dropdown
 3. Done! Your processed video is now in OBS
 
-### Step 3: Share with Remote User
-Choose ONE of these:
+### Step 3: Get It Back to Remote User's Web Browser
 
-**Option A - Virtual Camera (Fastest)**
+**For video calling apps (Zoom, Discord):**
 - OBS → Tools → Start Virtual Camera
-- Share in Zoom/Discord/etc. using "OBS Virtual Camera"
+- Share using "OBS Virtual Camera" as your camera
 
-**Option B - Second Browser Window**
-- Capture OBS preview in another browser tab
-- Share that tab's URL with remote user
+**For web browser viewing (return-viewer.html):**
+- You need OBS to publish to a second LiveKit room
+- Remote user opens return-viewer.html and sees processed video
+- **See [WEB-BROWSER-RETURN-PATH.md](WEB-BROWSER-RETURN-PATH.md) for complete setup**
 
-**Option C - RTMP Stream**
+**For streaming services:**
 - Stream to YouTube Live (unlisted) or Mux
 - Give remote user the viewing URL
 
@@ -59,10 +59,11 @@ Your connection is now complete:
 - Both apps must have same admin privileges
 - Try a different NDI Name
 
-**"Want to see it in return-viewer.html"**
-- Current limitation: return-viewer.html connects to same room as input
-- Best solution: Use Virtual Camera method (Option A above)
-- Advanced: Set up second LiveKit room (see TOUCHDESIGNER-OUTPUT-GUIDE.md)
+**"How does it get back in the web browser?"**
+- You need OBS to publish to a second LiveKit room
+- Install OBS WHIP plugin and configure it to stream to LiveKit
+- return-viewer.html connects to the second room with processed video
+- **See [WEB-BROWSER-RETURN-PATH.md](WEB-BROWSER-RETURN-PATH.md) for step-by-step instructions**
 
 ## Full Documentation
 
