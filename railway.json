@@ -2,17 +2,5 @@
   "deploy": {
     "startCommand": "node server.js",
     "healthcheckPath": "/healthz"
-  },
-  "build": {
-    "nixpacksPlan": {
-      "phases": {
-        "install": {
-          "dependsOn": ["setup"],
-          "cmds": ["npm install"]
-        }
-      }
-    }
   }
 }
-
-
