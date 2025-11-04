@@ -297,8 +297,8 @@ npm start
 
 For detailed instructions on WebRTC setup, NDI/OBS integration, and troubleshooting, see:
 
-⚡ **[QUICK-OUTPUT-SETUP.md](QUICK-OUTPUT-SETUP.md)** - Quick answer: How to connect WebRTC to your TouchDesigner output node  
-📖 **[WEBRTC-SETUP.md](WEBRTC-SETUP.md)** - Complete WebRTC and NDI/OBS integration guide  
+⚡ **[QUICK-OUTPUT-SETUP.md](QUICK-OUTPUT-SETUP.md)** - Quick answer: How to connect WebRTC to your TouchDesigner output node
+📖 **[WEBRTC-SETUP.md](WEBRTC-SETUP.md)** - Complete WebRTC and NDI/OBS integration guide
 📖 **[TOUCHDESIGNER-OUTPUT-GUIDE.md](TOUCHDESIGNER-OUTPUT-GUIDE.md)** - Detailed guide for sending processed video back to viewers
 
 Quick summary (Input path):

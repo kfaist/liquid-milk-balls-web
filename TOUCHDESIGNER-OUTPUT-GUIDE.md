@@ -135,12 +135,9 @@ For a production setup where you want remote users to view in a browser:
 **This requires modifying the server to support a second room:**
 
 1. **Create a new endpoint for "processed video room":**
-   ```javascript
-   // In server.js, add a new token endpoint
-   app.get("/api/processed-token", async (req, res) => {
-     // ... similar to viewer-token but for "processed-room"
-   });
-   ```
+   - Add a new API endpoint in `server.js` similar to `/api/viewer-token`
+   - Use a different room name (e.g., "processed-room" instead of "claymation-live")
+   - This endpoint will generate tokens for the second LiveKit room
 
 2. **In TouchDesigner:**
    - Use a **Web DAT** or **Web Browser** to publish to LiveKit using the new room
@@ -184,7 +181,7 @@ For a production setup where you want remote users to view in a browser:
 **Solutions:**
 - Make sure **Active** is checked in NDI Out TOP parameters
 - Verify NDI Runtime is installed on your system
-- Check that TouchDesigner is not running as administrator (NDI requires same privilege level)
+- Ensure TouchDesigner and OBS run with same privilege level (both as admin or both as regular user)
 - Try setting a different NDI Name and restart OBS
 
 ### "OBS doesn't show NDI source from TouchDesigner"
