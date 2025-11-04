@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiveKit Viewer - For OBS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+        }
+
+        #videoContainer {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+
+        #status {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #0f0;
+            border: 2px solid #0f0;
+            border-radius: 8px;
+            font-size: 18px;
+            z-index: 100;
+            text-align: center;
+            transition: opacity 0.5s;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        #status.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #status.error {
+            color: #f00;
+            border-color: #f00;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+
+        .dot {
+            display: inline-block;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <div id="videoContainer">
+        <video id="remoteVideo" autoplay playsinline></video>
+    </div>
+    <div id="status">🔄 Connecting to LiveKit<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
+
+    <script src="https://unpkg.com/livekit-client@2.15.14/dist/livekit-client.umd.min.js"></script>
+    <script>
+        const remoteVideo = document.getElementById('remoteVideo');
+        const statusDiv = document.getElementById('status');
+        let room = null;
+
+        function updateStatus(message, type = 'info') {
+            console.log(`[${type}]`, message);
+            statusDiv.textContent = message;
+            statusDiv.className = type === 'error' ? 'error' : '';
+            statusDiv.classList.remove('hidden');
+
+            // Auto-hide success messages
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusDiv.classList.add('hidden');
+                }, 3000);
+            }
+        }
+
+        async function connect() {
+            try {
+                updateStatus('🔄 Getting access token...', 'info');
+
+                // Get viewer token for input room
+                const response = await fetch('/api/viewer-token');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to get token');
+                }
+
+                const data = await response.json();
+                console.log('Token received for room:', data.room);
+
+                updateStatus('🔄 Connecting to LiveKit...', 'info');
+
+                // Check if LiveKit client is loaded
+                if (typeof LivekitClient === 'undefined') {
+                    throw new Error('LiveKit client library failed to load');
+                }
+
+                room = new LivekitClient.Room({
+                    adaptiveStream: true,
+                    dynacast: true,
+                });
+
+                // Handle incoming video tracks
+                room.on(LivekitClient.RoomEvent.TrackSubscribed, (track, publication, participant) => {
+                    console.log('✅ Track subscribed:', track.kind, 'from', participant.identity);
+
+                    if (track.kind === LivekitClient.Track.Kind.Video) {
+                        const element = track.attach();
+                        remoteVideo.srcObject = element.srcObject;
+                        updateStatus('🎥 Receiving video from ' + participant.identity, 'success');
+                    }
+                });
+
+                // Handle track unsubscribed
+                room.on(LivekitClient.RoomEvent.TrackUnsubscribed, (track, publication, participant) => {
+                    console.log('❌ Track unsubscribed:', track.kind);
+                    track.detach();
+                    updateStatus('⚠️ Video stream ended', 'info');
+                });
+
+                // Handle participant disconnected
+                room.on(LivekitClient.RoomEvent.ParticipantDisconnected, (participant) => {
+                    console.log('👋 Participant disconnected:', participant.identity);
+                    updateStatus('⚠️ Publisher disconnected - waiting for reconnection...', 'info');
+                });
+
+                // Handle connection state changes
+                room.on(LivekitClient.RoomEvent.ConnectionStateChanged, (state) => {
+                    console.log('Connection state:', state);
+                    if (state === LivekitClient.ConnectionState.Disconnected) {
+                        updateStatus('❌ Disconnected - Reconnecting...', 'error');
+                        // Auto-reconnect after 2 seconds
+                        setTimeout(() => connect(), 2000);
+                    }
+                });
+
+                // Connect to the room
+                await room.connect(data.url, data.token);
+                console.log('✅ Connected to room:', data.room);
+                updateStatus('✅ Connected - Waiting for video...', 'info');
+
+                // If there are already participants with video, subscribe to them
+                room.remoteParticipants.forEach(participant => {
+                    participant.videoTrackPublications.forEach(publication => {
+                        if (publication.track) {
+                            const element = publication.track.attach();
+                            remoteVideo.srcObject = element.srcObject;
+                            updateStatus('🎥 Receiving video from ' + participant.identity, 'success');
+                        }
+                    });
+                });
+
+            } catch (error) {
+                console.error('❌ Connection error:', error);
+                let errorMessage = '❌ Connection failed: ' + error.message;
+
+                if (error.message.includes('LiveKit not configured')) {
+                    errorMessage = '❌ LiveKit not configured on server. Check environment variables.';
+                } else if (error.message.includes('Failed to get token')) {
+                    errorMessage = '❌ Failed to get access token from server';
+                } else if (error.message.includes('failed to load')) {
+                    errorMessage = '❌ LiveKit library failed to load. Check internet connection.';
+                }
+
+                updateStatus(errorMessage, 'error');
+
+                // Auto-retry after 5 seconds
+                setTimeout(() => connect(), 5000);
+            }
+        }
+
+        // Auto-connect on page load
+        window.addEventListener('load', () => {
+            console.log('🚀 NDI Viewer starting...');
+            // Small delay to let the page render
+            setTimeout(connect, 500);
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (room) {
+                room.disconnect();
+            }
+        });
+    </script>
+</body>
+</html>
