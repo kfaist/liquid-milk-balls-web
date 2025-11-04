@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claymation Live Stream</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: monospace; background: #000; color: #fff; min-height: 100vh; display: flex; align-items: center; padding: 2rem; }
+        .container { max-width: 1400px; width: 100%; margin: 0 auto; }
+        h1 { font-size: 2.5rem; background: linear-gradient(45deg, #0f0, #0cf); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; margin-bottom: 2rem; }
+        .panel { background: #1a1a1a; border: 2px solid #0f0; border-radius: 12px; padding: 2rem; text-align: center; margin: 2rem 0; }
+        .btn { padding: 1rem 2rem; font-size: 1.1rem; border: 2px solid #0f0; border-radius: 50px; background: #000; color: #0f0; cursor: pointer; margin: 0.5rem; transition: all 0.3s; }
+        .btn:hover { background: #0f0; color: #000; transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .video-container { background: #0a0a0a; border: 2px solid #333; border-radius: 12px; aspect-ratio: 16/9; display: none; overflow: hidden; }
+        .video-container.active { display: block; }
+        video { width: 100%; height: 100%; object-fit: contain; }
+        .status { text-align: center; padding: 1rem; margin-top: 1rem; background: #0a0a0a; border: 1px solid #333; border-radius: 8px; }
+        .status.connected { border-color: #0f0; color: #0f0; }
+        .status.connecting { border-color: #fa0; color: #fa0; }
+        .status.error { border-color: #f00; color: #f00; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 Claymation Live Stream</h1>
+        <div class="panel">
+            <h2 style="color: #0f0; margin-bottom: 1rem;">Ready to Watch</h2>
+            <p style="opacity: 0.8; margin-bottom: 1rem;">Click below to connect to the live stream</p>
+            <button class="btn" id="joinBtn" onclick="autoConnect()">🚀 Join Live Stream</button>
+            <button class="btn" id="leaveBtn" onclick="disconnect()" style="display:none;border-color:#f00;color:#f00;">👋 Disconnect</button>
+        </div>
+        <div class="video-container" id="videoContainer">
+            <video id="remoteVideo" autoplay playsinline></video>
+        </div>
+        <div class="status" id="status">Ready to connect</div>
+    </div>
+    <script src="https://unpkg.com/livekit-client/dist/livekit-client.umd.min.js"></script>
+    <script>
+        let room = null, isConnected = false;
+        const joinBtn = document.getElementById('joinBtn'), leaveBtn = document.getElementById('leaveBtn');
+        const videoContainer = document.getElementById('videoContainer');
+        const remoteVideo = document.getElementById('remoteVideo'), statusDiv = document.getElementById('status');
+        
+        async function autoConnect() {
+            joinBtn.disabled = true;
+            updateStatus('🔄 Getting access token...', 'connecting');
+            try {
+                const response = await fetch('/api/viewer-token');
+                if (!response.ok) throw new Error('Failed to get token');
+                const data = await response.json();
+                updateStatus('🔄 Connecting to LiveKit...', 'connecting');
+                room = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
+                room.on(LivekitClient.RoomEvent.TrackSubscribed, (track) => {
+                    if (track.kind === LivekitClient.Track.Kind.Video) {
+                        remoteVideo.srcObject = track.attach().srcObject;
+                        updateStatus('🎥 Video stream active!', 'connected');
+                    } else if (track.kind === LivekitClient.Track.Kind.Audio) {
+                        track.attach();
+                    }
+                });
+                room.on(LivekitClient.RoomEvent.TrackUnsubscribed, (track) => {
+                    track.detach();
+                    if (track.kind === LivekitClient.Track.Kind.Video) {
+                        updateStatus('⏸️ Video paused', 'info');
+                    }
+                });
+                room.on(LivekitClient.RoomEvent.Disconnected, () => {
+                    if (isConnected) {
+                        updateStatus('❌ Disconnected from server', 'error');
+                        disconnect();
+                    }
+                });
+                await room.connect(data.url, data.token);
+                isConnected = true;
+                joinBtn.style.display = 'none';
+                leaveBtn.style.display = 'inline-block';
+                videoContainer.classList.add('active');
+                updateStatus('✅ Connected! Waiting for video...', 'connected');
+            } catch (error) {
+                console.error('Connection error:', error);
+                updateStatus('❌ Connection failed: ' + error.message, 'error');
+                joinBtn.disabled = false;
+            }
+        }
+        
+        async function disconnect() {
+            if (room) { await room.disconnect(); room = null; }
+            isConnected = false;
+            joinBtn.style.display = 'inline-block';
+            joinBtn.disabled = false;
+            leaveBtn.style.display = 'none';
+            videoContainer.classList.remove('active');
+            remoteVideo.srcObject = null;
+            updateStatus('👋 Disconnected', 'info');
+        }
+        
+        function updateStatus(message, type = 'info') {
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + type;
+        }
+        
+        window.addEventListener('beforeunload', () => { if (room) room.disconnect(); });
+    </script>
+</body>
+</html>

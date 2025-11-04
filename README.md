@@ -2,6 +2,12 @@
 
 An interactive web experience where reflections tell their stories.
 
+## 📄 License
+
+This project is licensed under the **GNU AGPL-3.0-or-later**. Commercial licensing is available; see [LICENSE-INFO.md](LICENSE-INFO.md) or contact kristabluedoor@gmail.com.
+
+For full license details, see the [LICENSE](LICENSE) file.
+
 ## 🌟 About
 
 The Mirror's Echo is a mesmerizing interactive website featuring:
@@ -10,6 +16,62 @@ The Mirror's Echo is a mesmerizing interactive website featuring:
 - **Responsive Design**: Works beautifully on all devices
 - **Easter Eggs**: Hidden surprises await the curious
 - **Modern Design**: Glassmorphism effects with smooth animations
+
+## ⚙️ Prerequisites
+
+Before running this project locally, you need to have **Node.js** installed on your system. Node.js includes npm (Node Package Manager), which is required to install dependencies and run the application.
+
+### Installing Node.js
+
+#### Windows
+1. Download the Windows installer from [nodejs.org](https://nodejs.org/)
+   - **Recommended**: Download the **LTS (Long Term Support)** version
+   - Choose the appropriate installer for your system:
+     - 64-bit: `node-vXX.XX.X-x64.msi`
+     - 32-bit: `node-vXX.XX.X-x86.msi`
+2. Run the installer and follow the installation wizard
+   - ✅ Make sure "Add to PATH" is checked during installation
+3. **Restart your terminal** (PowerShell, Command Prompt, or Terminal)
+4. Verify installation by opening a new terminal and running:
+   ```powershell
+   node --version
+   npm --version
+   ```
+
+**Troubleshooting on Windows:**
+- If you get `'npm' is not recognized as the name of a cmdlet`, it means:
+  - Node.js is not installed, OR
+  - You haven't restarted your terminal after installation, OR
+  - Node.js was not added to PATH during installation
+- **Solution**: Close and reopen your terminal/PowerShell, or reinstall Node.js ensuring "Add to PATH" is checked
+
+#### macOS
+Using Homebrew (recommended):
+```bash
+brew install node
+```
+
+Or download the installer from [nodejs.org](https://nodejs.org/)
+
+#### Linux
+Using package manager (Ubuntu/Debian):
+```bash
+sudo apt update
+sudo apt install nodejs npm
+```
+
+For other distributions, see the [official Node.js installation guide](https://nodejs.org/en/download/package-manager/)
+
+### Verify Installation
+
+After installing Node.js, verify that both `node` and `npm` are available:
+
+```bash
+node --version    # Should output v18.x.x or higher
+npm --version     # Should output 9.x.x or higher
+```
+
+If these commands work, you're ready to proceed with setting up the project! 🎉
 
 ## 🚀 Deployment to GitLab Pages
 
@@ -83,17 +145,19 @@ https://USERNAME.gitlab.io/the-mirrors-echo/
 
 ```
 liquid-milk-balls-web/
-├── index.html                  # Main HTML file
+├── index.html                  # Main HTML file with simple WebRTC
+├── ndi-viewer.html            # LiveKit viewer page
 ├── styles.css                  # Stylesheet with animations
 ├── script.js                   # Mirror interaction logic
-├── webrtc-client.js           # WebRTC client implementation
-├── webrtc-signaling-server.js # WebSocket signaling server
+├── webrtc-client.js           # Simple WebRTC client implementation
+├── server.js                   # Main server (HTTP + WebSocket + LiveKit)
+├── webrtc-signaling-server.js # Legacy standalone signaling (optional)
+├── config.js                   # WebSocket URL configuration
 ├── package.json               # Node.js dependencies and scripts
-├── setup.sh                   # Automated setup script
 ├── .gitlab-ci.yml             # GitLab CI/CD configuration
 ├── .gitignore                 # Git ignore rules
-├── LICENSE                    # MIT License
-├── CONTRIBUTING.md            # Contribution guidelines
+├── LICENSE                    # License file
+├── WEBRTC-SETUP.md            # Complete WebRTC setup guide
 └── README.md                  # This file
 ```
 
@@ -111,125 +175,157 @@ liquid-milk-balls-web/
 
 ## 🛠️ Local Development
 
-To run locally:
+### Prerequisites Check
 
-1. Clone the repository:
+Before starting, ensure you have Node.js and npm installed (see [Prerequisites](#️-prerequisites) section above).
+
+### Setup Instructions
+
+1. **Clone the repository:**
 ```bash
 git clone https://github.com/kfaist/liquid-milk-balls-web.git
 cd liquid-milk-balls-web
 ```
 
-2. **Quick setup** (on Unix-like systems):
+2. **Quick setup with automated script:**
+
+   **On Windows (PowerShell or Command Prompt):**
+   ```powershell
+   setup.bat
+   ```
+
+   **On macOS/Linux (Terminal):**
+   ```bash
+   ./setup.sh
+   ```
+
+   **Or manual setup (all platforms):**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server:**
 ```bash
-./setup.sh
+npm start              # Start unified server on port 3000
 ```
 
-   Or **manual setup**:
+4. **Open your browser** to `http://localhost:3000`
+
+**Note**: The server includes both HTTP serving and WebSocket signaling for WebRTC in a single process.
+
+### Common Issues
+
+**Problem**: `'npm' is not recognized` (Windows)
+- **Cause**: Node.js is not installed or not in PATH
+- **Solution**: 
+  1. Install Node.js from [nodejs.org](https://nodejs.org/)
+  2. Make sure "Add to PATH" is checked during installation
+  3. Restart your terminal/PowerShell completely
+  4. Try running `npm --version` again
+
+**Problem**: `Cannot find module 'express'` or similar errors
+- **Cause**: Dependencies not installed
+- **Solution**: Run `npm install` in the project directory
+
+**Problem**: `Port 3000 is already in use`
+- **Cause**: Another application is using port 3000
+- **Solution**: 
+  - Stop the other application, OR
+  - Set a different port: `PORT=3001 npm start` (Unix) or `$env:PORT=3001; npm start` (PowerShell)
+
+## 🎥 WebRTC Setup - Two Options
+
+The project supports **two WebRTC modes** for different use cases:
+
+### Option 1: Simple WebRTC (Peer-to-Peer)
+Best for local testing and development without external services.
+
+#### Quick Start
+
+1. **Install dependencies** (one-time setup):
 ```bash
 npm install
 ```
 
-3. **Start the development servers**:
+2. **Start the server**:
 ```bash
-# Using npm scripts (recommended):
-npm start              # Start web server on port 8000
-npm run signaling      # Start signaling server on port 8888
-npm run dev            # Start both servers at once
-
-# Or manually:
-# Using Python 3
-python -m http.server 8000
-
-# Using Python 2
-python -m SimpleHTTPServer 8000
-
-# Using Node.js (if you have http-server installed)
-npx http-server
-```
-
-4. Open your browser to `http://localhost:8000`
-
-**Note**: For WebRTC features, you need to run both the web server and the signaling server.
-
-## 🎥 Local Testing with OBS / WebRTC
-
-The project now includes WebRTC camera preview and signaling capabilities for testing video streaming workflows with OBS and TouchDesigner.
-
-### Quick Start
-
-1. **Run the setup script** (one-time setup):
-```bash
-./setup.sh
-```
-
-2. **Start both servers**:
-```bash
-npm run dev
-```
-
-   Or start them separately in different terminals:
-```bash
-# Terminal 1
 npm start
-
-# Terminal 2
-npm run signaling
 ```
 
 3. **Open the web app** in your browser:
 ```
-http://localhost:8000
+http://localhost:3000
 ```
 
-4. **Test the WebRTC connection**:
+4. **Test Simple WebRTC (Peer-to-Peer)**:
+   - Open `http://localhost:3000` in your browser
    - Click **"Start Camera"** to access your webcam
    - Click **"Start WebRTC Call"** to connect to the signaling server
    - Open a second browser tab/window and repeat the steps to test peer-to-peer connection
    - The local video shows your camera feed, the remote video shows the peer's feed
 
-### OBS to TouchDesigner Workflow
+### Option 2: LiveKit (Production-Ready)
+Best for scalable streaming with multiple viewers and production deployments.
 
-For streaming video from the browser to TouchDesigner via OBS and NDI:
+#### Setup LiveKit
 
-#### Prerequisites
-- **OBS Studio**: Download from [obsproject.com](https://obsproject.com/)
-- **obs-ndi plugin**: Download from [obs-ndi GitHub releases](https://github.com/obs-ndi/obs-ndi/releases)
-- **NDI Runtime**: Download from [ndi.tv](https://ndi.tv/tools/)
+1. **Get LiveKit credentials**:
+   - Sign up at [LiveKit Cloud](https://livekit.io) or self-host LiveKit server
+   - Get your API Key, API Secret, and WebSocket URL
 
-#### Steps
+2. **Configure environment variables**:
+```bash
+export LIVEKIT_API_KEY="your-api-key"
+export LIVEKIT_API_SECRET="your-api-secret"
+export LIVEKIT_URL="wss://your-project.livekit.cloud"
+export LIVEKIT_ROOM_NAME="claymation-live"  # Optional, defaults to 'claymation-live'
+```
 
-1. **Start the web app** (steps 1-5 above) and verify camera preview is working
+3. **Start the server**:
+```bash
+npm start
+```
 
-2. **Configure OBS**:
-   - Open OBS Studio
-   - Add a new source:
-     - **Option A**: Window Capture - Select your browser window
-     - **Option B**: Browser Source - Enter `http://localhost:8000` as the URL
-   - Crop and position the video feed as desired
+4. **Test LiveKit streaming**:
+   - **Publisher**: Use OBS with LiveKit WHIP output or the LiveKit SDK
+   - **Viewer**: Open `http://localhost:3000/ndi-viewer.html` in your browser
+   - Click "Join Live Stream" to view the published stream
 
-3. **Enable NDI output in OBS**:
-   - Go to **Tools** > **NDI Output Settings**
-   - Check **"Main Output"**
-   - Give it a recognizable name (e.g., "Mirror Echo WebRTC")
+### Complete Setup Guide
 
-4. **Receive in TouchDesigner**:
-   - Add an **NDI In TOP** operator
-   - In the NDI In TOP parameters, select your OBS NDI source from the dropdown
-   - The video feed should now appear in TouchDesigner
-   - Process the stream with your preferred effects pipeline
+For detailed instructions on WebRTC setup, NDI/OBS integration, and troubleshooting, see:
 
-### Signaling Server Notes
+📖 **[WEBRTC-SETUP.md](WEBRTC-SETUP.md)** - Complete WebRTC and NDI/OBS integration guide
 
-- The included `webrtc-signaling-server.js` is a **minimal relay for local testing only**
-- It is **not secure** and should not be deployed to production
-- For local testing, it relays WebRTC signaling messages (SDP offers/answers and ICE candidates) between peers
-- The WebRTC client uses Google's public STUN server (`stun:stun.l.google.com:19302`)
-- For production or non-local testing, add TURN servers for NAT traversal
+Quick summary:
+1. Install OBS Studio, obs-ndi plugin, and NDI Runtime
+2. Start your WebRTC session (either mode)
+3. Capture browser in OBS (Window Capture or Browser Source)
+4. Enable NDI output in OBS (Tools → NDI Output Settings)
+5. Receive in TouchDesigner with NDI In TOP operator
+
+### WebRTC Architecture Notes
+
+**Simple WebRTC (Peer-to-Peer)**:
+- The server includes a WebSocket endpoint at `/ws` for signaling
+- This is a **minimal relay for local testing only** and is **not secure**
+- It relays WebRTC signaling messages (SDP offers/answers and ICE candidates) between peers
+- Uses Google's public STUN server (`stun:stun.l.google.com:19302`)
+- For production peer-to-peer, add TURN servers for NAT traversal
+- Best for: Local testing, simple peer-to-peer connections
+
+**LiveKit**:
+- Uses LiveKit Cloud or self-hosted LiveKit server for signaling and media routing
+- Production-ready with built-in TURN servers and media routing
+- Supports multiple publishers and subscribers
+- Scalable to hundreds of participants
+- Best for: Production deployments, NDI streaming, multiple viewers
 
 ### Troubleshooting
 
 - **Camera not accessible**: Ensure you're using `http://localhost` (not `file://`) and grant camera permissions
-- **Signaling server connection fails**: Check that `node webrtc-signaling-server.js` is running and port 8888 is available
+- **Signaling server connection fails**: Check that `npm start` is running and the server is listening on port 3000
+- **LiveKit viewer shows error**: Verify environment variables are set correctly (LIVEKIT_API_KEY, LIVEKIT_API_SECRET, LIVEKIT_URL)
 - **NDI source not visible in TouchDesigner**: Verify NDI Runtime is installed and OBS NDI output is enabled
 - **Video quality issues**: Adjust camera constraints in `webrtc-client.js` or OBS output settings
 
@@ -288,10 +384,6 @@ Feel free to customize:
 - **Colors**: Modify the gradient in `styles.css`
 - **Messages**: Edit the `echoMessages` array in `script.js`
 - **Animations**: Adjust timing and effects in both CSS and JS files
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🤝 Contributing
 
