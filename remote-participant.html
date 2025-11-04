@@ -152,12 +152,12 @@
         
         <main>
             <section class="webrtc-section">
-                <h2>Live Stream</h2>
+                <h2>Live Session</h2>
                 <div class="video-container">
                     <div class="video-wrapper">
                         <h3>Processed Output</h3>
                         <video id="outputVideo" autoplay playsinline></video>
-                        <button class="popout-button" id="popoutBtn"></button>
+                        <button class="popout-button" id="popoutBtn" style="display: none;"></button>
                     </div>
                     <div class="video-wrapper">
                         <h3>Your Camera</h3>
@@ -170,7 +170,7 @@
                 </div>
                 
                 <div class="webrtc-status">
-                    <p id="statusText">Click Start Camera to begin</p>
+                    <p id="statusText">Ready to start</p>
                 </div>
             </section>
             
@@ -317,7 +317,7 @@
                 outputVideo.srcObject = event.streams[0];
                 fullscreenVideo.srcObject = event.streams[0];
                 statusText.textContent = '🎥 Live! Receiving processed stream';
-                popoutBtn.classList.add('visible');
+                popoutBtn.style.display = 'flex';
             };
             
             subscriberConnection.onicecandidate = (event) => {
