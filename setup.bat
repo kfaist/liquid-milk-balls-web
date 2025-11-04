@@ -15,8 +15,9 @@ if %errorlevel% neq 0 (
     echo Please install Node.js from https://nodejs.org/
     echo.
     echo Download the Windows Installer (.msi) for your system:
-    echo   - 64-bit: node-vXX.XX.X-x64.msi
-    echo   - 32-bit: node-vXX.XX.X-x86.msi
+    echo   - Recommended: LTS version (e.g., v20.11.0)
+    echo   - 64-bit systems: Download the x64 .msi installer
+    echo   - 32-bit systems: Download the x86 .msi installer
     echo.
     echo After installation:
     echo   1. Close and reopen PowerShell/Command Prompt
@@ -26,7 +27,8 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-for /f "tokens=*" %%i in ('node --version') do set NODE_VERSION=%%i
+for /f "tokens=*" %%i in ('node --version 2^>nul') do set NODE_VERSION=%%i
+if not defined NODE_VERSION set NODE_VERSION=unknown
 echo ✅ Node.js is installed: %NODE_VERSION%
 
 REM Check if npm is installed
@@ -41,7 +43,8 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-for /f "tokens=*" %%i in ('npm --version') do set NPM_VERSION=%%i
+for /f "tokens=*" %%i in ('npm --version 2^>nul') do set NPM_VERSION=%%i
+if not defined NPM_VERSION set NPM_VERSION=unknown
 echo ✅ npm is installed: %NPM_VERSION%
 
 echo.
