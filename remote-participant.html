@@ -6,87 +6,22 @@
     <title>The Mirror's Echo - Live Session</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #000;
-            overflow: hidden;
-        }
-
-        .session-container {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-        }
-
-        .main-view {
-            flex: 2;
+        .video-wrapper {
             position: relative;
-            display: flex;
-            flex-direction: column;
-            background: #000;
-            border-right: 2px solid #333;
-        }
-
-        .preview-panel {
-            flex: 1;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            background: #0a0a0a;
-        }
-
-        .panel-header {
-            padding: 1.5rem;
-            background: rgba(26, 26, 26, 0.95);
-            border-bottom: 2px solid #333;
-            text-align: center;
-        }
-
-        .panel-header h2 {
-            font-family: 'Futura', 'Century Gothic', sans-serif;
-            font-size: 1.5rem;
-            margin: 0;
-            color: #ffffff;
-        }
-
-        .panel-header .status {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 0.5rem;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .panel-header .status.live {
-            color: #00ff00;
-        }
-
-        .video-container {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
         }
 
         .popout-button {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 50px;
-            height: 50px;
+            top: 10px;
+            left: 10px;
+            width: 40px;
+            height: 40px;
             padding: 0;
             background: rgba(255, 255, 255, 0.1);
             border: 2px solid rgba(255, 255, 255, 0.5);
-            border-radius: 12px;
+            border-radius: 10px;
             color: #ffffff;
-            font-size: 24px;
+            font-size: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
@@ -123,53 +58,6 @@
             }
         }
 
-        .connection-indicator {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 10px 20px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #333;
-            border-radius: 8px;
-            color: #666;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            backdrop-filter: blur(10px);
-        }
-
-        .connection-indicator.connected {
-            border-color: #00ff00;
-            color: #00ff00;
-        }
-
-        .start-button {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 15px 40px;
-            background: transparent;
-            border: 2px solid #ffffff;
-            border-radius: 50px;
-            color: #ffffff;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 5;
-        }
-
-        .start-button:hover {
-            background: #ffffff;
-            color: #000;
-            transform: translate(-50%, -50%) scale(1.05);
-        }
-
-        .start-button.hidden {
-            display: none;
-        }
-
         .fullscreen-overlay {
             display: none;
             position: fixed;
@@ -187,13 +75,12 @@
         }
 
         .fullscreen-header {
-            padding: 1.5rem 2rem;
-            background: rgba(26, 26, 26, 0.98);
+            padding: 1.5rem;
+            background: rgba(26, 26, 26, 0.95);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #444;
-            backdrop-filter: blur(20px);
+            border-bottom: 2px solid #333;
         }
 
         .fullscreen-header h2 {
@@ -212,7 +99,7 @@
             padding: 10px 24px;
             background: transparent;
             border: 2px solid #00ff00;
-            border-radius: 8px;
+            border-radius: 50px;
             color: #00ff00;
             font-family: 'JetBrains Mono', monospace;
             cursor: pointer;
@@ -228,16 +115,18 @@
             padding: 10px 24px;
             background: transparent;
             border: 2px solid #ffffff;
-            border-radius: 8px;
+            border-radius: 50px;
             color: #ffffff;
             font-family: 'JetBrains Mono', monospace;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-size: 1rem;
         }
 
         .close-button:hover {
             background: #ffffff;
             color: #000;
+            transform: translateY(-2px);
         }
 
         .fullscreen-video {
@@ -245,56 +134,56 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
         }
 
         .fullscreen-video video {
-            max-width: 100%;
-            max-height: 100%;
-        }
-
-        @media (max-width: 768px) {
-            .session-container {
-                flex-direction: column-reverse;
-            }
-            .main-view {
-                flex: 3;
-                border-right: none;
-                border-top: 2px solid #333;
-            }
-            .preview-panel {
-                flex: 1;
-            }
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
     </style>
 </head>
 <body>
-    <div class="session-container">
-        <!-- LEFT: Krista's Processed Output (BIG) -->
-        <div class="main-view">
-            <div class="panel-header">
-                <h2>The Mirror's Echo</h2>
-                <div class="status" id="outputStatus">⚪ Connecting...</div>
-            </div>
-            <div class="video-container">
-                <video id="outputVideo" autoplay playsinline></video>
-                <button class="popout-button" id="popoutBtn"></button>
-                <div class="connection-indicator" id="outputIndicator">Waiting for stream...</div>
-            </div>
-        </div>
-
-        <!-- RIGHT: Your Camera Preview (small) -->
-        <div class="preview-panel">
-            <div class="panel-header">
-                <h2>Your Camera</h2>
-                <div class="status" id="inputStatus">⚪ Ready</div>
-            </div>
-            <div class="video-container">
-                <video id="inputVideo" autoplay muted playsinline></video>
-                <button class="start-button" id="startBtn">Start Camera</button>
-                <div class="connection-indicator" id="inputIndicator">Click to begin</div>
-            </div>
-        </div>
+    <div class="container">
+        <header>
+            <h1 class="title">The Mirror's Echo</h1>
+            <p class="subtitle">Live Session - Interactive Experience</p>
+        </header>
+        
+        <main>
+            <section class="webrtc-section">
+                <h2>Live Stream</h2>
+                <div class="video-container">
+                    <div class="video-wrapper">
+                        <h3>Processed Output</h3>
+                        <video id="outputVideo" autoplay playsinline></video>
+                        <button class="popout-button" id="popoutBtn"></button>
+                    </div>
+                    <div class="video-wrapper">
+                        <h3>Your Camera</h3>
+                        <video id="inputVideo" autoplay muted playsinline></video>
+                    </div>
+                </div>
+                
+                <div class="webrtc-controls">
+                    <button class="btn" id="startBtn">Start Camera</button>
+                </div>
+                
+                <div class="webrtc-status">
+                    <p id="statusText">Click Start Camera to begin</p>
+                </div>
+            </section>
+            
+            <section class="about-section">
+                <h2>About This Session</h2>
+                <p>Experience The Mirror's Echo in real-time. Your camera feed is processed through TouchDesigner and streamed back with creative effects.</p>
+                <p>Click the popout icon (⤢) on the processed output to view fullscreen or in a separate window.</p>
+            </section>
+        </main>
+        
+        <footer>
+            <p>&copy; 2025 The Mirror's Echo</p>
+        </footer>
     </div>
 
     <!-- Fullscreen Overlay -->
@@ -302,7 +191,7 @@
         <div class="fullscreen-header">
             <h2>The Mirror's Echo - Fullscreen</h2>
             <div class="header-controls">
-                <button class="popout-external-button" id="popoutWindowBtn">⤢ Pop Out to Window</button>
+                <button class="popout-external-button" id="popoutWindowBtn">⤢ Pop Out Window</button>
                 <button class="close-button" id="closeBtn">✕ Close</button>
             </div>
         </div>
@@ -315,17 +204,12 @@
         const inputVideo = document.getElementById('inputVideo');
         const outputVideo = document.getElementById('outputVideo');
         const fullscreenVideo = document.getElementById('fullscreenVideo');
-        
         const startBtn = document.getElementById('startBtn');
         const popoutBtn = document.getElementById('popoutBtn');
         const popoutWindowBtn = document.getElementById('popoutWindowBtn');
         const closeBtn = document.getElementById('closeBtn');
         const fullscreenOverlay = document.getElementById('fullscreenOverlay');
-        
-        const inputStatus = document.getElementById('inputStatus');
-        const outputStatus = document.getElementById('outputStatus');
-        const inputIndicator = document.getElementById('inputIndicator');
-        const outputIndicator = document.getElementById('outputIndicator');
+        const statusText = document.getElementById('statusText');
 
         let publisherConnection = null;
         let subscriberConnection = null;
@@ -341,7 +225,6 @@
             ? `wss://${window.location.host}/ws`
             : `ws://${window.location.hostname}:${window.location.port || 3000}/ws`;
 
-        // Start camera and connections
         startBtn.addEventListener('click', async () => {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ 
@@ -350,20 +233,19 @@
                 });
                 
                 inputVideo.srcObject = localStream;
-                startBtn.classList.add('hidden');
-                updateInputStatus('✅ Camera active', true);
+                startBtn.disabled = true;
+                startBtn.textContent = 'Camera Active';
+                statusText.textContent = '✅ Camera active - Connecting to stream...';
                 
-                // Connect to both rooms
-                await connectPublisher();  // Publish to input-room
-                await connectSubscriber(); // Subscribe from output-room
+                await connectPublisher();
+                await connectSubscriber();
                 
             } catch (error) {
                 console.error('Camera error:', error);
-                updateInputStatus('❌ Camera access denied', false);
+                statusText.textContent = '❌ Camera access denied';
             }
         });
 
-        // PUBLISHER: Send your camera to input-room
         async function connectPublisher() {
             publisherSocket = new WebSocket(SIGNALING_URL);
             
@@ -373,18 +255,13 @@
             };
             
             publisherSocket.onmessage = (event) => handlePublisherSignal(JSON.parse(event.data));
-            publisherSocket.onerror = (e) => console.error('Publisher socket error:', e);
-            publisherSocket.onclose = () => {
-                console.log('Publisher disconnected');
-                setTimeout(connectPublisher, 3000);
-            };
+            publisherSocket.onclose = () => setTimeout(connectPublisher, 3000);
         }
 
         async function handlePublisherSignal(message) {
             if (message.type === 'offer') {
                 if (!publisherConnection) await createPublisherConnection();
-                const desc = new RTCSessionDescription(message.offer);
-                await publisherConnection.setRemoteDescription(desc);
+                await publisherConnection.setRemoteDescription(new RTCSessionDescription(message.offer));
                 const answer = await publisherConnection.createAnswer();
                 await publisherConnection.setLocalDescription(answer);
                 publisherSocket.send(JSON.stringify({ type: 'answer', answer }));
@@ -395,26 +272,19 @@
 
         async function createPublisherConnection() {
             publisherConnection = new RTCPeerConnection(rtcConfig);
-            
             localStream.getTracks().forEach(track => {
                 publisherConnection.addTrack(track, localStream);
             });
-            
             publisherConnection.onicecandidate = (event) => {
                 if (event.candidate && publisherSocket.readyState === WebSocket.OPEN) {
-                    publisherSocket.send(JSON.stringify({ 
-                        type: 'candidate', 
-                        candidate: event.candidate 
-                    }));
+                    publisherSocket.send(JSON.stringify({ type: 'candidate', candidate: event.candidate }));
                 }
             };
-            
             const offer = await publisherConnection.createOffer();
             await publisherConnection.setLocalDescription(offer);
             publisherSocket.send(JSON.stringify({ type: 'offer', offer }));
         }
 
-        // SUBSCRIBER: Receive from output-room
         async function connectSubscriber() {
             subscriberSocket = new WebSocket(SIGNALING_URL);
             
@@ -424,11 +294,7 @@
             };
             
             subscriberSocket.onmessage = (event) => handleSubscriberSignal(JSON.parse(event.data));
-            subscriberSocket.onerror = (e) => console.error('Subscriber socket error:', e);
-            subscriberSocket.onclose = () => {
-                console.log('Subscriber disconnected');
-                setTimeout(connectSubscriber, 3000);
-            };
+            subscriberSocket.onclose = () => setTimeout(connectSubscriber, 3000);
         }
 
         async function handleSubscriberSignal(message) {
@@ -450,39 +316,17 @@
                 console.log('🎥 Received output stream');
                 outputVideo.srcObject = event.streams[0];
                 fullscreenVideo.srcObject = event.streams[0];
-                updateOutputStatus('🎥 Live!', true);
+                statusText.textContent = '🎥 Live! Receiving processed stream';
                 popoutBtn.classList.add('visible');
             };
             
             subscriberConnection.onicecandidate = (event) => {
                 if (event.candidate && subscriberSocket.readyState === WebSocket.OPEN) {
-                    subscriberSocket.send(JSON.stringify({ 
-                        type: 'candidate', 
-                        candidate: event.candidate 
-                    }));
+                    subscriberSocket.send(JSON.stringify({ type: 'candidate', candidate: event.candidate }));
                 }
             };
         }
 
-        function updateInputStatus(message, isLive) {
-            inputStatus.textContent = message;
-            inputIndicator.textContent = message;
-            if (isLive) {
-                inputStatus.classList.add('live');
-                inputIndicator.classList.add('connected');
-            }
-        }
-
-        function updateOutputStatus(message, isLive) {
-            outputStatus.textContent = message;
-            outputIndicator.textContent = message;
-            if (isLive) {
-                outputStatus.classList.add('live');
-                outputIndicator.classList.add('connected');
-            }
-        }
-
-        // Fullscreen controls
         popoutBtn.addEventListener('click', () => {
             fullscreenOverlay.classList.add('active');
         });
@@ -491,27 +335,20 @@
             fullscreenOverlay.classList.remove('active');
         });
 
-        // Pop out to window
         popoutWindowBtn.addEventListener('click', () => {
-            const popup = window.open('', 'MirrorsEchoPopout', 
-                'width=1280,height=720,menubar=no,toolbar=no');
-            
+            const popup = window.open('', 'MirrorsEchoPopout', 'width=1280,height=720,menubar=no,toolbar=no');
             if (popup) {
                 popup.document.write(`
                     <!DOCTYPE html>
                     <html><head><title>The Mirror's Echo</title>
                     <style>
-                        body { margin:0; background:#000; display:flex; 
-                               justify-content:center; align-items:center; 
-                               height:100vh; overflow:hidden; }
+                        body { margin:0; background:#000; display:flex; justify-content:center; align-items:center; height:100vh; }
                         video { max-width:100%; max-height:100%; object-fit:contain; }
                     </style></head>
                     <body><video id="v" autoplay playsinline></video>
                     <script>
                         const v = document.getElementById('v');
-                        if (window.opener) {
-                            v.srcObject = window.opener.document.getElementById('outputVideo').srcObject;
-                        }
+                        if (window.opener) v.srcObject = window.opener.document.getElementById('outputVideo').srcObject;
                         setInterval(() => {
                             if (window.opener && window.opener.document.getElementById('outputVideo').srcObject) {
                                 if (v.srcObject !== window.opener.document.getElementById('outputVideo').srcObject) {
