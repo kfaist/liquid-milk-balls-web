@@ -297,14 +297,24 @@ npm start
 
 For detailed instructions on WebRTC setup, NDI/OBS integration, and troubleshooting, see:
 
+⚡ **[QUICK-OUTPUT-SETUP.md](QUICK-OUTPUT-SETUP.md)** - Quick answer: How to connect WebRTC to your TouchDesigner output node
+🌐 **[WEB-BROWSER-RETURN-PATH.md](WEB-BROWSER-RETURN-PATH.md)** - How to get processed video back into a web browser
 📖 **[WEBRTC-SETUP.md](WEBRTC-SETUP.md)** - Complete WebRTC and NDI/OBS integration guide
+📖 **[TOUCHDESIGNER-OUTPUT-GUIDE.md](TOUCHDESIGNER-OUTPUT-GUIDE.md)** - Detailed guide for sending processed video back to viewers
 
-Quick summary:
+Quick summary (Input path):
 1. Install OBS Studio, obs-ndi plugin, and NDI Runtime
 2. Start your WebRTC session (either mode)
 3. Capture browser in OBS (Window Capture or Browser Source)
 4. Enable NDI output in OBS (Tools → NDI Output Settings)
 5. Receive in TouchDesigner with NDI In TOP operator
+
+Complete the loop (Return path):
+6. Process video in TouchDesigner
+7. Send to OBS via NDI Out TOP operator
+8. Use OBS Virtual Camera or second LiveKit room for remote viewing
+
+See **[TOUCHDESIGNER-OUTPUT-GUIDE.md](TOUCHDESIGNER-OUTPUT-GUIDE.md)** for detailed return path setup.
 
 ### WebRTC Architecture Notes
 

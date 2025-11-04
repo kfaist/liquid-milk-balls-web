@@ -74,13 +74,29 @@ This document explains how the webcam streaming system works from browser to Tou
 │  │  │  NDI In TOP                                      │     │    │
 │  │  │  - Receives from OBS NDI                         │     │    │
 │  │  │  - Process video (effects, compositing, etc.)    │     │    │
-│  │  │  - Output to:                                    │     │    │
-│  │  │    • Screen/Projector                            │     │    │
-│  │  │    • Another LiveKit room (optional)             │     │    │
-│  │  │    • Virtual camera                              │     │    │
-│  │  └──────────────────────────────────────────────────┘     │    │
-│  └────────────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────────┘
+│  │  │  ↓                                               │     │    │
+│  │  │  NDI Out TOP                                     │     │    │
+│  │  │  - Sends processed video back to OBS             │     │    │
+│  │  └──────────────┬───────────────────────────────────┘     │    │
+│  └─────────────────┼────────────────────────────────────────┘    │
+│                    │ NDI (back to OBS)                           │
+│                    ▼                                             │
+│  ┌────────────────────────────────────────────────────────────┐    │
+│  │  OBS Studio (Receive Processed Video)                     │    │
+│  │  - NDI Source: "TouchDesigner-Processed"                  │    │
+│  │  - Options:                                                │    │
+│  │    • Virtual Camera (for video apps)                      │    │
+│  │    • Publish to second LiveKit room                       │    │
+│  │    • RTMP streaming (YouTube, Mux, etc.)                  │    │
+│  └────────────────┬───────────────────────────────────────────┘    │
+└───────────────────┼──────────────────────────────────────────────┘
+                    │
+                    │ (Via Virtual Camera, LiveKit, or RTMP)
+                    ▼
+          [Return Viewer Page or Video App]
+                    │
+                    ▼
+           Remote User sees processed video
 ```
 
 ## Technology Stack
@@ -170,6 +186,28 @@ If LiveKit is not configured:
 3. Open multiple `ndi-viewer.html` instances in OBS (each as a separate source)
 4. Each NDI source goes to TouchDesigner
 5. Composite all feeds in TouchDesigner
+
+### Use Case 4: Complete Bidirectional Loop
+**Scenario**: Remote user sees their camera processed through TouchDesigner in real-time
+
+**Steps (Input Path)**:
+1. Remote user opens `publisher.html` and publishes camera
+2. Open `ndi-viewer.html` in OBS Browser Source
+3. Enable OBS NDI Output (Tools → NDI Output Settings)
+4. In TouchDesigner, add NDI In TOP and select OBS source
+5. Process the video in your TouchDesigner network
+
+**Steps (Output Path)**:
+6. Add NDI Out TOP after your processing chain in TouchDesigner
+7. Set NDI Out TOP to Active with a unique name (e.g., "TD-Processed")
+8. In OBS, add NDI™ Source and select your TouchDesigner NDI Out
+9. Use one of these methods to send back:
+   - **Option A:** Start OBS Virtual Camera, share in video app
+   - **Option B:** Set up second LiveKit room for processed video
+   - **Option C:** Stream via RTMP to YouTube Live, Mux, etc.
+   - **Option D:** Use screen/window capture of OBS output
+
+See **[TOUCHDESIGNER-OUTPUT-GUIDE.md](TOUCHDESIGNER-OUTPUT-GUIDE.md)** for detailed instructions.
 
 ## Troubleshooting Guide
 
