@@ -2,6 +2,10 @@
 
 This guide explains how to set up WebRTC for the liquid-milk-balls-web project, including integration with NDI and OBS.
 
+## Prerequisites
+
+Before following this guide, ensure you have **Node.js and npm installed**. If you haven't set up the project yet, please see the [Prerequisites section in the main README](README.md#️-prerequisites) for installation instructions.
+
 ## Overview
 
 The project supports **two WebRTC modes**:
@@ -15,6 +19,17 @@ This mode works out of the box without external services.
 
 ### 1. Install and Start
 
+**On Windows (PowerShell or Command Prompt):**
+```powershell
+setup.bat
+```
+
+**On macOS/Linux (Terminal):**
+```bash
+./setup.sh
+```
+
+**Or manually (all platforms):**
 ```bash
 npm install
 npm start

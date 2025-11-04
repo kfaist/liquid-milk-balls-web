@@ -17,6 +17,62 @@ The Mirror's Echo is a mesmerizing interactive website featuring:
 - **Easter Eggs**: Hidden surprises await the curious
 - **Modern Design**: Glassmorphism effects with smooth animations
 
+## ⚙️ Prerequisites
+
+Before running this project locally, you need to have **Node.js** installed on your system. Node.js includes npm (Node Package Manager), which is required to install dependencies and run the application.
+
+### Installing Node.js
+
+#### Windows
+1. Download the Windows installer from [nodejs.org](https://nodejs.org/)
+   - **Recommended**: Download the **LTS (Long Term Support)** version
+   - Choose the appropriate installer for your system:
+     - 64-bit: `node-vXX.XX.X-x64.msi`
+     - 32-bit: `node-vXX.XX.X-x86.msi`
+2. Run the installer and follow the installation wizard
+   - ✅ Make sure "Add to PATH" is checked during installation
+3. **Restart your terminal** (PowerShell, Command Prompt, or Terminal)
+4. Verify installation by opening a new terminal and running:
+   ```powershell
+   node --version
+   npm --version
+   ```
+
+**Troubleshooting on Windows:**
+- If you get `'npm' is not recognized as the name of a cmdlet`, it means:
+  - Node.js is not installed, OR
+  - You haven't restarted your terminal after installation, OR
+  - Node.js was not added to PATH during installation
+- **Solution**: Close and reopen your terminal/PowerShell, or reinstall Node.js ensuring "Add to PATH" is checked
+
+#### macOS
+Using Homebrew (recommended):
+```bash
+brew install node
+```
+
+Or download the installer from [nodejs.org](https://nodejs.org/)
+
+#### Linux
+Using package manager (Ubuntu/Debian):
+```bash
+sudo apt update
+sudo apt install nodejs npm
+```
+
+For other distributions, see the [official Node.js installation guide](https://nodejs.org/en/download/package-manager/)
+
+### Verify Installation
+
+After installing Node.js, verify that both `node` and `npm` are available:
+
+```bash
+node --version    # Should output v18.x.x or higher
+npm --version     # Should output 9.x.x or higher
+```
+
+If these commands work, you're ready to proceed with setting up the project! 🎉
+
 ## 🚀 Deployment to GitLab Pages
 
 ### Prerequisites
@@ -119,32 +175,63 @@ liquid-milk-balls-web/
 
 ## 🛠️ Local Development
 
-To run locally:
+### Prerequisites Check
 
-1. Clone the repository:
+Before starting, ensure you have Node.js and npm installed (see [Prerequisites](#️-prerequisites) section above).
+
+### Setup Instructions
+
+1. **Clone the repository:**
 ```bash
 git clone https://github.com/kfaist/liquid-milk-balls-web.git
 cd liquid-milk-balls-web
 ```
 
-2. **Quick setup** (on Unix-like systems):
-```bash
-./setup.sh
-```
+2. **Quick setup with automated script:**
 
-   Or **manual setup**:
-```bash
-npm install
-```
+   **On Windows (PowerShell or Command Prompt):**
+   ```powershell
+   setup.bat
+   ```
 
-3. **Start the development server**:
+   **On macOS/Linux (Terminal):**
+   ```bash
+   ./setup.sh
+   ```
+
+   **Or manual setup (all platforms):**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server:**
 ```bash
 npm start              # Start unified server on port 3000
 ```
 
-4. Open your browser to `http://localhost:3000`
+4. **Open your browser** to `http://localhost:3000`
 
 **Note**: The server includes both HTTP serving and WebSocket signaling for WebRTC in a single process.
+
+### Common Issues
+
+**Problem**: `'npm' is not recognized` (Windows)
+- **Cause**: Node.js is not installed or not in PATH
+- **Solution**: 
+  1. Install Node.js from [nodejs.org](https://nodejs.org/)
+  2. Make sure "Add to PATH" is checked during installation
+  3. Restart your terminal/PowerShell completely
+  4. Try running `npm --version` again
+
+**Problem**: `Cannot find module 'express'` or similar errors
+- **Cause**: Dependencies not installed
+- **Solution**: Run `npm install` in the project directory
+
+**Problem**: `Port 3000 is already in use`
+- **Cause**: Another application is using port 3000
+- **Solution**: 
+  - Stop the other application, OR
+  - Set a different port: `PORT=3001 npm start` (Unix) or `$env:PORT=3001; npm start` (PowerShell)
 
 ## 🎥 WebRTC Setup - Two Options
 
