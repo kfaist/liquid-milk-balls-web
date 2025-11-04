@@ -1,25 +1,14 @@
-<!-- Existing HTML code here... -->
-<div class="webrtc-controls">
-    <!-- Existing controls -->
-    <button id="hangUpBtn">Hang Up</button>
-    
-    <!-- New button for 'Pop Out Remote Stream' -->
-    <button id="popOutStreamBtn" onclick="popOutStream()">Pop Out Remote Stream</button>
-</div>
-
-<script>
-function popOutStream() {
-    const remoteStream = /* reference to your remote stream */;
-    const newWindow = window.open("");
-    newWindow.document.write('<html><body><video autoplay playsinline></video></body></html>');
-    
-    const video = newWindow.document.querySelector("video");
-    video.srcObject = remoteStream; // Set the video element to the media stream
-}
-
-// Remove existing echo button reference
-// const echoBtn = document.getElementById('echoBtn'); // Reference to the Echo button
-// echoBtn.addEventListener('click', toggleEcho); // Example reference to Echo functionality
-// echoBtn.remove(); // If you were to remove the button this way
-</script>
-<!-- Existing HTML code continues... -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The Mirror's Echo - A mesmerizing interactive web experience">
+    <title>The Mirror's Echo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="title">The Mirror's Echo</h1>
+            <p class="subtitle">This project is dual-licensed: AGPL‑3.0‑or‑later for open-source use. Commercial licensing and alternative licensing arrangements are available - contact kris[...]
