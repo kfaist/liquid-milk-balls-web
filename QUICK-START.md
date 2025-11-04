@@ -148,7 +148,7 @@ Then use `https://your-app.up.railway.app/publisher.html` instead of localhost.
 ## 💡 Pro Tips
 
 - **Multiple Cameras**: Open publisher.html on multiple devices, all stream to same room
-- **Quality**: Edit publisher.html line 236 to change resolution (h720 → h1080)
+- **Quality**: Edit publisher.html (search for `VideoPresets.h720`) to change resolution (h720 → h1080)
 - **Local Testing**: Use simple WebRTC on index.html if you don't have LiveKit
 - **Secure**: Always use HTTPS in production
 - **Performance**: Lower resolution if experiencing lag
