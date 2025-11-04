@@ -59,6 +59,48 @@ app.get("/api/viewer-token", async (req, res) => {
   }
 });
 
+// Publisher token endpoint - allows publishing camera to LiveKit room
+app.get("/api/publisher-token", async (req, res) => {
+  try {
+    if (!LIVEKIT_API_KEY || !LIVEKIT_API_SECRET || !LIVEKIT_URL) {
+      console.error('[publisher-token] Missing env vars:', {
+        hasKey: !!LIVEKIT_API_KEY,
+        hasSecret: !!LIVEKIT_API_SECRET,
+        hasUrl: !!LIVEKIT_URL
+      });
+      return res.status(500).json({
+        error: 'LiveKit not configured',
+        message: 'Set LIVEKIT_API_KEY, LIVEKIT_API_SECRET, and LIVEKIT_URL'
+      });
+    }
+    const participantIdentity = `publisher-${Math.random().toString(36).substring(7)}`;
+    const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
+      identity: participantIdentity,
+      ttl: '2h',
+    });
+    token.addGrant({
+      roomJoin: true,
+      room: LIVEKIT_ROOM_NAME,
+      canSubscribe: true,
+      canPublish: true, // Publishers can publish their camera
+    });
+    const jwt = await token.toJwt();
+    console.log(`[publisher-token] Generated for ${participantIdentity} in room ${LIVEKIT_ROOM_NAME}`);
+    res.json({
+      token: jwt,
+      url: LIVEKIT_URL,
+      roomName: LIVEKIT_ROOM_NAME,
+      identity: participantIdentity
+    });
+  } catch (error) {
+    console.error('[publisher-token] Error generating token:', error);
+    res.status(500).json({ 
+      error: 'Token generation failed', 
+      details: error.message 
+    });
+  }
+});
+
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: "/ws" });
 wss.on("connection", (ws) => {
