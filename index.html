@@ -59,6 +59,30 @@
             </section>
             
             <section class="about-section">
+                <h2>🎥 LiveKit Streaming Setup</h2>
+                <p>For production-quality streaming with OBS, NDI, and TouchDesigner integration:</p>
+                <div style="margin: 1.5rem 0; padding: 1.5rem; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 4px solid #0cf;">
+                    <p style="margin-bottom: 1rem;"><strong>Complete Bidirectional Workflow:</strong></p>
+                    <ol style="margin-left: 2rem; line-height: 2;">
+                        <li><strong><a href="/publisher.html" style="color: #0cf; text-decoration: none;">Publisher Page</a>:</strong> Remote user captures webcam and publishes to LiveKit</li>
+                        <li><strong><a href="/ndi-viewer.html" style="color: #0cf; text-decoration: none;">NDI Viewer Page</a>:</strong> View the LiveKit stream (capture this in OBS Browser Source)</li>
+                        <li><strong>OBS:</strong> Capture NDI viewer page and enable NDI output (Tools → NDI Output Settings)</li>
+                        <li><strong>TouchDesigner:</strong> Use NDI In TOP to receive stream from OBS, process & stylize</li>
+                        <li><strong>TD Output:</strong> Use NDI Out TOP to send processed video back to OBS</li>
+                        <li><strong>OBS Capture:</strong> Add NDI Source in OBS to receive processed video from TD</li>
+                        <li><strong><a href="/return-viewer.html" style="color: #0cf; text-decoration: none;">Return Viewer Page</a>:</strong> Remote user views processed video with fullscreen option</li>
+                    </ol>
+                    <p style="margin-top: 1rem; padding: 1rem; background: rgba(0, 204, 255, 0.1); border-radius: 8px;">
+                        <strong>🔄 Complete Loop:</strong> Remote Camera → LiveKit → OBS → NDI → TouchDesigner (process) → NDI → Back to Remote Viewer in Real-Time
+                    </p>
+                    <p style="margin-top: 1rem; opacity: 0.8; font-size: 0.9rem;">
+                        <strong>Note:</strong> Requires LiveKit credentials in server environment variables.<br>
+                        See <a href="https://github.com/kfaist/liquid-milk-balls-web/blob/main/WEBRTC-SETUP.md" style="color: #0cf;">WEBRTC-SETUP.md</a> for full setup instructions.
+                    </p>
+                </div>
+            </section>
+            
+            <section class="about-section">
                 <h2>UI Guide</h2>
                 <p><strong>Mirror Section:</strong></p>
                 <ul style="margin-left: 2rem; margin-bottom: 1rem; line-height: 1.8;">

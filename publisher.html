@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Publisher - LiveKit</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: monospace; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff; 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            padding: 2rem; 
+        }
+        .container { 
+            max-width: 1200px; 
+            width: 100%; 
+            margin: 0 auto; 
+        }
+        h1 { 
+            font-size: 2.5rem; 
+            background: linear-gradient(45deg, #fff, #f0f); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            text-align: center; 
+            margin-bottom: 2rem; 
+        }
+        .panel { 
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2); 
+            border-radius: 16px; 
+            padding: 2rem; 
+            text-align: center; 
+            margin: 2rem 0; 
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        .btn { 
+            padding: 1rem 2rem; 
+            font-size: 1.1rem; 
+            border: 2px solid #fff; 
+            border-radius: 50px; 
+            background: rgba(255, 255, 255, 0.1); 
+            color: #fff; 
+            cursor: pointer; 
+            margin: 0.5rem; 
+            transition: all 0.3s; 
+            font-family: monospace;
+            font-weight: bold;
+        }
+        .btn:hover:not(:disabled) { 
+            background: rgba(255, 255, 255, 0.3); 
+            transform: translateY(-2px); 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .btn:disabled { 
+            opacity: 0.5; 
+            cursor: not-allowed; 
+        }
+        .btn.disconnect {
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+        .btn.disconnect:hover:not(:disabled) {
+            background: rgba(255, 68, 68, 0.2);
+        }
+        .video-container { 
+            background: #000; 
+            border: 2px solid rgba(255, 255, 255, 0.3); 
+            border-radius: 12px; 
+            aspect-ratio: 16/9; 
+            display: none; 
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+        .video-container.active { 
+            display: block; 
+        }
+        video { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+        }
+        .status { 
+            text-align: center; 
+            padding: 1rem; 
+            margin-top: 1rem; 
+            background: rgba(0, 0, 0, 0.3); 
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            border-radius: 8px; 
+            font-size: 1.1rem;
+        }
+        .status.connected { 
+            border-color: #0f0; 
+            color: #0f0; 
+            text-shadow: 0 0 10px #0f0;
+        }
+        .status.connecting { 
+            border-color: #fa0; 
+            color: #fa0; 
+            text-shadow: 0 0 10px #fa0;
+        }
+        .status.error { 
+            border-color: #f00; 
+            color: #f00; 
+            text-shadow: 0 0 10px #f00;
+        }
+        .info-panel {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            text-align: left;
+        }
+        .info-panel h3 {
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+        .info-panel ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .info-panel li {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .info-panel li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #0f0;
+        }
+        .room-info {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📹 Webcam Publisher</h1>
+        
+        <div class="panel">
+            <h2 style="color: #fff; margin-bottom: 1rem;">Publish Your Camera to LiveKit</h2>
+            <p style="opacity: 0.9; margin-bottom: 1.5rem;">
+                This page captures your webcam and publishes it to LiveKit room.<br>
+                Open the viewer page in OBS to capture the stream.
+            </p>
+            
+            <div class="video-container" id="videoContainer">
+                <video id="localVideo" autoplay muted playsinline></video>
+            </div>
+            
+            <div>
+                <button class="btn" id="startBtn" onclick="startPublishing()">🚀 Start Publishing</button>
+                <button class="btn disconnect" id="stopBtn" onclick="stopPublishing()" style="display:none;">🛑 Stop Publishing</button>
+            </div>
+            
+            <div class="status" id="status">Ready to start</div>
+            
+            <div class="room-info" id="roomInfo" style="display:none;">
+                Room: <strong id="roomName">-</strong> | 
+                Identity: <strong id="identity">-</strong>
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <h3>📋 How to Use:</h3>
+            <ul>
+                <li>Click "Start Publishing" to begin streaming your camera</li>
+                <li>Open <code>ndi-viewer.html</code> in another browser tab/window to view the stream</li>
+                <li>Capture the viewer page in OBS (Browser Source or Window Capture)</li>
+                <li>Enable NDI output in OBS (Tools → NDI Output Settings)</li>
+                <li>Use NDI In TOP in TouchDesigner to receive the stream</li>
+                <li>Process in TouchDesigner and output back to another LiveKit room if needed</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script src="https://unpkg.com/livekit-client@2.15.14/dist/livekit-client.umd.min.js"></script>
+    <script>
+        let room = null;
+        let localTrack = null;
+        let isPublishing = false;
+        
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const videoContainer = document.getElementById('videoContainer');
+        const localVideo = document.getElementById('localVideo');
+        const statusDiv = document.getElementById('status');
+        const roomInfo = document.getElementById('roomInfo');
+        const roomNameSpan = document.getElementById('roomName');
+        const identitySpan = document.getElementById('identity');
+        
+        async function startPublishing() {
+            startBtn.disabled = true;
+            updateStatus('🔄 Requesting camera access...', 'connecting');
+            
+            try {
+                // Get publisher token from server
+                updateStatus('🔄 Getting access token...', 'connecting');
+                const response = await fetch('/api/publisher-token');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to get publisher token');
+                }
+                
+                const data = await response.json();
+                
+                // Request camera access
+                updateStatus('🔄 Accessing camera...', 'connecting');
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        frameRate: { ideal: 30 }
+                    },
+                    audio: true
+                });
+                
+                // Show local video preview
+                localVideo.srcObject = stream;
+                videoContainer.classList.add('active');
+                
+                // Connect to LiveKit room
+                updateStatus('🔄 Connecting to LiveKit...', 'connecting');
+                
+                // Check if LiveKit client is loaded
+                if (typeof LivekitClient === 'undefined') {
+                    throw new Error('LiveKit client library failed to load');
+                }
+                
+                room = new LivekitClient.Room({
+                    adaptiveStream: true,
+                    dynacast: true,
+                    videoCaptureDefaults: {
+                        resolution: LivekitClient.VideoPresets.h720.resolution,
+                    },
+                });
+                
+                // Handle room events
+                room.on(LivekitClient.RoomEvent.Disconnected, () => {
+                    if (isPublishing) {
+                        updateStatus('❌ Disconnected from server', 'error');
+                        stopPublishing();
+                    }
+                });
+                
+                room.on(LivekitClient.RoomEvent.LocalTrackPublished, (publication) => {
+                    console.log('✅ Track published:', publication.kind);
+                });
+                
+                // Connect to room
+                await room.connect(data.url, data.token);
+                isPublishing = true;
+                
+                // Publish camera tracks
+                const videoTrack = stream.getVideoTracks()[0];
+                const audioTrack = stream.getAudioTracks()[0];
+                
+                await room.localParticipant.publishTrack(videoTrack, {
+                    name: 'camera',
+                    simulcast: true,
+                });
+                
+                if (audioTrack) {
+                    await room.localParticipant.publishTrack(audioTrack, {
+                        name: 'microphone',
+                    });
+                }
+                
+                // Update UI
+                updateStatus('✅ Publishing! Open viewer page in OBS', 'connected');
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'inline-block';
+                roomInfo.style.display = 'block';
+                roomNameSpan.textContent = data.roomName;
+                identitySpan.textContent = data.identity;
+                
+                console.log('✅ Successfully publishing to room:', data.roomName);
+                
+            } catch (error) {
+                console.error('❌ Publishing error:', error);
+                let errorMessage = 'Connection failed: ' + error.message;
+                
+                if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                    errorMessage = '❌ Camera permission denied. Please allow camera access.';
+                } else if (error.name === 'NotFoundError') {
+                    errorMessage = '❌ No camera found. Please connect a camera.';
+                } else if (error.name === 'NotReadableError') {
+                    errorMessage = '❌ Camera is in use by another application.';
+                }
+                
+                updateStatus(errorMessage, 'error');
+                startBtn.disabled = false;
+                
+                // Clean up on error
+                if (room) {
+                    await room.disconnect();
+                    room = null;
+                }
+            }
+        }
+        
+        async function stopPublishing() {
+            try {
+                stopBtn.disabled = true;
+                updateStatus('🔄 Stopping...', 'connecting');
+                
+                // Stop local video tracks
+                if (localVideo.srcObject) {
+                    localVideo.srcObject.getTracks().forEach(track => track.stop());
+                    localVideo.srcObject = null;
+                }
+                
+                // Disconnect from room
+                if (room) {
+                    await room.disconnect();
+                    room = null;
+                }
+                
+                // Reset UI
+                isPublishing = false;
+                videoContainer.classList.remove('active');
+                startBtn.style.display = 'inline-block';
+                startBtn.disabled = false;
+                stopBtn.style.display = 'none';
+                stopBtn.disabled = false;
+                roomInfo.style.display = 'none';
+                
+                updateStatus('👋 Publishing stopped', 'info');
+                
+            } catch (error) {
+                console.error('Error stopping:', error);
+                updateStatus('❌ Error stopping: ' + error.message, 'error');
+                stopBtn.disabled = false;
+            }
+        }
+        
+        function updateStatus(message, type = 'info') {
+            console.log('📊', message);
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + type;
+        }
+        
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            if (room) {
+                room.disconnect();
+            }
+            if (localVideo.srcObject) {
+                localVideo.srcObject.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
+</body>
+</html>
