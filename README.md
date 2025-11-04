@@ -362,7 +362,8 @@ To use WebRTC from anywhere (not just localhost), deploy the signaling server to
    - Push to GitLab for automatic Pages deployment, or
    - Deploy to Vercel/Netlify/GitHub Pages
 
-📖 **Full guide:** See [RAILWAY.md](RAILWAY.md) for detailed deployment instructions
+📖 **Full guide:** See [RAILWAY.md](RAILWAY.md) for detailed deployment instructions  
+🔧 **Troubleshooting:** See [RAILWAY-TROUBLESHOOTING.md](RAILWAY-TROUBLESHOOTING.md) for deployment issue resolution
 
 **Benefits:**
 - ✅ Access from any device/location
