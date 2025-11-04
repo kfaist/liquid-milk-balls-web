@@ -2,6 +2,12 @@
 
 An interactive web experience where reflections tell their stories.
 
+## 📄 License
+
+This project is licensed under the **GNU AGPL-3.0-or-later**. Commercial licensing is available; see [LICENSE-INFO.md](LICENSE-INFO.md) or contact kristabluedoor@gmail.com.
+
+For full license details, see the [LICENSE](LICENSE) file.
+
 ## 🌟 About
 
 The Mirror's Echo is a mesmerizing interactive website featuring:
@@ -288,10 +294,6 @@ Feel free to customize:
 - **Colors**: Modify the gradient in `styles.css`
 - **Messages**: Edit the `echoMessages` array in `script.js`
 - **Animations**: Adjust timing and effects in both CSS and JS files
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🤝 Contributing
 
