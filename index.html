@@ -87,15 +87,6 @@
     
     <script src="config.js"></script>
     <script src="script.js"></script>
-    <script src="https://unpkg.com/livekit-client@2.5.10/dist/livekit-client.umd.min.js"></script>
-    <script>
-        // Wait for LiveKit to load before initializing publisher
-        if (typeof LivekitClient !== 'undefined') {
-            console.log('✅ LiveKit loaded immediately');
-        } else {
-            console.log('⏳ Waiting for LiveKit to load...');
-        }
-    </script>
-    <script src="livekit-publisher.js"></script>
+    <script src="webrtc-client.js"></script>
 </body>
 </html>
