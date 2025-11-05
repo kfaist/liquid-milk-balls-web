@@ -527,26 +527,48 @@ footer {
     border-radius: 50%;
     pointer-events: none;
     overflow: visible; /* Let glow extend beyond bounds */
-    background: radial-gradient(
-        circle at 40% 40%,
-        hsla(var(--raindrop-hue, 200), 95%, 85%, 0.7) 0%,
-        hsla(var(--raindrop-hue, 200), 90%, 75%, 0.5) 20%,
-        hsla(var(--raindrop-hue, 200), 85%, 65%, 0.3) 40%,
-        hsla(var(--raindrop-hue, 200), 80%, 55%, 0.15) 60%,
-        transparent 100%
-    );
+    /* Translucent polycarbonate - backlit from within like RGB pudding keycaps */
+    background:
+        radial-gradient(
+            circle at 45% 45%,
+            hsla(var(--raindrop-hue, 200), 100%, 95%, 0.9) 0%,
+            hsla(var(--raindrop-hue, 200), 95%, 85%, 0.7) 15%,
+            hsla(var(--raindrop-hue, 200), 90%, 75%, 0.5) 35%,
+            hsla(var(--raindrop-hue, 200), 85%, 65%, 0.3) 55%,
+            hsla(var(--raindrop-hue, 200), 75%, 55%, 0.15) 75%,
+            transparent 100%
+        ),
+        /* Subtle white overlay for polycarbonate frosted effect */
+        radial-gradient(
+            circle at 50% 50%,
+            rgba(255, 255, 255, 0.3) 0%,
+            rgba(255, 255, 255, 0.1) 40%,
+            transparent 80%
+        );
     box-shadow:
-        /* Inner glow - bright core */
-        inset 0 0 30px hsla(var(--raindrop-hue, 200), 100%, 90%, 0.8),
-        inset 0 0 50px hsla(var(--raindrop-hue, 200), 100%, 80%, 0.5),
-        /* Outer glow - diffused through vellum */
-        0 0 40px hsla(var(--raindrop-hue, 200), 90%, 70%, 0.6),
-        0 0 60px hsla(var(--raindrop-hue, 200), 85%, 65%, 0.4),
-        0 0 80px hsla(var(--raindrop-hue, 200), 80%, 60%, 0.2);
-    backdrop-filter: blur(8px); /* Softer vellum effect */
-    filter: blur(1px); /* Slight softness to edges */
-    animation: videoRaindrop 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        /* Internal backlight glow - bright saturated core */
+        inset 0 0 40px hsla(var(--raindrop-hue, 200), 100%, 90%, 0.9),
+        inset 0 0 60px hsla(var(--raindrop-hue, 200), 100%, 85%, 0.6),
+        /* Soft outer glow - diffused through translucent material */
+        0 0 30px hsla(var(--raindrop-hue, 200), 95%, 75%, 0.7),
+        0 0 50px hsla(var(--raindrop-hue, 200), 90%, 70%, 0.5),
+        0 0 70px hsla(var(--raindrop-hue, 200), 85%, 65%, 0.3),
+        /* Extended halo */
+        0 0 100px hsla(var(--raindrop-hue, 200), 80%, 60%, 0.2);
+    backdrop-filter: blur(10px) saturate(1.5); /* Vellum/polycarbonate diffusion */
+    filter: blur(1.5px); /* Soft satiny edges */
+    animation: videoRaindrop 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards, raindropBreath 3s ease-in-out infinite;
     transform: translate(-50%, -50%) scale(0);
+}
+
+/* Breathing/pulsing effect like RGB keyboard */
+@keyframes raindropBreath {
+    0%, 100% {
+        filter: blur(1.5px) brightness(1);
+    }
+    50% {
+        filter: blur(2px) brightness(1.2);
+    }
 }
 
 /* Animation for click-triggered raindrops (used in JavaScript) */
