@@ -1,8 +1,5 @@
 /* The Mirror's Echo - Styles */
 
-/* Import JetBrains Mono from Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap');
-
 * {
     margin: 0;
     padding: 0;
@@ -10,7 +7,7 @@
 }
 
 body {
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-family: monospace;
     background: #000000;
     min-height: 100vh;
     display: flex;
@@ -18,6 +15,17 @@ body {
     justify-content: center;
     color: #ffffff;
     overflow-x: hidden;
+}
+
+/* Global header font - Bold monospace for all headers */
+h1, h2, h3, h4, h5, h6 {
+    font-family: monospace;
+    font-weight: 700;
+}
+
+/* All other text uses system monospace */
+p, a, li, span, button, input, textarea {
+    font-family: monospace;
 }
 
 /* Clean, visible link styling */
@@ -45,7 +53,8 @@ header {
 }
 
 .title {
-    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
+    font-family: monospace;
+    font-weight: 700;
     font-size: 3.5rem;
     font-weight: 700;
     text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.1);
@@ -55,7 +64,8 @@ header {
 }
 
 .subtitle {
-    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
+    font-family: monospace;
+    font-weight: 700;
     font-size: 1.2rem;
     opacity: 0.7;
     font-style: italic;
@@ -143,7 +153,7 @@ header {
 }
 
 .btn {
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-family: monospace;
     padding: 1rem 2rem;
     font-size: 1.1rem;
     border: 2px solid #ffffff;
@@ -198,7 +208,8 @@ header {
 }
 
 .about-section h2 {
-    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
+    font-family: monospace;
+    font-weight: 700;
     font-size: 2rem;
     margin-bottom: 1rem;
     color: #ffffff;
@@ -239,7 +250,8 @@ header {
 }
 
 .webrtc-section h2 {
-    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
+    font-family: monospace;
+    font-weight: 700;
     font-size: 2rem;
     margin-bottom: 1.5rem;
     text-align: center;
@@ -247,7 +259,8 @@ header {
 }
 
 .webrtc-section h3 {
-    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
+    font-family: monospace;
+    font-weight: 700;
     font-size: 1.2rem;
     margin-bottom: 0.5rem;
     text-align: center;
@@ -614,7 +627,8 @@ footer {
 }
 
 .watermark-title {
-    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
+    font-family: monospace;
+    font-weight: 700;
     font-size: 2rem;
     font-weight: 700;
     color: #ffffff;
@@ -624,7 +638,7 @@ footer {
 }
 
 .watermark-subtitle {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: monospace;
     font-size: 1.2rem;
     color: rgba(255, 255, 255, 0.8);
     text-shadow: 0 1px 5px rgba(0, 0, 0, 0.8);
@@ -633,7 +647,7 @@ footer {
 }
 
 .watermark-licensing {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: monospace;
     font-size: 0.9rem;
     color: rgba(255, 255, 255, 0.7);
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
@@ -651,7 +665,8 @@ footer {
 }
 
 .payment-section h2 {
-    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
+    font-family: monospace;
+    font-weight: 700;
     font-size: 2.2rem;
     margin-bottom: 2rem;
     text-align: center;
@@ -728,7 +743,7 @@ footer {
 }
 
 .tier-price {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: monospace;
     font-size: 0.95rem;
     color: rgba(255, 255, 255, 0.5);
     margin-bottom: 0.5rem;
@@ -738,7 +753,8 @@ footer {
 }
 
 .tier-title {
-    font-family: 'Futura', 'Century Gothic', sans-serif;
+    font-family: monospace;
+    font-weight: 700;
     font-size: 1.4rem;
     color: #ffffff;
     margin-bottom: 0;
@@ -775,7 +791,7 @@ footer {
 }
 
 .tier-cta {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: monospace;
     padding: 0.9rem 2rem;
     font-size: 0.9rem;
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -937,14 +953,15 @@ footer {
 }
 
 .transcription-label {
-    font-family: 'Futura', 'Century Gothic', sans-serif;
+    font-family: monospace;
+    font-weight: 700;
     font-size: 1.2rem;
     color: #ffffff;
     flex: 1;
 }
 
 .btn-transcription-toggle {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: monospace;
     padding: 0.6rem 1.2rem;
     font-size: 0.9rem;
     border: 2px solid #0cf;
@@ -982,7 +999,7 @@ footer {
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: monospace;
     font-size: 1.1rem;
     line-height: 1.8;
     color: #0cf;
@@ -1204,6 +1221,179 @@ body.temporal-phase-4 #startCameraBtn:not(:disabled) {
     }
     50% {
         box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* Text Flickering Effects - Progressive Intensity Through Temporal Phases */
+
+/* Phase 1: Whisper (7-8 min) - Very subtle flicker */
+body.temporal-phase-1 h1,
+body.temporal-phase-1 h2,
+body.temporal-phase-1 h3,
+body.temporal-phase-1 p,
+body.temporal-phase-1 a,
+body.temporal-phase-1 .tier-title,
+body.temporal-phase-1 .tier-description {
+    animation: textFlickerSubtle 8s ease-in-out infinite;
+}
+
+/* Phase 2: Murmur (8-9 min) - More noticeable flicker */
+body.temporal-phase-2 h1,
+body.temporal-phase-2 h2,
+body.temporal-phase-2 h3,
+body.temporal-phase-2 p,
+body.temporal-phase-2 a,
+body.temporal-phase-2 .tier-title,
+body.temporal-phase-2 .tier-description {
+    animation: textFlickerMedium 5s ease-in-out infinite;
+}
+
+/* Phase 3: Presence (9-10 min) - Clear glitchy flicker */
+body.temporal-phase-3 h1,
+body.temporal-phase-3 h2,
+body.temporal-phase-3 h3,
+body.temporal-phase-3 p,
+body.temporal-phase-3 a,
+body.temporal-phase-3 .tier-title,
+body.temporal-phase-3 .tier-description {
+    animation: textFlickerIntense 3s ease-in-out infinite;
+}
+
+/* Phase 4: Undeniable (10+ min) - Strong persistent flicker */
+body.temporal-phase-4 h1,
+body.temporal-phase-4 h2,
+body.temporal-phase-4 h3,
+body.temporal-phase-4 p,
+body.temporal-phase-4 a,
+body.temporal-phase-4 .tier-title,
+body.temporal-phase-4 .tier-description {
+    animation: textFlickerUndeniable 2s ease-in-out infinite;
+}
+
+/* Flickering Keyframe Animations */
+
+/* Subtle flicker - barely perceptible */
+@keyframes textFlickerSubtle {
+    0%, 100% {
+        opacity: 1;
+    }
+    45% {
+        opacity: 1;
+    }
+    47% {
+        opacity: 0.98;
+    }
+    48% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.97;
+    }
+    52% {
+        opacity: 1;
+    }
+}
+
+/* Medium flicker - noticeable static */
+@keyframes textFlickerMedium {
+    0%, 100% {
+        opacity: 1;
+        text-shadow: 0 0 0 transparent;
+    }
+    33% {
+        opacity: 0.95;
+    }
+    34% {
+        opacity: 1;
+    }
+    35% {
+        opacity: 0.92;
+        text-shadow: 1px 0 2px rgba(255, 255, 255, 0.3);
+    }
+    36% {
+        opacity: 1;
+        text-shadow: 0 0 0 transparent;
+    }
+    67% {
+        opacity: 0.94;
+    }
+    68% {
+        opacity: 1;
+    }
+}
+
+/* Intense flicker - obvious glitch effect */
+@keyframes textFlickerIntense {
+    0%, 100% {
+        opacity: 1;
+        text-shadow: 0 0 0 transparent;
+    }
+    20% {
+        opacity: 0.88;
+        text-shadow: -2px 0 4px rgba(255, 0, 0, 0.2), 2px 0 4px rgba(0, 255, 255, 0.2);
+    }
+    21% {
+        opacity: 1;
+        text-shadow: 0 0 0 transparent;
+    }
+    22% {
+        opacity: 0.85;
+    }
+    23% {
+        opacity: 1;
+    }
+    60% {
+        opacity: 0.9;
+        text-shadow: 1px 0 3px rgba(255, 255, 255, 0.4);
+    }
+    61% {
+        opacity: 1;
+        text-shadow: 0 0 0 transparent;
+    }
+}
+
+/* Undeniable flicker - persistent strong glitch */
+@keyframes textFlickerUndeniable {
+    0% {
+        opacity: 1;
+    }
+    10% {
+        opacity: 0.8;
+        text-shadow: -3px 0 5px rgba(255, 0, 0, 0.3), 3px 0 5px rgba(0, 255, 255, 0.3);
+    }
+    11% {
+        opacity: 1;
+        text-shadow: 0 0 0 transparent;
+    }
+    12% {
+        opacity: 0.75;
+    }
+    13% {
+        opacity: 1;
+    }
+    14% {
+        opacity: 0.85;
+    }
+    15% {
+        opacity: 1;
+    }
+    45% {
+        opacity: 0.82;
+        text-shadow: 2px 0 4px rgba(255, 255, 255, 0.5);
+    }
+    46% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 0.88;
+        text-shadow: -2px 0 3px rgba(255, 0, 255, 0.2);
+    }
+    81% {
+        opacity: 1;
+        text-shadow: 0 0 0 transparent;
+    }
+    100% {
+        opacity: 1;
     }
 }
 
