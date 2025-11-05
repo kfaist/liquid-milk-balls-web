@@ -526,20 +526,45 @@ footer {
     position: absolute;
     border-radius: 50%;
     pointer-events: none;
-    overflow: hidden;
+    overflow: visible; /* Let glow extend beyond bounds */
     background: radial-gradient(
-        circle at 30% 30%,
-        hsla(var(--raindrop-hue, 200), 70%, 70%, var(--raindrop-intensity, 0.3)) 0%,
-        hsla(var(--raindrop-hue, 200), 70%, 60%, calc(var(--raindrop-intensity, 0.3) * 0.6)) 30%,
-        hsla(var(--raindrop-hue, 200), 70%, 50%, calc(var(--raindrop-intensity, 0.3) * 0.3)) 60%,
+        circle at 40% 40%,
+        hsla(var(--raindrop-hue, 200), 95%, 85%, 0.7) 0%,
+        hsla(var(--raindrop-hue, 200), 90%, 75%, 0.5) 20%,
+        hsla(var(--raindrop-hue, 200), 85%, 65%, 0.3) 40%,
+        hsla(var(--raindrop-hue, 200), 80%, 55%, 0.15) 60%,
         transparent 100%
     );
     box-shadow:
-        inset 0 0 20px hsla(var(--raindrop-hue, 200), 70%, 70%, calc(var(--raindrop-intensity, 0.3) * 0.8)),
-        0 0 30px hsla(var(--raindrop-hue, 200), 70%, 60%, calc(var(--raindrop-intensity, 0.3) * 0.4));
-    backdrop-filter: blur(4px);
+        /* Inner glow - bright core */
+        inset 0 0 30px hsla(var(--raindrop-hue, 200), 100%, 90%, 0.8),
+        inset 0 0 50px hsla(var(--raindrop-hue, 200), 100%, 80%, 0.5),
+        /* Outer glow - diffused through vellum */
+        0 0 40px hsla(var(--raindrop-hue, 200), 90%, 70%, 0.6),
+        0 0 60px hsla(var(--raindrop-hue, 200), 85%, 65%, 0.4),
+        0 0 80px hsla(var(--raindrop-hue, 200), 80%, 60%, 0.2);
+    backdrop-filter: blur(8px); /* Softer vellum effect */
+    filter: blur(1px); /* Slight softness to edges */
     animation: videoRaindrop 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
     transform: translate(-50%, -50%) scale(0);
+}
+
+/* Animation for click-triggered raindrops (used in JavaScript) */
+@keyframes raindropRipple {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+        filter: blur(1px);
+    }
+    15% {
+        opacity: 0.9;
+        transform: translate(-50%, -50%) scale(0.4);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+        filter: blur(3px);
+    }
 }
 
 @keyframes videoRaindrop {
