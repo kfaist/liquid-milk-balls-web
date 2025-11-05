@@ -123,10 +123,43 @@
     <div class="container">
         <header>
             <h1 class="title">The Mirror's Echo</h1>
-            <p class="subtitle">The Mirror's Echo operates as an unlimited edition under open-source principles. Exhibition licensing and institutional partnerships are available - contact kristabluedoor@gmail.com for details.</p>
+            <div class="licensing-statement">
+                <p>The Mirror's Echo operates as an unlimited edition under open-source principles (AGPL-3.0), ensuring accessibility while sustaining ongoing development. Exhibition licenses and institutional partnerships support the continued evolution of networked digital art practices.</p>
+                <p style="margin-top: 1.5rem;">
+                    <strong>Artist/Technical:</strong> <a href="mailto:kristabluedoor@gmail.com">kristabluedoor@gmail.com</a><br>
+                    <strong>Curatorial/Institutional:</strong> <a href="mailto:chaoscontemporarycraft@gmail.com">chaoscontemporarycraft@gmail.com</a>
+                </p>
+            </div>
         </header>
-        
+
         <main>
+            <section class="webrtc-section">
+                <h2>WebRTC Preview</h2>
+                <div class="video-container">
+                    <div class="video-wrapper video-wrapper-local">
+                        <h3>Local Camera</h3>
+                        <video id="localVideo" autoplay muted playsinline></video>
+                        <button class="popout-button popout-button-local" id="popoutBtnLocal" style="display: none;"></button>
+                    </div>
+                    <div class="video-wrapper video-wrapper-remote">
+                        <h3>Remote Stream</h3>
+                        <video id="remoteVideo" autoplay playsinline></video>
+                        <button class="popout-button" id="popoutBtn" style="display: none;"></button>
+                    </div>
+                </div>
+
+                <div class="webrtc-controls">
+                    <button class="btn" id="startCameraBtn">Start Camera</button>
+                    <button class="btn" id="stopCameraBtn" disabled>Stop Camera</button>
+                    <button class="btn" id="startCallBtn" disabled>Start WebRTC Call</button>
+                    <button class="btn" id="hangupBtn" disabled>Hang Up</button>
+                </div>
+
+                <div class="webrtc-status">
+                    <p id="statusText">Ready to start</p>
+                </div>
+            </section>
+
             <section class="echo-section">
                 <div class="mirror-container">
                     <div class="mirror" id="mirror"></div>
@@ -189,10 +222,6 @@
             <section class="payment-section">
                 <h2>Licensing & Access</h2>
 
-                <div class="licensing-statement">
-                    <p>The Mirror's Echo operates as an unlimited edition under open-source principles (AGPL-3.0), ensuring accessibility while sustaining ongoing development. Exhibition licenses and institutional partnerships support the continued evolution of networked digital art practices.</p>
-                </div>
-
                 <div class="payment-tiers">
                     <!-- Unlimited Edition Tier -->
                     <div class="payment-tier">
@@ -253,43 +282,6 @@
                         <a href="mailto:chaoscontemporarycraft@gmail.com?subject=Institutional Partnership" class="tier-cta">Initiate Partnership</a>
                     </div>
                 </div>
-
-                <div style="margin-top: 3rem;"></div>
-
-                <div class="contact-info">
-                    <p>
-                        <strong>Artist/Technical:</strong> <a href="mailto:kristabluedoor@gmail.com">kristabluedoor@gmail.com</a><br>
-                        <strong>Curatorial/Institutional:</strong> <a href="mailto:chaoscontemporarycraft@gmail.com">chaoscontemporarycraft@gmail.com</a>
-                    </p>
-                </div>
-            </section>
-
-            <section class="webrtc-section">
-                <h2>WebRTC Preview</h2>
-                <div class="video-container">
-                    <div class="video-wrapper video-wrapper-local">
-                        <h3>Local Camera</h3>
-                        <video id="localVideo" autoplay muted playsinline></video>
-                        <button class="popout-button popout-button-local" id="popoutBtnLocal" style="display: none;"></button>
-                    </div>
-                    <div class="video-wrapper video-wrapper-remote">
-                        <h3>Remote Stream</h3>
-                        <video id="remoteVideo" autoplay playsinline></video>
-                        <button class="popout-button" id="popoutBtn" style="display: none;"></button>
-                    </div>
-                </div>
-
-                <div class="webrtc-controls">
-                    <button class="btn" id="startCameraBtn">Start Camera</button>
-                    <button class="btn" id="stopCameraBtn" disabled>Stop Camera</button>
-                    <button class="btn" id="startCallBtn" disabled>Start WebRTC Call</button>
-                    <button class="btn" id="hangupBtn" disabled>Hang Up</button>
-                </div>
-
-                <div class="webrtc-status">
-                    <p id="statusText">Ready to start</p>
-                </div>
-
             </section>
 
             <section class="about-section">
