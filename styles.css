@@ -1114,3 +1114,160 @@ footer {
         box-shadow: 0 0 0 10px rgba(0, 255, 0, 0);
     }
 }
+
+/* Site-wide Temporal Shimmer Effects (7-10 min) */
+
+/* Phase 1: Whisper (7-8 min) - Very subtle background shimmer */
+body.temporal-phase-1::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.01) 50%,
+        transparent 100%
+    );
+    animation: shimmerSlow 20s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 9998;
+}
+
+/* Phase 2: Murmur (8-9 min) - More visible shimmer + section pulses */
+body.temporal-phase-2::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.02) 50%,
+        transparent 100%
+    );
+    animation: shimmerMedium 15s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 9998;
+}
+
+body.temporal-phase-2 .echo-section,
+body.temporal-phase-2 .about-section {
+    animation: sectionPulse 8s ease-in-out infinite;
+}
+
+/* Phase 3: Presence (9-10 min) - Clear shimmer + ripples */
+body.temporal-phase-3::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.03) 50%,
+        transparent 100%
+    );
+    animation: shimmerFast 10s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 9998;
+}
+
+body.temporal-phase-3 .echo-section,
+body.temporal-phase-3 .about-section,
+body.temporal-phase-3 .webrtc-section {
+    animation: sectionPulse 6s ease-in-out infinite;
+}
+
+/* Phase 4: Undeniable (10+ min) - Full shimmer + all effects */
+body.temporal-phase-4::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.04) 50%,
+        transparent 100%
+    );
+    animation: shimmerIntense 8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 9998;
+}
+
+body.temporal-phase-4 .echo-section,
+body.temporal-phase-4 .about-section,
+body.temporal-phase-4 .webrtc-section {
+    animation: sectionPulse 4s ease-in-out infinite;
+}
+
+/* Very subtle effect on Start Camera button (humor!) */
+body.temporal-phase-4 #startCameraBtn:not(:disabled) {
+    animation: subtleButtonGlow 3s ease-in-out infinite;
+}
+
+/* Shimmer Animations */
+@keyframes shimmerSlow {
+    0%, 100% { transform: translateX(-100%) rotate(45deg); }
+    50% { transform: translateX(100%) rotate(45deg); }
+}
+
+@keyframes shimmerMedium {
+    0%, 100% { transform: translateX(-100%) rotate(45deg); }
+    50% { transform: translateX(100%) rotate(45deg); }
+}
+
+@keyframes shimmerFast {
+    0%, 100% { transform: translateX(-100%) rotate(45deg); }
+    50% { transform: translateX(100%) rotate(45deg); }
+}
+
+@keyframes shimmerIntense {
+    0%, 100% { transform: translateX(-100%) rotate(45deg); opacity: 0.5; }
+    50% { transform: translateX(100%) rotate(45deg); opacity: 1; }
+}
+
+/* Section Pulse */
+@keyframes sectionPulse {
+    0%, 100% {
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        border-color: #333333;
+    }
+    50% {
+        box-shadow: 0 8px 32px 0 rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+}
+
+/* Subtle Button Glow (for Start Camera) */
+@keyframes subtleButtonGlow {
+    0%, 100% {
+        box-shadow: none;
+    }
+    50% {
+        box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* Protected areas - NO effects on payment/licensing */
+.payment-section,
+.payment-tier,
+.tier-cta,
+.contact-info {
+    animation: none !important;
+}
+
+.payment-section::before,
+.payment-tier::before,
+.tier-cta::before {
+    display: none !important;
+}
