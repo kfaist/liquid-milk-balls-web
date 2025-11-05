@@ -551,6 +551,7 @@ footer {
     position: absolute;
     border-radius: 50%;
     pointer-events: none;
+    overflow: hidden;
     background: radial-gradient(
         circle at 30% 30%,
         hsla(var(--raindrop-hue, 200), 70%, 70%, var(--raindrop-intensity, 0.3)) 0%,
@@ -583,6 +584,24 @@ footer {
         opacity: 0;
         transform: translate(-50%, -50%) scale(1.2);
     }
+}
+
+/* Raindrop shimmer line effect */
+.raindrop-shimmer {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        hsla(var(--shimmer-hue, 200), 70%, 90%, 0.4),
+        transparent
+    );
+    transform: rotate(45deg);
+    animation: shimmer infinite;
+    pointer-events: none;
 }
 
 /* Glassmorphism Text Overlay */

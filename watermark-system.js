@@ -155,6 +155,13 @@
         raindrop.style.setProperty('--raindrop-intensity', intensity);
         raindrop.style.setProperty('--raindrop-hue', hue);
 
+        // Add shimmer line effect (like mirror circle)
+        const shimmer = document.createElement('div');
+        shimmer.className = 'raindrop-shimmer';
+        shimmer.style.animationDuration = (duration * 0.5) + 's'; // Faster than raindrop
+        shimmer.style.setProperty('--shimmer-hue', hue);
+        raindrop.appendChild(shimmer);
+
         container.appendChild(raindrop);
 
         // Remove after animation
