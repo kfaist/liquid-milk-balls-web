@@ -343,10 +343,8 @@
         const observer = new MutationObserver(() => {
             if (remoteVideo.srcObject) {
                 popoutBtn.style.display = 'flex';
-                remoteWrapper.style.cursor = 'pointer';
             } else {
                 popoutBtn.style.display = 'none';
-                remoteWrapper.style.cursor = 'default';
             }
         });
         observer.observe(remoteVideo, { attributes: true, attributeFilter: ['srcObject'] });
@@ -355,13 +353,6 @@
         popoutBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             openPopup();
-        });
-
-        // Also allow clicking the video wrapper itself
-        remoteWrapper.addEventListener('click', () => {
-            if (remoteVideo.srcObject) {
-                openPopup();
-            }
         });
 
         closeBtn.addEventListener('click', () => {
@@ -392,10 +383,8 @@
         const localObserver = new MutationObserver(() => {
             if (localVideo.srcObject) {
                 popoutBtnLocal.style.display = 'flex';
-                localWrapper.style.cursor = 'pointer';
             } else {
                 popoutBtnLocal.style.display = 'none';
-                localWrapper.style.cursor = 'default';
             }
         });
         localObserver.observe(localVideo, { attributes: true, attributeFilter: ['srcObject'] });
@@ -404,13 +393,6 @@
         popoutBtnLocal.addEventListener('click', (e) => {
             e.stopPropagation();
             openLocalPopup();
-        });
-
-        // Also allow clicking the video wrapper itself
-        localWrapper.addEventListener('click', () => {
-            if (localVideo.srcObject) {
-                openLocalPopup();
-            }
         });
 
         // TEMPORAL SHIMMER CLICK TRIGGER

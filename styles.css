@@ -296,13 +296,15 @@ header {
 }
 
 .video-wrapper-local {
-    flex: 1;
+    flex: 1 1 0;
     max-width: 800px;
+    min-width: 280px;
 }
 
 .video-wrapper-remote {
-    flex: 1;
+    flex: 1 1 0;
     max-width: 800px;
+    min-width: 280px;
 }
 
 .video-wrapper video {
