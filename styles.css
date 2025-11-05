@@ -775,23 +775,26 @@ footer {
 }
 
 .tier-header {
-    margin-bottom: 1.5rem;
-}
-
-.tier-title {
-    font-family: 'Futura', 'Century Gothic', sans-serif;
-    font-size: 1.5rem;
-    color: #ffffff;
-    margin-bottom: 0.8rem;
+    margin-bottom: 2rem;
 }
 
 .tier-price {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 0.5rem;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+.tier-title {
+    font-family: 'Futura', 'Century Gothic', sans-serif;
+    font-size: 1.4rem;
+    color: #ffffff;
+    margin-bottom: 0;
     font-weight: 400;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.02em;
 }
 
 .tier-description {

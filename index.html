@@ -41,7 +41,7 @@
         }
 
         .popout-button::before {
-            content: "⤢";
+            content: "▢";
         }
 
         @keyframes breathe {
@@ -148,17 +148,8 @@
                     <button class="btn" id="hangupBtn" disabled>Hang Up</button>
                 </div>
 
-                <div class="transcription-display">
-                    <div class="transcription-header">
-                        <span class="transcription-label">Live Transcription</span>
-                        <button class="btn-transcription-toggle" id="transcriptionToggle">Start Listening</button>
-                    </div>
-                    <div class="transcription-text" id="transcriptionText">
-                        <span class="transcription-placeholder">Click "Start Listening" to begin live transcription...</span>
-                    </div>
-                </div>
             </section>
-            
+
             <section class="echo-section">
                 <div class="mirror-container">
                     <div class="mirror" id="mirror"></div>
@@ -229,18 +220,16 @@
                     <!-- Unlimited Edition Tier -->
                     <div class="payment-tier">
                         <div class="tier-header">
-                            <h3 class="tier-title">Unlimited Edition</h3>
                             <div class="tier-price">Open Access</div>
+                            <h3 class="tier-title">Unlimited Edition</h3>
                         </div>
                         <p class="tier-description">
-                            An unlimited edition available under open-source principles. Experience the work freely for educational, research, and non-commercial contexts. The piece presents itself fully for seven minutes before revealing its temporal nature through progressive visual markers.
+                            Open-source access for educational, research, and non-commercial contexts. Seven minutes of sustained experience before temporal markers reveal the work's constructed nature.
                         </p>
                         <ul class="tier-features">
-                            <li>Full source code access (AGPL-3.0)</li>
-                            <li>Unlimited non-commercial use</li>
-                            <li>Seven-minute sustained experience</li>
-                            <li>Progressive temporal markers</li>
-                            <li>Community & documentation support</li>
+                            <li>Full source code (AGPL-3.0)</li>
+                            <li>Non-commercial use</li>
+                            <li>Community support</li>
                         </ul>
                         <a href="https://github.com/kfaist/liquid-milk-balls-web" class="tier-cta" target="_blank">Access Source Code</a>
                     </div>
@@ -248,44 +237,38 @@
                     <!-- Exhibition License Tier -->
                     <div class="payment-tier featured">
                         <div class="tier-header">
-                            <h3 class="tier-title">Exhibition License & Technical Residency</h3>
-                            <div class="tier-price">Starting at $400</div>
+                            <div class="tier-price">$400</div>
+                            <h3 class="tier-title">Exhibition License</h3>
                         </div>
                         <p class="tier-description">
-                            For professional contexts, commercial applications, and exhibition settings. Includes unrestricted access to the work without temporal markers, plus optional technical residency support for complex integrations.
+                            Professional and commercial exhibition rights with unrestricted temporal access. Optional technical residency support available.
                         </p>
                         <ul class="tier-features">
-                            <li>Unlimited sustained experience (no temporal markers)</li>
+                            <li>No temporal markers</li>
                             <li>Commercial exhibition rights</li>
-                            <li>Professional use licensing</li>
-                            <li>Optional: Technical residency support ($150/hour)</li>
-                            <li>TouchDesigner/LiveKit integration consultation</li>
-                            <li>Custom configuration assistance</li>
+                            <li>Technical residency ($150/hour)</li>
                         </ul>
-                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 1.5rem;">
-                            <button class="tier-cta featured" id="purchaseLicenseBtn">Purchase Exhibition License — $400</button>
-                            <a href="mailto:kristabluedoor@gmail.com?subject=Technical Residency Inquiry - The Mirror's Echo" class="tier-cta">Contact for Technical Residency</a>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 2rem;">
+                            <button class="tier-cta featured" id="purchaseLicenseBtn">Purchase License</button>
+                            <a href="mailto:kristabluedoor@gmail.com?subject=Technical Residency Inquiry" class="tier-cta">Technical Residency</a>
                         </div>
                     </div>
 
                     <!-- Institutional Partnership Tier -->
                     <div class="payment-tier">
                         <div class="tier-header">
-                            <h3 class="tier-title">Institutional Partnership</h3>
                             <div class="tier-price">Bespoke</div>
+                            <h3 class="tier-title">Institutional Partnership</h3>
                         </div>
                         <p class="tier-description">
-                            For galleries, museums, biennials, and large-scale installations. Comprehensive partnership including curatorial consultation, on-site technical residency, and sustained support throughout the exhibition period.
+                            For galleries, museums, and biennials. Comprehensive partnership with curatorial consultation and on-site residency throughout the exhibition period.
                         </p>
                         <ul class="tier-features">
-                            <li>Complete exhibition licensing</li>
+                            <li>Complete licensing</li>
                             <li>Curatorial consultation</li>
-                            <li>On-site technical residency</li>
-                            <li>Custom configurations for institutional contexts</li>
-                            <li>Documentation & condition reports</li>
-                            <li>Extended support throughout exhibition run</li>
+                            <li>On-site residency</li>
                         </ul>
-                        <a href="mailto:chaoscontemporarycraft@gmail.com?subject=Institutional Partnership - The Mirror's Echo" class="tier-cta">Initiate Partnership</a>
+                        <a href="mailto:chaoscontemporarycraft@gmail.com?subject=Institutional Partnership" class="tier-cta">Initiate Partnership</a>
                     </div>
                 </div>
 
@@ -328,7 +311,7 @@
     <div class="fullscreen-overlay" id="fullscreenOverlay">
         <div class="fullscreen-header">
             <h2>Remote Stream - Fullscreen</h2>
-            <button class="close-button" id="closeBtn">✕ Close</button>
+            <button class="close-button" id="closeBtn">Close</button>
         </div>
         <div class="fullscreen-video">
             <video id="fullscreenVideo" autoplay playsinline></video>
