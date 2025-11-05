@@ -13,6 +13,7 @@
     let startTime = null;
     let watermarkIntervalId = null;
     let textOverlayVisible = false;
+    let raindropCount = 0; // Track raindrops for color changes
 
     // Initialize watermark system when remote video starts playing
     function initWatermark() {
@@ -101,8 +102,15 @@
         }
     }
 
+    // Get current color hue based on raindrop count (changes every 5 raindrops)
+    function getCurrentHue() {
+        return (Math.floor(raindropCount / 5) * 30) % 360;
+    }
+
     // Create a raindrop ripple effect
     function createRaindrop(container) {
+        raindropCount++; // Increment for color changes
+
         const raindrop = document.createElement('div');
         raindrop.className = 'video-raindrop';
 
@@ -111,6 +119,9 @@
         const y = Math.random() * 100;
         raindrop.style.left = x + '%';
         raindrop.style.top = y + '%';
+
+        // Get current hue for color cycling
+        const hue = getCurrentHue();
 
         // Random size and duration based on phase
         const elapsed = Date.now() - startTime;
@@ -142,6 +153,7 @@
         raindrop.style.height = size + 'px';
         raindrop.style.animationDuration = duration + 's';
         raindrop.style.setProperty('--raindrop-intensity', intensity);
+        raindrop.style.setProperty('--raindrop-hue', hue);
 
         container.appendChild(raindrop);
 
@@ -160,12 +172,30 @@
         if (remoteWrapper && !remoteWrapper.querySelector('.watermark-text-overlay')) {
             const overlay = createTextOverlay();
             remoteWrapper.appendChild(overlay);
+            // Update colors periodically
+            setInterval(() => updateOverlayColors(overlay), 1000);
         }
 
         // Create overlay for fullscreen video
         if (fullscreenVideo && !fullscreenVideo.querySelector('.watermark-text-overlay')) {
             const overlay = createTextOverlay();
             fullscreenVideo.appendChild(overlay);
+            // Update colors periodically
+            setInterval(() => updateOverlayColors(overlay), 1000);
+        }
+    }
+
+    // Update overlay colors based on current hue
+    function updateOverlayColors(overlay) {
+        const hue = getCurrentHue();
+        const panel = overlay.querySelector('.watermark-glass-panel');
+        if (panel) {
+            panel.style.borderColor = `hsla(${hue}, 70%, 60%, 0.4)`;
+            panel.style.boxShadow = `
+                0 8px 32px 0 rgba(0, 0, 0, 0.6),
+                inset 0 0 20px hsla(${hue}, 70%, 60%, 0.1),
+                0 0 40px hsla(${hue}, 70%, 60%, 0.2)
+            `;
         }
     }
 

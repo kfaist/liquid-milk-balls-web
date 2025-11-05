@@ -266,8 +266,7 @@
             
             try {
                 // Get viewer token for processed video room
-                // You can modify this to use a different room name for the return stream
-                const response = await fetch('/api/viewer-token');
+                const response = await fetch('/api/processed-viewer-token');
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.message || 'Failed to get token');
