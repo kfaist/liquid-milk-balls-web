@@ -211,7 +211,7 @@
             subscriberSocket = new WebSocket(SIGNALING_URL);
             
             subscriberSocket.onopen = () => {
-                console.log('✅ Connected to input-room');
+                console.log('Connected to input-room');
                 subscriberSocket.send(JSON.stringify({ type: 'join-room', room: 'input-room' }));
                 statusText.textContent = 'Connected - Waiting for participant...';
             };
@@ -246,10 +246,10 @@
             subscriberConnection = new RTCPeerConnection(rtcConfig);
             
             subscriberConnection.ontrack = (event) => {
-                console.log('🎥 Received remote input');
+                console.log('Received remote input');
                 inputVideo.srcObject = event.streams[0];
                 fullscreenVideo.srcObject = event.streams[0];
-                statusText.textContent = '🎥 Participant connected - Receiving stream';
+                statusText.textContent = 'Participant connected - Receiving stream';
                 popoutBtn.classList.add('visible');
             };
             

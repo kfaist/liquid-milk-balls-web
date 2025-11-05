@@ -186,13 +186,13 @@
                 localStream = await navigator.mediaDevices.getUserMedia(constraints);
                 localVideo.srcObject = localStream;
                 
-                updateStatus('✅ OBS Virtual Camera connected! Ready to publish.', 'success');
+                updateStatus('OBS Virtual Camera connected! Ready to publish.', 'success');
                 startBtn.disabled = true;
                 publishBtn.disabled = false;
                 
             } catch (error) {
                 console.error('Error:', error);
-                let msg = '❌ Could not access OBS Virtual Camera. ';
+                let msg = 'Could not access OBS Virtual Camera. ';
                 
                 if (error.name === 'NotFoundError') {
                     msg += 'Make sure OBS Virtual Camera is started.';
@@ -206,17 +206,17 @@
         
         async function startPublishing() {
             if (!localStream) {
-                updateStatus('❌ Start OBS Virtual Camera first!', 'error');
+                updateStatus('Start OBS Virtual Camera first!', 'error');
                 return;
             }
             
             try {
-                updateStatus('🔄 Connecting to Railway...', 'info');
+                updateStatus('Connecting to Railway...', 'info');
                 
                 signalingSocket = new WebSocket(SIGNALING_SERVER_URL);
                 
                 signalingSocket.onopen = () => {
-                    updateStatus('✅ Connected! Publishing to Railway...', 'success');
+                    updateStatus('Connected! Publishing to Railway...', 'success');
                     signalingSocket.send(JSON.stringify({ type: 'join' }));
                     publishBtn.disabled = true;
                     stopBtn.disabled = false;
@@ -226,22 +226,22 @@
                 
                 signalingSocket.onerror = (error) => {
                     console.error('WebSocket error:', error);
-                    updateStatus('❌ Could not connect to Railway', 'error');
+                    updateStatus('Could not connect to Railway', 'error');
                 };
                 
                 signalingSocket.onclose = () => {
-                    updateStatus('⚠️ Disconnected from Railway', 'error');
+                    updateStatus('Disconnected from Railway', 'error');
                 };
                 
             } catch (error) {
                 console.error('Error:', error);
-                updateStatus('❌ Error: ' + error.message, 'error');
+                updateStatus('Error: ' + error.message, 'error');
             }
         }
         
         async function handleSignalingMessage(event) {
             const message = JSON.parse(event.data);
-            console.log('📨 Received:', message.type);
+            console.log('Received:', message.type);
             
             switch (message.type) {
                 case 'ready':
@@ -279,7 +279,7 @@
             peerConnection.onconnectionstatechange = () => {
                 console.log('Connection:', peerConnection.connectionState);
                 if (peerConnection.connectionState === 'connected') {
-                    updateStatus('🎥 LIVE! Remote viewers can see your stream!', 'success');
+                    updateStatus('LIVE! Remote viewers can see your stream!', 'success');
                 }
             };
         }
@@ -295,7 +295,7 @@
                 }));
             } catch (error) {
                 console.error('Offer error:', error);
-                updateStatus('❌ Error creating offer', 'error');
+                updateStatus('Error creating offer', 'error');
             }
         }
         

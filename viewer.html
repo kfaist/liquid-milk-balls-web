@@ -68,7 +68,7 @@
     <div id="videoContainer">
         <video id="remoteVideo" autoplay playsinline></video>
     </div>
-    <div id="status">🔄 Connecting to remote camera...</div>
+    <div id="status">Connecting to remote camera...</div>
     
     <script src="config.js"></script>
     <script>
@@ -95,14 +95,14 @@
         
         async function autoConnect() {
             try {
-                updateStatus('🔄 Connecting to signaling server...', 'connecting');
+                updateStatus('Connecting to signaling server...', 'connecting');
                 
                 // Connect to signaling server
                 signalingSocket = new WebSocket(SIGNALING_SERVER_URL);
                 
                 signalingSocket.onopen = () => {
-                    console.log('✅ Connected to signaling server');
-                    updateStatus('✅ Connected - Waiting for remote camera...', 'connected');
+                    console.log('Connected to signaling server');
+                    updateStatus('Connected - Waiting for remote camera...', 'connected');
                     
                     // Send join message
                     signalingSocket.send(JSON.stringify({ type: 'join' }));
@@ -116,13 +116,13 @@
                 signalingSocket.onmessage = handleSignalingMessage;
                 
                 signalingSocket.onerror = (error) => {
-                    console.error('❌ WebSocket error:', error);
-                    updateStatus('❌ Connection failed - Check server', 'error');
+                    console.error('WebSocket error:', error);
+                    updateStatus('Connection failed - Check server', 'error');
                 };
                 
                 signalingSocket.onclose = () => {
                     console.log('Disconnected from signaling server');
-                    updateStatus('⚠️ Disconnected - Reconnecting...', 'error');
+                    updateStatus('Disconnected - Reconnecting...', 'error');
                     
                     // Auto-reconnect after 3 seconds
                     setTimeout(autoConnect, 3000);
@@ -130,7 +130,7 @@
                 
             } catch (error) {
                 console.error('Error connecting:', error);
-                updateStatus('❌ Error: ' + error.message, 'error');
+                updateStatus('Error: ' + error.message, 'error');
             }
         }
         
@@ -138,7 +138,7 @@
         async function handleSignalingMessage(event) {
             const message = JSON.parse(event.data);
             
-            console.log('📨 Received:', message.type);
+            console.log('Received:', message.type);
             
             switch (message.type) {
                 case 'offer':
@@ -175,10 +175,10 @@
             
             // Handle incoming remote stream
             peerConnection.ontrack = (event) => {
-                console.log('🎥 Received remote track');
+                console.log('Received remote track');
                 if (remoteVideo.srcObject !== event.streams[0]) {
                     remoteVideo.srcObject = event.streams[0];
-                    updateStatus('🎥 Receiving video!', 'connected');
+                    updateStatus('Receiving video!', 'connected');
                     
                     // Hide status after video starts
                     setTimeout(() => {
@@ -203,13 +203,13 @@
                 console.log('Connection state:', peerConnection.connectionState);
                 
                 if (peerConnection.connectionState === 'connected') {
-                    updateStatus('🎥 Live!', 'connected');
+                    updateStatus('Live!', 'connected');
                     setTimeout(() => {
                         statusDiv.classList.add('hidden');
                     }, 2000);
                 } else if (peerConnection.connectionState === 'disconnected' || 
                            peerConnection.connectionState === 'failed') {
-                    updateStatus('⚠️ Connection lost', 'error');
+                    updateStatus('Connection lost', 'error');
                     statusDiv.classList.remove('hidden');
                 }
             };
@@ -229,10 +229,10 @@
                     answer: answer
                 }));
                 
-                console.log('✅ Answer sent');
+                console.log('Answer sent');
             } catch (error) {
                 console.error('Error handling offer:', error);
-                updateStatus('❌ Connection error', 'error');
+                updateStatus('Connection error', 'error');
             }
         }
         
@@ -266,7 +266,7 @@
             }
             
             remoteVideo.srcObject = null;
-            updateStatus('👋 Remote user disconnected', 'error');
+            updateStatus('Remote user disconnected', 'error');
             statusDiv.classList.remove('hidden');
         }
         

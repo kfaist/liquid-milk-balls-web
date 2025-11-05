@@ -76,7 +76,7 @@
     <div id="videoContainer">
         <video id="remoteVideo" autoplay playsinline></video>
     </div>
-    <div id="status">🔄 Connecting to LiveKit<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
+    <div id="status">Connecting to LiveKit<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
 
     <script src="https://unpkg.com/livekit-client@2.15.14/dist/livekit-client.umd.min.js"></script>
     <script>
@@ -100,7 +100,7 @@
 
         async function connect() {
             try {
-                updateStatus('🔄 Getting access token...', 'info');
+                updateStatus('Getting access token...', 'info');
 
                 // Get viewer token for input room
                 const response = await fetch('/api/viewer-token');
@@ -112,7 +112,7 @@
                 const data = await response.json();
                 console.log('Token received for room:', data.room);
 
-                updateStatus('🔄 Connecting to LiveKit...', 'info');
+                updateStatus('Connecting to LiveKit...', 'info');
 
                 // Check if LiveKit client is loaded
                 if (typeof LivekitClient === 'undefined') {
@@ -126,33 +126,33 @@
 
                 // Handle incoming video tracks
                 room.on(LivekitClient.RoomEvent.TrackSubscribed, (track, publication, participant) => {
-                    console.log('✅ Track subscribed:', track.kind, 'from', participant.identity);
+                    console.log('Track subscribed:', track.kind, 'from', participant.identity);
 
                     if (track.kind === LivekitClient.Track.Kind.Video) {
                         const element = track.attach();
                         remoteVideo.srcObject = element.srcObject;
-                        updateStatus('🎥 Receiving video from ' + participant.identity, 'success');
+                        updateStatus('Receiving video from ' + participant.identity, 'success');
                     }
                 });
 
                 // Handle track unsubscribed
                 room.on(LivekitClient.RoomEvent.TrackUnsubscribed, (track, publication, participant) => {
-                    console.log('❌ Track unsubscribed:', track.kind);
+                    console.log('Track unsubscribed:', track.kind);
                     track.detach();
-                    updateStatus('⚠️ Video stream ended', 'info');
+                    updateStatus('Video stream ended', 'info');
                 });
 
                 // Handle participant disconnected
                 room.on(LivekitClient.RoomEvent.ParticipantDisconnected, (participant) => {
-                    console.log('👋 Participant disconnected:', participant.identity);
-                    updateStatus('⚠️ Publisher disconnected - waiting for reconnection...', 'info');
+                    console.log('Participant disconnected:', participant.identity);
+                    updateStatus('Publisher disconnected - waiting for reconnection...', 'info');
                 });
 
                 // Handle connection state changes
                 room.on(LivekitClient.RoomEvent.ConnectionStateChanged, (state) => {
                     console.log('Connection state:', state);
                     if (state === LivekitClient.ConnectionState.Disconnected) {
-                        updateStatus('❌ Disconnected - Reconnecting...', 'error');
+                        updateStatus('Disconnected - Reconnecting...', 'error');
                         // Auto-reconnect after 2 seconds
                         setTimeout(() => connect(), 2000);
                     }
@@ -160,8 +160,8 @@
 
                 // Connect to the room
                 await room.connect(data.url, data.token);
-                console.log('✅ Connected to room:', data.room);
-                updateStatus('✅ Connected - Waiting for video...', 'info');
+                console.log('Connected to room:', data.room);
+                updateStatus('Connected - Waiting for video...', 'info');
 
                 // If there are already participants with video, subscribe to them
                 room.remoteParticipants.forEach(participant => {
@@ -169,21 +169,21 @@
                         if (publication.track) {
                             const element = publication.track.attach();
                             remoteVideo.srcObject = element.srcObject;
-                            updateStatus('🎥 Receiving video from ' + participant.identity, 'success');
+                            updateStatus('Receiving video from ' + participant.identity, 'success');
                         }
                     });
                 });
 
             } catch (error) {
-                console.error('❌ Connection error:', error);
-                let errorMessage = '❌ Connection failed: ' + error.message;
+                console.error('Connection error:', error);
+                let errorMessage = 'Connection failed: ' + error.message;
 
                 if (error.message.includes('LiveKit not configured')) {
-                    errorMessage = '❌ LiveKit not configured on server. Check environment variables.';
+                    errorMessage = 'LiveKit not configured on server. Check environment variables.';
                 } else if (error.message.includes('Failed to get token')) {
-                    errorMessage = '❌ Failed to get access token from server';
+                    errorMessage = 'Failed to get access token from server';
                 } else if (error.message.includes('failed to load')) {
-                    errorMessage = '❌ LiveKit library failed to load. Check internet connection.';
+                    errorMessage = 'LiveKit library failed to load. Check internet connection.';
                 }
 
                 updateStatus(errorMessage, 'error');

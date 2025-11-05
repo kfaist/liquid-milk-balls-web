@@ -251,7 +251,7 @@
         <div class="stream-panel left">
             <div class="stream-header">
                 <h2>Remote Input</h2>
-                <div class="status" id="inputStatus">⚪ Waiting for stream...</div>
+                <div class="status" id="inputStatus">Waiting for stream...</div>
             </div>
             <div class="video-container">
                 <video id="inputVideo" autoplay playsinline></video>
@@ -263,7 +263,7 @@
         <div class="stream-panel right">
             <div class="stream-header">
                 <h2>Your Processed Output</h2>
-                <div class="status" id="outputStatus">⚪ Waiting for stream...</div>
+                <div class="status" id="outputStatus">Waiting for stream...</div>
             </div>
             <div class="video-container">
                 <video id="outputVideo" autoplay playsinline></video>
@@ -320,7 +320,7 @@
                 signalingSocket = new WebSocket(SIGNALING_SERVER_URL);
 
                 signalingSocket.onopen = () => {
-                    console.log('✅ Connected to signaling server');
+                    console.log('Connected to signaling server');
                     updateStatus('Connected - Waiting for publisher...', false);
                     signalingSocket.send(JSON.stringify({ type: 'join' }));
                 };
@@ -328,7 +328,7 @@
                 signalingSocket.onmessage = handleSignalingMessage;
 
                 signalingSocket.onerror = (error) => {
-                    console.error('❌ WebSocket error:', error);
+                    console.error('WebSocket error:', error);
                     updateStatus('Connection failed', true);
                 };
 
@@ -346,7 +346,7 @@
 
         async function handleSignalingMessage(event) {
             const message = JSON.parse(event.data);
-            console.log('📨 Received:', message.type);
+            console.log('Received:', message.type);
 
             switch (message.type) {
                 case 'offer':
@@ -371,7 +371,7 @@
             peerConnection = new RTCPeerConnection(rtcConfig);
 
             peerConnection.ontrack = (event) => {
-                console.log('🎥 Received remote track');
+                console.log('Received remote track');
                 
                 // Set both videos to same stream (TD output)
                 if (outputVideo.srcObject !== event.streams[0]) {
@@ -381,7 +381,7 @@
                     // For now, mirror to input side (you can change this)
                     inputVideo.srcObject = event.streams[0];
                     
-                    updateStatus('🎥 Live!', false, true);
+                    updateStatus('Live!', false, true);
                 }
             };
 
@@ -398,7 +398,7 @@
                 console.log('Connection state:', peerConnection.connectionState);
                 
                 if (peerConnection.connectionState === 'connected') {
-                    updateStatus('🎥 Live!', false, true);
+                    updateStatus('Live!', false, true);
                 } else if (peerConnection.connectionState === 'disconnected' || 
                            peerConnection.connectionState === 'failed') {
                     updateStatus('Connection lost', true);
@@ -457,11 +457,9 @@
 
         function updateStatus(message, isError, isLive = false) {
             console.log(message);
-            
-            const emoji = isLive ? '🔴' : isError ? '⚠️' : '⚪';
-            
-            inputStatus.textContent = `${emoji} ${message}`;
-            outputStatus.textContent = `${emoji} ${message}`;
+
+            inputStatus.textContent = message;
+            outputStatus.textContent = message;
             
             inputIndicator.textContent = message;
             outputIndicator.textContent = message;
