@@ -346,8 +346,10 @@
         const observer = new MutationObserver(() => {
             if (remoteVideo.srcObject) {
                 popoutBtn.style.display = 'flex';
+                remoteWrapper.classList.add('connected'); // Expand when stream connects
             } else {
                 popoutBtn.style.display = 'none';
+                remoteWrapper.classList.remove('connected'); // Shrink when disconnected
             }
         });
         observer.observe(remoteVideo, { attributes: true, attributeFilter: ['srcObject'] });
@@ -386,8 +388,10 @@
         const localObserver = new MutationObserver(() => {
             if (localVideo.srcObject) {
                 popoutBtnLocal.style.display = 'flex';
+                localWrapper.classList.add('connected'); // Expand when camera starts
             } else {
                 popoutBtnLocal.style.display = 'none';
+                localWrapper.classList.remove('connected'); // Shrink when camera stops
             }
         });
         localObserver.observe(localVideo, { attributes: true, attributeFilter: ['srcObject'] });
