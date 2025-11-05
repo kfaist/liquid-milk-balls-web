@@ -127,30 +127,36 @@
         </header>
         
         <main>
-            <section class="webrtc-section">
+            <section class="webrtc-section" style="display: none;">
                 <h2>WebRTC Preview</h2>
                 <div class="video-container">
-                    <div class="video-wrapper">
+                    <div class="video-wrapper video-wrapper-local">
                         <h3>Local Camera</h3>
                         <video id="localVideo" autoplay muted playsinline></video>
                     </div>
-                    <div class="video-wrapper">
+                    <div class="video-wrapper video-wrapper-remote">
                         <h3>Remote Stream</h3>
                         <video id="remoteVideo" autoplay playsinline></video>
                         <button class="popout-button" id="popoutBtn" style="display: none;"></button>
                     </div>
                 </div>
-                
+
                 <div class="webrtc-controls">
                     <button class="btn" id="startCameraBtn">Start Camera</button>
                     <button class="btn" id="stopCameraBtn" disabled>Stop Camera</button>
                     <button class="btn" id="startCallBtn" disabled>Start WebRTC Call</button>
                     <button class="btn" id="hangupBtn" disabled>Hang Up</button>
-                    <button class="btn btn-ndi" id="ndiBtn" disabled>Enable NDI Output</button>
                 </div>
-                
-                <div class="webrtc-status">
-                    <p id="statusText">Ready to start</p>
+
+                <div class="transcription-display">
+                    <div class="transcription-header">
+                        <span class="transcription-icon">🎙️</span>
+                        <span class="transcription-label">Live Transcription</span>
+                        <button class="btn-transcription-toggle" id="transcriptionToggle">Start Listening</button>
+                    </div>
+                    <div class="transcription-text" id="transcriptionText">
+                        <span class="transcription-placeholder">Click "Start Listening" to begin live transcription...</span>
+                    </div>
                 </div>
             </section>
             
@@ -167,8 +173,7 @@
             
             <section class="about-section">
                 <h2>About</h2>
-                <p>The Mirror's Echo is an interactive experience where each click creates a ripple in time, echoing your presence in this digital space.</p>
-                <p>Use the WebRTC preview to test camera access and local signaling for video streaming to TouchDesigner via OBS and NDI.</p>
+                <p>Interactive web-based art project with WebRTC streaming capabilities for TouchDesigner integration via OBS and NDI.</p>
             </section>
             
             <section class="about-section">
@@ -266,10 +271,9 @@
 
                 <div style="text-align: center; margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 10px;">
                     <p style="color: #aaa; font-size: 0.9rem; line-height: 1.8;">
-                        <strong>Note:</strong> Changing video files, swapping assets, or making derivative works without proper licensing violates AGPL-3.0 terms.<br>
-                        Commercial use requires a paid license. Cloud server costs are covered by licensing fees.<br>
-                        <strong>Technical:</strong> <a href="mailto:kristabluedoor@gmail.com" style="color: #0cf;">kristabluedoor@gmail.com</a> |
-                        <strong>Gallery/Sales:</strong> <a href="mailto:chaoscontemporarycraft@gmail.com" style="color: #0cf;">chaoscontemporarycraft@gmail.com</a>
+                        This project is open source (AGPL-3.0) and free for non-commercial use. Commercial licensing helps support ongoing development and server costs.<br>
+                        <strong>Technical & Licensing:</strong> <a href="mailto:kristabluedoor@gmail.com" style="color: #0cf;">kristabluedoor@gmail.com</a> |
+                        <strong>Gallery & Exhibitions:</strong> <a href="mailto:chaoscontemporarycraft@gmail.com" style="color: #0cf;">chaoscontemporarycraft@gmail.com</a>
                     </p>
                 </div>
             </section>
@@ -316,6 +320,8 @@
     <script src="script.js"></script>
     <script src="webrtc-client.js"></script>
     <script src="watermark-system.js"></script>
+    <script src="video-color-filter.js"></script>
+    <script src="live-transcription.js"></script>
     <script>
         // Popout functionality
         const popoutBtn = document.getElementById('popoutBtn');
