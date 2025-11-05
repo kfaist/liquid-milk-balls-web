@@ -268,8 +268,8 @@
                     <!-- Institutional Partnership Tier -->
                     <div class="payment-tier">
                         <div class="tier-header">
-                            <div class="tier-price">Bespoke</div>
-                            <h3 class="tier-title">Institutional Partnership</h3>
+                            <div class="tier-price">Contact</div>
+                            <h3 class="tier-title">Curatorial & Institutional Partnership</h3>
                         </div>
                         <p class="tier-description">
                             For galleries, museums, and biennials. Comprehensive partnership with curatorial consultation and on-site residency throughout the exhibition period.
@@ -351,17 +351,17 @@
         });
         observer.observe(remoteVideo, { attributes: true, attributeFilter: ['srcObject'] });
 
-        // Hover over entire remote video area to popup
-        remoteWrapper.addEventListener('mouseenter', () => {
-            if (remoteVideo.srcObject) {
-                openPopup();
-            }
-        });
-
-        // Click button to popup (backup)
+        // Click to open fullscreen popup
         popoutBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             openPopup();
+        });
+
+        // Also allow clicking the video wrapper itself
+        remoteWrapper.addEventListener('click', () => {
+            if (remoteVideo.srcObject) {
+                openPopup();
+            }
         });
 
         closeBtn.addEventListener('click', () => {
@@ -400,18 +400,44 @@
         });
         localObserver.observe(localVideo, { attributes: true, attributeFilter: ['srcObject'] });
 
-        // Hover over entire local video area to popup
-        localWrapper.addEventListener('mouseenter', () => {
+        // Click to open fullscreen popup
+        popoutBtnLocal.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openLocalPopup();
+        });
+
+        // Also allow clicking the video wrapper itself
+        localWrapper.addEventListener('click', () => {
             if (localVideo.srcObject) {
                 openLocalPopup();
             }
         });
 
-        // Click button to popup (backup)
-        popoutBtnLocal.addEventListener('click', (e) => {
-            e.stopPropagation();
-            openLocalPopup();
-        });
+        // TEMPORAL SHIMMER CLICK TRIGGER
+        // Click the mirror to cycle through temporal phases for testing
+        const mirror = document.getElementById('mirror');
+        let currentPhase = 0; // 0 = no phase, 1-4 = temporal phases
+
+        if (mirror) {
+            mirror.addEventListener('click', () => {
+                const body = document.body;
+
+                // Remove all phase classes
+                body.classList.remove('temporal-phase-1', 'temporal-phase-2', 'temporal-phase-3', 'temporal-phase-4');
+
+                // Cycle to next phase
+                currentPhase = (currentPhase % 5) + 1;
+
+                // Apply new phase class (or none if phase is 5, which wraps to 0)
+                if (currentPhase <= 4) {
+                    body.classList.add(`temporal-phase-${currentPhase}`);
+                    console.log(`Temporal shimmer: Phase ${currentPhase} activated`);
+                } else {
+                    currentPhase = 0; // Reset to no phase
+                    console.log('Temporal shimmer: All phases cleared');
+                }
+            });
+        }
     </script>
 
     <!-- Stripe Checkout -->
