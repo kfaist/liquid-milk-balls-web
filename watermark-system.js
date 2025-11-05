@@ -55,6 +55,9 @@
 
     // Update watermark based on elapsed time
     function updateWatermark(elapsed) {
+        // Update body class for site-wide effects
+        updateSitePhase(elapsed);
+
         if (elapsed < PHASE_START) {
             // 0-7 minutes: No watermark
             return;
@@ -83,13 +86,32 @@
         }
     }
 
+    // Update site-wide shimmer phase based on elapsed time
+    function updateSitePhase(elapsed) {
+        const body = document.body;
+
+        // Remove all phase classes
+        body.classList.remove('temporal-phase-1', 'temporal-phase-2', 'temporal-phase-3', 'temporal-phase-4');
+
+        // Add appropriate phase class
+        if (elapsed >= PHASE_3) {
+            body.classList.add('temporal-phase-4'); // 10+ min: Undeniable
+        } else if (elapsed >= PHASE_2) {
+            body.classList.add('temporal-phase-3'); // 9-10 min: Presence
+        } else if (elapsed >= PHASE_1) {
+            body.classList.add('temporal-phase-2'); // 8-9 min: Murmur
+        } else if (elapsed >= PHASE_START) {
+            body.classList.add('temporal-phase-1'); // 7-8 min: Whisper
+        }
+    }
+
     // Get raindrop frequency based on elapsed time
     function getDropFrequency(elapsed) {
         if (elapsed < PHASE_START) {
             return 0; // No watermark
         } else if (elapsed < PHASE_1) {
-            // 7-8 min: Option 1 - Subtle (every 8-10 seconds)
-            return 0.01; // ~1% chance per second = ~every 10 seconds
+            // 7-8 min: Very subtle hint/preview (every 15-20 seconds)
+            return 0.006; // ~0.6% chance per second = ~every 18 seconds
         } else if (elapsed < PHASE_2) {
             // 8-9 min: Increasing (every 5-7 seconds)
             return 0.02; // ~2% chance per second = ~every 5 seconds
@@ -97,7 +119,7 @@
             // 9-10 min: More prominent (every 2-4 seconds)
             return 0.04; // ~4% chance per second = ~every 2.5 seconds
         } else {
-            // 10+ min: Option 3 - Cannot be ignored (every 1-2 seconds)
+            // 10+ min: Cannot be ignored (every 1-2 seconds)
             return 0.08; // ~8% chance per second = ~every 1.25 seconds
         }
     }
@@ -128,10 +150,10 @@
         let size, duration, intensity;
 
         if (elapsed < PHASE_1) {
-            // Subtle
-            size = 40 + Math.random() * 40; // 40-80px
-            duration = 2.5 + Math.random() * 1.5; // 2.5-4s
-            intensity = 0.15;
+            // Very subtle hint/preview
+            size = 30 + Math.random() * 30; // 30-60px (smaller)
+            duration = 3 + Math.random() * 2; // 3-5s (slower fade)
+            intensity = 0.08; // Very faint
         } else if (elapsed < PHASE_2) {
             // Medium
             size = 60 + Math.random() * 60; // 60-120px
@@ -154,6 +176,13 @@
         raindrop.style.animationDuration = duration + 's';
         raindrop.style.setProperty('--raindrop-intensity', intensity);
         raindrop.style.setProperty('--raindrop-hue', hue);
+
+        // Add shimmer line effect (like mirror circle)
+        const shimmer = document.createElement('div');
+        shimmer.className = 'raindrop-shimmer';
+        shimmer.style.animationDuration = (duration * 0.5) + 's'; // Faster than raindrop
+        shimmer.style.setProperty('--shimmer-hue', hue);
+        raindrop.appendChild(shimmer);
 
         container.appendChild(raindrop);
 

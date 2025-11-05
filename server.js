@@ -162,6 +162,64 @@ app.get("/api/processed-viewer-token", async (req, res) => {
   }
 });
 
+// Stripe Payment Endpoints
+
+// Get Stripe publishable key
+app.get("/api/stripe-config", (req, res) => {
+  const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+
+  if (!publishableKey) {
+    return res.status(500).json({
+      error: "Stripe not configured"
+    });
+  }
+
+  res.json({
+    publishableKey: publishableKey
+  });
+});
+
+// Create Stripe Checkout session for Exhibition License
+app.post("/api/create-checkout-session", async (req, res) => {
+  const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+
+  if (!STRIPE_SECRET_KEY) {
+    return res.status(500).json({
+      error: "Payment system not configured. Contact artist for licensing."
+    });
+  }
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: "Exhibition License — The Mirror's Echo",
+              description: "Commercial exhibition rights with unlimited sustained experience (no temporal markers)",
+            },
+            unit_amount: 40000, // $400.00 in cents
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: `${req.headers.origin}/payment-success.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.origin}/payment-cancel.html`,
+      metadata: {
+        license_type: "exhibition",
+      },
+    });
+
+    res.json({ sessionId: session.id });
+  } catch (error) {
+    console.error("Error creating checkout session:", error);
+    res.status(500).json({ error: "Failed to create checkout session" });
+  }
+});
+
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: "/ws" });
 

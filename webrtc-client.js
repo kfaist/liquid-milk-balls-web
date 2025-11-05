@@ -54,7 +54,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             localStream = await navigator.mediaDevices.getUserMedia(constraints);
             localVideo.srcObject = localStream;
-            
+
+            // Add connected animation class
+            const localWrapper = document.querySelector('.video-wrapper-local');
+            if (localWrapper) {
+                localWrapper.classList.add('connected');
+            }
+
             updateStatus('Camera started');
             updateButtonStates('cameraStarted');
             
@@ -87,10 +93,16 @@ document.addEventListener('DOMContentLoaded', function() {
             localStream.getTracks().forEach(track => track.stop());
             localVideo.srcObject = null;
             localStream = null;
-            
+
+            // Remove connected animation class
+            const localWrapper = document.querySelector('.video-wrapper-local');
+            if (localWrapper) {
+                localWrapper.classList.remove('connected');
+            }
+
             updateStatus('Camera stopped');
             updateButtonStates('cameraStopped');
-            
+
             // Also hangup if there's an active call
             if (peerConnection) {
                 hangup();
@@ -188,6 +200,13 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Received remote track');
             if (remoteVideo.srcObject !== event.streams[0]) {
                 remoteVideo.srcObject = event.streams[0];
+
+                // Add connected animation class
+                const remoteWrapper = document.querySelector('.video-wrapper-remote');
+                if (remoteWrapper) {
+                    remoteWrapper.classList.add('connected');
+                }
+
                 updateStatus('Receiving remote stream');
             }
         };
@@ -300,7 +319,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Clear remote video
         remoteVideo.srcObject = null;
-        
+
+        // Remove connected animation class
+        const remoteWrapper = document.querySelector('.video-wrapper-remote');
+        if (remoteWrapper) {
+            remoteWrapper.classList.remove('connected');
+        }
+
         updateStatus('Call ended');
         updateButtonStates('callEnded');
     }

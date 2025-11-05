@@ -41,7 +41,7 @@
         }
 
         .popout-button::before {
-            content: "⤢";
+            content: "▢";
         }
 
         @keyframes breathe {
@@ -123,7 +123,7 @@
     <div class="container">
         <header>
             <h1 class="title">The Mirror's Echo</h1>
-            <p class="subtitle">This project is dual-licensed: AGPL‑3.0‑or‑later for open-source use. Commercial licensing and alternative licensing arrangements are available - contact kristabluedoor@gmail.com for details.</p>
+            <p class="subtitle">The Mirror's Echo operates as an unlimited edition under open-source principles. Exhibition licensing and institutional partnerships are available—contact kristabluedoor@gmail.com for details.</p>
         </header>
         
         <main>
@@ -153,18 +153,8 @@
                     <p id="statusText">Ready to start</p>
                 </div>
 
-                <div class="transcription-display">
-                    <div class="transcription-header">
-                        <span class="transcription-icon">🎙️</span>
-                        <span class="transcription-label">Live Transcription</span>
-                        <button class="btn-transcription-toggle" id="transcriptionToggle">Start Listening</button>
-                    </div>
-                    <div class="transcription-text" id="transcriptionText">
-                        <span class="transcription-placeholder">Click "Start Listening" to begin live transcription...</span>
-                    </div>
-                </div>
             </section>
-            
+
             <section class="echo-section">
                 <div class="mirror-container">
                     <div class="mirror" id="mirror"></div>
@@ -178,135 +168,146 @@
             
             <section class="about-section">
                 <h2>About</h2>
-                <p>Interactive web-based art project with WebRTC streaming capabilities for TouchDesigner integration via OBS and NDI.</p>
+                <p><em>The Mirror's Echo</em> is a networked interactive work exploring presence, temporality, and reciprocity through real-time video transmission. The piece positions participants as both observers and subjects, creating a feedback loop where actions generate visual echoes that accumulate and transform over time.</p>
+
+                <p>Built on open protocols (WebRTC, LiveKit, NDI), the work operates as distributed infrastructure—each interaction exists simultaneously across multiple nodes: browser, server, and optional processing environments. This architecture enables the piece to function as both a self-contained web experience and as material for live visual manipulation through tools like TouchDesigner.</p>
+
+                <p>The work implements a temporal access model: seven minutes of unmediated experience, followed by progressive visual markers that reveal the piece's constructed nature. This durational framework questions assumptions about digital permanence and the economics of networked art.</p>
+
+                <p>Technical implementation merges web-native technologies with broadcast/VJ workflows, positioning the work within lineages of video feedback art (Steina & Woody Vasulka), telepresence projects (Kit Galloway & Sherrie Rabinowitz's <em>Satellite Arts</em>), and contemporary networked performance practices.</p>
+
+                <div style="margin: 2rem 0; padding: 2rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">
+                    <p style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 2; color: rgba(255,255,255,0.6); letter-spacing: 0.05em;">
+                        <strong style="color: rgba(255,255,255,0.9);">PROCESSING PIPELINE</strong><br><br>
+                        Camera Input → WebRTC/LiveKit → NVIDIA GPU Processing<br>
+                        ↓<br>
+                        Audio Stream → Whisper (Speech-to-Text)<br>
+                        ↓<br>
+                        Text → spaCy NLP (Entity Recognition, Semantic Analysis)<br>
+                        ↓<br>
+                        Video → TouchDesigner (Visual Processing, Effects, Generative Response)<br>
+                        ↓<br>
+                        Composite Output → NDI → OBS → WebRTC Return Path<br>
+                        ↓<br>
+                        Remote Viewer (Browser/Display)
+                    </p>
+                </div>
             </section>
-            
+
             <section class="about-section">
-                <h2>🎥 LiveKit Streaming Setup</h2>
+                <h2>Technical Infrastructure</h2>
                 <p>For production-quality streaming with OBS, NDI, and TouchDesigner integration:</p>
-                <div style="margin: 1.5rem 0; padding: 1.5rem; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 4px solid #0cf;">
+                <div style="margin: 1.5rem 0; padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 1px solid rgba(255,255,255,0.15);">
                     <p style="margin-bottom: 1rem;"><strong>Complete Bidirectional Workflow:</strong></p>
                     <ol style="margin-left: 2rem; line-height: 2;">
-                        <li><strong><a href="/publisher.html" style="color: #0cf; text-decoration: none;">Publisher Page</a>:</strong> Remote user captures webcam and publishes to LiveKit</li>
-                        <li><strong><a href="/ndi-viewer.html" style="color: #0cf; text-decoration: none;">NDI Viewer Page</a>:</strong> View the LiveKit stream (capture this in OBS Browser Source)</li>
+                        <li><strong><a href="/publisher.html">Publisher Page</a>:</strong> Remote user captures webcam and publishes to LiveKit</li>
+                        <li><strong><a href="/ndi-viewer.html">NDI Viewer Page</a>:</strong> View the LiveKit stream (capture this in OBS Browser Source)</li>
                         <li><strong>OBS:</strong> Capture NDI viewer page and enable NDI output (Tools → NDI Output Settings)</li>
                         <li><strong>TouchDesigner:</strong> Use NDI In TOP to receive stream from OBS, process & stylize</li>
                         <li><strong>TD Output:</strong> Use NDI Out TOP to send processed video back to OBS</li>
                         <li><strong>OBS Capture:</strong> Add NDI Source in OBS to receive processed video from TD</li>
-                        <li><strong><a href="/return-viewer.html" style="color: #0cf; text-decoration: none;">Return Viewer Page</a>:</strong> Remote user views processed video with fullscreen option</li>
+                        <li><strong><a href="/return-viewer.html">Return Viewer Page</a>:</strong> Remote user views processed video with fullscreen option</li>
                     </ol>
-                    <p style="margin-top: 1rem; padding: 1rem; background: rgba(0, 204, 255, 0.1); border-radius: 8px;">
-                        <strong>🔄 Complete Loop:</strong> Remote Camera → LiveKit → OBS → NDI → TouchDesigner (process) → NDI → Back to Remote Viewer in Real-Time
-                    </p>
-                    <p style="margin-top: 1rem; opacity: 0.8; font-size: 0.9rem;">
-                        <strong>Note:</strong> Requires LiveKit credentials in server environment variables.<br>
-                        ⚡ <a href="https://github.com/kfaist/liquid-milk-balls-web/blob/main/QUICK-OUTPUT-SETUP.md" style="color: #0cf;">QUICK-OUTPUT-SETUP.md</a> - Quick guide for connecting to output node<br>
-                        🌐 <a href="https://github.com/kfaist/liquid-milk-balls-web/blob/main/WEB-BROWSER-RETURN-PATH.md" style="color: #0cf;">WEB-BROWSER-RETURN-PATH.md</a> - How to get video back in web browser<br>
-                        📖 <a href="https://github.com/kfaist/liquid-milk-balls-web/blob/main/WEBRTC-SETUP.md" style="color: #0cf;">WEBRTC-SETUP.md</a> - Complete WebRTC setup<br>
-                        📖 <a href="https://github.com/kfaist/liquid-milk-balls-web/blob/main/TOUCHDESIGNER-OUTPUT-GUIDE.md" style="color: #0cf;">TOUCHDESIGNER-OUTPUT-GUIDE.md</a> - Detailed return path guide
+                    <p style="margin-top: 1rem; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 4px;">
+                        <strong>Signal Path:</strong> Remote Camera → LiveKit → OBS → NDI → TouchDesigner (process) → NDI → Back to Remote Viewer in Real-Time
                     </p>
                 </div>
             </section>
             
             <section class="payment-section">
-                <h2>Licensing & Commercial Use</h2>
+                <h2>Licensing & Access</h2>
+
+                <div class="licensing-statement">
+                    <p>The Mirror's Echo operates as an unlimited edition under open-source principles (AGPL-3.0), ensuring accessibility while sustaining ongoing development. Exhibition licenses and institutional partnerships support the continued evolution of networked digital art practices.</p>
+                </div>
 
                 <div class="payment-tiers">
-                    <!-- Free Tier -->
+                    <!-- Unlimited Edition Tier -->
                     <div class="payment-tier">
                         <div class="tier-header">
-                            <div class="tier-icon">🆓</div>
-                            <h3 class="tier-title">Open Source</h3>
-                            <div class="tier-price">Free</div>
+                            <div class="tier-price">Open Access</div>
+                            <h3 class="tier-title">Unlimited Edition</h3>
                         </div>
                         <p class="tier-description">
-                            Full access to source code under AGPL-3.0. Perfect for learning, personal projects, and open-source work.
+                            An unlimited edition available under open-source principles. Experience the work freely for educational, research, and non-commercial contexts. The piece presents itself fully for seven minutes before revealing its temporal nature through progressive visual markers.
                         </p>
                         <ul class="tier-features">
-                            <li>AGPL-3.0 license</li>
-                            <li>Full source code access</li>
-                            <li>7-minute clean demo</li>
-                            <li>Watermark after 7 minutes</li>
-                            <li>Community support</li>
+                            <li>Full source code access (AGPL-3.0)</li>
+                            <li>Unlimited non-commercial use</li>
+                            <li>Seven-minute sustained experience</li>
+                            <li>Progressive temporal markers</li>
+                            <li>Community & documentation support</li>
                         </ul>
-                        <a href="https://github.com/kfaist/liquid-milk-balls-web" class="tier-cta" target="_blank">View Source</a>
+                        <a href="https://github.com/kfaist/liquid-milk-balls-web" class="tier-cta" target="_blank">Access Source Code</a>
                     </div>
 
-                    <!-- Commercial Tier -->
+                    <!-- Exhibition License & Technical Residency Tier -->
                     <div class="payment-tier featured">
                         <div class="tier-header">
-                            <div class="tier-icon">💼</div>
-                            <h3 class="tier-title">Commercial License</h3>
-                            <div class="tier-price">$[RATE]/hour</div>
+                            <div class="tier-price">Starting at $400</div>
+                            <h3 class="tier-title">Exhibition License & Technical Residency</h3>
                         </div>
                         <p class="tier-description">
-                            Remove watermark and support independent digital art. Custom quotes based on your needs, billed hourly.
+                            For professional contexts, commercial applications, and exhibition settings. Includes unrestricted access to the work without temporal markers, plus optional technical residency support for complex integrations.
                         </p>
                         <ul class="tier-features">
-                            <li>Watermark removal</li>
-                            <li>Commercial usage rights</li>
-                            <li>Custom modifications</li>
-                            <li>Integration support</li>
-                            <li>Direct technical assistance</li>
-                            <li>Flexible licensing terms</li>
+                            <li>Unlimited sustained experience (no temporal markers)</li>
+                            <li>Commercial exhibition rights</li>
+                            <li>Professional use licensing</li>
+                            <li>Optional: Technical residency support ($150/hour)</li>
+                            <li>TouchDesigner/LiveKit integration consultation</li>
+                            <li>Custom configuration assistance</li>
                         </ul>
-                        <a href="mailto:kristabluedoor@gmail.com?subject=Commercial License Inquiry - The Mirror's Echo" class="tier-cta featured">Contact for Quote</a>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 2rem;">
+                            <button class="tier-cta featured" id="purchaseLicenseBtn">Purchase Exhibition License — $400</button>
+                            <a href="mailto:kristabluedoor@gmail.com?subject=Technical Residency Inquiry" class="tier-cta">Book Technical Residency</a>
+                        </div>
                     </div>
 
-                    <!-- Gallery/Exhibition Tier -->
+                    <!-- Institutional Partnership Tier -->
                     <div class="payment-tier">
                         <div class="tier-header">
-                            <div class="tier-icon">🎨</div>
-                            <h3 class="tier-title">Gallery & Exhibitions</h3>
-                            <div class="tier-price">Custom</div>
+                            <div class="tier-price">Bespoke</div>
+                            <h3 class="tier-title">Institutional Partnership</h3>
                         </div>
                         <p class="tier-description">
-                            For galleries, museums, and public installations. Includes licensing, technical setup, and exhibition support.
+                            For galleries, museums, and biennials. Comprehensive partnership with curatorial consultation and on-site residency throughout the exhibition period.
                         </p>
                         <ul class="tier-features">
-                            <li>Exhibition licensing</li>
-                            <li>Installation assistance</li>
-                            <li>Custom configurations</li>
-                            <li>Technical documentation</li>
-                            <li>On-site support available</li>
+                            <li>Complete licensing</li>
+                            <li>Curatorial consultation</li>
+                            <li>On-site residency</li>
                         </ul>
-                        <a href="mailto:chaoscontemporarycraft@gmail.com?subject=Exhibition Inquiry - The Mirror's Echo" class="tier-cta">Contact Gallery</a>
+                        <a href="mailto:chaoscontemporarycraft@gmail.com?subject=Institutional Partnership" class="tier-cta">Initiate Partnership</a>
                     </div>
                 </div>
 
-                <div style="text-align: center; margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 10px;">
-                    <p style="color: #aaa; font-size: 0.9rem; line-height: 1.8;">
-                        This project is open source (AGPL-3.0) and free for non-commercial use. Commercial licensing helps support ongoing development and server costs.<br>
-                        <strong>Technical & Licensing:</strong> <a href="mailto:kristabluedoor@gmail.com" style="color: #0cf;">kristabluedoor@gmail.com</a> |
-                        <strong>Gallery & Exhibitions:</strong> <a href="mailto:chaoscontemporarycraft@gmail.com" style="color: #0cf;">chaoscontemporarycraft@gmail.com</a>
+                <div class="contact-info">
+                    <p>
+                        <strong>Artist/Technical:</strong> <a href="mailto:kristabluedoor@gmail.com">kristabluedoor@gmail.com</a><br>
+                        <strong>Curatorial/Institutional:</strong> <a href="mailto:chaoscontemporarycraft@gmail.com">chaoscontemporarycraft@gmail.com</a>
                     </p>
                 </div>
             </section>
 
             <section class="about-section">
-                <h2>UI Guide</h2>
-                <p><strong>Mirror Section:</strong></p>
-                <ul style="margin-left: 2rem; margin-bottom: 1rem; line-height: 1.8;">
-                    <li><strong>Mirror Circle:</strong> Click anywhere on the mirror to create ripple effects and change the echo message</li>
-                    <li><strong>Create Echo:</strong> Generates multiple ripples at once and changes the mirror's color every 5 clicks</li>
-                    <li><strong>Clear:</strong> Resets the mirror to its initial state and message</li>
-                </ul>
-                
-                <p><strong>WebRTC Section:</strong></p>
-                <ul style="margin-left: 2rem; line-height: 1.8;">
-                    <li><strong>Local Camera:</strong> Video preview of your webcam feed (displays after clicking Start Camera)</li>
-                    <li><strong>Remote Stream:</strong> Video preview of the peer's webcam feed (displays after WebRTC connection)</li>
-                    <li><strong>Start Camera:</strong> Requests access to your webcam and displays it in Local Camera preview</li>
-                    <li><strong>Stop Camera:</strong> Stops the camera feed and releases the webcam (enabled after camera starts)</li>
-                    <li><strong>Start WebRTC Call:</strong> Connects to the signaling server and establishes peer-to-peer connection (enabled after camera starts)</li>
-                    <li><strong>Hang Up:</strong> Ends the WebRTC call and closes the peer connection (enabled during active call)</li>
-                    <li><strong>Status Display:</strong> Shows real-time status messages about camera and connection state</li>
-                </ul>
+                <h2>Interaction</h2>
+                <p>The work responds to presence through multiple modes of engagement. Each interaction generates visual echoes that accumulate temporally within the system.</p>
+
+                <p style="margin-top: 1.5rem;"><strong>Mirror Interface:</strong></p>
+                <p style="margin-left: 2rem; margin-bottom: 1rem; line-height: 1.8; opacity: 0.8;">
+                    Direct interaction with the circular interface generates ripple formations. Accumulated interactions trigger chromatic shifts every five engagements. The Clear function returns the system to its initial state.
+                </p>
+
+                <p style="margin-top: 1.5rem;"><strong>Video Transmission:</strong></p>
+                <p style="margin-left: 2rem; line-height: 1.8; opacity: 0.8;">
+                    WebRTC protocols enable peer-to-peer video transmission. Local and remote streams establish reciprocal viewing positions. The work's temporal markers emerge after seven minutes of sustained connection, revealing the constructed nature of the experience.
+                </p>
             </section>
         </main>
         
         <footer>
-            <p>&copy; 2025 The Mirror's Echo | Deployed on GitLab Pages</p>
+            <p>&copy; 2025 The Mirror's Echo</p>
         </footer>
     </div>
 
@@ -314,7 +315,7 @@
     <div class="fullscreen-overlay" id="fullscreenOverlay">
         <div class="fullscreen-header">
             <h2>Remote Stream - Fullscreen</h2>
-            <button class="close-button" id="closeBtn">✕ Close</button>
+            <button class="close-button" id="closeBtn">Close</button>
         </div>
         <div class="fullscreen-video">
             <video id="fullscreenVideo" autoplay playsinline></video>
@@ -334,20 +335,39 @@
         const fullscreenOverlay = document.getElementById('fullscreenOverlay');
         const remoteVideo = document.getElementById('remoteVideo');
         const fullscreenVideo = document.getElementById('fullscreenVideo');
+        const remoteWrapper = document.querySelector('.video-wrapper-remote');
+
+        // Function to open popup
+        function openPopup() {
+            if (remoteVideo.srcObject) {
+                fullscreenVideo.srcObject = remoteVideo.srcObject;
+                fullscreenOverlay.classList.add('active');
+            }
+        }
 
         // Show popout button when remote stream is active
         const observer = new MutationObserver(() => {
             if (remoteVideo.srcObject) {
                 popoutBtn.style.display = 'flex';
+                remoteWrapper.style.cursor = 'pointer';
             } else {
                 popoutBtn.style.display = 'none';
+                remoteWrapper.style.cursor = 'default';
             }
         });
         observer.observe(remoteVideo, { attributes: true, attributeFilter: ['srcObject'] });
 
-        popoutBtn.addEventListener('click', () => {
-            fullscreenVideo.srcObject = remoteVideo.srcObject;
-            fullscreenOverlay.classList.add('active');
+        // Hover over entire remote video area to popup
+        remoteWrapper.addEventListener('mouseenter', () => {
+            if (remoteVideo.srcObject) {
+                openPopup();
+            }
+        });
+
+        // Click button to popup (backup)
+        popoutBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openPopup();
         });
 
         closeBtn.addEventListener('click', () => {
@@ -360,6 +380,69 @@
                 fullscreenOverlay.classList.remove('active');
             }
         });
+    </script>
+
+    <!-- Stripe Checkout -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        // Initialize Stripe with publishable key from server
+        let stripeInstance = null;
+
+        // Fetch Stripe configuration on page load
+        async function initializeStripe() {
+            try {
+                const response = await fetch('/api/stripe-config');
+                if (response.ok) {
+                    const { publishableKey } = await response.json();
+                    stripeInstance = Stripe(publishableKey);
+                }
+            } catch (error) {
+                console.log('Stripe not configured:', error);
+            }
+        }
+
+        initializeStripe();
+
+        const purchaseBtn = document.getElementById('purchaseLicenseBtn');
+
+        if (purchaseBtn) {
+            purchaseBtn.addEventListener('click', async () => {
+                purchaseBtn.disabled = true;
+                purchaseBtn.textContent = 'Loading...';
+
+                try {
+                    // Create checkout session
+                    const response = await fetch('/api/create-checkout-session', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Payment system unavailable');
+                    }
+
+                    const { sessionId } = await response.json();
+
+                    // Redirect to Stripe Checkout if configured
+                    if (stripeInstance) {
+                        const { error } = await stripeInstance.redirectToCheckout({ sessionId });
+                        if (error) {
+                            throw new Error(error.message);
+                        }
+                    } else {
+                        // Fallback if Stripe not configured
+                        throw new Error('Payment system not configured. Please contact kristabluedoor@gmail.com to complete purchase.');
+                    }
+
+                } catch (error) {
+                    console.error('Checkout error:', error);
+                    alert(error.message || 'Unable to start checkout. Please contact kristabluedoor@gmail.com');
+                    purchaseBtn.disabled = false;
+                    purchaseBtn.textContent = 'Purchase Exhibition License — $400';
+                }
+            });
+        }
     </script>
 </body>
 </html>

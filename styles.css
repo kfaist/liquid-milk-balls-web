@@ -20,6 +20,17 @@ body {
     overflow-x: hidden;
 }
 
+/* Clean, visible link styling */
+a {
+    color: #6495ed;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #87ceeb;
+}
+
 .container {
     max-width: 1200px;
     width: 90%;
@@ -255,6 +266,14 @@ header {
     flex: 1;
     min-width: 280px;
     max-width: 500px;
+    opacity: 0.5;
+    transform: scale(0.95);
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.video-wrapper.connected {
+    opacity: 1;
+    transform: scale(1);
 }
 
 .video-wrapper-local {
@@ -486,6 +505,7 @@ footer {
     position: absolute;
     border-radius: 50%;
     pointer-events: none;
+    overflow: hidden;
     background: radial-gradient(
         circle at 30% 30%,
         hsla(var(--raindrop-hue, 200), 70%, 70%, var(--raindrop-intensity, 0.3)) 0%,
@@ -518,6 +538,24 @@ footer {
         opacity: 0;
         transform: translate(-50%, -50%) scale(1.2);
     }
+}
+
+/* Raindrop shimmer line effect */
+.raindrop-shimmer {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        hsla(var(--shimmer-hue, 200), 70%, 90%, 0.4),
+        transparent
+    );
+    transform: rotate(45deg);
+    animation: shimmer infinite;
+    pointer-events: none;
 }
 
 /* Glassmorphism Text Overlay */
@@ -609,10 +647,46 @@ footer {
 .payment-section h2 {
     font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
     font-size: 2.2rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
     text-align: center;
     color: #ffffff;
     text-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+}
+
+.licensing-statement {
+    max-width: 800px;
+    margin: 0 auto 3rem auto;
+    text-align: center;
+}
+
+.licensing-statement p {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 300;
+}
+
+.contact-info {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.contact-info p {
+    font-size: 0.85rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.contact-info a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.contact-info a:hover {
+    color: #ffffff;
 }
 
 .payment-tiers {
@@ -639,32 +713,31 @@ footer {
 }
 
 .payment-tier.featured {
-    border-color: #0cf;
-    background: rgba(0, 204, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.5);
 }
 
 .tier-header {
-    margin-bottom: 1rem;
-}
-
-.tier-icon {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.tier-title {
-    font-family: 'Futura', 'Century Gothic', sans-serif;
-    font-size: 1.5rem;
-    color: #ffffff;
-    margin-bottom: 0.5rem;
+    margin-bottom: 2rem;
 }
 
 .tier-price {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 1.8rem;
-    color: #0cf;
-    margin-bottom: 1rem;
-    font-weight: 700;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 0.5rem;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+.tier-title {
+    font-family: 'Futura', 'Century Gothic', sans-serif;
+    font-size: 1.4rem;
+    color: #ffffff;
+    margin-bottom: 0;
+    font-weight: 400;
+    letter-spacing: 0.02em;
 }
 
 .tier-description {
@@ -689,42 +762,40 @@ footer {
 }
 
 .tier-features li::before {
-    content: "✓ ";
-    color: #0cf;
-    font-weight: bold;
-    margin-right: 0.5rem;
+    content: "— ";
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: normal;
+    margin-right: 0.75rem;
 }
 
 .tier-cta {
     font-family: 'JetBrains Mono', monospace;
-    padding: 1rem 2rem;
-    font-size: 1rem;
-    border: 2px solid #ffffff;
-    border-radius: 50px;
-    background: #000000;
+    padding: 0.9rem 2rem;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 0;
+    background: transparent;
     color: #ffffff;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     text-decoration: none;
     display: inline-block;
-    font-weight: 600;
+    font-weight: 400;
+    letter-spacing: 0.05em;
 }
 
 .tier-cta:hover {
-    transform: translateY(-2px);
-    background: #ffffff;
-    color: #000000;
-    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .tier-cta.featured {
-    border-color: #0cf;
-    color: #0cf;
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 .tier-cta.featured:hover {
-    background: #0cf;
-    color: #000000;
+    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
 }
 
 /* Responsive payment section */
@@ -985,4 +1056,161 @@ footer {
         opacity: 0.5;
         box-shadow: 0 0 0 10px rgba(0, 255, 0, 0);
     }
+}
+
+/* Site-wide Temporal Shimmer Effects (7-10 min) */
+
+/* Phase 1: Whisper (7-8 min) - Very subtle background shimmer */
+body.temporal-phase-1::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.01) 50%,
+        transparent 100%
+    );
+    animation: shimmerSlow 20s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 9998;
+}
+
+/* Phase 2: Murmur (8-9 min) - More visible shimmer + section pulses */
+body.temporal-phase-2::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.02) 50%,
+        transparent 100%
+    );
+    animation: shimmerMedium 15s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 9998;
+}
+
+body.temporal-phase-2 .echo-section,
+body.temporal-phase-2 .about-section {
+    animation: sectionPulse 8s ease-in-out infinite;
+}
+
+/* Phase 3: Presence (9-10 min) - Clear shimmer + ripples */
+body.temporal-phase-3::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.03) 50%,
+        transparent 100%
+    );
+    animation: shimmerFast 10s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 9998;
+}
+
+body.temporal-phase-3 .echo-section,
+body.temporal-phase-3 .about-section,
+body.temporal-phase-3 .webrtc-section {
+    animation: sectionPulse 6s ease-in-out infinite;
+}
+
+/* Phase 4: Undeniable (10+ min) - Full shimmer + all effects */
+body.temporal-phase-4::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.04) 50%,
+        transparent 100%
+    );
+    animation: shimmerIntense 8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 9998;
+}
+
+body.temporal-phase-4 .echo-section,
+body.temporal-phase-4 .about-section,
+body.temporal-phase-4 .webrtc-section {
+    animation: sectionPulse 4s ease-in-out infinite;
+}
+
+/* Very subtle effect on Start Camera button (humor!) */
+body.temporal-phase-4 #startCameraBtn:not(:disabled) {
+    animation: subtleButtonGlow 3s ease-in-out infinite;
+}
+
+/* Shimmer Animations */
+@keyframes shimmerSlow {
+    0%, 100% { transform: translateX(-100%) rotate(45deg); }
+    50% { transform: translateX(100%) rotate(45deg); }
+}
+
+@keyframes shimmerMedium {
+    0%, 100% { transform: translateX(-100%) rotate(45deg); }
+    50% { transform: translateX(100%) rotate(45deg); }
+}
+
+@keyframes shimmerFast {
+    0%, 100% { transform: translateX(-100%) rotate(45deg); }
+    50% { transform: translateX(100%) rotate(45deg); }
+}
+
+@keyframes shimmerIntense {
+    0%, 100% { transform: translateX(-100%) rotate(45deg); opacity: 0.5; }
+    50% { transform: translateX(100%) rotate(45deg); opacity: 1; }
+}
+
+/* Section Pulse */
+@keyframes sectionPulse {
+    0%, 100% {
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        border-color: #333333;
+    }
+    50% {
+        box-shadow: 0 8px 32px 0 rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+}
+
+/* Subtle Button Glow (for Start Camera) */
+@keyframes subtleButtonGlow {
+    0%, 100% {
+        box-shadow: none;
+    }
+    50% {
+        box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* Protected areas - NO effects on payment/licensing */
+.payment-section,
+.payment-tier,
+.tier-cta,
+.contact-info {
+    animation: none !important;
+}
+
+.payment-section::before,
+.payment-tier::before,
+.tier-cta::before {
+    display: none !important;
 }

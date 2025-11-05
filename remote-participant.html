@@ -235,14 +235,14 @@
                 inputVideo.srcObject = localStream;
                 startBtn.disabled = true;
                 startBtn.textContent = 'Camera Active';
-                statusText.textContent = '✅ Camera active - Connecting to stream...';
+                statusText.textContent = 'Camera active - Connecting to stream...';
                 
                 await connectPublisher();
                 await connectSubscriber();
                 
             } catch (error) {
                 console.error('Camera error:', error);
-                statusText.textContent = '❌ Camera access denied';
+                statusText.textContent = 'Camera access denied';
             }
         });
 
@@ -250,7 +250,7 @@
             publisherSocket = new WebSocket(SIGNALING_URL);
             
             publisherSocket.onopen = () => {
-                console.log('✅ Publisher connected');
+                console.log('Publisher connected');
                 publisherSocket.send(JSON.stringify({ type: 'join-room', room: 'input-room' }));
             };
             
@@ -289,7 +289,7 @@
             subscriberSocket = new WebSocket(SIGNALING_URL);
             
             subscriberSocket.onopen = () => {
-                console.log('✅ Subscriber connected');
+                console.log('Subscriber connected');
                 subscriberSocket.send(JSON.stringify({ type: 'join-room', room: 'output-room' }));
             };
             
@@ -313,10 +313,10 @@
             subscriberConnection = new RTCPeerConnection(rtcConfig);
             
             subscriberConnection.ontrack = (event) => {
-                console.log('🎥 Received output stream');
+                console.log('Received output stream');
                 outputVideo.srcObject = event.streams[0];
                 fullscreenVideo.srcObject = event.streams[0];
-                statusText.textContent = '🎥 Live! Receiving processed stream';
+                statusText.textContent = 'Live! Receiving processed stream';
                 popoutBtn.style.display = 'flex';
             };
             
