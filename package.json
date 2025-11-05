@@ -23,10 +23,10 @@
   "author": "kfaist",
   "license": "AGPL-3.0-or-later",
   "dependencies": {
-    "ws": "^8.18.0",
+    "@paypal/checkout-server-sdk": "^1.0.3",
     "express": "^4.21.1",
-    "livekit-server-sdk": "^2.0.0",
+    "livekit-server-sdk": "^2.14.0",
     "stripe": "^14.0.0",
-    "@paypal/checkout-server-sdk": "^1.0.3"
+    "ws": "^8.18.0"
   }
 }
