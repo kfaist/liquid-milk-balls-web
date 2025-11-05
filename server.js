@@ -3,6 +3,8 @@ const path = require("path");
 const http = require("http");
 const { WebSocketServer } = require("ws");
 const { AccessToken } = require("livekit-server-sdk");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const paypal = require("@paypal/checkout-server-sdk");
 
 const PORT = process.env.PORT || 3000;
 const app = express();
