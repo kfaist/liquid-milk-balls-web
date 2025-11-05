@@ -180,6 +180,23 @@
                 <p>The work implements a temporal access model: seven minutes of unmediated experience, followed by progressive visual markers that reveal the piece's constructed nature. This durational framework questions assumptions about digital permanence and the economics of networked art.</p>
 
                 <p>Technical implementation merges web-native technologies with broadcast/VJ workflows, positioning the work within lineages of video feedback art (Steina & Woody Vasulka), telepresence projects (Kit Galloway & Sherrie Rabinowitz's <em>Satellite Arts</em>), and contemporary networked performance practices.</p>
+
+                <div style="margin: 2rem 0; padding: 2rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">
+                    <p style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 2; color: rgba(255,255,255,0.6); letter-spacing: 0.05em;">
+                        <strong style="color: rgba(255,255,255,0.9);">PROCESSING PIPELINE</strong><br><br>
+                        Camera Input → WebRTC/LiveKit → NVIDIA GPU Processing<br>
+                        ↓<br>
+                        Audio Stream → Whisper (Speech-to-Text)<br>
+                        ↓<br>
+                        Text → spaCy NLP (Entity Recognition, Semantic Analysis)<br>
+                        ↓<br>
+                        Video → TouchDesigner (Visual Processing, Effects, Generative Response)<br>
+                        ↓<br>
+                        Composite Output → NDI → OBS → WebRTC Return Path<br>
+                        ↓<br>
+                        Remote Viewer (Browser/Display)
+                    </p>
+                </div>
             </section>
 
             <section class="about-section">
