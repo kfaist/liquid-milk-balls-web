@@ -265,10 +265,11 @@ header {
 .video-wrapper {
     flex: 1;
     min-width: 280px;
-    max-width: 500px;
+    max-width: 800px;
     opacity: 0.5;
     transform: scale(0.95);
     transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
 }
 
 .video-wrapper.connected {
@@ -276,14 +277,19 @@ header {
     transform: scale(1);
 }
 
+.video-wrapper:hover .popout-button {
+    opacity: 1 !important;
+    transform: scale(1.1);
+}
+
 .video-wrapper-local {
     flex: 1;
-    max-width: 500px;
+    max-width: 800px;
 }
 
 .video-wrapper-remote {
     flex: 1;
-    max-width: 500px;
+    max-width: 800px;
 }
 
 .video-wrapper video {
