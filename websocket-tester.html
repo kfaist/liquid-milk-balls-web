@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Connection Tester</title>
+    <style>
+        body { 
+            background: #000; 
+            color: #0f0; 
+            font-family: 'Courier New', monospace; 
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 { color: #0cf; border-bottom: 2px solid #0cf; padding-bottom: 10px; }
+        .status { 
+            padding: 15px; 
+            margin: 20px 0; 
+            border-radius: 10px;
+            border: 2px solid #333;
+        }
+        .connected { background: rgba(0,255,0,0.1); border-color: #0f0; }
+        .disconnected { background: rgba(255,0,0,0.1); border-color: #f00; }
+        .info { background: rgba(0,255,255,0.1); border-color: #0cf; }
+        button { 
+            padding: 15px 30px; 
+            font-size: 16px; 
+            background: #0cf; 
+            color: #000; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            margin: 10px 10px 10px 0;
+            font-weight: bold;
+        }
+        button:disabled {
+            background: #333;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .log { 
+            background: rgba(0,255,255,0.05); 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin: 20px 0;
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #333;
+        }
+        .log-entry {
+            padding: 8px;
+            margin: 4px 0;
+            border-left: 3px solid #0cf;
+            background: rgba(255,255,255,0.02);
+        }
+        .log-entry.sent { border-left-color: #ff0; color: #ff0; }
+        .log-entry.received { border-left-color: #0f0; color: #0f0; }
+        .log-entry.error { border-left-color: #f00; color: #f00; }
+    </style>
+</head>
+<body>
+    <h1>🔌 WebSocket Connection Tester</h1>
+    
+    <div class="status info">
+        <strong>Server:</strong> <span id="serverUrl">Loading...</span><br>
+        <strong>Status:</strong> <span id="connectionStatus">Not connected</span><br>
+        <strong>Clients Connected:</strong> <span id="clientCount">0</span>
+    </div>
+    
+    <div>
+        <button id="connectBtn">Connect to Server</button>
+        <button id="disconnectBtn" disabled>Disconnect</button>
+        <button id="sendJoinBtn" disabled>Send JOIN Message</button>
+        <button id="clearLogBtn">Clear Log</button>
+    </div>
+    
+    <h2>📜 Message Log</h2>
+    <div class="log" id="logContainer"></div>
+    
+    <div class="status info">
+        <h3>How to Use This Tester:</h3>
+        <ol style="line-height: 2;">
+            <li>Click "Connect to Server" - should see connection success</li>
+            <li>Click "Send JOIN Message" - mimics what your app does</li>
+            <li>Open another browser tab with this same page</li>
+            <li>Connect the second tab - watch messages flow between tabs</li>
+            <li>If both tabs see "ready" or offer messages, WebSocket is working!</li>
+        </ol>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        let ws = null;
+        const serverUrlSpan = document.getElementById('serverUrl');
+        const statusSpan = document.getElementById('connectionStatus');
+        const clientCountSpan = document.getElementById('clientCount');
+        const logContainer = document.getElementById('logContainer');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const sendJoinBtn = document.getElementById('sendJoinBtn');
+        const clearLogBtn = document.getElementById('clearLogBtn');
+        
+        // Get WebSocket URL from config
+        const WS_URL = window.SIGNALING_SERVER_URL || 'ws://localhost:3000/ws';
+        serverUrlSpan.textContent = WS_URL;
+        
+        function addLog(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        connectBtn.addEventListener('click', () => {
+            if (ws) {
+                addLog('Already connected!', 'error');
+                return;
+            }
+            
+            addLog('🔌 Connecting to ' + WS_URL + '...');
+            
+            try {
+                ws = new WebSocket(WS_URL);
+                
+                ws.onopen = () => {
+                    addLog('✅ Connected to server!', 'received');
+                    statusSpan.textContent = 'Connected';
+                    statusSpan.parentElement.className = 'status connected';
+                    connectBtn.disabled = true;
+                    disconnectBtn.disabled = false;
+                    sendJoinBtn.disabled = false;
+                };
+                
+                ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    addLog(`📥 Received: ${JSON.stringify(data, null, 2)}`, 'received');
+                };
+                
+                ws.onerror = (error) => {
+                    addLog('❌ WebSocket error: ' + error, 'error');
+                    statusSpan.textContent = 'Error';
+                    statusSpan.parentElement.className = 'status disconnected';
+                };
+                
+                ws.onclose = () => {
+                    addLog('⚠️ Disconnected from server', 'error');
+                    statusSpan.textContent = 'Disconnected';
+                    statusSpan.parentElement.className = 'status disconnected';
+                    connectBtn.disabled = false;
+                    disconnectBtn.disabled = true;
+                    sendJoinBtn.disabled = true;
+                    ws = null;
+                };
+                
+            } catch (error) {
+                addLog('❌ Connection failed: ' + error.message, 'error');
+            }
+        });
+        
+        disconnectBtn.addEventListener('click', () => {
+            if (ws) {
+                ws.close();
+                addLog('🔌 Manually disconnected');
+            }
+        });
+        
+        sendJoinBtn.addEventListener('click', () => {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                addLog('❌ Not connected to server!', 'error');
+                return;
+            }
+            
+            const joinMsg = { type: 'join' };
+            ws.send(JSON.stringify(joinMsg));
+            addLog(`📤 Sent: ${JSON.stringify(joinMsg)}`, 'sent');
+        });
+        
+        clearLogBtn.addEventListener('click', () => {
+            logContainer.innerHTML = '';
+            addLog('🗑️ Log cleared');
+        });
+        
+        // Show initial log message
+        addLog('👋 WebSocket Tester ready! Click "Connect to Server" to start.');
+    </script>
+</body>
+</html>

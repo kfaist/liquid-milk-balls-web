@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Camera Detector</title>
+    <style>
+        body { background: #000; color: #0cf; font-family: monospace; padding: 40px; }
+        button { padding: 20px; font-size: 18px; background: #0cf; color: #000; border: none; border-radius: 10px; cursor: pointer; margin: 20px 0; }
+        #devices { background: rgba(0,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .device { padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.05); border-left: 3px solid #0cf; }
+    </style>
+</head>
+<body>
+    <h1>🎥 Camera Device Detector</h1>
+    <button onclick="listDevices()">List All Cameras</button>
+    <div id="devices"></div>
+    
+    <script>
+        async function listDevices() {
+            const output = document.getElementById('devices');
+            output.innerHTML = '<p>🔍 Detecting cameras...</p>';
+            
+            try {
+                // First request permission
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                stream.getTracks().forEach(track => track.stop()); // Stop immediately
+                
+                // Now list all devices
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(d => d.kind === 'videoinput');
+                
+                output.innerHTML = `<h2>Found ${videoDevices.length} camera(s):</h2>`;
+                
+                videoDevices.forEach((device, index) => {
+                    output.innerHTML += `
+                        <div class="device">
+                            <strong>Camera ${index + 1}:</strong> ${device.label || 'Unknown Camera'}<br>
+                            <small>ID: ${device.deviceId}</small>
+                        </div>
+                    `;
+                });
+                
+                const hasOBS = videoDevices.some(d => d.label.toLowerCase().includes('obs'));
+                if (hasOBS) {
+                    output.innerHTML += '<p style="color: #0f0; font-size: 20px; margin-top: 20px;">✅ OBS Virtual Camera DETECTED!</p>';
+                } else {
+                    output.innerHTML += '<p style="color: #f80; font-size: 20px; margin-top: 20px;">⚠️ OBS Virtual Camera NOT found. Is it started in OBS?</p>';
+                }
+                
+            } catch (error) {
+                output.innerHTML = `<p style="color: #f00;">❌ Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
