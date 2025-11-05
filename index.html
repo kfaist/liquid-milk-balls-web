@@ -120,6 +120,9 @@
     </style>
 </head>
 <body>
+    <!-- Watermark overlay - appears OVER everything at 8+ minutes (not capturable by OBS) -->
+    <div id="watermark-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></div>
+
     <div class="container">
         <header>
             <h1 class="title">The Mirror's Echo</h1>
@@ -395,22 +398,22 @@
             openLocalPopup();
         });
 
-        // TEMPORAL SHIMMER CLICK TRIGGER
-        // Click the mirror to cycle through temporal phases for testing
+        // PLAYFUL CLICK INTERACTION (0-8 minutes)
+        // Clicking creates raindrops on video/mirror elements (capturable by camera/OBS)
         const mirror = document.getElementById('mirror');
-        let currentPhase = 0; // 0 = no phase, 1-4 = temporal phases
-        let testRaindropCount = 0; // For color cycling
+        let clickCount = 0; // Track total clicks for phase progression
+        let raindropColorIndex = 0; // For color cycling
 
-        // Function to create test raindrops
-        function createTestRaindrops(phase) {
+        // Function to create playful raindrops (inside capturable elements)
+        function createPlayfulRaindrops() {
             const containers = [
                 document.querySelector('.video-wrapper-local'),
                 document.querySelector('.video-wrapper-remote'),
                 document.querySelector('.mirror')
             ];
 
-            // Number of raindrops based on phase
-            const dropCount = phase * 2; // Phase 1 = 2 drops, Phase 4 = 8 drops
+            // More raindrops = more fun! 5-8 drops per click
+            const dropCount = 5 + Math.floor(Math.random() * 4);
 
             for (let i = 0; i < dropCount; i++) {
                 setTimeout(() => {
@@ -425,44 +428,51 @@
                     raindrop.style.left = x + '%';
                     raindrop.style.top = y + '%';
 
-                    const hue = (Math.floor(testRaindropCount / 5) * 30) % 360;
-                    const size = 80 + Math.random() * 100;
-                    const duration = 1.5 + Math.random();
+                    // Color cycles through rainbow every 3 clicks
+                    const hue = (Math.floor(raindropColorIndex / 3) * 40) % 360;
+                    const size = 60 + Math.random() * 120;
+                    const duration = 1.2 + Math.random() * 0.8;
 
                     raindrop.style.width = size + 'px';
                     raindrop.style.height = size + 'px';
-                    raindrop.style.border = `3px solid hsla(${hue}, 80%, 60%, 0.8)`;
+                    raindrop.style.border = `3px solid hsla(${hue}, 85%, 65%, 0.9)`;
                     raindrop.style.animation = `raindropRipple ${duration}s ease-out forwards`;
 
                     container.appendChild(raindrop);
-                    testRaindropCount++;
+                    raindropColorIndex++;
 
                     setTimeout(() => raindrop.remove(), duration * 1000);
-                }, i * 200); // Stagger the raindrops
+                }, i * 150); // Faster stagger for more chaos
+            }
+        }
+
+        // Update shimmer phase based on click count
+        function updatePhaseFromClicks() {
+            const body = document.body;
+            body.classList.remove('temporal-phase-1', 'temporal-phase-2', 'temporal-phase-3', 'temporal-phase-4');
+
+            // Gradually increase phase: 0-10 clicks = phase 1, 11-20 = phase 2, etc.
+            if (clickCount > 30) {
+                body.classList.add('temporal-phase-4');
+            } else if (clickCount > 20) {
+                body.classList.add('temporal-phase-3');
+            } else if (clickCount > 10) {
+                body.classList.add('temporal-phase-2');
+            } else if (clickCount > 3) {
+                body.classList.add('temporal-phase-1');
             }
         }
 
         if (mirror) {
             mirror.addEventListener('click', () => {
-                const body = document.body;
+                clickCount++;
+                console.log(`Click ${clickCount} - Creating playful raindrops`);
 
-                // Remove all phase classes
-                body.classList.remove('temporal-phase-1', 'temporal-phase-2', 'temporal-phase-3', 'temporal-phase-4');
+                // Create raindrops on capturable elements
+                createPlayfulRaindrops();
 
-                // Cycle to next phase
-                currentPhase = (currentPhase % 5) + 1;
-
-                // Apply new phase class (or none if phase is 5, which wraps to 0)
-                if (currentPhase <= 4) {
-                    body.classList.add(`temporal-phase-${currentPhase}`);
-                    console.log(`Temporal shimmer: Phase ${currentPhase} activated`);
-
-                    // Create test raindrops for visual feedback
-                    createTestRaindrops(currentPhase);
-                } else {
-                    currentPhase = 0; // Reset to no phase
-                    console.log('Temporal shimmer: All phases cleared');
-                }
+                // Update shimmer phase
+                updatePhaseFromClicks();
             });
         }
     </script>
