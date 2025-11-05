@@ -330,20 +330,39 @@
         const fullscreenOverlay = document.getElementById('fullscreenOverlay');
         const remoteVideo = document.getElementById('remoteVideo');
         const fullscreenVideo = document.getElementById('fullscreenVideo');
+        const remoteWrapper = document.querySelector('.video-wrapper-remote');
+
+        // Function to open popup
+        function openPopup() {
+            if (remoteVideo.srcObject) {
+                fullscreenVideo.srcObject = remoteVideo.srcObject;
+                fullscreenOverlay.classList.add('active');
+            }
+        }
 
         // Show popout button when remote stream is active
         const observer = new MutationObserver(() => {
             if (remoteVideo.srcObject) {
                 popoutBtn.style.display = 'flex';
+                remoteWrapper.style.cursor = 'pointer';
             } else {
                 popoutBtn.style.display = 'none';
+                remoteWrapper.style.cursor = 'default';
             }
         });
         observer.observe(remoteVideo, { attributes: true, attributeFilter: ['srcObject'] });
 
-        popoutBtn.addEventListener('click', () => {
-            fullscreenVideo.srcObject = remoteVideo.srcObject;
-            fullscreenOverlay.classList.add('active');
+        // Hover over entire remote video area to popup
+        remoteWrapper.addEventListener('mouseenter', () => {
+            if (remoteVideo.srcObject) {
+                openPopup();
+            }
+        });
+
+        // Click button to popup (backup)
+        popoutBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openPopup();
         });
 
         closeBtn.addEventListener('click', () => {
