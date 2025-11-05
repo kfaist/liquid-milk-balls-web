@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful — The Mirror's Echo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: #000;
+            color: rgba(255, 255, 255, 0.9);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 2rem;
+            letter-spacing: 0.1em;
+            opacity: 0.9;
+        }
+        .panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 3rem 2rem;
+            margin: 2rem 0;
+        }
+        p {
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
+            font-size: 0.95rem;
+        }
+        .btn {
+            padding: 0.8rem 2rem;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: transparent;
+            color: #fff;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1rem;
+            transition: all 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+        }
+        .btn:hover {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .reference {
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            opacity: 0.5;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PAYMENT SUCCESSFUL</h1>
+
+        <div class="panel">
+            <p>Thank you for purchasing an Exhibition License for <em>The Mirror's Echo</em>.</p>
+
+            <p>You will receive a confirmation email shortly with your license details and instructions for removing temporal markers from your installation.</p>
+
+            <p>For technical integration support or consultation, please contact:<br>
+            kristabluedoor@gmail.com</p>
+
+            <a href="/" class="btn">Return to Main Site</a>
+
+            <div class="reference" id="sessionId">Reference: Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        // Display session ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+        if (sessionId) {
+            document.getElementById('sessionId').textContent = 'Reference: ' + sessionId;
+        }
+    </script>
+</body>
+</html>
