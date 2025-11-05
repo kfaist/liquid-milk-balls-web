@@ -123,38 +123,10 @@
     <div class="container">
         <header>
             <h1 class="title">The Mirror's Echo</h1>
-            <p class="subtitle">The Mirror's Echo operates as an unlimited edition under open-source principles. Exhibition licensing and institutional partnerships are available—contact kristabluedoor@gmail.com for details.</p>
+            <p class="subtitle">The Mirror's Echo operates as an unlimited edition under open-source principles. Exhibition licensing and institutional partnerships are available - contact kristabluedoor@gmail.com for details.</p>
         </header>
         
         <main>
-            <section class="webrtc-section">
-                <h2>WebRTC Preview</h2>
-                <div class="video-container">
-                    <div class="video-wrapper video-wrapper-local">
-                        <h3>Local Camera</h3>
-                        <video id="localVideo" autoplay muted playsinline></video>
-                    </div>
-                    <div class="video-wrapper video-wrapper-remote">
-                        <h3>Remote Stream</h3>
-                        <video id="remoteVideo" autoplay playsinline></video>
-                        <button class="popout-button" id="popoutBtn" style="display: none;"></button>
-                    </div>
-                </div>
-
-                <div class="webrtc-controls">
-                    <button class="btn" id="startCameraBtn">Start Camera</button>
-                    <button class="btn" id="stopCameraBtn" disabled>Stop Camera</button>
-                    <button class="btn" id="startCallBtn" disabled>Start WebRTC Call</button>
-                    <button class="btn" id="hangupBtn" disabled>Hang Up</button>
-                    <button class="btn btn-ndi" id="ndiBtn" disabled>Enable NDI Output</button>
-                </div>
-
-                <div class="webrtc-status">
-                    <p id="statusText">Ready to start</p>
-                </div>
-
-            </section>
-
             <section class="echo-section">
                 <div class="mirror-container">
                     <div class="mirror" id="mirror"></div>
@@ -170,7 +142,7 @@
                 <h2>About</h2>
                 <p><em>The Mirror's Echo</em> is a networked interactive work exploring presence, temporality, and reciprocity through real-time video transmission. The piece positions participants as both observers and subjects, creating a feedback loop where actions generate visual echoes that accumulate and transform over time.</p>
 
-                <p>Built on open protocols (WebRTC, LiveKit, NDI), the work operates as distributed infrastructure—each interaction exists simultaneously across multiple nodes: browser, server, and optional processing environments. This architecture enables the piece to function as both a self-contained web experience and as material for live visual manipulation through tools like TouchDesigner.</p>
+                <p>Built on open protocols (WebRTC, LiveKit, NDI), the work operates as distributed infrastructure - each interaction exists simultaneously across multiple nodes: browser, server, and optional processing environments. This architecture enables the piece to function as both a self-contained web experience and as material for live visual manipulation through tools like TouchDesigner.</p>
 
                 <p>The work implements a temporal access model: seven minutes of unmediated experience, followed by progressive visual markers that reveal the piece's constructed nature. This durational framework questions assumptions about digital permanence and the economics of networked art.</p>
 
@@ -259,7 +231,7 @@
                             <li>Custom configuration assistance</li>
                         </ul>
                         <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 2rem;">
-                            <button class="tier-cta featured" id="purchaseLicenseBtn">Purchase Exhibition License — $400</button>
+                            <button class="tier-cta featured" id="purchaseLicenseBtn">Purchase Exhibition License - $400</button>
                             <a href="mailto:kristabluedoor@gmail.com?subject=Technical Residency Inquiry" class="tier-cta">Book Technical Residency</a>
                         </div>
                     </div>
@@ -282,12 +254,42 @@
                     </div>
                 </div>
 
+                <div style="margin-top: 3rem;"></div>
+
                 <div class="contact-info">
                     <p>
                         <strong>Artist/Technical:</strong> <a href="mailto:kristabluedoor@gmail.com">kristabluedoor@gmail.com</a><br>
                         <strong>Curatorial/Institutional:</strong> <a href="mailto:chaoscontemporarycraft@gmail.com">chaoscontemporarycraft@gmail.com</a>
                     </p>
                 </div>
+            </section>
+
+            <section class="webrtc-section">
+                <h2>WebRTC Preview</h2>
+                <div class="video-container">
+                    <div class="video-wrapper video-wrapper-local">
+                        <h3>Local Camera</h3>
+                        <video id="localVideo" autoplay muted playsinline></video>
+                        <button class="popout-button popout-button-local" id="popoutBtnLocal" style="display: none;"></button>
+                    </div>
+                    <div class="video-wrapper video-wrapper-remote">
+                        <h3>Remote Stream</h3>
+                        <video id="remoteVideo" autoplay playsinline></video>
+                        <button class="popout-button" id="popoutBtn" style="display: none;"></button>
+                    </div>
+                </div>
+
+                <div class="webrtc-controls">
+                    <button class="btn" id="startCameraBtn">Start Camera</button>
+                    <button class="btn" id="stopCameraBtn" disabled>Stop Camera</button>
+                    <button class="btn" id="startCallBtn" disabled>Start WebRTC Call</button>
+                    <button class="btn" id="hangupBtn" disabled>Hang Up</button>
+                </div>
+
+                <div class="webrtc-status">
+                    <p id="statusText">Ready to start</p>
+                </div>
+
             </section>
 
             <section class="about-section">
@@ -380,6 +382,44 @@
                 fullscreenOverlay.classList.remove('active');
             }
         });
+
+        // LOCAL VIDEO POPOUT FUNCTIONALITY
+        const popoutBtnLocal = document.getElementById('popoutBtnLocal');
+        const localVideo = document.getElementById('localVideo');
+        const localWrapper = document.querySelector('.video-wrapper-local');
+
+        // Function to open local popup
+        function openLocalPopup() {
+            if (localVideo.srcObject) {
+                fullscreenVideo.srcObject = localVideo.srcObject;
+                fullscreenOverlay.classList.add('active');
+            }
+        }
+
+        // Show popout button when local stream is active
+        const localObserver = new MutationObserver(() => {
+            if (localVideo.srcObject) {
+                popoutBtnLocal.style.display = 'flex';
+                localWrapper.style.cursor = 'pointer';
+            } else {
+                popoutBtnLocal.style.display = 'none';
+                localWrapper.style.cursor = 'default';
+            }
+        });
+        localObserver.observe(localVideo, { attributes: true, attributeFilter: ['srcObject'] });
+
+        // Hover over entire local video area to popup
+        localWrapper.addEventListener('mouseenter', () => {
+            if (localVideo.srcObject) {
+                openLocalPopup();
+            }
+        });
+
+        // Click button to popup (backup)
+        popoutBtnLocal.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openLocalPopup();
+        });
     </script>
 
     <!-- Stripe Checkout -->
@@ -439,7 +479,7 @@
                     console.error('Checkout error:', error);
                     alert(error.message || 'Unable to start checkout. Please contact kristabluedoor@gmail.com');
                     purchaseBtn.disabled = false;
-                    purchaseBtn.textContent = 'Purchase Exhibition License — $400';
+                    purchaseBtn.textContent = 'Purchase Exhibition License - $400';
                 }
             });
         }
