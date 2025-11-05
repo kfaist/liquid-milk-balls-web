@@ -140,17 +140,23 @@
                         <button class="popout-button" id="popoutBtn" style="display: none;"></button>
                     </div>
                 </div>
-                
+
                 <div class="webrtc-controls">
                     <button class="btn" id="startCameraBtn">Start Camera</button>
                     <button class="btn" id="stopCameraBtn" disabled>Stop Camera</button>
                     <button class="btn" id="startCallBtn" disabled>Start WebRTC Call</button>
                     <button class="btn" id="hangupBtn" disabled>Hang Up</button>
-                    <button class="btn btn-ndi" id="ndiBtn" disabled>Enable NDI Output</button>
                 </div>
-                
-                <div class="webrtc-status">
-                    <p id="statusText">Ready to start</p>
+
+                <div class="transcription-display">
+                    <div class="transcription-header">
+                        <span class="transcription-icon">🎙️</span>
+                        <span class="transcription-label">Live Transcription</span>
+                        <button class="btn-transcription-toggle" id="transcriptionToggle">Start Listening</button>
+                    </div>
+                    <div class="transcription-text" id="transcriptionText">
+                        <span class="transcription-placeholder">Click "Start Listening" to begin live transcription...</span>
+                    </div>
                 </div>
             </section>
             
@@ -315,6 +321,7 @@
     <script src="webrtc-client.js"></script>
     <script src="watermark-system.js"></script>
     <script src="video-color-filter.js"></script>
+    <script src="live-transcription.js"></script>
     <script>
         // Popout functionality
         const popoutBtn = document.getElementById('popoutBtn');
