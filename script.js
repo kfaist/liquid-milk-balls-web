@@ -4,15 +4,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const mirror = document.getElementById('mirror');
     const echoBtn = document.getElementById('echoBtn');
     const clearBtn = document.getElementById('clearBtn');
-    
+
     let echoCount = 0;
-    
-    // Watermark overlay initialization
-    initWatermarkOverlay();
-    
-    // Create ripple effect on mirror click
+
+    // Create ripple effect on mirror click and change color every 5 clicks
     mirror.addEventListener('click', function(e) {
         createRipple(e);
+        echoCount++;
+
+        // Change mirror appearance based on echo count
+        if (echoCount % 5 === 0) {
+            const hue = (echoCount * 30) % 360;
+            mirror.style.background = `radial-gradient(circle,
+                hsl(${hue}, 70%, 10%),
+                #0a0a0a)`;
+            mirror.style.borderColor = `hsl(${hue}, 70%, 50%)`;
+        }
     });
     
     // Echo button functionality
@@ -162,92 +169,5 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => sparkle.remove(), 2000);
             }, i * 50);
         }
-    }
-    
-    // Watermark overlay functionality
-    function initWatermarkOverlay() {
-        // Create watermark overlay container
-        const overlay = document.createElement('div');
-        overlay.className = 'watermark-overlay';
-        overlay.id = 'watermarkOverlay';
-        
-        // Create the static ring
-        const ring = document.createElement('div');
-        ring.className = 'watermark-ring';
-        overlay.appendChild(ring);
-        
-        // Add overlay to body
-        document.body.appendChild(overlay);
-        
-        // Set timer to show watermark after 7 minutes (420000 ms)
-        // For testing, use shorter duration: 10000 ms (10 seconds)
-        const WATERMARK_DELAY = 420000; // 7 minutes
-        
-        setTimeout(() => {
-            overlay.classList.add('active');
-            startRaindropAnimation(ring);
-        }, WATERMARK_DELAY);
-    }
-    
-    function startRaindropAnimation(ringElement) {
-        const ringRect = ringElement.getBoundingClientRect();
-        const centerX = ringRect.width / 2;
-        const centerY = ringRect.height / 2;
-        const radius = ringRect.width / 2 - 20; // Keep raindrops inside the ring
-        
-        let activeRaindrops = [];
-        
-        function createRaindrop() {
-            // Limit number of concurrent raindrops
-            if (activeRaindrops.length >= 6) {
-                return;
-            }
-            
-            const raindrop = document.createElement('div');
-            raindrop.className = 'watermark-raindrop';
-            
-            // Random position inside the ring
-            const angle = Math.random() * Math.PI * 2;
-            const distance = Math.random() * radius * 0.8;
-            const x = centerX + Math.cos(angle) * distance;
-            const y = centerY + Math.sin(angle) * distance;
-            
-            // Random size between 10-30px
-            const size = 10 + Math.random() * 20;
-            raindrop.style.width = size + 'px';
-            raindrop.style.height = size + 'px';
-            raindrop.style.left = x + 'px';
-            raindrop.style.top = y + 'px';
-            
-            // Random duration between 3-6 seconds
-            const duration = 3 + Math.random() * 3;
-            raindrop.style.animation = `raindrop ${duration}s ease-in-out`;
-            
-            ringElement.appendChild(raindrop);
-            activeRaindrops.push(raindrop);
-            
-            // Remove after animation completes
-            setTimeout(() => {
-                raindrop.remove();
-                activeRaindrops = activeRaindrops.filter(r => r !== raindrop);
-            }, duration * 1000);
-        }
-        
-        // Create initial raindrops
-        const initialCount = 3 + Math.floor(Math.random() * 4); // 3-6 raindrops
-        for (let i = 0; i < initialCount; i++) {
-            setTimeout(() => createRaindrop(), i * 800);
-        }
-        
-        // Continuously create new raindrops at random intervals
-        function scheduleNextRaindrop() {
-            const delay = 2000 + Math.random() * 3000; // 2-5 seconds
-            setTimeout(() => {
-                createRaindrop();
-                scheduleNextRaindrop();
-            }, delay);
-        }
-        
-        scheduleNextRaindrop();
     }
 });
