@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LiveKit SDK Test</title>
+    <style>
+        body {
+            background: #1a1a1a;
+            color: #0cf;
+            font-family: monospace;
+            padding: 40px;
+            font-size: 16px;
+        }
+        .status { 
+            padding: 20px; 
+            margin: 20px 0; 
+            border: 2px solid #0cf;
+            border-radius: 8px;
+        }
+        .success { border-color: #0f0; color: #0f0; }
+        .error { border-color: #f00; color: #f00; }
+        pre { 
+            background: #000; 
+            padding: 15px; 
+            border-radius: 4px; 
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 LiveKit SDK Loading Test</h1>
+    
+    <div class="status" id="status">
+        <strong>Status:</strong> Testing...
+    </div>
+
+    <div id="details"></div>
+
+    <script src="https://unpkg.com/livekit-client/dist/livekit-client.umd.min.js"></script>
+    <script>
+        const statusDiv = document.getElementById('status');
+        const detailsDiv = document.getElementById('details');
+
+        setTimeout(() => {
+            if (typeof LivekitClient !== 'undefined') {
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = '<strong>✅ SUCCESS!</strong> LiveKit SDK loaded correctly!';
+                
+                detailsDiv.innerHTML = `
+                    <h2>SDK Details:</h2>
+                    <pre>LivekitClient object exists: ${typeof LivekitClient}
+Room class available: ${typeof LivekitClient.Room}
+Track class available: ${typeof LivekitClient.Track}
+RoomEvent enum available: ${typeof LivekitClient.RoomEvent}
+
+✅ All required components are present!
+
+<strong>This means return-viewer.html will work now!</strong></pre>
+                `;
+            } else {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '<strong>❌ FAILED!</strong> LiveKit SDK did not load';
+                
+                detailsDiv.innerHTML = `
+                    <h2>Error Details:</h2>
+                    <pre>The LivekitClient object is undefined.
+This means the SDK failed to load from:
+https://unpkg.com/livekit-client/dist/livekit-client.umd.min.js
+
+Possible causes:
+- Network connectivity issue
+- CDN is down
+- Script blocked by browser/firewall
+
+Check browser console for errors (F12).</pre>
+                `;
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
