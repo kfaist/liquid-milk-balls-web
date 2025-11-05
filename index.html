@@ -205,23 +205,23 @@
                 <div style="margin: 1.5rem 0; padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 1px solid rgba(255,255,255,0.15);">
                     <p style="margin-bottom: 1rem;"><strong>Complete Bidirectional Workflow:</strong></p>
                     <ol style="margin-left: 2rem; line-height: 2;">
-                        <li><strong><a href="/publisher.html" style="color: rgba(255,255,255,0.7); text-decoration: none;">Publisher Page</a>:</strong> Remote user captures webcam and publishes to LiveKit</li>
-                        <li><strong><a href="/ndi-viewer.html" style="color: rgba(255,255,255,0.7); text-decoration: none;">NDI Viewer Page</a>:</strong> View the LiveKit stream (capture this in OBS Browser Source)</li>
+                        <li><strong><a href="/publisher.html">Publisher Page</a>:</strong> Remote user captures webcam and publishes to LiveKit</li>
+                        <li><strong><a href="/ndi-viewer.html">NDI Viewer Page</a>:</strong> View the LiveKit stream (capture this in OBS Browser Source)</li>
                         <li><strong>OBS:</strong> Capture NDI viewer page and enable NDI output (Tools → NDI Output Settings)</li>
                         <li><strong>TouchDesigner:</strong> Use NDI In TOP to receive stream from OBS, process & stylize</li>
                         <li><strong>TD Output:</strong> Use NDI Out TOP to send processed video back to OBS</li>
                         <li><strong>OBS Capture:</strong> Add NDI Source in OBS to receive processed video from TD</li>
-                        <li><strong><a href="/return-viewer.html" style="color: rgba(255,255,255,0.7); text-decoration: none;">Return Viewer Page</a>:</strong> Remote user views processed video with fullscreen option</li>
+                        <li><strong><a href="/return-viewer.html">Return Viewer Page</a>:</strong> Remote user views processed video with fullscreen option</li>
                     </ol>
                     <p style="margin-top: 1rem; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 4px;">
                         <strong>Signal Path:</strong> Remote Camera → LiveKit → OBS → NDI → TouchDesigner (process) → NDI → Back to Remote Viewer in Real-Time
                     </p>
                     <p style="margin-top: 1rem; opacity: 0.7; font-size: 0.9rem; line-height: 1.8;">
                         <strong>Documentation:</strong><br>
-                        <a href="https://github.com/kfaist/liquid-milk-balls-web/blob/main/QUICK-OUTPUT-SETUP.md" style="color: rgba(255,255,255,0.6); text-decoration: none;">QUICK-OUTPUT-SETUP.md</a> — Quick guide for connecting to output node<br>
-                        <a href="https://github.com/kfaist/liquid-milk-balls-web/blob/main/WEB-BROWSER-RETURN-PATH.md" style="color: rgba(255,255,255,0.6); text-decoration: none;">WEB-BROWSER-RETURN-PATH.md</a> — How to get video back in web browser<br>
-                        <a href="https://github.com/kfaist/liquid-milk-balls-web/blob/main/WEBRTC-SETUP.md" style="color: rgba(255,255,255,0.6); text-decoration: none;">WEBRTC-SETUP.md</a> — Complete WebRTC setup<br>
-                        <a href="https://github.com/kfaist/liquid-milk-balls-web/blob/main/TOUCHDESIGNER-OUTPUT-GUIDE.md" style="color: rgba(255,255,255,0.6); text-decoration: none;">TOUCHDESIGNER-OUTPUT-GUIDE.md</a> — Detailed return path guide
+                        <a href="https://github.com/kfaist/liquid-milk-balls-web/blob/main/QUICK-OUTPUT-SETUP.md">QUICK-OUTPUT-SETUP.md</a> — Quick guide for connecting to output node<br>
+                        <a href="https://github.com/kfaist/liquid-milk-balls-web/blob/main/WEB-BROWSER-RETURN-PATH.md">WEB-BROWSER-RETURN-PATH.md</a> — How to get video back in web browser<br>
+                        <a href="https://github.com/kfaist/liquid-milk-balls-web/blob/main/WEBRTC-SETUP.md">WEBRTC-SETUP.md</a> — Complete WebRTC setup<br>
+                        <a href="https://github.com/kfaist/liquid-milk-balls-web/blob/main/TOUCHDESIGNER-OUTPUT-GUIDE.md">TOUCHDESIGNER-OUTPUT-GUIDE.md</a> — Detailed return path guide
                     </p>
                 </div>
             </section>

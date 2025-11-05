@@ -20,6 +20,17 @@ body {
     overflow-x: hidden;
 }
 
+/* Clean, visible link styling */
+a {
+    color: #6495ed;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #87ceeb;
+}
+
 .container {
     max-width: 1200px;
     width: 90%;
