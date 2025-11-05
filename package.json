@@ -3,7 +3,12 @@
   "version": "2.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "validate": "node --version && npm --version && npm ls"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=7.0.0"
   },
   "keywords": [
     "webrtc",
@@ -11,13 +16,14 @@
     "mirror",
     "obs",
     "touchdesigner",
-    "ndi"
+    "ndi",
+    "rtmp",
+    "streaming"
   ],
   "author": "kfaist",
   "license": "AGPL-3.0-or-later",
   "dependencies": {
     "ws": "^8.18.0",
-    "express": "^4.21.1",
-    "livekit-server-sdk": "^2.0.0"
+    "express": "^4.21.1"
   }
 }

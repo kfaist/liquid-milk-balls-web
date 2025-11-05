@@ -6,6 +6,118 @@
     <meta name="description" content="The Mirror's Echo - A mesmerizing interactive web experience">
     <title>The Mirror's Echo</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .video-wrapper {
+            position: relative;
+        }
+
+        .popout-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: breathe 3s ease-in-out infinite;
+        }
+
+        .popout-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #ffffff;
+            transform: scale(1.1);
+            animation: none;
+        }
+
+        .popout-button::before {
+            content: "⤢";
+        }
+
+        @keyframes breathe {
+            0%, 100% {
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+        }
+
+        .fullscreen-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .fullscreen-overlay.active {
+            display: flex;
+        }
+
+        .fullscreen-header {
+            padding: 1.5rem;
+            background: rgba(26, 26, 26, 0.95);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #333;
+        }
+
+        .fullscreen-header h2 {
+            font-family: 'Futura', 'Century Gothic', sans-serif;
+            color: #ffffff;
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .close-button {
+            padding: 10px 24px;
+            background: transparent;
+            border: 2px solid #ffffff;
+            border-radius: 50px;
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .close-button:hover {
+            background: #ffffff;
+            color: #000;
+            transform: translateY(-2px);
+        }
+
+        .fullscreen-video {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fullscreen-video video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -25,6 +137,7 @@
                     <div class="video-wrapper">
                         <h3>Remote Stream</h3>
                         <video id="remoteVideo" autoplay playsinline></video>
+                        <button class="popout-button" id="popoutBtn" style="display: none;"></button>
                     </div>
                 </div>
                 
@@ -59,6 +172,109 @@
             </section>
             
             <section class="about-section">
+                <h2>🎥 LiveKit Streaming Setup</h2>
+                <p>For production-quality streaming with OBS, NDI, and TouchDesigner integration:</p>
+                <div style="margin: 1.5rem 0; padding: 1.5rem; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 4px solid #0cf;">
+                    <p style="margin-bottom: 1rem;"><strong>Complete Bidirectional Workflow:</strong></p>
+                    <ol style="margin-left: 2rem; line-height: 2;">
+                        <li><strong><a href="/publisher.html" style="color: #0cf; text-decoration: none;">Publisher Page</a>:</strong> Remote user captures webcam and publishes to LiveKit</li>
+                        <li><strong><a href="/ndi-viewer.html" style="color: #0cf; text-decoration: none;">NDI Viewer Page</a>:</strong> View the LiveKit stream (capture this in OBS Browser Source)</li>
+                        <li><strong>OBS:</strong> Capture NDI viewer page and enable NDI output (Tools → NDI Output Settings)</li>
+                        <li><strong>TouchDesigner:</strong> Use NDI In TOP to receive stream from OBS, process & stylize</li>
+                        <li><strong>TD Output:</strong> Use NDI Out TOP to send processed video back to OBS</li>
+                        <li><strong>OBS Capture:</strong> Add NDI Source in OBS to receive processed video from TD</li>
+                        <li><strong><a href="/return-viewer.html" style="color: #0cf; text-decoration: none;">Return Viewer Page</a>:</strong> Remote user views processed video with fullscreen option</li>
+                    </ol>
+                    <p style="margin-top: 1rem; padding: 1rem; background: rgba(0, 204, 255, 0.1); border-radius: 8px;">
+                        <strong>🔄 Complete Loop:</strong> Remote Camera → LiveKit → OBS → NDI → TouchDesigner (process) → NDI → Back to Remote Viewer in Real-Time
+                    </p>
+                    <p style="margin-top: 1rem; opacity: 0.8; font-size: 0.9rem;">
+                        <strong>Note:</strong> Requires LiveKit credentials in server environment variables.<br>
+                        ⚡ <a href="https://github.com/kfaist/liquid-milk-balls-web/blob/main/QUICK-OUTPUT-SETUP.md" style="color: #0cf;">QUICK-OUTPUT-SETUP.md</a> - Quick guide for connecting to output node<br>
+                        🌐 <a href="https://github.com/kfaist/liquid-milk-balls-web/blob/main/WEB-BROWSER-RETURN-PATH.md" style="color: #0cf;">WEB-BROWSER-RETURN-PATH.md</a> - How to get video back in web browser<br>
+                        📖 <a href="https://github.com/kfaist/liquid-milk-balls-web/blob/main/WEBRTC-SETUP.md" style="color: #0cf;">WEBRTC-SETUP.md</a> - Complete WebRTC setup<br>
+                        📖 <a href="https://github.com/kfaist/liquid-milk-balls-web/blob/main/TOUCHDESIGNER-OUTPUT-GUIDE.md" style="color: #0cf;">TOUCHDESIGNER-OUTPUT-GUIDE.md</a> - Detailed return path guide
+                    </p>
+                </div>
+            </section>
+            
+            <section class="payment-section">
+                <h2>Licensing & Commercial Use</h2>
+
+                <div class="payment-tiers">
+                    <!-- Free Tier -->
+                    <div class="payment-tier">
+                        <div class="tier-header">
+                            <div class="tier-icon">🆓</div>
+                            <h3 class="tier-title">Open Source</h3>
+                            <div class="tier-price">Free</div>
+                        </div>
+                        <p class="tier-description">
+                            Full access to source code under AGPL-3.0. Perfect for learning, personal projects, and open-source work.
+                        </p>
+                        <ul class="tier-features">
+                            <li>AGPL-3.0 license</li>
+                            <li>Full source code access</li>
+                            <li>7-minute clean demo</li>
+                            <li>Watermark after 7 minutes</li>
+                            <li>Community support</li>
+                        </ul>
+                        <a href="https://github.com/kfaist/liquid-milk-balls-web" class="tier-cta" target="_blank">View Source</a>
+                    </div>
+
+                    <!-- Commercial Tier -->
+                    <div class="payment-tier featured">
+                        <div class="tier-header">
+                            <div class="tier-icon">💼</div>
+                            <h3 class="tier-title">Commercial License</h3>
+                            <div class="tier-price">$[RATE]/hour</div>
+                        </div>
+                        <p class="tier-description">
+                            Remove watermark and support independent digital art. Custom quotes based on your needs, billed hourly.
+                        </p>
+                        <ul class="tier-features">
+                            <li>Watermark removal</li>
+                            <li>Commercial usage rights</li>
+                            <li>Custom modifications</li>
+                            <li>Integration support</li>
+                            <li>Direct technical assistance</li>
+                            <li>Flexible licensing terms</li>
+                        </ul>
+                        <a href="mailto:kristabluedoor@gmail.com?subject=Commercial License Inquiry - The Mirror's Echo" class="tier-cta featured">Contact for Quote</a>
+                    </div>
+
+                    <!-- Gallery/Exhibition Tier -->
+                    <div class="payment-tier">
+                        <div class="tier-header">
+                            <div class="tier-icon">🎨</div>
+                            <h3 class="tier-title">Gallery & Exhibitions</h3>
+                            <div class="tier-price">Custom</div>
+                        </div>
+                        <p class="tier-description">
+                            For galleries, museums, and public installations. Includes licensing, technical setup, and exhibition support.
+                        </p>
+                        <ul class="tier-features">
+                            <li>Exhibition licensing</li>
+                            <li>Installation assistance</li>
+                            <li>Custom configurations</li>
+                            <li>Technical documentation</li>
+                            <li>On-site support available</li>
+                        </ul>
+                        <a href="mailto:chaoscontemporarycraft@gmail.com?subject=Exhibition Inquiry - The Mirror's Echo" class="tier-cta">Contact Gallery</a>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 10px;">
+                    <p style="color: #aaa; font-size: 0.9rem; line-height: 1.8;">
+                        <strong>Note:</strong> Changing video files, swapping assets, or making derivative works without proper licensing violates AGPL-3.0 terms.<br>
+                        Commercial use requires a paid license. Cloud server costs are covered by licensing fees.<br>
+                        <strong>Technical:</strong> <a href="mailto:kristabluedoor@gmail.com" style="color: #0cf;">kristabluedoor@gmail.com</a> |
+                        <strong>Gallery/Sales:</strong> <a href="mailto:chaoscontemporarycraft@gmail.com" style="color: #0cf;">chaoscontemporarycraft@gmail.com</a>
+                    </p>
+                </div>
+            </section>
+
+            <section class="about-section">
                 <h2>UI Guide</h2>
                 <p><strong>Mirror Section:</strong></p>
                 <ul style="margin-left: 2rem; margin-bottom: 1rem; line-height: 1.8;">
@@ -84,9 +300,55 @@
             <p>&copy; 2025 The Mirror's Echo | Deployed on GitLab Pages</p>
         </footer>
     </div>
+
+    <!-- Fullscreen Overlay -->
+    <div class="fullscreen-overlay" id="fullscreenOverlay">
+        <div class="fullscreen-header">
+            <h2>Remote Stream - Fullscreen</h2>
+            <button class="close-button" id="closeBtn">✕ Close</button>
+        </div>
+        <div class="fullscreen-video">
+            <video id="fullscreenVideo" autoplay playsinline></video>
+        </div>
+    </div>
     
     <script src="config.js"></script>
     <script src="script.js"></script>
     <script src="webrtc-client.js"></script>
+    <script src="watermark-system.js"></script>
+    <script>
+        // Popout functionality
+        const popoutBtn = document.getElementById('popoutBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const fullscreenOverlay = document.getElementById('fullscreenOverlay');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const fullscreenVideo = document.getElementById('fullscreenVideo');
+
+        // Show popout button when remote stream is active
+        const observer = new MutationObserver(() => {
+            if (remoteVideo.srcObject) {
+                popoutBtn.style.display = 'flex';
+            } else {
+                popoutBtn.style.display = 'none';
+            }
+        });
+        observer.observe(remoteVideo, { attributes: true, attributeFilter: ['srcObject'] });
+
+        popoutBtn.addEventListener('click', () => {
+            fullscreenVideo.srcObject = remoteVideo.srcObject;
+            fullscreenOverlay.classList.add('active');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            fullscreenOverlay.classList.remove('active');
+        });
+
+        // ESC to close
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && fullscreenOverlay.classList.contains('active')) {
+                fullscreenOverlay.classList.remove('active');
+            }
+        });
+    </script>
 </body>
 </html>

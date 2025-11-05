@@ -130,12 +130,18 @@ You should see:
 
 ### 4. Publish to LiveKit
 
-**Option A: Using OBS with LiveKit WHIP**
+**Option A: Using Browser Publisher Page (Recommended)**
+1. Open `http://localhost:3000/publisher.html` in your browser (or share URL with remote user)
+2. Click **"Start Publishing"** to stream your webcam to LiveKit
+3. Grant camera permissions when prompted
+4. Your webcam is now publishing to the LiveKit room
+
+**Option B: Using OBS with LiveKit WHIP**
 1. Install [OBS WHIP plugin](https://github.com/obsproject/obs-webrtc)
 2. Configure WHIP output with your LiveKit credentials
 3. Start streaming to LiveKit room
 
-**Option B: Using LiveKit SDK**
+**Option C: Using LiveKit SDK**
 Use the LiveKit client SDK to publish from another application.
 
 ### 5. View the Stream
@@ -144,12 +150,31 @@ Use the LiveKit client SDK to publish from another application.
 2. Click **"Join Live Stream"**
 3. The published video stream will appear
 
-### 6. Use with NDI/OBS
+### 6. Use with NDI/OBS/TouchDesigner (Complete Loop)
 
-Same process as Simple WebRTC:
-1. Capture ndi-viewer.html page in OBS
-2. Enable NDI output in OBS
-3. Receive in TouchDesigner with NDI In TOP
+**Complete workflow for remote webcam to TouchDesigner and back:**
+
+1. **Remote User (Publisher)**:
+   - Opens `http://your-server:3000/publisher.html` (or Railway URL)
+   - Clicks "Start Publishing"
+   - Their webcam streams to LiveKit room
+
+2. **Your Computer (OBS)**:
+   - Add Browser Source in OBS
+   - URL: `http://localhost:3000/ndi-viewer.html` (or your server URL)
+   - The viewer automatically connects and shows the remote webcam
+   - Go to Tools → NDI Output Settings → Enable "Main Output"
+
+3. **TouchDesigner**:
+   - Add NDI In TOP operator
+   - Select OBS NDI source from dropdown
+   - Process the video as needed
+   - Output result back to screen, projector, or another LiveKit room
+
+4. **Return to Browser (Optional)**:
+   - TouchDesigner can output processed video back to another web page
+   - Use another LiveKit room or simple WebRTC connection
+   - Or use Screen Capture to capture TD output window
 
 ## Architecture Comparison
 

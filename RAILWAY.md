@@ -188,6 +188,15 @@ If you want to use LiveKit instead of simple peer-to-peer WebRTC:
 
 See [WEBRTC-SETUP.md](WEBRTC-SETUP.md) for detailed LiveKit setup instructions.
 
+### Troubleshooting
+
+If you encounter deployment issues, see [RAILWAY-TROUBLESHOOTING.md](RAILWAY-TROUBLESHOOTING.md) for:
+- Common build and deployment errors
+- Package lock mismatch solutions
+- Git push and merge conflict resolution
+- Railway auto-deploy configuration
+- Health check debugging
+
 ### Next Steps
 
 After deploying to Railway:

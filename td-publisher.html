@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TouchDesigner Publisher</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .publisher-container {
+            max-width: 900px;
+            margin: 2rem auto;
+        }
+        
+        .publisher-section {
+            background: #1a1a1a;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+            border: 2px solid #333333;
+        }
+        
+        .publisher-title {
+            font-family: 'Futura', 'Century Gothic', sans-serif;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+        
+        .publisher-subtitle {
+            font-family: 'Futura', 'Century Gothic', sans-serif;
+            text-align: center;
+            font-size: 1.1rem;
+            opacity: 0.7;
+            color: #cccccc;
+            margin-bottom: 2rem;
+        }
+        
+        .video-preview {
+            width: 100%;
+            border-radius: 10px;
+            background: #000;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+            border: 2px solid #ffffff;
+            margin-bottom: 1.5rem;
+        }
+        
+        .status-display {
+            text-align: center;
+            padding: 1rem;
+            background: #0a0a0a;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            color: #cccccc;
+            font-size: 1rem;
+        }
+        
+        .status-display.success {
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+        
+        .status-display.error {
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+        
+        .control-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        
+        .setup-steps {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #333333;
+        }
+        
+        .setup-steps h3 {
+            font-family: 'Futura', 'Century Gothic', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+        
+        .setup-steps ol {
+            margin-left: 1.5rem;
+            line-height: 1.8;
+            color: #cccccc;
+        }
+        
+        .setup-steps li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .viewer-link {
+            display: inline-block;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 0.3rem 0.8rem;
+            background: #333333;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .viewer-link:hover {
+            background: #ffffff;
+            color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <div class="publisher-container">
+        <header>
+            <h1 class="publisher-title">TouchDesigner Publisher</h1>
+            <p class="publisher-subtitle">Stream to Remote Viewers</p>
+        </header>
+        
+        <div class="publisher-section">
+            <video id="localVideo" class="video-preview" autoplay muted playsinline></video>
+            
+            <div id="status" class="status-display">Ready to start</div>
+            
+            <div class="control-buttons">
+                <button id="startBtn" class="btn">Start OBS Virtual Camera</button>
+                <button id="publishBtn" class="btn" disabled>Publish to Railway</button>
+                <button id="stopBtn" class="btn" disabled>Stop Publishing</button>
+            </div>
+            
+            <div class="setup-steps">
+                <h3>Setup Instructions</h3>
+                <ol>
+                    <li><strong>TouchDesigner:</strong> Send via NDI (already working!)</li>
+                    <li><strong>OBS:</strong> Capture NDI from TouchDesigner</li>
+                    <li><strong>OBS:</strong> Tools → Virtual Camera → Start</li>
+                    <li><strong>This page:</strong> Click "Start OBS Virtual Camera"</li>
+                    <li><strong>This page:</strong> Click "Publish to Railway"</li>
+                    <li><strong>Remote viewers watch at:</strong> 
+                        <a href="https://marvelous-blessing-production-4059.up.railway.app/" 
+                           target="_blank" 
+                           class="viewer-link">
+                            marvelous-blessing-production-4059.up.railway.app
+                        </a>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const localVideo = document.getElementById('localVideo');
+        const startBtn = document.getElementById('startBtn');
+        const publishBtn = document.getElementById('publishBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const statusDiv = document.getElementById('status');
+        
+        let localStream = null;
+        let peerConnection = null;
+        let signalingSocket = null;
+        
+        const rtcConfig = {
+            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        };
+        
+        const SIGNALING_SERVER_URL = 'wss://marvelous-blessing-production-4059.up.railway.app/ws';
+        
+        startBtn.addEventListener('click', startCamera);
+        publishBtn.addEventListener('click', startPublishing);
+        stopBtn.addEventListener('click', stopPublishing);
+        
+        async function startCamera() {
+            try {
+                updateStatus('Requesting OBS Virtual Camera...', 'info');
+                
+                const constraints = {
+                    video: { width: { ideal: 1920 }, height: { ideal: 1080 } },
+                    audio: false
+                };
+                
+                localStream = await navigator.mediaDevices.getUserMedia(constraints);
+                localVideo.srcObject = localStream;
+                
+                updateStatus('✅ OBS Virtual Camera connected! Ready to publish.', 'success');
+                startBtn.disabled = true;
+                publishBtn.disabled = false;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                let msg = '❌ Could not access OBS Virtual Camera. ';
+                
+                if (error.name === 'NotFoundError') {
+                    msg += 'Make sure OBS Virtual Camera is started.';
+                } else {
+                    msg += error.message;
+                }
+                
+                updateStatus(msg, 'error');
+            }
+        }
+        
+        async function startPublishing() {
+            if (!localStream) {
+                updateStatus('❌ Start OBS Virtual Camera first!', 'error');
+                return;
+            }
+            
+            try {
+                updateStatus('🔄 Connecting to Railway...', 'info');
+                
+                signalingSocket = new WebSocket(SIGNALING_SERVER_URL);
+                
+                signalingSocket.onopen = () => {
+                    updateStatus('✅ Connected! Publishing to Railway...', 'success');
+                    signalingSocket.send(JSON.stringify({ type: 'join' }));
+                    publishBtn.disabled = true;
+                    stopBtn.disabled = false;
+                };
+                
+                signalingSocket.onmessage = handleSignalingMessage;
+                
+                signalingSocket.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    updateStatus('❌ Could not connect to Railway', 'error');
+                };
+                
+                signalingSocket.onclose = () => {
+                    updateStatus('⚠️ Disconnected from Railway', 'error');
+                };
+                
+            } catch (error) {
+                console.error('Error:', error);
+                updateStatus('❌ Error: ' + error.message, 'error');
+            }
+        }
+        
+        async function handleSignalingMessage(event) {
+            const message = JSON.parse(event.data);
+            console.log('📨 Received:', message.type);
+            
+            switch (message.type) {
+                case 'ready':
+                    await createPeerConnection();
+                    await createOffer();
+                    break;
+                case 'answer':
+                    await handleAnswer(message.answer);
+                    break;
+                case 'candidate':
+                    await handleCandidate(message.candidate);
+                    break;
+                case 'bye':
+                    handleRemoteHangup();
+                    break;
+            }
+        }
+        
+        async function createPeerConnection() {
+            peerConnection = new RTCPeerConnection(rtcConfig);
+            
+            localStream.getTracks().forEach(track => {
+                peerConnection.addTrack(track, localStream);
+            });
+            
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    signalingSocket.send(JSON.stringify({
+                        type: 'candidate',
+                        candidate: event.candidate
+                    }));
+                }
+            };
+            
+            peerConnection.onconnectionstatechange = () => {
+                console.log('Connection:', peerConnection.connectionState);
+                if (peerConnection.connectionState === 'connected') {
+                    updateStatus('🎥 LIVE! Remote viewers can see your stream!', 'success');
+                }
+            };
+        }
+        
+        async function createOffer() {
+            try {
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+                
+                signalingSocket.send(JSON.stringify({
+                    type: 'offer',
+                    offer: offer
+                }));
+            } catch (error) {
+                console.error('Offer error:', error);
+                updateStatus('❌ Error creating offer', 'error');
+            }
+        }
+        
+        async function handleAnswer(answer) {
+            try {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+            } catch (error) {
+                console.error('Answer error:', error);
+            }
+        }
+        
+        async function handleCandidate(candidate) {
+            try {
+                if (peerConnection) {
+                    await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+                }
+            } catch (error) {
+                console.error('Candidate error:', error);
+            }
+        }
+        
+        function handleRemoteHangup() {
+            updateStatus('Remote viewer disconnected', 'info');
+            stopPublishing();
+        }
+        
+        function stopPublishing() {
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            
+            if (signalingSocket) {
+                signalingSocket.send(JSON.stringify({ type: 'bye' }));
+                signalingSocket.close();
+                signalingSocket = null;
+            }
+            
+            updateStatus('Stopped publishing', 'info');
+            publishBtn.disabled = false;
+            stopBtn.disabled = true;
+        }
+        
+        function updateStatus(message, type = 'info') {
+            console.log(message);
+            statusDiv.textContent = message;
+            statusDiv.className = 'status-display ' + (type === 'error' ? 'error' : type === 'success' ? 'success' : '');
+        }
+    </script>
+</body>
+</html>

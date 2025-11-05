@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Camera Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+        }
+        
+        #videoContainer {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+        
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+        
+        #status {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #0f0;
+            border: 2px solid #0f0;
+            border-radius: 8px;
+            font-size: 16px;
+            z-index: 100;
+            text-align: center;
+            transition: opacity 0.3s;
+        }
+        
+        #status.connected {
+            color: #0f0;
+            border-color: #0f0;
+        }
+        
+        #status.error {
+            color: #f00;
+            border-color: #f00;
+        }
+        
+        #status.hidden {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="videoContainer">
+        <video id="remoteVideo" autoplay playsinline></video>
+    </div>
+    <div id="status">🔄 Connecting to remote camera...</div>
+    
+    <script src="config.js"></script>
+    <script>
+        // WebRTC Viewer - Auto-connects and shows remote stream only
+        
+        const remoteVideo = document.getElementById('remoteVideo');
+        const statusDiv = document.getElementById('status');
+        
+        let peerConnection = null;
+        let signalingSocket = null;
+        
+        // WebRTC configuration
+        const rtcConfig = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' }
+            ]
+        };
+        
+        // Get signaling server URL from config.js
+        const SIGNALING_SERVER_URL = window.SIGNALING_SERVER_URL || 'ws://localhost:3000/ws';
+        
+        // Auto-connect on page load
+        window.addEventListener('DOMContentLoaded', autoConnect);
+        
+        async function autoConnect() {
+            try {
+                updateStatus('🔄 Connecting to signaling server...', 'connecting');
+                
+                // Connect to signaling server
+                signalingSocket = new WebSocket(SIGNALING_SERVER_URL);
+                
+                signalingSocket.onopen = () => {
+                    console.log('✅ Connected to signaling server');
+                    updateStatus('✅ Connected - Waiting for remote camera...', 'connected');
+                    
+                    // Send join message
+                    signalingSocket.send(JSON.stringify({ type: 'join' }));
+                    
+                    // Hide status after 3 seconds if connected
+                    setTimeout(() => {
+                        statusDiv.classList.add('hidden');
+                    }, 3000);
+                };
+                
+                signalingSocket.onmessage = handleSignalingMessage;
+                
+                signalingSocket.onerror = (error) => {
+                    console.error('❌ WebSocket error:', error);
+                    updateStatus('❌ Connection failed - Check server', 'error');
+                };
+                
+                signalingSocket.onclose = () => {
+                    console.log('Disconnected from signaling server');
+                    updateStatus('⚠️ Disconnected - Reconnecting...', 'error');
+                    
+                    // Auto-reconnect after 3 seconds
+                    setTimeout(autoConnect, 3000);
+                };
+                
+            } catch (error) {
+                console.error('Error connecting:', error);
+                updateStatus('❌ Error: ' + error.message, 'error');
+            }
+        }
+        
+        // Handle signaling messages
+        async function handleSignalingMessage(event) {
+            const message = JSON.parse(event.data);
+            
+            console.log('📨 Received:', message.type);
+            
+            switch (message.type) {
+                case 'offer':
+                    // We received an offer, create answer
+                    await createPeerConnection();
+                    await handleOffer(message.offer);
+                    break;
+                    
+                case 'answer':
+                    // We received an answer (shouldn't happen as viewer, but handle it)
+                    await handleAnswer(message.answer);
+                    break;
+                    
+                case 'candidate':
+                    // We received an ICE candidate
+                    await handleCandidate(message.candidate);
+                    break;
+                    
+                case 'bye':
+                    // Remote peer hung up
+                    handleRemoteHangup();
+                    break;
+            }
+        }
+        
+        // Create peer connection
+        async function createPeerConnection() {
+            if (peerConnection) {
+                console.log('Peer connection already exists');
+                return;
+            }
+            
+            peerConnection = new RTCPeerConnection(rtcConfig);
+            
+            // Handle incoming remote stream
+            peerConnection.ontrack = (event) => {
+                console.log('🎥 Received remote track');
+                if (remoteVideo.srcObject !== event.streams[0]) {
+                    remoteVideo.srcObject = event.streams[0];
+                    updateStatus('🎥 Receiving video!', 'connected');
+                    
+                    // Hide status after video starts
+                    setTimeout(() => {
+                        statusDiv.classList.add('hidden');
+                    }, 2000);
+                }
+            };
+            
+            // Handle ICE candidates
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    console.log('📤 Sending ICE candidate');
+                    signalingSocket.send(JSON.stringify({
+                        type: 'candidate',
+                        candidate: event.candidate
+                    }));
+                }
+            };
+            
+            // Handle connection state changes
+            peerConnection.onconnectionstatechange = () => {
+                console.log('Connection state:', peerConnection.connectionState);
+                
+                if (peerConnection.connectionState === 'connected') {
+                    updateStatus('🎥 Live!', 'connected');
+                    setTimeout(() => {
+                        statusDiv.classList.add('hidden');
+                    }, 2000);
+                } else if (peerConnection.connectionState === 'disconnected' || 
+                           peerConnection.connectionState === 'failed') {
+                    updateStatus('⚠️ Connection lost', 'error');
+                    statusDiv.classList.remove('hidden');
+                }
+            };
+        }
+        
+        // Handle received offer and create answer
+        async function handleOffer(offer) {
+            try {
+                console.log('Processing offer...');
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+                
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                
+                signalingSocket.send(JSON.stringify({
+                    type: 'answer',
+                    answer: answer
+                }));
+                
+                console.log('✅ Answer sent');
+            } catch (error) {
+                console.error('Error handling offer:', error);
+                updateStatus('❌ Connection error', 'error');
+            }
+        }
+        
+        // Handle received answer
+        async function handleAnswer(answer) {
+            try {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+            } catch (error) {
+                console.error('Error handling answer:', error);
+            }
+        }
+        
+        // Handle received ICE candidate
+        async function handleCandidate(candidate) {
+            try {
+                if (peerConnection) {
+                    await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+                }
+            } catch (error) {
+                console.error('Error handling ICE candidate:', error);
+            }
+        }
+        
+        // Handle remote hangup
+        function handleRemoteHangup() {
+            console.log('Remote peer disconnected');
+            
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            
+            remoteVideo.srcObject = null;
+            updateStatus('👋 Remote user disconnected', 'error');
+            statusDiv.classList.remove('hidden');
+        }
+        
+        // Update status
+        function updateStatus(message, type = 'info') {
+            console.log('📊', message);
+            statusDiv.textContent = message;
+            statusDiv.className = type;
+            statusDiv.classList.remove('hidden');
+        }
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (peerConnection) {
+                peerConnection.close();
+            }
+            if (signalingSocket) {
+                signalingSocket.close();
+            }
+        });
+    </script>
+</body>
+</html>

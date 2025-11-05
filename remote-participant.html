@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mirror's Echo - Live Session</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .video-wrapper {
+            position: relative;
+        }
+
+        .popout-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 10;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: breathe 3s ease-in-out infinite;
+        }
+
+        .popout-button.visible {
+            display: flex;
+        }
+
+        .popout-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #ffffff;
+            transform: scale(1.1);
+            animation: none;
+        }
+
+        .popout-button::before {
+            content: "⤢";
+        }
+
+        @keyframes breathe {
+            0%, 100% {
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+        }
+
+        .fullscreen-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .fullscreen-overlay.active {
+            display: flex;
+        }
+
+        .fullscreen-header {
+            padding: 1.5rem;
+            background: rgba(26, 26, 26, 0.95);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #333;
+        }
+
+        .fullscreen-header h2 {
+            font-family: 'Futura', 'Century Gothic', sans-serif;
+            color: #ffffff;
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .popout-external-button {
+            padding: 10px 24px;
+            background: transparent;
+            border: 2px solid #00ff00;
+            border-radius: 50px;
+            color: #00ff00;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .popout-external-button:hover {
+            background: #00ff00;
+            color: #000;
+        }
+
+        .close-button {
+            padding: 10px 24px;
+            background: transparent;
+            border: 2px solid #ffffff;
+            border-radius: 50px;
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .close-button:hover {
+            background: #ffffff;
+            color: #000;
+            transform: translateY(-2px);
+        }
+
+        .fullscreen-video {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fullscreen-video video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="title">The Mirror's Echo</h1>
+            <p class="subtitle">Live Session - Interactive Experience</p>
+        </header>
+        
+        <main>
+            <section class="webrtc-section">
+                <h2>Live Session</h2>
+                <div class="video-container">
+                    <div class="video-wrapper">
+                        <h3>Processed Output</h3>
+                        <video id="outputVideo" autoplay playsinline></video>
+                        <button class="popout-button" id="popoutBtn" style="display: none;"></button>
+                    </div>
+                    <div class="video-wrapper">
+                        <h3>Your Camera</h3>
+                        <video id="inputVideo" autoplay muted playsinline></video>
+                    </div>
+                </div>
+                
+                <div class="webrtc-controls">
+                    <button class="btn" id="startBtn">Start Camera</button>
+                </div>
+                
+                <div class="webrtc-status">
+                    <p id="statusText">Ready to start</p>
+                </div>
+            </section>
+            
+            <section class="about-section">
+                <h2>About This Session</h2>
+                <p>Experience The Mirror's Echo in real-time. Your camera feed is processed through TouchDesigner and streamed back with creative effects.</p>
+                <p>Click the popout icon (⤢) on the processed output to view fullscreen or in a separate window.</p>
+            </section>
+        </main>
+        
+        <footer>
+            <p>&copy; 2025 The Mirror's Echo</p>
+        </footer>
+    </div>
+
+    <!-- Fullscreen Overlay -->
+    <div class="fullscreen-overlay" id="fullscreenOverlay">
+        <div class="fullscreen-header">
+            <h2>The Mirror's Echo - Fullscreen</h2>
+            <div class="header-controls">
+                <button class="popout-external-button" id="popoutWindowBtn">⤢ Pop Out Window</button>
+                <button class="close-button" id="closeBtn">✕ Close</button>
+            </div>
+        </div>
+        <div class="fullscreen-video">
+            <video id="fullscreenVideo" autoplay playsinline></video>
+        </div>
+    </div>
+
+    <script>
+        const inputVideo = document.getElementById('inputVideo');
+        const outputVideo = document.getElementById('outputVideo');
+        const fullscreenVideo = document.getElementById('fullscreenVideo');
+        const startBtn = document.getElementById('startBtn');
+        const popoutBtn = document.getElementById('popoutBtn');
+        const popoutWindowBtn = document.getElementById('popoutWindowBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const fullscreenOverlay = document.getElementById('fullscreenOverlay');
+        const statusText = document.getElementById('statusText');
+
+        let publisherConnection = null;
+        let subscriberConnection = null;
+        let publisherSocket = null;
+        let subscriberSocket = null;
+        let localStream = null;
+
+        const rtcConfig = {
+            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        };
+
+        const SIGNALING_URL = window.location.protocol === 'https:' 
+            ? `wss://${window.location.host}/ws`
+            : `ws://${window.location.hostname}:${window.location.port || 3000}/ws`;
+
+        startBtn.addEventListener('click', async () => {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: true, 
+                    audio: true 
+                });
+                
+                inputVideo.srcObject = localStream;
+                startBtn.disabled = true;
+                startBtn.textContent = 'Camera Active';
+                statusText.textContent = '✅ Camera active - Connecting to stream...';
+                
+                await connectPublisher();
+                await connectSubscriber();
+                
+            } catch (error) {
+                console.error('Camera error:', error);
+                statusText.textContent = '❌ Camera access denied';
+            }
+        });
+
+        async function connectPublisher() {
+            publisherSocket = new WebSocket(SIGNALING_URL);
+            
+            publisherSocket.onopen = () => {
+                console.log('✅ Publisher connected');
+                publisherSocket.send(JSON.stringify({ type: 'join-room', room: 'input-room' }));
+            };
+            
+            publisherSocket.onmessage = (event) => handlePublisherSignal(JSON.parse(event.data));
+            publisherSocket.onclose = () => setTimeout(connectPublisher, 3000);
+        }
+
+        async function handlePublisherSignal(message) {
+            if (message.type === 'offer') {
+                if (!publisherConnection) await createPublisherConnection();
+                await publisherConnection.setRemoteDescription(new RTCSessionDescription(message.offer));
+                const answer = await publisherConnection.createAnswer();
+                await publisherConnection.setLocalDescription(answer);
+                publisherSocket.send(JSON.stringify({ type: 'answer', answer }));
+            } else if (message.type === 'candidate' && publisherConnection) {
+                await publisherConnection.addIceCandidate(new RTCIceCandidate(message.candidate));
+            }
+        }
+
+        async function createPublisherConnection() {
+            publisherConnection = new RTCPeerConnection(rtcConfig);
+            localStream.getTracks().forEach(track => {
+                publisherConnection.addTrack(track, localStream);
+            });
+            publisherConnection.onicecandidate = (event) => {
+                if (event.candidate && publisherSocket.readyState === WebSocket.OPEN) {
+                    publisherSocket.send(JSON.stringify({ type: 'candidate', candidate: event.candidate }));
+                }
+            };
+            const offer = await publisherConnection.createOffer();
+            await publisherConnection.setLocalDescription(offer);
+            publisherSocket.send(JSON.stringify({ type: 'offer', offer }));
+        }
+
+        async function connectSubscriber() {
+            subscriberSocket = new WebSocket(SIGNALING_URL);
+            
+            subscriberSocket.onopen = () => {
+                console.log('✅ Subscriber connected');
+                subscriberSocket.send(JSON.stringify({ type: 'join-room', room: 'output-room' }));
+            };
+            
+            subscriberSocket.onmessage = (event) => handleSubscriberSignal(JSON.parse(event.data));
+            subscriberSocket.onclose = () => setTimeout(connectSubscriber, 3000);
+        }
+
+        async function handleSubscriberSignal(message) {
+            if (message.type === 'offer') {
+                if (!subscriberConnection) await createSubscriberConnection();
+                await subscriberConnection.setRemoteDescription(new RTCSessionDescription(message.offer));
+                const answer = await subscriberConnection.createAnswer();
+                await subscriberConnection.setLocalDescription(answer);
+                subscriberSocket.send(JSON.stringify({ type: 'answer', answer }));
+            } else if (message.type === 'candidate' && subscriberConnection) {
+                await subscriberConnection.addIceCandidate(new RTCIceCandidate(message.candidate));
+            }
+        }
+
+        async function createSubscriberConnection() {
+            subscriberConnection = new RTCPeerConnection(rtcConfig);
+            
+            subscriberConnection.ontrack = (event) => {
+                console.log('🎥 Received output stream');
+                outputVideo.srcObject = event.streams[0];
+                fullscreenVideo.srcObject = event.streams[0];
+                statusText.textContent = '🎥 Live! Receiving processed stream';
+                popoutBtn.style.display = 'flex';
+            };
+            
+            subscriberConnection.onicecandidate = (event) => {
+                if (event.candidate && subscriberSocket.readyState === WebSocket.OPEN) {
+                    subscriberSocket.send(JSON.stringify({ type: 'candidate', candidate: event.candidate }));
+                }
+            };
+        }
+
+        popoutBtn.addEventListener('click', () => {
+            fullscreenOverlay.classList.add('active');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            fullscreenOverlay.classList.remove('active');
+        });
+
+        popoutWindowBtn.addEventListener('click', () => {
+            const popup = window.open('', 'MirrorsEchoPopout', 'width=1280,height=720,menubar=no,toolbar=no');
+            if (popup) {
+                popup.document.write(`
+                    <!DOCTYPE html>
+                    <html><head><title>The Mirror's Echo</title>
+                    <style>
+                        body { margin:0; background:#000; display:flex; justify-content:center; align-items:center; height:100vh; }
+                        video { max-width:100%; max-height:100%; object-fit:contain; }
+                    </style></head>
+                    <body><video id="v" autoplay playsinline></video>
+                    <script>
+                        const v = document.getElementById('v');
+                        if (window.opener) v.srcObject = window.opener.document.getElementById('outputVideo').srcObject;
+                        setInterval(() => {
+                            if (window.opener && window.opener.document.getElementById('outputVideo').srcObject) {
+                                if (v.srcObject !== window.opener.document.getElementById('outputVideo').srcObject) {
+                                    v.srcObject = window.opener.document.getElementById('outputVideo').srcObject;
+                                }
+                            }
+                        }, 1000);
+                    </script></body></html>
+                `);
+                popup.document.close();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') fullscreenOverlay.classList.remove('active');
+        });
+    </script>
+</body>
+</html>
