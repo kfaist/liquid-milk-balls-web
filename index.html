@@ -380,8 +380,24 @@
     <!-- Stripe Checkout -->
     <script src="https://js.stripe.com/v3/"></script>
     <script>
-        // Initialize Stripe (will use publishable key from environment)
-        // Note: Stripe publishable key should be added to page or fetched from server
+        // Initialize Stripe with publishable key from server
+        let stripeInstance = null;
+
+        // Fetch Stripe configuration on page load
+        async function initializeStripe() {
+            try {
+                const response = await fetch('/api/stripe-config');
+                if (response.ok) {
+                    const { publishableKey } = await response.json();
+                    stripeInstance = Stripe(publishableKey);
+                }
+            } catch (error) {
+                console.log('Stripe not configured:', error);
+            }
+        }
+
+        initializeStripe();
+
         const purchaseBtn = document.getElementById('purchaseLicenseBtn');
 
         if (purchaseBtn) {
@@ -403,18 +419,20 @@
 
                     const { sessionId } = await response.json();
 
-                    // Redirect to Stripe Checkout
-                    // For now, show alert - need Stripe publishable key to redirect
-                    alert('Stripe Checkout would open here. Please contact kristabluedoor@gmail.com to complete purchase.');
-
-                    // When Stripe is fully configured:
-                    // const stripe = Stripe('YOUR_PUBLISHABLE_KEY');
-                    // await stripe.redirectToCheckout({ sessionId });
+                    // Redirect to Stripe Checkout if configured
+                    if (stripeInstance) {
+                        const { error } = await stripeInstance.redirectToCheckout({ sessionId });
+                        if (error) {
+                            throw new Error(error.message);
+                        }
+                    } else {
+                        // Fallback if Stripe not configured
+                        throw new Error('Payment system not configured. Please contact kristabluedoor@gmail.com to complete purchase.');
+                    }
 
                 } catch (error) {
                     console.error('Checkout error:', error);
                     alert(error.message || 'Unable to start checkout. Please contact kristabluedoor@gmail.com');
-                } finally {
                     purchaseBtn.disabled = false;
                     purchaseBtn.textContent = 'Purchase Exhibition License — $400';
                 }

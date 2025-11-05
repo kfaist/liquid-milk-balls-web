@@ -164,6 +164,21 @@ app.get("/api/processed-viewer-token", async (req, res) => {
 
 // Stripe Payment Endpoints
 
+// Get Stripe publishable key
+app.get("/api/stripe-config", (req, res) => {
+  const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+
+  if (!publishableKey) {
+    return res.status(500).json({
+      error: "Stripe not configured"
+    });
+  }
+
+  res.json({
+    publishableKey: publishableKey
+  });
+});
+
 // Create Stripe Checkout session for Exhibition License
 app.post("/api/create-checkout-session", async (req, res) => {
   const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
