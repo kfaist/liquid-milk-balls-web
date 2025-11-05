@@ -2,14 +2,152 @@ const express = require("express");
 const path = require("path");
 const http = require("http");
 const { WebSocketServer } = require("ws");
+const { AccessToken } = require('livekit-server-sdk');
 
 const PORT = process.env.PORT || 3000;
 const app = express();
+
+// LiveKit configuration
+const LIVEKIT_API_KEY = process.env.LIVEKIT_API_KEY;
+const LIVEKIT_API_SECRET = process.env.LIVEKIT_API_SECRET;
+const LIVEKIT_URL = process.env.LIVEKIT_URL;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
 app.get("/healthz", (_req, res) => res.status(200).send("ok"));
+
+// LiveKit token endpoints
+app.get("/api/publisher-token", async (req, res) => {
+  try {
+    if (!LIVEKIT_API_KEY || !LIVEKIT_API_SECRET || !LIVEKIT_URL) {
+      return res.status(500).json({ error: 'LiveKit not configured' });
+    }
+    
+    const participantIdentity = `publisher-${Math.random().toString(36).substring(7)}`;
+    const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
+      identity: participantIdentity,
+      ttl: '2h',
+    });
+    
+    token.addGrant({
+      roomJoin: true,
+      room: 'claymation-live',
+      canPublish: true,
+      canSubscribe: true,
+    });
+    
+    const jwt = await token.toJwt();
+    res.json({
+      token: jwt,
+      url: LIVEKIT_URL,
+      roomName: 'claymation-live',
+      identity: participantIdentity
+    });
+  } catch (error) {
+    console.error('[token] Error:', error);
+    res.status(500).json({ error: 'Token generation failed' });
+  }
+});
+
+app.get("/api/viewer-token", async (req, res) => {
+  try {
+    if (!LIVEKIT_API_KEY || !LIVEKIT_API_SECRET || !LIVEKIT_URL) {
+      return res.status(500).json({ error: 'LiveKit not configured' });
+    }
+    
+    const participantIdentity = `viewer-${Math.random().toString(36).substring(7)}`;
+    const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
+      identity: participantIdentity,
+      ttl: '2h',
+    });
+    
+    token.addGrant({
+      roomJoin: true,
+      room: 'claymation-live',
+      canPublish: false,
+      canSubscribe: true,
+    });
+    
+    const jwt = await token.toJwt();
+    res.json({
+      token: jwt,
+      url: LIVEKIT_URL,
+      roomName: 'claymation-live',
+      identity: participantIdentity
+    });
+  } catch (error) {
+    console.error('[token] Error:', error);
+    res.status(500).json({ error: 'Token generation failed' });
+  }
+});
+
+app.get("/api/processed-publisher-token", async (req, res) => {
+  try {
+    if (!LIVEKIT_API_KEY || !LIVEKIT_API_SECRET || !LIVEKIT_URL) {
+      return res.status(500).json({ error: 'LiveKit not configured' });
+    }
+    
+    const participantIdentity = `obs-publisher-${Math.random().toString(36).substring(7)}`;
+    const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
+      identity: participantIdentity,
+      ttl: '24h',
+    });
+    
+    token.addGrant({
+      roomJoin: true,
+      room: 'processed-output',
+      canPublish: true,
+      canSubscribe: false,
+    });
+    
+    const jwt = await token.toJwt();
+    const whipUrl = `${LIVEKIT_URL.replace('wss://', 'https://')}/whip?access_token=${jwt}`;
+    
+    res.json({
+      token: jwt,
+      url: LIVEKIT_URL,
+      roomName: 'processed-output',
+      identity: participantIdentity,
+      whip_url: whipUrl
+    });
+  } catch (error) {
+    console.error('[token] Error:', error);
+    res.status(500).json({ error: 'Token generation failed' });
+  }
+});
+
+app.get("/api/processed-viewer-token", async (req, res) => {
+  try {
+    if (!LIVEKIT_API_KEY || !LIVEKIT_API_SECRET || !LIVEKIT_URL) {
+      return res.status(500).json({ error: 'LiveKit not configured' });
+    }
+    
+    const participantIdentity = `output-viewer-${Math.random().toString(36).substring(7)}`;
+    const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
+      identity: participantIdentity,
+      ttl: '2h',
+    });
+    
+    token.addGrant({
+      roomJoin: true,
+      room: 'processed-output',
+      canPublish: false,
+      canSubscribe: true,
+    });
+    
+    const jwt = await token.toJwt();
+    res.json({
+      token: jwt,
+      url: LIVEKIT_URL,
+      roomName: 'processed-output',
+      identity: participantIdentity
+    });
+  } catch (error) {
+    console.error('[token] Error:', error);
+    res.status(500).json({ error: 'Token generation failed' });
+  }
+});
 
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: "/ws" });
