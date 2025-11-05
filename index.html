@@ -417,6 +417,48 @@
         // Click the mirror to cycle through temporal phases for testing
         const mirror = document.getElementById('mirror');
         let currentPhase = 0; // 0 = no phase, 1-4 = temporal phases
+        let testRaindropCount = 0; // For color cycling
+
+        // Function to create test raindrops
+        function createTestRaindrops(phase) {
+            const containers = [
+                document.querySelector('.video-wrapper-local'),
+                document.querySelector('.video-wrapper-remote'),
+                document.querySelector('.mirror')
+            ];
+
+            // Number of raindrops based on phase
+            const dropCount = phase * 2; // Phase 1 = 2 drops, Phase 4 = 8 drops
+
+            for (let i = 0; i < dropCount; i++) {
+                setTimeout(() => {
+                    const container = containers[Math.floor(Math.random() * containers.length)];
+                    if (!container) return;
+
+                    const raindrop = document.createElement('div');
+                    raindrop.className = 'video-raindrop';
+
+                    const x = Math.random() * 100;
+                    const y = Math.random() * 100;
+                    raindrop.style.left = x + '%';
+                    raindrop.style.top = y + '%';
+
+                    const hue = (Math.floor(testRaindropCount / 5) * 30) % 360;
+                    const size = 80 + Math.random() * 100;
+                    const duration = 1.5 + Math.random();
+
+                    raindrop.style.width = size + 'px';
+                    raindrop.style.height = size + 'px';
+                    raindrop.style.border = `3px solid hsla(${hue}, 80%, 60%, 0.8)`;
+                    raindrop.style.animation = `raindropRipple ${duration}s ease-out forwards`;
+
+                    container.appendChild(raindrop);
+                    testRaindropCount++;
+
+                    setTimeout(() => raindrop.remove(), duration * 1000);
+                }, i * 200); // Stagger the raindrops
+            }
+        }
 
         if (mirror) {
             mirror.addEventListener('click', () => {
@@ -432,6 +474,9 @@
                 if (currentPhase <= 4) {
                     body.classList.add(`temporal-phase-${currentPhase}`);
                     console.log(`Temporal shimmer: Phase ${currentPhase} activated`);
+
+                    // Create test raindrops for visual feedback
+                    createTestRaindrops(currentPhase);
                 } else {
                     currentPhase = 0; // Reset to no phase
                     console.log('Temporal shimmer: All phases cleared');
