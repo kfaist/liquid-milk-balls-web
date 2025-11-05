@@ -127,7 +127,7 @@
         </header>
         
         <main>
-            <section class="webrtc-section" style="display: none;">
+            <section class="webrtc-section">
                 <h2>WebRTC Preview</h2>
                 <div class="video-container">
                     <div class="video-wrapper video-wrapper-local">
@@ -146,6 +146,11 @@
                     <button class="btn" id="stopCameraBtn" disabled>Stop Camera</button>
                     <button class="btn" id="startCallBtn" disabled>Start WebRTC Call</button>
                     <button class="btn" id="hangupBtn" disabled>Hang Up</button>
+                    <button class="btn btn-ndi" id="ndiBtn" disabled>Enable NDI Output</button>
+                </div>
+
+                <div class="webrtc-status">
+                    <p id="statusText">Ready to start</p>
                 </div>
 
                 <div class="transcription-display">
