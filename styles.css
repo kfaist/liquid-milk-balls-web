@@ -123,11 +123,11 @@ header {
     background: linear-gradient(
         45deg,
         transparent,
-        rgba(255, 255, 255, 0.03),
+        rgba(255, 255, 255, 0.1),
         transparent
     );
     transform: rotate(45deg);
-    animation: shimmer 4s infinite;
+    animation: shimmer 3s infinite;
 }
 
 .echo-text {
