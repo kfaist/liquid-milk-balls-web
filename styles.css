@@ -1131,10 +1131,10 @@ footer {
     }
 }
 
-/* Mirror-Only Shimmer Effects - STAYS INSIDE THE CIRCLE */
+/* Mirror-Only Shimmer Effects (clicking) - STAYS INSIDE THE CIRCLE, NO TEXT FLICKERING */
 
-/* Phase 1: Whisper - Subtle sweeping shimmer */
-body.temporal-phase-1 .mirror::before {
+/* Shimmer 1: Subtle sweeping shimmer (4+ clicks) */
+body.mirror-shimmer-1 .mirror::before {
     content: '';
     position: absolute;
     top: 0;
@@ -1155,8 +1155,8 @@ body.temporal-phase-1 .mirror::before {
     pointer-events: none;
 }
 
-/* Phase 2: Murmur - Brighter sweeping line */
-body.temporal-phase-2 .mirror::before {
+/* Shimmer 2: Brighter sweeping line (11+ clicks) */
+body.mirror-shimmer-2 .mirror::before {
     content: '';
     position: absolute;
     top: 0;
@@ -1177,8 +1177,8 @@ body.temporal-phase-2 .mirror::before {
     pointer-events: none;
 }
 
-/* Phase 3: Presence - Clear bright shimmer */
-body.temporal-phase-3 .mirror::before {
+/* Shimmer 3: Clear bright shimmer (21+ clicks) */
+body.mirror-shimmer-3 .mirror::before {
     content: '';
     position: absolute;
     top: 0;
@@ -1199,8 +1199,8 @@ body.temporal-phase-3 .mirror::before {
     pointer-events: none;
 }
 
-/* Phase 4: Undeniable - Intense sweeping shimmer */
-body.temporal-phase-4 .mirror::before {
+/* Shimmer 4: Intense sweeping shimmer (31+ clicks) */
+body.mirror-shimmer-4 .mirror::before {
     content: '';
     position: absolute;
     top: 0;
@@ -1267,7 +1267,12 @@ body.temporal-phase-4 .mirror::before {
 
 /* Text Flickering Effects - Progressive Intensity Through Temporal Phases */
 
-/* Phase 1: Whisper - Very subtle flicker */
+/* Base continuous flicker - always present from the start */
+h1, h2, h3, p, a, .tier-title, .tier-description {
+    animation: textFlickerSubtle 8s ease-in-out infinite;
+}
+
+/* Phase 1: Murmur - More noticeable flicker (8-9 min) */
 body.temporal-phase-1 h1,
 body.temporal-phase-1 h2,
 body.temporal-phase-1 h3,
@@ -1275,10 +1280,10 @@ body.temporal-phase-1 p,
 body.temporal-phase-1 a,
 body.temporal-phase-1 .tier-title,
 body.temporal-phase-1 .tier-description {
-    animation: textFlickerSubtle 8s ease-in-out infinite;
+    animation: textFlickerMedium 5s ease-in-out infinite;
 }
 
-/* Phase 2: Murmur - More noticeable flicker */
+/* Phase 2: Presence - Clear glitchy flicker (9-10 min) */
 body.temporal-phase-2 h1,
 body.temporal-phase-2 h2,
 body.temporal-phase-2 h3,
@@ -1286,10 +1291,10 @@ body.temporal-phase-2 p,
 body.temporal-phase-2 a,
 body.temporal-phase-2 .tier-title,
 body.temporal-phase-2 .tier-description {
-    animation: textFlickerMedium 5s ease-in-out infinite;
+    animation: textFlickerIntense 3s ease-in-out infinite;
 }
 
-/* Phase 3: Presence - Clear glitchy flicker */
+/* Phase 3: Undeniable - Strong persistent flicker (10-11 min) */
 body.temporal-phase-3 h1,
 body.temporal-phase-3 h2,
 body.temporal-phase-3 h3,
@@ -1297,10 +1302,10 @@ body.temporal-phase-3 p,
 body.temporal-phase-3 a,
 body.temporal-phase-3 .tier-title,
 body.temporal-phase-3 .tier-description {
-    animation: textFlickerIntense 3s ease-in-out infinite;
+    animation: textFlickerUndeniable 2s ease-in-out infinite;
 }
 
-/* Phase 4: Undeniable - Strong persistent flicker */
+/* Phase 4: Overtaken - Maximum intensity (11+ min) */
 body.temporal-phase-4 h1,
 body.temporal-phase-4 h2,
 body.temporal-phase-4 h3,
@@ -1308,7 +1313,7 @@ body.temporal-phase-4 p,
 body.temporal-phase-4 a,
 body.temporal-phase-4 .tier-title,
 body.temporal-phase-4 .tier-description {
-    animation: textFlickerUndeniable 2s ease-in-out infinite;
+    animation: textFlickerUndeniable 1.5s ease-in-out infinite;
 }
 
 /* Flickering Keyframe Animations */

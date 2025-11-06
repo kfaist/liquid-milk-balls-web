@@ -452,20 +452,20 @@
             }
         }
 
-        // Update shimmer phase based on click count
+        // Update shimmer phase based on click count (shimmer in mirror only, NO text flickering)
         function updatePhaseFromClicks() {
             const body = document.body;
-            body.classList.remove('temporal-phase-1', 'temporal-phase-2', 'temporal-phase-3', 'temporal-phase-4');
+            body.classList.remove('mirror-shimmer-1', 'mirror-shimmer-2', 'mirror-shimmer-3', 'mirror-shimmer-4');
 
-            // Gradually increase phase: 0-10 clicks = phase 1, 11-20 = phase 2, etc.
+            // Gradually increase shimmer intensity (mirror only)
             if (clickCount > 30) {
-                body.classList.add('temporal-phase-4');
+                body.classList.add('mirror-shimmer-4');
             } else if (clickCount > 20) {
-                body.classList.add('temporal-phase-3');
+                body.classList.add('mirror-shimmer-3');
             } else if (clickCount > 10) {
-                body.classList.add('temporal-phase-2');
+                body.classList.add('mirror-shimmer-2');
             } else if (clickCount > 3) {
-                body.classList.add('temporal-phase-1');
+                body.classList.add('mirror-shimmer-1');
             }
         }
 
