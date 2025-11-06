@@ -427,20 +427,22 @@
                     const raindrop = document.createElement('div');
                     raindrop.className = 'video-raindrop';
 
+                    // Spawn at TOP, fall down with gravity!
                     const x = Math.random() * 100;
-                    const y = Math.random() * 100;
+                    const y = -10; // Start above the container
                     raindrop.style.left = x + '%';
                     raindrop.style.top = y + '%';
 
                     // Color cycles through rainbow every 3 clicks
                     const hue = (Math.floor(raindropColorIndex / 3) * 40) % 360;
+                    raindrop.style.setProperty('--raindrop-hue', hue);
+
                     const size = 60 + Math.random() * 120;
-                    const duration = 1.2 + Math.random() * 0.8;
+                    const duration = 1.5 + Math.random() * 1; // Slower fall
 
                     raindrop.style.width = size + 'px';
                     raindrop.style.height = size + 'px';
-                    raindrop.style.border = `3px solid hsla(${hue}, 85%, 65%, 0.9)`;
-                    raindrop.style.animation = `raindropRipple ${duration}s ease-out forwards`;
+                    raindrop.style.animation = `raindropRipple ${duration}s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards, raindropBreath 3s ease-in-out infinite`;
 
                     container.appendChild(raindrop);
                     raindropColorIndex++;
@@ -450,20 +452,20 @@
             }
         }
 
-        // Update shimmer phase based on click count
+        // Update shimmer phase based on click count (shimmer in mirror only, NO text flickering)
         function updatePhaseFromClicks() {
             const body = document.body;
-            body.classList.remove('temporal-phase-1', 'temporal-phase-2', 'temporal-phase-3', 'temporal-phase-4');
+            body.classList.remove('mirror-shimmer-1', 'mirror-shimmer-2', 'mirror-shimmer-3', 'mirror-shimmer-4');
 
-            // Gradually increase phase: 0-10 clicks = phase 1, 11-20 = phase 2, etc.
+            // Gradually increase shimmer intensity (mirror only)
             if (clickCount > 30) {
-                body.classList.add('temporal-phase-4');
+                body.classList.add('mirror-shimmer-4');
             } else if (clickCount > 20) {
-                body.classList.add('temporal-phase-3');
+                body.classList.add('mirror-shimmer-3');
             } else if (clickCount > 10) {
-                body.classList.add('temporal-phase-2');
+                body.classList.add('mirror-shimmer-2');
             } else if (clickCount > 3) {
-                body.classList.add('temporal-phase-1');
+                body.classList.add('mirror-shimmer-1');
             }
         }
 

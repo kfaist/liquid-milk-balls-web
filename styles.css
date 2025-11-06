@@ -527,43 +527,66 @@ footer {
     border-radius: 50%;
     pointer-events: none;
     overflow: visible; /* Let glow extend beyond bounds */
-    background: radial-gradient(
-        circle at 40% 40%,
-        hsla(var(--raindrop-hue, 200), 95%, 85%, 0.7) 0%,
-        hsla(var(--raindrop-hue, 200), 90%, 75%, 0.5) 20%,
-        hsla(var(--raindrop-hue, 200), 85%, 65%, 0.3) 40%,
-        hsla(var(--raindrop-hue, 200), 80%, 55%, 0.15) 60%,
-        transparent 100%
-    );
+    /* Translucent polycarbonate - backlit from within like RGB pudding keycaps */
+    background:
+        radial-gradient(
+            circle at 45% 45%,
+            hsla(var(--raindrop-hue, 200), 100%, 95%, 0.9) 0%,
+            hsla(var(--raindrop-hue, 200), 95%, 85%, 0.7) 15%,
+            hsla(var(--raindrop-hue, 200), 90%, 75%, 0.5) 35%,
+            hsla(var(--raindrop-hue, 200), 85%, 65%, 0.3) 55%,
+            hsla(var(--raindrop-hue, 200), 75%, 55%, 0.15) 75%,
+            transparent 100%
+        ),
+        /* Subtle white overlay for polycarbonate frosted effect */
+        radial-gradient(
+            circle at 50% 50%,
+            rgba(255, 255, 255, 0.3) 0%,
+            rgba(255, 255, 255, 0.1) 40%,
+            transparent 80%
+        );
     box-shadow:
-        /* Inner glow - bright core */
-        inset 0 0 30px hsla(var(--raindrop-hue, 200), 100%, 90%, 0.8),
-        inset 0 0 50px hsla(var(--raindrop-hue, 200), 100%, 80%, 0.5),
-        /* Outer glow - diffused through vellum */
-        0 0 40px hsla(var(--raindrop-hue, 200), 90%, 70%, 0.6),
-        0 0 60px hsla(var(--raindrop-hue, 200), 85%, 65%, 0.4),
-        0 0 80px hsla(var(--raindrop-hue, 200), 80%, 60%, 0.2);
-    backdrop-filter: blur(8px); /* Softer vellum effect */
-    filter: blur(1px); /* Slight softness to edges */
-    animation: videoRaindrop 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        /* Internal backlight glow - bright saturated core */
+        inset 0 0 40px hsla(var(--raindrop-hue, 200), 100%, 90%, 0.9),
+        inset 0 0 60px hsla(var(--raindrop-hue, 200), 100%, 85%, 0.6),
+        /* Soft outer glow - diffused through translucent material */
+        0 0 30px hsla(var(--raindrop-hue, 200), 95%, 75%, 0.7),
+        0 0 50px hsla(var(--raindrop-hue, 200), 90%, 70%, 0.5),
+        0 0 70px hsla(var(--raindrop-hue, 200), 85%, 65%, 0.3),
+        /* Extended halo */
+        0 0 100px hsla(var(--raindrop-hue, 200), 80%, 60%, 0.2);
+    backdrop-filter: blur(10px) saturate(1.5); /* Vellum/polycarbonate diffusion */
+    filter: blur(1.5px); /* Soft satiny edges */
+    animation: videoRaindrop 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards, raindropBreath 3s ease-in-out infinite;
     transform: translate(-50%, -50%) scale(0);
 }
 
-/* Animation for click-triggered raindrops (used in JavaScript) */
+/* Breathing/pulsing effect like RGB keyboard */
+@keyframes raindropBreath {
+    0%, 100% {
+        filter: blur(1.5px) brightness(1);
+    }
+    50% {
+        filter: blur(2px) brightness(1.2);
+    }
+}
+
+/* Animation for click-triggered raindrops - FALLING with gravity like pudding keycaps! */
 @keyframes raindropRipple {
     0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0);
-        filter: blur(1px);
+        transform: translate(-50%, 0%) scale(0.5);
+        filter: blur(1px) brightness(1.3);
     }
-    15% {
+    10% {
         opacity: 0.9;
-        transform: translate(-50%, -50%) scale(0.4);
+        transform: translate(-50%, 10%) scale(1);
+        filter: blur(1.5px) brightness(1.2);
     }
     100% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(1.5);
-        filter: blur(3px);
+        transform: translate(-50%, 100%) scale(0.8);
+        filter: blur(2.5px) brightness(0.8);
     }
 }
 
@@ -1108,125 +1131,116 @@ footer {
     }
 }
 
-/* Site-wide Temporal Shimmer Effects (7-10 min) */
+/* Mirror-Only Shimmer Effects (clicking) - STAYS INSIDE THE CIRCLE, NO TEXT FLICKERING */
 
-/* Phase 1: Whisper (7-8 min) - Very subtle background shimmer */
-body.temporal-phase-1::before {
+/* Shimmer 1: Subtle sweeping shimmer (4+ clicks) */
+body.mirror-shimmer-1 .mirror::before {
     content: '';
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background: linear-gradient(
-        135deg,
+        90deg,
         transparent 0%,
-        rgba(255, 255, 255, 0.01) 50%,
+        transparent 40%,
+        rgba(255, 255, 255, 0.15) 48%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0.15) 52%,
+        transparent 60%,
         transparent 100%
     );
     animation: shimmerSlow 20s ease-in-out infinite;
     pointer-events: none;
-    z-index: 9998;
 }
 
-/* Phase 2: Murmur (8-9 min) - More visible shimmer + section pulses */
-body.temporal-phase-2::before {
+/* Shimmer 2: Brighter sweeping line (11+ clicks) */
+body.mirror-shimmer-2 .mirror::before {
     content: '';
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background: linear-gradient(
-        135deg,
+        90deg,
         transparent 0%,
-        rgba(255, 255, 255, 0.02) 50%,
+        transparent 40%,
+        rgba(255, 255, 255, 0.25) 48%,
+        rgba(255, 255, 255, 0.45) 50%,
+        rgba(255, 255, 255, 0.25) 52%,
+        transparent 60%,
         transparent 100%
     );
     animation: shimmerMedium 15s ease-in-out infinite;
     pointer-events: none;
-    z-index: 9998;
 }
 
-body.temporal-phase-2 .echo-section,
-body.temporal-phase-2 .about-section {
-    animation: sectionPulse 8s ease-in-out infinite;
-}
-
-/* Phase 3: Presence (9-10 min) - Clear shimmer + ripples */
-body.temporal-phase-3::before {
+/* Shimmer 3: Clear bright shimmer (21+ clicks) */
+body.mirror-shimmer-3 .mirror::before {
     content: '';
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background: linear-gradient(
-        135deg,
+        90deg,
         transparent 0%,
-        rgba(255, 255, 255, 0.03) 50%,
+        transparent 40%,
+        rgba(255, 255, 255, 0.35) 48%,
+        rgba(255, 255, 255, 0.6) 50%,
+        rgba(255, 255, 255, 0.35) 52%,
+        transparent 60%,
         transparent 100%
     );
     animation: shimmerFast 10s ease-in-out infinite;
     pointer-events: none;
-    z-index: 9998;
 }
 
-body.temporal-phase-3 .echo-section,
-body.temporal-phase-3 .about-section,
-body.temporal-phase-3 .webrtc-section {
-    animation: sectionPulse 6s ease-in-out infinite;
-}
-
-/* Phase 4: Undeniable (10+ min) - Full shimmer + all effects */
-body.temporal-phase-4::before {
+/* Shimmer 4: Intense sweeping shimmer (31+ clicks) */
+body.mirror-shimmer-4 .mirror::before {
     content: '';
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background: linear-gradient(
-        135deg,
+        90deg,
         transparent 0%,
-        rgba(255, 255, 255, 0.04) 50%,
+        transparent 40%,
+        rgba(255, 255, 255, 0.45) 48%,
+        rgba(255, 255, 255, 0.75) 50%,
+        rgba(255, 255, 255, 0.45) 52%,
+        transparent 60%,
         transparent 100%
     );
     animation: shimmerIntense 8s ease-in-out infinite;
     pointer-events: none;
-    z-index: 9998;
 }
 
-body.temporal-phase-4 .echo-section,
-body.temporal-phase-4 .about-section,
-body.temporal-phase-4 .webrtc-section {
-    animation: sectionPulse 4s ease-in-out infinite;
-}
 
-/* Very subtle effect on Start Camera button (humor!) */
-body.temporal-phase-4 #startCameraBtn:not(:disabled) {
-    animation: subtleButtonGlow 3s ease-in-out infinite;
-}
-
-/* Shimmer Animations */
+/* Shimmer Animations - Stay INSIDE the circle */
 @keyframes shimmerSlow {
-    0%, 100% { transform: translateX(-100%) rotate(45deg); }
-    50% { transform: translateX(100%) rotate(45deg); }
+    0%, 100% { transform: translateX(-50%); }
+    50% { transform: translateX(50%); }
 }
 
 @keyframes shimmerMedium {
-    0%, 100% { transform: translateX(-100%) rotate(45deg); }
-    50% { transform: translateX(100%) rotate(45deg); }
+    0%, 100% { transform: translateX(-50%); }
+    50% { transform: translateX(50%); }
 }
 
 @keyframes shimmerFast {
-    0%, 100% { transform: translateX(-100%) rotate(45deg); }
-    50% { transform: translateX(100%) rotate(45deg); }
+    0%, 100% { transform: translateX(-50%); }
+    50% { transform: translateX(50%); }
 }
 
 @keyframes shimmerIntense {
-    0%, 100% { transform: translateX(-100%) rotate(45deg); opacity: 0.5; }
-    50% { transform: translateX(100%) rotate(45deg); opacity: 1; }
+    0%, 100% { transform: translateX(-50%); opacity: 0.5; }
+    50% { transform: translateX(50%); opacity: 1; }
 }
 
 /* Section Pulse */
@@ -1253,7 +1267,12 @@ body.temporal-phase-4 #startCameraBtn:not(:disabled) {
 
 /* Text Flickering Effects - Progressive Intensity Through Temporal Phases */
 
-/* Phase 1: Whisper (7-8 min) - Very subtle flicker */
+/* Base continuous flicker - always present from the start */
+h1, h2, h3, p, a, .tier-title, .tier-description {
+    animation: textFlickerSubtle 8s ease-in-out infinite;
+}
+
+/* Phase 1: Murmur - More noticeable flicker (8-9 min) */
 body.temporal-phase-1 h1,
 body.temporal-phase-1 h2,
 body.temporal-phase-1 h3,
@@ -1261,10 +1280,10 @@ body.temporal-phase-1 p,
 body.temporal-phase-1 a,
 body.temporal-phase-1 .tier-title,
 body.temporal-phase-1 .tier-description {
-    animation: textFlickerSubtle 8s ease-in-out infinite;
+    animation: textFlickerMedium 5s ease-in-out infinite;
 }
 
-/* Phase 2: Murmur (8-9 min) - More noticeable flicker */
+/* Phase 2: Presence - Clear glitchy flicker (9-10 min) */
 body.temporal-phase-2 h1,
 body.temporal-phase-2 h2,
 body.temporal-phase-2 h3,
@@ -1272,10 +1291,10 @@ body.temporal-phase-2 p,
 body.temporal-phase-2 a,
 body.temporal-phase-2 .tier-title,
 body.temporal-phase-2 .tier-description {
-    animation: textFlickerMedium 5s ease-in-out infinite;
+    animation: textFlickerIntense 3s ease-in-out infinite;
 }
 
-/* Phase 3: Presence (9-10 min) - Clear glitchy flicker */
+/* Phase 3: Undeniable - Strong persistent flicker (10-11 min) */
 body.temporal-phase-3 h1,
 body.temporal-phase-3 h2,
 body.temporal-phase-3 h3,
@@ -1283,10 +1302,10 @@ body.temporal-phase-3 p,
 body.temporal-phase-3 a,
 body.temporal-phase-3 .tier-title,
 body.temporal-phase-3 .tier-description {
-    animation: textFlickerIntense 3s ease-in-out infinite;
+    animation: textFlickerUndeniable 2s ease-in-out infinite;
 }
 
-/* Phase 4: Undeniable (10+ min) - Strong persistent flicker */
+/* Phase 4: Overtaken - Maximum intensity (11+ min) */
 body.temporal-phase-4 h1,
 body.temporal-phase-4 h2,
 body.temporal-phase-4 h3,
@@ -1294,7 +1313,7 @@ body.temporal-phase-4 p,
 body.temporal-phase-4 a,
 body.temporal-phase-4 .tier-title,
 body.temporal-phase-4 .tier-description {
-    animation: textFlickerUndeniable 2s ease-in-out infinite;
+    animation: textFlickerUndeniable 1.5s ease-in-out infinite;
 }
 
 /* Flickering Keyframe Animations */
