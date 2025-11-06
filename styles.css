@@ -1131,120 +1131,116 @@ footer {
     }
 }
 
-/* Mirror-Only Temporal Shimmer Effects (clicking the mirror) */
+/* Mirror-Only Shimmer Effects - STAYS INSIDE THE CIRCLE */
 
-/* Phase 1: Whisper - Subtle sweeping shimmer line */
+/* Phase 1: Whisper - Subtle sweeping shimmer */
 body.temporal-phase-1 .mirror::before {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: linear-gradient(
         90deg,
         transparent 0%,
-        transparent 45%,
+        transparent 40%,
         rgba(255, 255, 255, 0.15) 48%,
         rgba(255, 255, 255, 0.3) 50%,
         rgba(255, 255, 255, 0.15) 52%,
-        transparent 55%,
+        transparent 60%,
         transparent 100%
     );
     animation: shimmerSlow 20s ease-in-out infinite;
     pointer-events: none;
-    border-radius: 50%;
 }
 
 /* Phase 2: Murmur - Brighter sweeping line */
 body.temporal-phase-2 .mirror::before {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: linear-gradient(
         90deg,
         transparent 0%,
-        transparent 45%,
+        transparent 40%,
         rgba(255, 255, 255, 0.25) 48%,
         rgba(255, 255, 255, 0.45) 50%,
         rgba(255, 255, 255, 0.25) 52%,
-        transparent 55%,
+        transparent 60%,
         transparent 100%
     );
     animation: shimmerMedium 15s ease-in-out infinite;
     pointer-events: none;
-    border-radius: 50%;
 }
 
-/* Phase 3: Presence - Clear bright shimmer line */
+/* Phase 3: Presence - Clear bright shimmer */
 body.temporal-phase-3 .mirror::before {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: linear-gradient(
         90deg,
         transparent 0%,
-        transparent 45%,
+        transparent 40%,
         rgba(255, 255, 255, 0.35) 48%,
         rgba(255, 255, 255, 0.6) 50%,
         rgba(255, 255, 255, 0.35) 52%,
-        transparent 55%,
+        transparent 60%,
         transparent 100%
     );
     animation: shimmerFast 10s ease-in-out infinite;
     pointer-events: none;
-    border-radius: 50%;
 }
 
-/* Phase 4: Undeniable - Intense sweeping shimmer line */
+/* Phase 4: Undeniable - Intense sweeping shimmer */
 body.temporal-phase-4 .mirror::before {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: linear-gradient(
         90deg,
         transparent 0%,
-        transparent 45%,
+        transparent 40%,
         rgba(255, 255, 255, 0.45) 48%,
         rgba(255, 255, 255, 0.75) 50%,
         rgba(255, 255, 255, 0.45) 52%,
-        transparent 55%,
+        transparent 60%,
         transparent 100%
     );
     animation: shimmerIntense 8s ease-in-out infinite;
     pointer-events: none;
-    border-radius: 50%;
 }
 
 
-/* Shimmer Animations */
+/* Shimmer Animations - Stay INSIDE the circle */
 @keyframes shimmerSlow {
-    0%, 100% { transform: translateX(-100%) rotate(45deg); }
-    50% { transform: translateX(100%) rotate(45deg); }
+    0%, 100% { transform: translateX(-50%); }
+    50% { transform: translateX(50%); }
 }
 
 @keyframes shimmerMedium {
-    0%, 100% { transform: translateX(-100%) rotate(45deg); }
-    50% { transform: translateX(100%) rotate(45deg); }
+    0%, 100% { transform: translateX(-50%); }
+    50% { transform: translateX(50%); }
 }
 
 @keyframes shimmerFast {
-    0%, 100% { transform: translateX(-100%) rotate(45deg); }
-    50% { transform: translateX(100%) rotate(45deg); }
+    0%, 100% { transform: translateX(-50%); }
+    50% { transform: translateX(50%); }
 }
 
 @keyframes shimmerIntense {
-    0%, 100% { transform: translateX(-100%) rotate(45deg); opacity: 0.5; }
-    50% { transform: translateX(100%) rotate(45deg); opacity: 1; }
+    0%, 100% { transform: translateX(-50%); opacity: 0.5; }
+    50% { transform: translateX(50%); opacity: 1; }
 }
 
 /* Section Pulse */
