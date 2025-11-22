@@ -242,6 +242,28 @@ wss.on("connection", (ws) => {
     try {
       const data = JSON.parse(msg);
       
+      // Handle simple 'join' for WebRTC peer signaling
+      if (data.type === 'join') {
+        console.log('[ws] Client joined for WebRTC signaling');
+        
+        // Count how many OTHER clients are connected (excluding this one)
+        const otherClients = Array.from(wss.clients).filter(
+          client => client !== ws && client.readyState === client.OPEN
+        );
+        
+        console.log(`[ws] Other clients connected: ${otherClients.length}`);
+        
+        // If no other clients, this one becomes the initiator
+        if (otherClients.length === 0) {
+          console.log('[ws] Making this client the initiator');
+          ws.send(JSON.stringify({ type: 'ready' }));
+        }
+        // If there are other clients, they should send offers
+        // This client will wait to receive an offer
+        
+        return;
+      }
+      
       // Handle room join
       if (data.type === 'join-room') {
         const roomName = data.room;
