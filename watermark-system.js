@@ -164,7 +164,14 @@
 
         raindrop.style.width = size + 'px';
         raindrop.style.height = size + 'px';
-        raindrop.style.animationDuration = duration + 's';
+
+        // Random animation delay for staggered RGB cycling effect (like keyboard)
+        const rgbDelay = Math.random() * 1.2; // 0-1.2s random delay
+        raindrop.style.animation = `
+            videoRaindrop ${duration}s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
+            puddingRgbCycle 1.2s linear ${rgbDelay}s infinite
+        `;
+
         raindrop.style.setProperty('--raindrop-intensity', intensity);
         raindrop.style.setProperty('--raindrop-hue', hue);
 

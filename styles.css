@@ -502,7 +502,9 @@ footer {
         0 0 40px hsla(var(--raindrop-hue, 200), 100%, 65%, calc(var(--raindrop-intensity, 0.3) * 0.8)),
         0 0 80px hsla(var(--raindrop-hue, 200), 100%, 60%, calc(var(--raindrop-intensity, 0.3) * 0.4));
     backdrop-filter: blur(3px) saturate(1.5);
-    animation: videoRaindrop 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation:
+        videoRaindrop 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
+        puddingRgbCycle 1.2s linear infinite;
     transform: translate(-50%, -50%) scale(0);
 }
 
@@ -523,6 +525,19 @@ footer {
         opacity: 0;
         transform: translate(-50%, -50%) scale(1.2);
     }
+}
+
+/* Swift RGB color cycling like pudding keycap keyboards */
+@keyframes puddingRgbCycle {
+    0% { --raindrop-hue: 330; }    /* Vibrant Pink/Magenta */
+    12.5% { --raindrop-hue: 280; } /* Purple */
+    25% { --raindrop-hue: 240; }   /* Blue */
+    37.5% { --raindrop-hue: 190; } /* Cyan */
+    50% { --raindrop-hue: 150; }   /* Green */
+    62.5% { --raindrop-hue: 60; }  /* Yellow/Gold */
+    75% { --raindrop-hue: 10; }    /* Red/Orange */
+    87.5% { --raindrop-hue: 300; } /* Hot Pink */
+    100% { --raindrop-hue: 330; }  /* Back to Pink */
 }
 
 /* Glassmorphism Text Overlay */
