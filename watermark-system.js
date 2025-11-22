@@ -102,9 +102,22 @@
         }
     }
 
-    // Get current color hue based on raindrop count (changes every 5 raindrops)
+    // Vibrant pudding keycap RGB colors
+    const PUDDING_HUES = [
+        330, // Vibrant Pink/Magenta
+        280, // Purple
+        240, // Blue
+        190, // Cyan
+        150, // Green
+        60,  // Yellow/Gold
+        10,  // Red/Orange
+        300  // Hot Pink
+    ];
+
+    // Get current color hue based on raindrop count (changes every 3 raindrops for variety)
     function getCurrentHue() {
-        return (Math.floor(raindropCount / 5) * 30) % 360;
+        const colorIndex = Math.floor(raindropCount / 3) % PUDDING_HUES.length;
+        return PUDDING_HUES[colorIndex];
     }
 
     // Create a raindrop ripple effect
