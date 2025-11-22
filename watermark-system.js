@@ -5,27 +5,39 @@
     'use strict';
 
     // Timing configuration (in milliseconds)
-    const PHASE_START = 7 * 60 * 1000;  // 7 minutes
-    const PHASE_1 = 8 * 60 * 1000;      // 8 minutes
-    const PHASE_2 = 9 * 60 * 1000;      // 9 minutes
-    const PHASE_3 = 10 * 60 * 1000;     // 10 minutes
+    const PHASE_START = 8 * 60 * 1000;  // 8 minutes - watermark begins (loss of control)
+    const PHASE_1 = 9 * 60 * 1000;      // 9 minutes
+    const PHASE_2 = 10 * 60 * 1000;     // 10 minutes
+    const PHASE_3 = 11 * 60 * 1000;     // 11 minutes
 
     let startTime = null;
     let watermarkIntervalId = null;
     let textOverlayVisible = false;
     let raindropCount = 0; // Track raindrops for color changes
 
+    // Manual start function (exposed globally for testing)
+    function startWatermarkTimer() {
+        if (!startTime) {
+            console.log('Watermark timer started manually');
+            startTime = Date.now();
+            startWatermarkLoop();
+        }
+    }
+
     // Initialize watermark system when remote video starts playing
     function initWatermark() {
         const remoteVideo = document.getElementById('remoteVideo');
         const fullscreenVideo = document.getElementById('fullscreenVideo');
+
+        // Expose manual start function globally for testing
+        window.startWatermarkTimer = startWatermarkTimer;
 
         if (!remoteVideo) return;
 
         // Start timer when remote video begins playing
         remoteVideo.addEventListener('playing', () => {
             if (!startTime) {
-                console.log('Watermark timer started');
+                console.log('Watermark timer started (video playing)');
                 startTime = Date.now();
                 startWatermarkLoop();
             }
@@ -41,6 +53,10 @@
                 }
             });
         }
+
+        // TEMPORARY: Auto-start timer on page load for testing (remove in production)
+        // Uncomment the line below to auto-start the 8-minute countdown
+        // setTimeout(startWatermarkTimer, 1000);
     }
 
     // Main watermark loop
@@ -59,24 +75,19 @@
         updateSitePhase(elapsed);
 
         if (elapsed < PHASE_START) {
-            // 0-7 minutes: No watermark
+            // 0-8 minutes: No automatic watermark (playful click interaction only)
             return;
         }
 
-        const remoteVideo = document.getElementById('remoteVideo');
-        const fullscreenVideo = document.getElementById('fullscreenVideo');
+        // At 8+ minutes: Create raindrops on the overlay (OVER everything, not capturable)
+        const watermarkOverlay = document.getElementById('watermark-overlay');
 
         // Determine current phase and get raindrop frequency
         let frequency = getDropFrequency(elapsed);
 
-        // Create raindrop on both video elements
-        if (Math.random() < frequency) {
-            if (remoteVideo && remoteVideo.srcObject) {
-                createRaindrop(remoteVideo.parentElement);
-            }
-            if (fullscreenVideo && fullscreenVideo.srcObject) {
-                createRaindrop(fullscreenVideo.parentElement);
-            }
+        // Create raindrop on the overlay (appears over entire page)
+        if (watermarkOverlay && Math.random() < frequency) {
+            createRaindrop(watermarkOverlay);
         }
 
         // Show text overlay at 10+ minutes
@@ -108,19 +119,19 @@
     // Get raindrop frequency based on elapsed time
     function getDropFrequency(elapsed) {
         if (elapsed < PHASE_START) {
-            return 0; // No watermark
+            return 0; // No automatic watermark (0-8 min: playful clicks only)
         } else if (elapsed < PHASE_1) {
-            // 7-8 min: Very subtle hint/preview (every 15-20 seconds)
-            return 0.006; // ~0.6% chance per second = ~every 18 seconds
+            // 8-9 min: Loss of control begins (every 8-12 seconds)
+            return 0.01; // ~1% chance per second = ~every 10 seconds
         } else if (elapsed < PHASE_2) {
-            // 8-9 min: Increasing (every 5-7 seconds)
-            return 0.02; // ~2% chance per second = ~every 5 seconds
+            // 9-10 min: Increasing presence (every 4-6 seconds)
+            return 0.025; // ~2.5% chance per second = ~every 5 seconds
         } else if (elapsed < PHASE_3) {
-            // 9-10 min: More prominent (every 2-4 seconds)
-            return 0.04; // ~4% chance per second = ~every 2.5 seconds
+            // 10-11 min: More prominent (every 2-3 seconds)
+            return 0.05; // ~5% chance per second = ~every 2 seconds
         } else {
-            // 10+ min: Cannot be ignored (every 1-2 seconds)
-            return 0.08; // ~8% chance per second = ~every 1.25 seconds
+            // 11+ min: Cannot be ignored (every 0.5-1.5 seconds)
+            return 0.12; // ~12% chance per second = ~every 0.8 seconds
         }
     }
 

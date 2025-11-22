@@ -2,7 +2,7 @@ const express = require("express");
 const path = require("path");
 const http = require("http");
 const { WebSocketServer } = require("ws");
-const { AccessToken } = require("livekit-server-sdk");
+const { AccessToken, RoomServiceClient } = require("livekit-server-sdk");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const paypal = require("@paypal/checkout-server-sdk");
 
@@ -159,6 +159,97 @@ app.get("/api/processed-viewer-token", async (req, res) => {
   } catch (error) {
     console.error("Error generating processed viewer token:", error);
     res.status(500).json({ error: "Failed to generate token" });
+  }
+});
+
+// RTMP Ingress Endpoints (for OBS streaming)
+
+// Create RTMP Ingress for OBS
+app.post("/api/create-rtmp-ingress", async (req, res) => {
+  if (!LIVEKIT_API_KEY || !LIVEKIT_API_SECRET || !LIVEKIT_URL) {
+    return res.status(500).json({
+      error: "LiveKit not configured"
+    });
+  }
+
+  try {
+    const livekitHost = LIVEKIT_URL.replace('wss://', 'https://').replace('ws://', 'http://');
+    
+    const roomService = new RoomServiceClient(
+      livekitHost,
+      LIVEKIT_API_KEY,
+      LIVEKIT_API_SECRET
+    );
+
+    // Create RTMP ingress for processed-output room
+    const ingressInfo = await roomService.createIngress({
+      inputType: 0, // RTMP_INPUT
+      name: 'OBS-RTMP-Stream',
+      roomName: PROCESSED_ROOM,
+      participantIdentity: 'obs-rtmp-publisher',
+      participantName: 'OBS Stream'
+    });
+
+    console.log('[RTMP] Ingress created:', ingressInfo.ingressId);
+
+    // Return the RTMP URL and stream key
+    res.json({
+      success: true,
+      ingressId: ingressInfo.ingressId,
+      rtmpUrl: ingressInfo.url,
+      streamKey: ingressInfo.streamKey,
+      fullRtmpUrl: `${ingressInfo.url}/${ingressInfo.streamKey}`,
+      room: PROCESSED_ROOM
+    });
+
+  } catch (error) {
+    console.error('Error creating RTMP ingress:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// List existing RTMP ingresses
+app.get("/api/list-ingresses", async (req, res) => {
+  if (!LIVEKIT_API_KEY || !LIVEKIT_API_SECRET || !LIVEKIT_URL) {
+    return res.status(500).json({
+      error: "LiveKit not configured"
+    });
+  }
+
+  try {
+    const livekitHost = LIVEKIT_URL.replace('wss://', 'https://').replace('ws://', 'http://');
+    
+    const roomService = new RoomServiceClient(
+      livekitHost,
+      LIVEKIT_API_KEY,
+      LIVEKIT_API_SECRET
+    );
+
+    const ingresses = await roomService.listIngress({ 
+      roomName: PROCESSED_ROOM 
+    });
+
+    res.json({
+      success: true,
+      ingresses: ingresses.map(ing => ({
+        id: ing.ingressId,
+        name: ing.name,
+        url: ing.url,
+        streamKey: ing.streamKey,
+        room: ing.roomName,
+        state: ing.state
+      }))
+    });
+
+  } catch (error) {
+    console.error('Error listing ingresses:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
   }
 });
 

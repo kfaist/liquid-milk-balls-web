@@ -120,12 +120,21 @@
     </style>
 </head>
 <body>
+    <!-- Watermark overlay - appears OVER everything at 8+ minutes (not capturable by OBS) -->
+    <div id="watermark-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></div>
+
     <div class="container">
         <header>
             <h1 class="title">The Mirror's Echo</h1>
-            <p class="subtitle">The Mirror's Echo operates as an unlimited edition under open-source principles. Exhibition licensing and institutional partnerships are available—contact kristabluedoor@gmail.com for details.</p>
+            <div class="licensing-statement">
+                <p>The Mirror's Echo operates as an unlimited edition under open-source principles (AGPL-3.0), ensuring accessibility while sustaining ongoing development. Exhibition licenses and institutional partnerships support the continued evolution of networked digital art practices.</p>
+                <p style="margin-top: 1.5rem;">
+                    <strong>Artist/Technical:</strong> <a href="mailto:kristabluedoor@gmail.com">kristabluedoor@gmail.com</a><br>
+                    <strong>Curatorial/Institutional:</strong> <a href="mailto:chaoscontemporarycraft@gmail.com">chaoscontemporarycraft@gmail.com</a>
+                </p>
+            </div>
         </header>
-        
+
         <main>
             <section class="webrtc-section">
                 <h2>WebRTC Preview</h2>
@@ -133,6 +142,7 @@
                     <div class="video-wrapper video-wrapper-local">
                         <h3>Local Camera</h3>
                         <video id="localVideo" autoplay muted playsinline></video>
+                        <button class="popout-button popout-button-local" id="popoutBtnLocal" style="display: none;"></button>
                     </div>
                     <div class="video-wrapper video-wrapper-remote">
                         <h3>Remote Stream</h3>
@@ -146,13 +156,11 @@
                     <button class="btn" id="stopCameraBtn" disabled>Stop Camera</button>
                     <button class="btn" id="startCallBtn" disabled>Start WebRTC Call</button>
                     <button class="btn" id="hangupBtn" disabled>Hang Up</button>
-                    <button class="btn btn-ndi" id="ndiBtn" disabled>Enable NDI Output</button>
                 </div>
 
                 <div class="webrtc-status">
                     <p id="statusText">Ready to start</p>
                 </div>
-
             </section>
 
             <section class="echo-section">
@@ -170,7 +178,7 @@
                 <h2>About</h2>
                 <p><em>The Mirror's Echo</em> is a networked interactive work exploring presence, temporality, and reciprocity through real-time video transmission. The piece positions participants as both observers and subjects, creating a feedback loop where actions generate visual echoes that accumulate and transform over time.</p>
 
-                <p>Built on open protocols (WebRTC, LiveKit, NDI), the work operates as distributed infrastructure—each interaction exists simultaneously across multiple nodes: browser, server, and optional processing environments. This architecture enables the piece to function as both a self-contained web experience and as material for live visual manipulation through tools like TouchDesigner.</p>
+                <p>Built on open protocols (WebRTC, LiveKit, NDI), the work operates as distributed infrastructure - each interaction exists simultaneously across multiple nodes: browser, server, and optional processing environments. This architecture enables the piece to function as both a self-contained web experience and as material for live visual manipulation through tools like TouchDesigner.</p>
 
                 <p>The work implements a temporal access model: seven minutes of unmediated experience, followed by progressive visual markers that reveal the piece's constructed nature. This durational framework questions assumptions about digital permanence and the economics of networked art.</p>
 
@@ -217,10 +225,6 @@
             <section class="payment-section">
                 <h2>Licensing & Access</h2>
 
-                <div class="licensing-statement">
-                    <p>The Mirror's Echo operates as an unlimited edition under open-source principles (AGPL-3.0), ensuring accessibility while sustaining ongoing development. Exhibition licenses and institutional partnerships support the continued evolution of networked digital art practices.</p>
-                </div>
-
                 <div class="payment-tiers">
                     <!-- Unlimited Edition Tier -->
                     <div class="payment-tier">
@@ -259,7 +263,7 @@
                             <li>Custom configuration assistance</li>
                         </ul>
                         <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 2rem;">
-                            <button class="tier-cta featured" id="purchaseLicenseBtn">Purchase Exhibition License — $400</button>
+                            <button class="tier-cta featured" id="purchaseLicenseBtn">Purchase Exhibition License - $400</button>
                             <a href="mailto:kristabluedoor@gmail.com?subject=Technical Residency Inquiry" class="tier-cta">Book Technical Residency</a>
                         </div>
                     </div>
@@ -267,8 +271,8 @@
                     <!-- Institutional Partnership Tier -->
                     <div class="payment-tier">
                         <div class="tier-header">
-                            <div class="tier-price">Bespoke</div>
-                            <h3 class="tier-title">Institutional Partnership</h3>
+                            <div class="tier-price">Contact</div>
+                            <h3 class="tier-title">Curatorial & Institutional Partnership</h3>
                         </div>
                         <p class="tier-description">
                             For galleries, museums, and biennials. Comprehensive partnership with curatorial consultation and on-site residency throughout the exhibition period.
@@ -280,13 +284,6 @@
                         </ul>
                         <a href="mailto:chaoscontemporarycraft@gmail.com?subject=Institutional Partnership" class="tier-cta">Initiate Partnership</a>
                     </div>
-                </div>
-
-                <div class="contact-info">
-                    <p>
-                        <strong>Artist/Technical:</strong> <a href="mailto:kristabluedoor@gmail.com">kristabluedoor@gmail.com</a><br>
-                        <strong>Curatorial/Institutional:</strong> <a href="mailto:chaoscontemporarycraft@gmail.com">chaoscontemporarycraft@gmail.com</a>
-                    </p>
                 </div>
             </section>
 
@@ -349,22 +346,15 @@
         const observer = new MutationObserver(() => {
             if (remoteVideo.srcObject) {
                 popoutBtn.style.display = 'flex';
-                remoteWrapper.style.cursor = 'pointer';
+                remoteWrapper.classList.add('connected'); // Expand when stream connects
             } else {
                 popoutBtn.style.display = 'none';
-                remoteWrapper.style.cursor = 'default';
+                remoteWrapper.classList.remove('connected'); // Shrink when disconnected
             }
         });
         observer.observe(remoteVideo, { attributes: true, attributeFilter: ['srcObject'] });
 
-        // Hover over entire remote video area to popup
-        remoteWrapper.addEventListener('mouseenter', () => {
-            if (remoteVideo.srcObject) {
-                openPopup();
-            }
-        });
-
-        // Click button to popup (backup)
+        // Click to open fullscreen popup
         popoutBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             openPopup();
@@ -380,6 +370,115 @@
                 fullscreenOverlay.classList.remove('active');
             }
         });
+
+        // LOCAL VIDEO POPOUT FUNCTIONALITY
+        const popoutBtnLocal = document.getElementById('popoutBtnLocal');
+        const localVideo = document.getElementById('localVideo');
+        const localWrapper = document.querySelector('.video-wrapper-local');
+
+        // Function to open local popup
+        function openLocalPopup() {
+            if (localVideo.srcObject) {
+                fullscreenVideo.srcObject = localVideo.srcObject;
+                fullscreenOverlay.classList.add('active');
+            }
+        }
+
+        // Show popout button when local stream is active
+        const localObserver = new MutationObserver(() => {
+            if (localVideo.srcObject) {
+                popoutBtnLocal.style.display = 'flex';
+                localWrapper.classList.add('connected'); // Expand when camera starts
+            } else {
+                popoutBtnLocal.style.display = 'none';
+                localWrapper.classList.remove('connected'); // Shrink when camera stops
+            }
+        });
+        localObserver.observe(localVideo, { attributes: true, attributeFilter: ['srcObject'] });
+
+        // Click to open fullscreen popup
+        popoutBtnLocal.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openLocalPopup();
+        });
+
+        // PLAYFUL CLICK INTERACTION (0-8 minutes)
+        // Clicking creates raindrops on video/mirror elements (capturable by camera/OBS)
+        const mirror = document.getElementById('mirror');
+        let clickCount = 0; // Track total clicks for phase progression
+        let raindropColorIndex = 0; // For color cycling
+
+        // Function to create playful raindrops (inside capturable elements)
+        function createPlayfulRaindrops() {
+            const containers = [
+                document.querySelector('.video-wrapper-local'),
+                document.querySelector('.video-wrapper-remote'),
+                document.querySelector('.mirror')
+            ];
+
+            // More raindrops = more fun! 5-8 drops per click
+            const dropCount = 5 + Math.floor(Math.random() * 4);
+
+            for (let i = 0; i < dropCount; i++) {
+                setTimeout(() => {
+                    const container = containers[Math.floor(Math.random() * containers.length)];
+                    if (!container) return;
+
+                    const raindrop = document.createElement('div');
+                    raindrop.className = 'video-raindrop';
+
+                    const x = Math.random() * 100;
+                    const y = Math.random() * 100;
+                    raindrop.style.left = x + '%';
+                    raindrop.style.top = y + '%';
+
+                    // Color cycles through rainbow every 3 clicks
+                    const hue = (Math.floor(raindropColorIndex / 3) * 40) % 360;
+                    const size = 60 + Math.random() * 120;
+                    const duration = 1.2 + Math.random() * 0.8;
+
+                    raindrop.style.width = size + 'px';
+                    raindrop.style.height = size + 'px';
+                    raindrop.style.border = `3px solid hsla(${hue}, 85%, 65%, 0.9)`;
+                    raindrop.style.animation = `raindropRipple ${duration}s ease-out forwards`;
+
+                    container.appendChild(raindrop);
+                    raindropColorIndex++;
+
+                    setTimeout(() => raindrop.remove(), duration * 1000);
+                }, i * 150); // Faster stagger for more chaos
+            }
+        }
+
+        // Update shimmer phase based on click count
+        function updatePhaseFromClicks() {
+            const body = document.body;
+            body.classList.remove('temporal-phase-1', 'temporal-phase-2', 'temporal-phase-3', 'temporal-phase-4');
+
+            // Gradually increase phase: 0-10 clicks = phase 1, 11-20 = phase 2, etc.
+            if (clickCount > 30) {
+                body.classList.add('temporal-phase-4');
+            } else if (clickCount > 20) {
+                body.classList.add('temporal-phase-3');
+            } else if (clickCount > 10) {
+                body.classList.add('temporal-phase-2');
+            } else if (clickCount > 3) {
+                body.classList.add('temporal-phase-1');
+            }
+        }
+
+        if (mirror) {
+            mirror.addEventListener('click', () => {
+                clickCount++;
+                console.log(`Click ${clickCount} - Creating playful raindrops`);
+
+                // Create raindrops on capturable elements
+                createPlayfulRaindrops();
+
+                // Update shimmer phase
+                updatePhaseFromClicks();
+            });
+        }
     </script>
 
     <!-- Stripe Checkout -->
@@ -439,7 +538,7 @@
                     console.error('Checkout error:', error);
                     alert(error.message || 'Unable to start checkout. Please contact kristabluedoor@gmail.com');
                     purchaseBtn.disabled = false;
-                    purchaseBtn.textContent = 'Purchase Exhibition License — $400';
+                    purchaseBtn.textContent = 'Purchase Exhibition License - $400';
                 }
             });
         }
