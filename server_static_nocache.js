@@ -37,7 +37,25 @@ app.use(async (req, res, next) => {
     
     // Inject watermark before </body>
     if (/<\/body>/i.test(content)) {
-      const watermarkHTML = `\n<!-- watermark injected by server -->\n<style id="__wm-style">\n  .__site-watermark{position:fixed;right:22px;bottom:22px;width:220px;opacity:.22;pointer-events:none;z-index:99999} \n  @media (max-width:800px){ .__site-watermark{width:140px;right:12px;bottom:12px} }\n</style>\n<img class="__site-watermark" src="/media/watermark.svg" alt="Watermark"/>\n`;
+      // Watermark injection template (inline CSS + image element)
+      const watermarkHTML = `
+<!-- watermark injected by server -->
+<style id="__wm-style">
+  .__site-watermark{
+    position:fixed;
+    right:22px;
+    bottom:22px;
+    width:220px;
+    opacity:.22;
+    pointer-events:none;
+    z-index:99999
+  }
+  @media (max-width:800px){
+    .__site-watermark{width:140px;right:12px;bottom:12px}
+  }
+</style>
+<img class="__site-watermark" src="/media/watermark.svg" alt="Watermark"/>
+`;
       const modifiedContent = content.replace(/<\/body>/i, watermarkHTML + '</body>');
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       return res.send(modifiedContent);
@@ -62,10 +80,13 @@ app.use(express.static(path.join(__dirname, '.'), {
 
 // Dev placeholder /token route (safe for local testing)
 app.get('/token', (req, res) => {
+  // Generate a more unique dev identity using timestamp + random
+  const defaultIdentity = `dev_user_${Date.now()}_${Math.floor(Math.random()*1000)}`;
+  
   res.json({
     token: 'DEV-PLACEHOLDER-TOKEN',
     room: process.env.ROOM_NAME || 'claymation-live',
-    identity: req.query.identity || ('dev_user_' + Math.floor(Math.random()*100000))
+    identity: req.query.identity || defaultIdentity
   });
 });
 
