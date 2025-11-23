@@ -1437,3 +1437,213 @@ body.temporal-phase-4 .tier-description {
 .tier-cta::before {
     display: none !important;
 }
+
+/* ============================================
+   PUDDING KEYCAP RAINDROP STYLES
+   ============================================ */
+
+/* Watermark Overlay Container - Ensure it doesn't block controls */
+#watermark-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Allow clicks to pass through */
+    z-index: 9999;
+    overflow: hidden;
+}
+
+/* Enhanced Pudding Keycap Raindrop with depth, gloss, and bump mapping */
+.video-raindrop {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    overflow: visible;
+    
+    /* Pudding keycap gradient with top glossy surface and deeper translucent base */
+    background: 
+        /* Top glossy highlight */
+        radial-gradient(
+            ellipse 60% 40% at 35% 25%,
+            hsla(var(--raindrop-hue, 200), var(--raindrop-sat, 85%), var(--raindrop-top-light, 85%), calc(0.9 * var(--raindrop-gloss, 0.5))),
+            transparent 50%
+        ),
+        /* Mid-tone translucent layer */
+        radial-gradient(
+            circle at 40% 40%,
+            hsla(var(--raindrop-hue, 200), var(--raindrop-sat, 85%), calc(var(--raindrop-base-light, 60%) + 10%), calc(0.6 * var(--raindrop-depth, 0.5))) 0%,
+            hsla(var(--raindrop-hue, 200), var(--raindrop-sat, 85%), var(--raindrop-base-light, 60%), calc(0.5 * var(--raindrop-depth, 0.5))) 30%,
+            hsla(var(--raindrop-hue, 200), calc(var(--raindrop-sat, 85%) - 10%), calc(var(--raindrop-base-light, 60%) - 10%), calc(0.3 * var(--raindrop-depth, 0.5))) 60%,
+            transparent 100%
+        );
+    
+    /* Pudding keycap box-shadow with depth and bump mapping */
+    box-shadow:
+        /* Inner bright core (glossy top surface) */
+        inset 0 calc(-8px * var(--raindrop-bump, 0.5)) calc(25px * var(--raindrop-gloss, 0.5)) 
+            hsla(var(--raindrop-hue, 200), 100%, 95%, calc(0.9 * var(--raindrop-gloss, 0.5))),
+        inset 0 calc(-15px * var(--raindrop-bump, 0.5)) calc(40px * var(--raindrop-gloss, 0.5)) 
+            hsla(var(--raindrop-hue, 200), 100%, 85%, calc(0.6 * var(--raindrop-gloss, 0.5))),
+        
+        /* Inner depth shadow (translucent base) */
+        inset 0 calc(10px * var(--raindrop-depth, 0.5)) calc(30px * var(--raindrop-depth, 0.5)) 
+            hsla(var(--raindrop-hue, 200), 80%, 40%, calc(0.4 * var(--raindrop-depth, 0.5))),
+        
+        /* Outer glow - diffused through keycap walls */
+        0 0 calc(35px * var(--raindrop-gloss, 0.5)) 
+            hsla(var(--raindrop-hue, 200), var(--raindrop-sat, 85%), 70%, calc(0.7 * var(--raindrop-intensity, 0.4))),
+        0 0 calc(50px * var(--raindrop-depth, 0.5)) 
+            hsla(var(--raindrop-hue, 200), var(--raindrop-sat, 85%), 60%, calc(0.5 * var(--raindrop-intensity, 0.4))),
+        0 0 calc(70px * var(--raindrop-depth, 0.5)) 
+            hsla(var(--raindrop-hue, 200), calc(var(--raindrop-sat, 85%) - 10%), 50%, calc(0.3 * var(--raindrop-intensity, 0.4)));
+    
+    /* Soft blur for translucent keycap effect */
+    backdrop-filter: blur(6px);
+    filter: blur(0.5px);
+    
+    /* Animation with subtle bob */
+    animation: videoRaindropPudding 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    transform: translate(-50%, -50%) scale(0);
+}
+
+/* Pudding keycap raindrop animation with subtle "bob" movement */
+@keyframes videoRaindropPudding {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0) translateY(0);
+    }
+    15% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.3) translateY(-2px);
+    }
+    40% {
+        transform: translate(-50%, -50%) scale(0.7) translateY(1px);
+    }
+    70% {
+        transform: translate(-50%, -50%) scale(1) translateY(-1px);
+    }
+    85% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1) translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.2) translateY(2px);
+    }
+}
+
+/* Pudding keycap shimmer effect (travels across the glossy surface) */
+.raindrop-shimmer {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        60deg,
+        transparent 0%,
+        transparent 40%,
+        hsla(var(--shimmer-hue, 200), 90%, 95%, 0.6) 50%,
+        transparent 60%,
+        transparent 100%
+    );
+    transform: rotate(45deg);
+    animation: puddingShimmer infinite;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+}
+
+@keyframes puddingShimmer {
+    0% {
+        transform: rotate(45deg) translate(-100%, -100%);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.8;
+    }
+    50% {
+        transform: rotate(45deg) translate(0%, 0%);
+        opacity: 1;
+    }
+    90% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: rotate(45deg) translate(100%, 100%);
+        opacity: 0;
+    }
+}
+
+/* Additional pudding "bob" animation for idle state (can be applied to demo elements) */
+@keyframes puddingBob {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+/* Ensure controls remain clickable and above overlay */
+.controls,
+.webrtc-controls,
+.btn,
+.tier-cta,
+button,
+input,
+select {
+    position: relative;
+    z-index: 10000; /* Above watermark overlay */
+    pointer-events: auto; /* Ensure buttons are clickable */
+}
+
+/* Keycap grid for demo (optional styling for pudding-demo.html) */
+.keycap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 10px;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.keycap {
+    aspect-ratio: 1;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 255, 255, 0.05) 100%
+    );
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+    animation: puddingBob 3s ease-in-out infinite;
+}
+
+.keycap:nth-child(odd) {
+    animation-delay: 0.15s;
+}
+
+.keycap:nth-child(3n) {
+    animation-delay: 0.3s;
+}
+
+.keycap:hover {
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.25) 0%,
+        rgba(255, 255, 255, 0.1) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-5px);
+}
+
+/* ============================================
+   END PUDDING KEYCAP STYLES
+   ============================================ */

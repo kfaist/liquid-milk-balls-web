@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mirror's Echo - Temporal Watermark Experience</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            font-family: 'JetBrains Mono', monospace;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.1em;
+        }
+
+        .header p {
+            opacity: 0.7;
+            font-size: 1rem;
+        }
+
+        /* Timer Display */
+        .timer-display {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .timer-display .time {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff00;
+            margin-bottom: 0.5rem;
+        }
+
+        .timer-display .phase {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Video Grid */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .video-panel {
+            background: #1a1a1a;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #333;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .video-panel.expanded {
+            grid-column: 1 / -1;
+        }
+
+        .video-panel h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        .video-box {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .video-box video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.1rem;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* Watermark Overlay (sits above remote video) */
+        #watermark-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Panel Controls */
+        .panel-controls {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .panel-controls button {
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: transparent;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            opacity: 0.5;
+        }
+
+        .panel-controls button:hover:not(:disabled) {
+            opacity: 1;
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .panel-controls button:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+        }
+
+        /* Main Controls */
+        .main-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .main-controls button {
+            padding: 0.8rem 1.5rem;
+            border: 2px solid #fff;
+            background: #000;
+            color: #fff;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .main-controls button:hover:not(:disabled) {
+            background: #fff;
+            color: #000;
+            transform: translateY(-2px);
+        }
+
+        .main-controls button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .main-controls button.active {
+            background: #00ff00;
+            border-color: #00ff00;
+            color: #000;
+        }
+
+        /* Status Messages */
+        .status-message {
+            text-align: center;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .status-message.info {
+            background: rgba(100, 149, 237, 0.2);
+            border: 1px solid rgba(100, 149, 237, 0.4);
+            color: #6495ed;
+        }
+
+        .status-message.success {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid rgba(0, 255, 0, 0.4);
+            color: #00ff00;
+        }
+
+        .status-message.error {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid rgba(255, 0, 0, 0.4);
+            color: #ff6b6b;
+        }
+
+        /* Fullscreen Modal */
+        .fullscreen-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 10000;
+            flex-direction: column;
+        }
+
+        .fullscreen-modal.active {
+            display: flex;
+        }
+
+        .fullscreen-header {
+            padding: 1rem 2rem;
+            background: rgba(26, 26, 26, 0.95);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .fullscreen-header h2 {
+            font-size: 1.3rem;
+            margin: 0;
+        }
+
+        .close-fullscreen {
+            padding: 0.5rem 1.5rem;
+            background: transparent;
+            border: 2px solid #fff;
+            color: #fff;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .close-fullscreen:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        .fullscreen-video-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .fullscreen-video-container video {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+        }
+
+        /* Demo Mode Banner */
+        .demo-banner {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 140, 0, 0.2));
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .demo-banner h4 {
+            margin-bottom: 0.5rem;
+            color: #ffd700;
+            font-size: 1.1rem;
+        }
+
+        .demo-banner p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Maintain button visibility during watermark */
+        .panel-controls button,
+        .main-controls button {
+            position: relative;
+            z-index: 100;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .timer-display .time {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Watermark Overlay (for temporal effects) -->
+    <div id="watermark-overlay"></div>
+
+    <div class="main-container">
+        <div class="header">
+            <h1>The Mirror's Echo</h1>
+            <p>A Temporal Watermark Experience</p>
+        </div>
+
+        <!-- Demo Mode Banner -->
+        <div class="demo-banner" id="demoBanner" style="display: none;">
+            <h4>🎬 Demo Mode Active</h4>
+            <p>Timer auto-started at 7:00 to showcase watermark effects progression</p>
+        </div>
+
+        <!-- Status Message -->
+        <div id="statusMessage" style="display: none;"></div>
+
+        <!-- Timer Display -->
+        <div class="timer-display">
+            <div class="time" id="timerDisplay">00:00</div>
+            <div class="phase" id="phaseDisplay">Initializing...</div>
+        </div>
+
+        <!-- Main Controls -->
+        <div class="main-controls">
+            <button id="connectBtn" onclick="connectToRoom()">Connect to Room</button>
+            <button id="disconnectBtn" onclick="disconnectFromRoom()" style="display: none;">Disconnect</button>
+            <button id="startTimerBtn" onclick="manualStartTimer()" style="display: none;">Start Timer</button>
+        </div>
+
+        <!-- Video Grid -->
+        <div class="video-grid">
+            <!-- Local Camera -->
+            <div class="video-panel" id="localPanel">
+                <h3>Local Camera</h3>
+                <div class="video-box">
+                    <video id="localVideo" autoplay muted playsinline></video>
+                    <div class="video-placeholder" id="localPlaceholder">
+                        Click "Connect to Room" to start
+                    </div>
+                </div>
+                <div class="panel-controls">
+                    <button onclick="toggleExpand('localPanel')" title="Expand/Collapse">⤢</button>
+                    <button onclick="openFullscreen('local')" title="Fullscreen">⛶</button>
+                </div>
+            </div>
+
+            <!-- Remote Stream -->
+            <div class="video-panel" id="remotePanel">
+                <h3>Remote Stream</h3>
+                <div class="video-box" id="remoteVideoBox">
+                    <video id="remoteVideo" autoplay playsinline></video>
+                    <div class="video-placeholder" id="remotePlaceholder">
+                        Waiting for remote participant...
+                    </div>
+                </div>
+                <div class="panel-controls">
+                    <button onclick="toggleExpand('remotePanel')" title="Expand/Collapse">⤢</button>
+                    <button onclick="openFullscreen('remote')" title="Fullscreen">⛶</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Modal -->
+    <div class="fullscreen-modal" id="fullscreenModal">
+        <div class="fullscreen-header">
+            <h2 id="fullscreenTitle">Video</h2>
+            <button class="close-fullscreen" onclick="closeFullscreen()">Close</button>
+        </div>
+        <div class="fullscreen-video-container">
+            <video id="fullscreenVideo" autoplay playsinline></video>
+        </div>
+    </div>
+
+    <!-- LiveKit Client SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+
+    <!-- Watermark System -->
+    <script src="watermark-system.js"></script>
+
+    <!-- Main Application Logic -->
+    <script>
+        // LiveKit Room and Tracks
+        let room = null;
+        let localTrack = null;
+        let isConnected = false;
+        let isDemoMode = false;
+
+        // Timer Variables
+        let sessionStartTime = null;
+        let timerInterval = null;
+
+        // UI Elements
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const startTimerBtn = document.getElementById('startTimerBtn');
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const localPlaceholder = document.getElementById('localPlaceholder');
+        const remotePlaceholder = document.getElementById('remotePlaceholder');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const phaseDisplay = document.getElementById('phaseDisplay');
+        const statusMessage = document.getElementById('statusMessage');
+        const demoBanner = document.getElementById('demoBanner');
+
+        // Check for demo mode in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('demo') === 'true') {
+            isDemoMode = true;
+            demoBanner.style.display = 'block';
+            // Auto-start timer at 7:00 (7 minutes = 420 seconds)
+            setTimeout(() => {
+                sessionStartTime = Date.now() - (7 * 60 * 1000);
+                startTimer();
+                updatePhaseDisplay(7 * 60 * 1000);
+            }, 1000);
+        }
+
+        // Connect to LiveKit Room
+        async function connectToRoom() {
+            connectBtn.disabled = true;
+            showStatus('Connecting to room...', 'info');
+
+            try {
+                // Get publisher token from server
+                const response = await fetch('/api/publisher-token?identity=mirror-echo-' + Date.now());
+                if (!response.ok) {
+                    throw new Error('Failed to get access token');
+                }
+
+                const data = await response.json();
+
+                // Create LiveKit room
+                room = new LivekitClient.Room({
+                    adaptiveStream: true,
+                    dynacast: true,
+                });
+
+                // Set up event handlers
+                room.on(LivekitClient.RoomEvent.TrackSubscribed, handleTrackSubscribed);
+                room.on(LivekitClient.RoomEvent.TrackUnsubscribed, handleTrackUnsubscribed);
+                room.on(LivekitClient.RoomEvent.Disconnected, handleDisconnected);
+                room.on(LivekitClient.RoomEvent.ParticipantConnected, handleParticipantConnected);
+                room.on(LivekitClient.RoomEvent.ParticipantDisconnected, handleParticipantDisconnected);
+
+                // Connect to room
+                await room.connect(data.url, data.token);
+
+                // Get local camera and microphone
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: true
+                });
+
+                // Display local video
+                localVideo.srcObject = stream;
+                localPlaceholder.style.display = 'none';
+
+                // Publish tracks to room
+                const videoTrack = stream.getVideoTracks()[0];
+                const audioTrack = stream.getAudioTracks()[0];
+
+                await room.localParticipant.publishTrack(videoTrack, {
+                    name: 'camera',
+                    simulcast: true
+                });
+
+                if (audioTrack) {
+                    await room.localParticipant.publishTrack(audioTrack, {
+                        name: 'microphone'
+                    });
+                }
+
+                isConnected = true;
+                connectBtn.style.display = 'none';
+                disconnectBtn.style.display = 'inline-block';
+
+                if (!isDemoMode) {
+                    startTimerBtn.style.display = 'inline-block';
+                }
+
+                showStatus('Connected to room! Publishing camera...', 'success');
+
+                // Start timer automatically if not in demo mode
+                if (!isDemoMode && !sessionStartTime) {
+                    sessionStartTime = Date.now();
+                    startTimer();
+                }
+
+            } catch (error) {
+                console.error('Connection error:', error);
+                showStatus('Error: ' + error.message, 'error');
+                connectBtn.disabled = false;
+            }
+        }
+
+        // Disconnect from room
+        async function disconnectFromRoom() {
+            if (room) {
+                await room.disconnect();
+                room = null;
+            }
+
+            if (localVideo.srcObject) {
+                localVideo.srcObject.getTracks().forEach(track => track.stop());
+                localVideo.srcObject = null;
+            }
+
+            localPlaceholder.style.display = 'flex';
+            remotePlaceholder.style.display = 'flex';
+
+            isConnected = false;
+            connectBtn.style.display = 'inline-block';
+            disconnectBtn.style.display = 'none';
+            startTimerBtn.style.display = 'none';
+
+            showStatus('Disconnected from room', 'info');
+        }
+
+        // Handle remote track subscribed
+        function handleTrackSubscribed(track, publication, participant) {
+            console.log('Track subscribed:', track.kind, participant.identity);
+
+            if (track.kind === 'video') {
+                // Attach track directly to remoteVideo element for watermark system compatibility
+                remoteVideo.srcObject = new MediaStream([track.mediaStreamTrack]);
+                remotePlaceholder.style.display = 'none';
+
+                // The watermark system will automatically detect the 'playing' event
+                showStatus('Remote participant connected!', 'success');
+            }
+        }
+
+        // Handle remote track unsubscribed
+        function handleTrackUnsubscribed(track, publication, participant) {
+            console.log('Track unsubscribed:', track.kind);
+
+            if (track.kind === 'video') {
+                remoteVideo.srcObject = null;
+                remotePlaceholder.style.display = 'flex';
+            }
+        }
+
+        // Handle participant connected
+        function handleParticipantConnected(participant) {
+            console.log('Participant connected:', participant.identity);
+            showStatus('Participant joined: ' + participant.identity, 'info');
+        }
+
+        // Handle participant disconnected
+        function handleParticipantDisconnected(participant) {
+            console.log('Participant disconnected:', participant.identity);
+            showStatus('Participant left: ' + participant.identity, 'info');
+            remotePlaceholder.style.display = 'flex';
+        }
+
+        // Handle disconnected
+        function handleDisconnected() {
+            console.log('Disconnected from room');
+            disconnectFromRoom();
+        }
+
+        // Manual timer start (for testing)
+        function manualStartTimer() {
+            if (!sessionStartTime) {
+                sessionStartTime = Date.now();
+                startTimer();
+                showStatus('Timer started manually', 'info');
+            }
+        }
+
+        // Start timer display
+        function startTimer() {
+            if (timerInterval) return;
+
+            timerInterval = setInterval(() => {
+                const elapsed = Date.now() - sessionStartTime;
+                updateTimerDisplay(elapsed);
+                updatePhaseDisplay(elapsed);
+            }, 1000);
+        }
+
+        // Update timer display
+        function updateTimerDisplay(elapsed) {
+            const minutes = Math.floor(elapsed / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        // Update phase display
+        function updatePhaseDisplay(elapsed) {
+            const minutes = elapsed / 60000;
+
+            if (minutes < 7) {
+                phaseDisplay.textContent = 'Session Active';
+            } else if (minutes < 8) {
+                phaseDisplay.textContent = 'Phase 1: Whisper - Subtle shimmer begins';
+            } else if (minutes < 9) {
+                phaseDisplay.textContent = 'Phase 2: Murmur - Effects intensifying';
+            } else if (minutes < 10) {
+                phaseDisplay.textContent = 'Phase 3: Presence - Clear watermark visible';
+            } else {
+                phaseDisplay.textContent = 'Phase 4: Undeniable - Full watermark active';
+            }
+        }
+
+        // Show status message
+        function showStatus(message, type = 'info') {
+            statusMessage.textContent = message;
+            statusMessage.className = 'status-message ' + type;
+            statusMessage.style.display = 'block';
+
+            // Hide after 5 seconds
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        // Toggle panel expansion
+        function toggleExpand(panelId) {
+            const panel = document.getElementById(panelId);
+            panel.classList.toggle('expanded');
+        }
+
+        // Open fullscreen view
+        function openFullscreen(source) {
+            const modal = document.getElementById('fullscreenModal');
+            const fullscreenVideo = document.getElementById('fullscreenVideo');
+            const fullscreenTitle = document.getElementById('fullscreenTitle');
+
+            if (source === 'local') {
+                fullscreenVideo.srcObject = localVideo.srcObject;
+                fullscreenVideo.muted = true;
+                fullscreenTitle.textContent = 'Local Camera';
+            } else {
+                // Use the remote video's MediaStream directly
+                if (remoteVideo.srcObject) {
+                    fullscreenVideo.srcObject = remoteVideo.srcObject;
+                    fullscreenVideo.muted = false;
+                    fullscreenTitle.textContent = 'Remote Stream';
+                }
+            }
+
+            modal.classList.add('active');
+        }
+
+        // Close fullscreen view
+        function closeFullscreen() {
+            const modal = document.getElementById('fullscreenModal');
+            const fullscreenVideo = document.getElementById('fullscreenVideo');
+
+            fullscreenVideo.srcObject = null;
+            modal.classList.remove('active');
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (room) {
+                room.disconnect();
+            }
+            if (localVideo.srcObject) {
+                localVideo.srcObject.getTracks().forEach(track => track.stop());
+            }
+        });
+
+        // Initialize phase display
+        phaseDisplay.textContent = isDemoMode ? 'Demo mode - Timer will auto-start' : 'Connect to begin session';
+    </script>
+
+    <!-- Rainbow Raindrop Animation -->
+    <style>
+        /* Raindrop ripple animation */
+        @keyframes raindropRipple {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0);
+                filter: blur(1px);
+            }
+            15% {
+                opacity: 0.9;
+                transform: translate(-50%, -50%) scale(0.4);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.5);
+                filter: blur(3px);
+            }
+        }
+
+        .video-raindrop {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            overflow: visible;
+            background: radial-gradient(
+                circle at 40% 40%,
+                hsla(var(--raindrop-hue, 200), 95%, 85%, 0.7) 0%,
+                hsla(var(--raindrop-hue, 200), 90%, 75%, 0.5) 20%,
+                hsla(var(--raindrop-hue, 200), 85%, 65%, 0.3) 40%,
+                hsla(var(--raindrop-hue, 200), 80%, 55%, 0.15) 60%,
+                transparent 100%
+            );
+            box-shadow:
+                inset 0 0 30px hsla(var(--raindrop-hue, 200), 100%, 90%, 0.8),
+                inset 0 0 50px hsla(var(--raindrop-hue, 200), 100%, 80%, 0.5),
+                0 0 40px hsla(var(--raindrop-hue, 200), 90%, 70%, 0.6),
+                0 0 60px hsla(var(--raindrop-hue, 200), 85%, 65%, 0.4),
+                0 0 80px hsla(var(--raindrop-hue, 200), 80%, 60%, 0.2);
+            backdrop-filter: blur(8px);
+            filter: blur(1px);
+            transform: translate(-50%, -50%) scale(0);
+        }
+    </style>
+
+    <script>
+        // ========================================
+        // RAINBOW RAINDROP ANIMATION SYSTEM
+        // ========================================
+
+        // TIMING CONFIGURATION
+        // For PRODUCTION: TRIGGER_TIME = 420, BUILD_DURATION = 180
+        // For TESTING: TRIGGER_TIME = 1, BUILD_DURATION = 3
+        const TRIGGER_TIME = 420; // seconds - when raindrops start appearing
+        const BUILD_DURATION = 180; // seconds - how long to build to peak intensity
+        const PEAK_TIME = TRIGGER_TIME + BUILD_DURATION; // when peak intensity is reached
+
+        // Animation state
+        let raindropAnimationStartTime = null;
+        let raindropAnimationActive = false;
+        let raindropColorIndex = 0; // For color cycling
+
+        // Start raindrop animation when page loads
+        function initRaindropAnimation() {
+            raindropAnimationStartTime = Date.now();
+            raindropAnimationActive = true;
+
+            // Start the spawn loop
+            scheduleNextRaindrop();
+        }
+
+        // Calculate current intensity based on elapsed time
+        function getCurrentIntensity() {
+            if (!raindropAnimationActive || !raindropAnimationStartTime) return 0;
+
+            const elapsed = (Date.now() - raindropAnimationStartTime) / 1000; // in seconds
+
+            // Before trigger time - no raindrops
+            if (elapsed < TRIGGER_TIME) {
+                return 0;
+            }
+
+            // During build phase - exponential increase
+            if (elapsed < PEAK_TIME) {
+                const buildProgress = (elapsed - TRIGGER_TIME) / BUILD_DURATION;
+                // Exponential curve: starts slow, accelerates rapidly
+                return Math.pow(buildProgress, 2);
+            }
+
+            // After peak - maintain maximum intensity
+            return 1.0;
+        }
+
+        // Calculate spawn delay based on current intensity
+        function getSpawnDelay() {
+            const intensity = getCurrentIntensity();
+
+            if (intensity === 0) {
+                return 1000; // Check every second during waiting period
+            }
+
+            // At low intensity: spawn every ~2000ms
+            // At peak intensity: spawn every ~200ms (matching reference: 5-8 drops with 150ms stagger)
+            const minDelay = 200;
+            const maxDelay = 2000;
+            const delay = maxDelay - (intensity * (maxDelay - minDelay));
+
+            return delay;
+        }
+
+        // Schedule the next raindrop spawn
+        function scheduleNextRaindrop() {
+            if (!raindropAnimationActive) return;
+
+            const delay = getSpawnDelay();
+            const intensity = getCurrentIntensity();
+
+            setTimeout(() => {
+                if (intensity > 0) {
+                    createRaindrop();
+                }
+                scheduleNextRaindrop(); // Schedule the next one
+            }, delay);
+        }
+
+        // Create a single raindrop ripple (matching reference implementation)
+        function createRaindrop() {
+            // Target the remote video box for raindrops
+            const container = document.getElementById('remoteVideoBox');
+            if (!container) return;
+
+            const raindrop = document.createElement('div');
+            raindrop.className = 'video-raindrop';
+
+            // Random position within container (percentage)
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+            raindrop.style.left = x + '%';
+            raindrop.style.top = y + '%';
+
+            // Color cycles through rainbow
+            const hue = (raindropColorIndex * 40) % 360;
+            raindrop.style.setProperty('--raindrop-hue', hue);
+
+            // Random size (60-180px to match reference: 60 + random * 120)
+            const size = 60 + Math.random() * 120;
+            raindrop.style.width = size + 'px';
+            raindrop.style.height = size + 'px';
+
+            // Border with rainbow color
+            raindrop.style.border = `3px solid hsla(${hue}, 85%, 65%, 0.9)`;
+
+            // Duration (matching reference: 1.2 + random * 0.8)
+            const duration = 1.2 + Math.random() * 0.8;
+            raindrop.style.animation = `raindropRipple ${duration}s ease-out forwards`;
+
+            // Add to container
+            container.appendChild(raindrop);
+            raindropColorIndex++;
+
+            // Remove after animation completes
+            setTimeout(() => raindrop.remove(), duration * 1000);
+        }
+
+        // Initialize animation when page loads
+        window.addEventListener('load', () => {
+            console.log('Rainbow Raindrop Animation initialized');
+            console.log(`Trigger time: ${TRIGGER_TIME}s, Build duration: ${BUILD_DURATION}s, Peak at: ${PEAK_TIME}s`);
+            initRaindropAnimation();
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            raindropAnimationActive = false;
+        });
+    </script>
+</body>
+</html>
