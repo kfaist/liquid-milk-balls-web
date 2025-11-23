@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pudding Keycap Raindrop Demo - The Mirror's Echo</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        /* Demo-specific overrides */
+        body {
+            padding: 20px;
+        }
+        
+        .demo-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .demo-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .demo-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .demo-header p {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .demo-info {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        
+        .demo-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .demo-info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .demo-info-label {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .demo-info-value {
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: bold;
+        }
+        
+        .demo-stage {
+            position: relative;
+            background: #0a0a0a;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            min-height: 400px;
+            overflow: hidden;
+        }
+        
+        .phase-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 1rem;
+            z-index: 10001;
+            pointer-events: none;
+        }
+        
+        .btn-demo {
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+        }
+        
+        .btn-start {
+            background: #00ff00;
+            border-color: #00ff00;
+            color: #000000;
+        }
+        
+        .btn-start:hover {
+            background: #00cc00;
+            border-color: #00cc00;
+        }
+        
+        .btn-clear {
+            background: #ff0000;
+            border-color: #ff0000;
+            color: #ffffff;
+        }
+        
+        .btn-clear:hover {
+            background: #cc0000;
+            border-color: #cc0000;
+        }
+        
+        .note {
+            text-align: center;
+            font-size: 0.85rem;
+            opacity: 0.6;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>🌈 Pudding Keycap Raindrop Demo</h1>
+            <p>Fast preview with seconds-based timing (8s/9s/10s/11s phases)</p>
+        </div>
+        
+        <div class="demo-controls">
+            <button id="startBtn" class="btn btn-demo btn-start">▶ Start Demo</button>
+            <button id="clearBtn" class="btn btn-demo btn-clear">✕ Clear</button>
+        </div>
+        
+        <div class="demo-info" id="demoInfo">
+            <div class="demo-info-row">
+                <span class="demo-info-label">Elapsed:</span>
+                <span class="demo-info-value" id="elapsedDisplay">0s</span>
+            </div>
+            <div class="demo-info-row">
+                <span class="demo-info-label">Phase:</span>
+                <span class="demo-info-value" id="phaseDisplay">Not started</span>
+            </div>
+            <div class="demo-info-row">
+                <span class="demo-info-label">Pudding Params:</span>
+                <span class="demo-info-value" id="puddingDisplay">—</span>
+            </div>
+            <div class="demo-info-row">
+                <span class="demo-info-label">Current Color:</span>
+                <span class="demo-info-value" id="colorDisplay">—</span>
+            </div>
+            <div class="demo-info-row">
+                <span class="demo-info-label">Raindrop Count:</span>
+                <span class="demo-info-value" id="countDisplay">0</span>
+            </div>
+        </div>
+        
+        <div class="demo-stage">
+            <div class="phase-indicator" id="phaseIndicator">Ready</div>
+            
+            <!-- Keycap Grid for Visual Interest -->
+            <div class="keycap-grid">
+                <div class="keycap">Q</div>
+                <div class="keycap">W</div>
+                <div class="keycap">E</div>
+                <div class="keycap">R</div>
+                <div class="keycap">T</div>
+                <div class="keycap">Y</div>
+                <div class="keycap">U</div>
+                <div class="keycap">I</div>
+                <div class="keycap">O</div>
+                <div class="keycap">P</div>
+                <div class="keycap">A</div>
+                <div class="keycap">S</div>
+                <div class="keycap">D</div>
+                <div class="keycap">F</div>
+                <div class="keycap">G</div>
+                <div class="keycap">H</div>
+                <div class="keycap">J</div>
+                <div class="keycap">K</div>
+                <div class="keycap">L</div>
+                <div class="keycap">Z</div>
+                <div class="keycap">X</div>
+                <div class="keycap">C</div>
+                <div class="keycap">V</div>
+                <div class="keycap">B</div>
+                <div class="keycap">N</div>
+                <div class="keycap">M</div>
+            </div>
+            
+            <!-- Watermark Overlay - Raindrops appear here -->
+            <div id="watermark-overlay"></div>
+        </div>
+        
+        <p class="note">
+            This demo uses seconds instead of minutes for fast preview:<br>
+            8s (start) → 9s (pudding ramp begins) → 10s (full effect) → 11s (maximum intensity)
+        </p>
+    </div>
+    
+    <script>
+        // Fast demo timing configuration (in milliseconds)
+        const PHASE_START = 8 * 1000;  // 8 seconds
+        const PHASE_1 = 9 * 1000;      // 9 seconds - pudding ramp begins
+        const PHASE_2 = 10 * 1000;     // 10 seconds - pudding ramp ends
+        const PHASE_3 = 11 * 1000;     // 11 seconds - full intensity
+
+        let startTime = null;
+        let updateIntervalId = null;
+        let watermarkIntervalId = null;
+        let raindropCount = 0;
+        
+        // Polychroma-like HSL palette
+        const PUDDING_PALETTE = [
+            { hue: 0, sat: 85 },    // Red
+            { hue: 30, sat: 90 },   // Orange
+            { hue: 60, sat: 95 },   // Yellow
+            { hue: 120, sat: 80 },  // Green
+            { hue: 180, sat: 85 },  // Cyan
+            { hue: 220, sat: 90 },  // Blue
+            { hue: 280, sat: 85 },  // Purple
+            { hue: 320, sat: 90 }   // Magenta
+        ];
+        
+        function getCurrentPuddingColor() {
+            const index = Math.floor(raindropCount / 3) % PUDDING_PALETTE.length;
+            return PUDDING_PALETTE[index];
+        }
+        
+        function getPuddingKeycapParams(elapsed) {
+            if (elapsed < PHASE_1) {
+                return { depth: 0.1, gloss: 0.2, bump: 0.15 };
+            } else if (elapsed < PHASE_2) {
+                const progress = (elapsed - PHASE_1) / (PHASE_2 - PHASE_1);
+                return {
+                    depth: 0.1 + (progress * 0.6),
+                    gloss: 0.2 + (progress * 0.6),
+                    bump: 0.15 + (progress * 0.55)
+                };
+            } else {
+                return { depth: 0.7, gloss: 0.8, bump: 0.7 };
+            }
+        }
+        
+        function getDropFrequency(elapsed) {
+            if (elapsed < PHASE_START) {
+                return 0;
+            } else if (elapsed < PHASE_1) {
+                return 0.05; // ~every 2 seconds
+            } else if (elapsed < PHASE_2) {
+                return 0.1; // ~every second
+            } else if (elapsed < PHASE_3) {
+                return 0.15; // ~every 0.7 seconds
+            } else {
+                return 0.25; // ~every 0.4 seconds
+            }
+        }
+        
+        function createRaindrop(container) {
+            raindropCount++;
+            
+            const raindrop = document.createElement('div');
+            raindrop.className = 'video-raindrop';
+            
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+            raindrop.style.left = x + '%';
+            raindrop.style.top = y + '%';
+            
+            const color = getCurrentPuddingColor();
+            const elapsed = Date.now() - startTime;
+            const puddingParams = getPuddingKeycapParams(elapsed);
+            
+            let size, duration, intensity;
+            
+            if (elapsed < PHASE_1) {
+                size = 40 + Math.random() * 40;
+                duration = 2 + Math.random() * 1;
+                intensity = 0.15;
+            } else if (elapsed < PHASE_2) {
+                size = 60 + Math.random() * 60;
+                duration = 1.5 + Math.random() * 1;
+                intensity = 0.3 + (puddingParams.depth * 0.15);
+            } else if (elapsed < PHASE_3) {
+                size = 80 + Math.random() * 80;
+                duration = 1.2 + Math.random() * 0.8;
+                intensity = 0.4 + (puddingParams.gloss * 0.1);
+            } else {
+                size = 100 + Math.random() * 100;
+                duration = 1 + Math.random() * 0.5;
+                intensity = 0.5 + (puddingParams.bump * 0.15);
+            }
+            
+            raindrop.style.width = size + 'px';
+            raindrop.style.height = size + 'px';
+            raindrop.style.animationDuration = duration + 's';
+            raindrop.style.setProperty('--raindrop-intensity', intensity);
+            raindrop.style.setProperty('--raindrop-hue', color.hue);
+            raindrop.style.setProperty('--raindrop-sat', color.sat + '%');
+            
+            const topLight = 75 + (puddingParams.gloss * 15);
+            const baseLight = 45 + (puddingParams.depth * 25);
+            raindrop.style.setProperty('--raindrop-top-light', topLight + '%');
+            raindrop.style.setProperty('--raindrop-base-light', baseLight + '%');
+            raindrop.style.setProperty('--raindrop-depth', puddingParams.depth);
+            raindrop.style.setProperty('--raindrop-gloss', puddingParams.gloss);
+            raindrop.style.setProperty('--raindrop-bump', puddingParams.bump);
+            
+            const shimmer = document.createElement('div');
+            shimmer.className = 'raindrop-shimmer';
+            shimmer.style.animationDuration = (duration * 0.5) + 's';
+            shimmer.style.setProperty('--shimmer-hue', color.hue);
+            raindrop.appendChild(shimmer);
+            
+            container.appendChild(raindrop);
+            
+            setTimeout(() => {
+                raindrop.remove();
+            }, duration * 1000);
+        }
+        
+        function updateDisplay() {
+            if (!startTime) return;
+            
+            const elapsed = Date.now() - startTime;
+            const elapsedSec = Math.floor(elapsed / 1000);
+            
+            document.getElementById('elapsedDisplay').textContent = elapsedSec + 's';
+            document.getElementById('countDisplay').textContent = raindropCount;
+            
+            let phase, phaseText;
+            if (elapsed < PHASE_START) {
+                phase = 'Pre-Watermark';
+                phaseText = '⏳ Waiting...';
+            } else if (elapsed < PHASE_1) {
+                phase = 'Phase 1 (8-9s)';
+                phaseText = '🌊 Starting...';
+            } else if (elapsed < PHASE_2) {
+                phase = 'Phase 2 (9-10s) - PUDDING RAMP';
+                phaseText = '🍮 Pudding Ramp!';
+            } else if (elapsed < PHASE_3) {
+                phase = 'Phase 3 (10-11s)';
+                phaseText = '✨ Full Effect';
+            } else {
+                phase = 'Phase 4 (11+s)';
+                phaseText = '🔥 Maximum!';
+            }
+            
+            document.getElementById('phaseDisplay').textContent = phase;
+            document.getElementById('phaseIndicator').textContent = phaseText;
+            
+            const params = getPuddingKeycapParams(elapsed);
+            document.getElementById('puddingDisplay').textContent = 
+                `D:${params.depth.toFixed(2)} G:${params.gloss.toFixed(2)} B:${params.bump.toFixed(2)}`;
+            
+            const color = getCurrentPuddingColor();
+            document.getElementById('colorDisplay').textContent = 
+                `hsl(${color.hue}, ${color.sat}%)`;
+            document.getElementById('colorDisplay').style.color = 
+                `hsl(${color.hue}, ${color.sat}%, 70%)`;
+        }
+        
+        function startDemo() {
+            if (startTime) return;
+            
+            startTime = Date.now();
+            raindropCount = 0;
+            
+            // Update display every 100ms
+            updateIntervalId = setInterval(updateDisplay, 100);
+            
+            // Check for raindrops every 100ms
+            watermarkIntervalId = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const frequency = getDropFrequency(elapsed);
+                
+                if (Math.random() < frequency) {
+                    const overlay = document.getElementById('watermark-overlay');
+                    if (overlay) createRaindrop(overlay);
+                }
+            }, 100);
+            
+            document.getElementById('startBtn').disabled = true;
+            console.log('Demo started');
+        }
+        
+        function clearDemo() {
+            if (updateIntervalId) {
+                clearInterval(updateIntervalId);
+                updateIntervalId = null;
+            }
+            
+            if (watermarkIntervalId) {
+                clearInterval(watermarkIntervalId);
+                watermarkIntervalId = null;
+            }
+            
+            startTime = null;
+            raindropCount = 0;
+            
+            // Clear all raindrops
+            const overlay = document.getElementById('watermark-overlay');
+            if (overlay) {
+                overlay.innerHTML = '';
+            }
+            
+            // Reset display
+            document.getElementById('elapsedDisplay').textContent = '0s';
+            document.getElementById('phaseDisplay').textContent = 'Not started';
+            document.getElementById('phaseIndicator').textContent = 'Ready';
+            document.getElementById('puddingDisplay').textContent = '—';
+            document.getElementById('colorDisplay').textContent = '—';
+            document.getElementById('colorDisplay').style.color = '';
+            document.getElementById('countDisplay').textContent = '0';
+            
+            document.getElementById('startBtn').disabled = false;
+            console.log('Demo cleared');
+        }
+        
+        // Event listeners
+        document.getElementById('startBtn').addEventListener('click', startDemo);
+        document.getElementById('clearBtn').addEventListener('click', clearDemo);
+        
+        console.log('Pudding Keycap Raindrop Demo Ready!');
+        console.log('Click "Start Demo" to begin the fast preview.');
+    </script>
+</body>
+</html>
