@@ -715,5 +715,172 @@
         // Initialize phase display
         phaseDisplay.textContent = isDemoMode ? 'Demo mode - Timer will auto-start' : 'Connect to begin session';
     </script>
+
+    <!-- Rainbow Raindrop Animation -->
+    <script>
+        // ========================================
+        // RAINBOW RAINDROP ANIMATION SYSTEM
+        // ========================================
+
+        // TIMING CONFIGURATION
+        // For PRODUCTION: TRIGGER_TIME = 420, BUILD_DURATION = 180
+        // For TESTING: TRIGGER_TIME = 1, BUILD_DURATION = 3
+        const TRIGGER_TIME = 1; // seconds - when raindrops start appearing
+        const BUILD_DURATION = 3; // seconds - how long to build to peak intensity
+        const PEAK_TIME = TRIGGER_TIME + BUILD_DURATION; // when peak intensity is reached
+
+        // Rainbow color palette
+        const RAINDROP_COLORS = [
+            '#FF1493', // hot pink
+            '#8A2BE2', // blue violet
+            '#4B0082', // indigo
+            '#00BFFF', // deep sky blue
+            '#7FFFD4', // aquamarine
+            '#32CD32', // lime green
+            '#FFD700', // gold
+            '#FF8C00', // dark orange
+            '#FF1493'  // deep pink
+        ];
+
+        // Animation state
+        let raindropAnimationStartTime = null;
+        let raindropAnimationActive = false;
+        let raindropSpawnInterval = null;
+
+        // Start raindrop animation when page loads
+        function initRaindropAnimation() {
+            raindropAnimationStartTime = Date.now();
+            raindropAnimationActive = true;
+
+            // Start the spawn loop
+            scheduleNextRaindrop();
+        }
+
+        // Calculate current intensity based on elapsed time
+        function getCurrentIntensity() {
+            if (!raindropAnimationActive || !raindropAnimationStartTime) return 0;
+
+            const elapsed = (Date.now() - raindropAnimationStartTime) / 1000; // in seconds
+
+            // Before trigger time - no raindrops
+            if (elapsed < TRIGGER_TIME) {
+                return 0;
+            }
+
+            // During build phase - exponential increase
+            if (elapsed < PEAK_TIME) {
+                const buildProgress = (elapsed - TRIGGER_TIME) / BUILD_DURATION;
+                // Exponential curve: starts slow, accelerates rapidly
+                return Math.pow(buildProgress, 2);
+            }
+
+            // After peak - maintain maximum intensity
+            return 1.0;
+        }
+
+        // Calculate spawn delay based on current intensity
+        function getSpawnDelay() {
+            const intensity = getCurrentIntensity();
+
+            if (intensity === 0) {
+                return 1000; // Check every second during waiting period
+            }
+
+            // At low intensity: spawn every ~2000ms
+            // At peak intensity: spawn every ~100ms
+            const minDelay = 100;
+            const maxDelay = 2000;
+            const delay = maxDelay - (intensity * (maxDelay - minDelay));
+
+            return delay;
+        }
+
+        // Schedule the next raindrop spawn
+        function scheduleNextRaindrop() {
+            if (!raindropAnimationActive) return;
+
+            const delay = getSpawnDelay();
+            const intensity = getCurrentIntensity();
+
+            setTimeout(() => {
+                if (intensity > 0) {
+                    createRaindrop();
+                }
+                scheduleNextRaindrop(); // Schedule the next one
+            }, delay);
+        }
+
+        // Create a single raindrop
+        function createRaindrop() {
+            const drop = document.createElement('div');
+
+            // Random position across viewport
+            const x = Math.random() * window.innerWidth;
+            const y = -50; // Start above viewport
+
+            // Random color from palette
+            const color = RAINDROP_COLORS[Math.floor(Math.random() * RAINDROP_COLORS.length)];
+
+            // Random size (20-40px)
+            const size = 20 + Math.random() * 20;
+
+            // Random fall duration (1.5-3 seconds)
+            const duration = 1.5 + Math.random() * 1.5;
+
+            // Random horizontal drift
+            const drift = (Math.random() - 0.5) * 100;
+
+            // Style the raindrop
+            drop.style.position = 'fixed';
+            drop.style.left = x + 'px';
+            drop.style.top = y + 'px';
+            drop.style.width = size + 'px';
+            drop.style.height = size + 'px';
+            drop.style.borderRadius = '50%';
+            drop.style.pointerEvents = 'none';
+            drop.style.zIndex = '9998'; // Just below watermark overlay (9999)
+
+            // Radial gradient and glow effect
+            drop.style.background = `radial-gradient(circle at 30% 30%, ${color}FF, ${color}AA 50%, ${color}44)`;
+            drop.style.boxShadow = `0 0 ${size * 0.8}px ${size * 0.4}px ${color}88, inset 0 0 ${size * 0.3}px ${color}FF`;
+
+            // Animation: fade in, fall, fade out
+            drop.style.opacity = '0';
+            drop.style.transition = `opacity 0.3s ease-in, transform ${duration}s linear`;
+
+            // Add to DOM
+            document.body.appendChild(drop);
+
+            // Trigger fade in
+            requestAnimationFrame(() => {
+                drop.style.opacity = '0.9';
+                drop.style.transform = `translate(${drift}px, ${window.innerHeight + 100}px)`;
+            });
+
+            // Remove after animation completes
+            setTimeout(() => {
+                // Fade out
+                drop.style.opacity = '0';
+
+                setTimeout(() => {
+                    if (drop.parentNode) {
+                        drop.parentNode.removeChild(drop);
+                    }
+                }, 300); // Wait for fade out
+            }, duration * 1000);
+        }
+
+        // Initialize animation when page loads
+        window.addEventListener('load', () => {
+            console.log('Rainbow Raindrop Animation initialized');
+            console.log(`Trigger time: ${TRIGGER_TIME}s, Build duration: ${BUILD_DURATION}s, Peak at: ${PEAK_TIME}s`);
+            initRaindropAnimation();
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            raindropAnimationActive = false;
+        });
+    </script>
 </body>
 </html>
