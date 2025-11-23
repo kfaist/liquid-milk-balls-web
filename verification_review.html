@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipeline Verification - Screenshots</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #4CAF50;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2196F3;
+            margin-top: 40px;
+        }
+        .screenshot-section {
+            background: #2a2a2a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 2px solid #444;
+        }
+        .checklist {
+            background: #333;
+            padding: 15px;
+            border-left: 4px solid #FFC107;
+            margin: 10px 0;
+        }
+        .checklist ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .checklist li {
+            margin: 5px 0;
+        }
+        img {
+            max-width: 100%;
+            border: 2px solid #666;
+            border-radius: 4px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        img:hover {
+            transform: scale(1.02);
+            border-color: #4CAF50;
+        }
+        .status {
+            padding: 10px 20px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #4CAF50;
+            color: white;
+        }
+        .status.pending {
+            background: #FFC107;
+            color: #000;
+        }
+        .timestamp {
+            color: #888;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 TouchDesigner WebRTC Pipeline Verification</h1>
+        <div class="timestamp">Generated: <span id="timestamp"></span></div>
+        
+        <div class="status pending">
+            ⏸️ MANUAL REVIEW REQUIRED - Check screenshots below
+        </div>
+
+        <div class="screenshot-section">
+            <h2>📸 Screenshot 1: TouchDesigner Window</h2>
+            <div class="checklist">
+                <strong>What to look for:</strong>
+                <ul>
+                    <li>✅ Check if <code>webrender_livekit_input</code> operator is visible</li>
+                    <li>✅ Look for VIDEO displaying in the operator</li>
+                    <li>✅ Verify the operator shows active content (not black/empty)</li>
+                    <li>✅ Check if there are any error indicators</li>
+                </ul>
+            </div>
+            <img src="verification_1_touchdesigner.png" alt="TouchDesigner Screenshot" onclick="window.open(this.src, '_blank')">
+            <p><em>Click image to open in new tab for detailed view</em></p>
+        </div>
+
+        <div class="screenshot-section">
+            <h2>📸 Screenshot 2: Browser Developer Console</h2>
+            <div class="checklist">
+                <strong>What to look for:</strong>
+                <ul>
+                    <li>✅ Check for message: <code>[TD-VIEWER] Connected: claymation-live</code></li>
+                    <li>✅ Look for video track subscription messages</li>
+                    <li>✅ Verify no error messages in console</li>
+                    <li>✅ Check connection status indicators</li>
+                </ul>
+            </div>
+            <img src="verification_2_browser_console.png" alt="Browser Console Screenshot" onclick="window.open(this.src, '_blank')">
+            <p><em>Click image to open in new tab for detailed view</em></p>
+        </div>
+
+        <div class="screenshot-section">
+            <h2>📊 Verification Checklist</h2>
+            <div class="checklist">
+                <strong>Complete verification steps:</strong>
+                <ul>
+                    <li>❓ <strong>TouchDesigner:</strong> Video visible in webrender_livekit_input operator</li>
+                    <li>❓ <strong>Browser Console:</strong> Connected to LiveKit room "claymation-live"</li>
+                    <li>❓ <strong>Video Subscription:</strong> Video track subscribed and receiving</li>
+                    <li>✅ <strong>OBS:</strong> Video confirmed in previous session screenshot</li>
+                    <li>✅ <strong>Backend:</strong> All services running (Node, LiveKit)</li>
+                    <li>✅ <strong>Fix:</strong> SDK v2.0.7 deployed successfully</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="screenshot-section">
+            <h2>🎯 Next Steps</h2>
+            <p><strong>If screenshots show success:</strong></p>
+            <ul>
+                <li>✅ Document as 100% VERIFIED SUCCESS</li>
+                <li>✅ Create VERIFICATION_COMPLETE.md</li>
+                <li>✅ Celebrate! Pipeline is fully working!</li>
+            </ul>
+            <p><strong>If issues found:</strong></p>
+            <ul>
+                <li>📝 Document specific issues seen</li>
+                <li>🔧 Refer to AGENT_HANDOVER_COMPLETE.md for troubleshooting</li>
+                <li>🔄 Try reloading TouchDesigner webrender operator</li>
+            </ul>
+        </div>
+
+        <div class="status success" style="background: #2196F3;">
+            💡 High Confidence: Video was confirmed in OBS in previous session
+        </div>
+
+    </div>
+
+    <script>
+        // Set current timestamp
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+    </script>
+</body>
+</html>

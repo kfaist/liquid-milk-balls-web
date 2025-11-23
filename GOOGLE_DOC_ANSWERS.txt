@@ -1,0 +1,180 @@
+**ANSWERS - PASTE THIS INTO THE GOOGLE DOC**
+
+---
+
+## 1. What each of you is building:
+
+**Agent 1 (TouchDesigner/Current):**
+- Building: TouchDesigner input pipeline to receive browser cameras via LiveKit
+- Files/Components:
+  * `ndi-streamCOPY.toe` - TouchDesigner project
+  * `/webrender_livekit_input` - WebRender TOP operator
+  * `td-auto-viewer.html` - LiveKit viewer page for WebRender
+  * `publisher.html` - Browser camera interface
+  * `return-viewer.html` - Global viewer page
+  * Node.js server (server.js) on localhost:3000
+- Status: OUTPUT 100% done (TD→OBS→LiveKit), INPUT 95% done (fixing WebRender URL)
+
+**Agent 2 (main-site.html):**
+- Building: Hybrid dual-stream container with visual effects
+- Files/Components:
+  * `main-site.html` - Container with shimmer, raindrops, glows
+- Status: Visual effects DONE ✅, needs LiveKit integration ⏳
+
+---
+
+## 2. Timeline for each part:
+
+**Agent 1:** 5-15 minutes (just WebRender TOP URL configuration)
+**Agent 2:** 15 minutes (add LiveKit code with credentials below)
+**Integration test:** Can happen immediately after (~30 min total)
+
+---
+
+## 3. Current blockers:
+
+**Agent 1:** WebRender TOP needs URL parameter set (fixing now)
+**Agent 2:** Needs LiveKit credentials to implement video streaming
+
+---
+
+## 4. LiveKit room name & credentials:
+
+```
+LiveKit URL: wss://claymation-transcription-l6e51sws.livekit.cloud
+API Key: APITw2Yp2Tv3yfg
+API Secret: eVYY0UB69XDGLiGzclYuGUhXuVpc8ry3YcazimFryDW
+
+Room Names:
+- Input Room: claymation-live (where browser cameras publish)
+- Output Room: processed-output (where TouchDesigner sends processed video)
+
+Authentication Method: JWT tokens
+- POST to /api/token endpoint with roomName and participantName
+- Server generates token using API key/secret
+- Use token to connect to LiveKit
+```
+
+---
+
+## 5. File ownership:
+
+**Agent 1 owns:**
+- `publisher.html` - Browser camera interface ✅
+- `td-auto-viewer.html` - TouchDesigner viewer page ✅
+- `return-viewer.html` - Global viewer ✅
+- TouchDesigner project & NDI/OBS pipeline ✅
+- Node.js server (server.js) ✅
+
+**Agent 2 owns:**
+- `main-site.html` - Hybrid container with effects ✅
+
+**Shared:**
+- LiveKit credentials (same for both) ✅
+- Railway deployment configuration ✅
+
+---
+
+## 6. Update schedule:
+
+**Recommendation:** Work in parallel
+- Agent 1: Continue fixing WebRender TOP
+- Agent 2: Add LiveKit integration to main-site.html
+- Both use same credentials above
+- Sync when both complete (~30 min)
+
+**Deployment:**
+- Test locally first
+- Deploy to Railway once both parts working
+- Final integration test on Railway
+
+---
+
+## 7. Quick sync answers:
+
+**Q: What's the room name they're using?**
+A: Two rooms:
+- `claymation-live` - Input room (cameras publish here)
+- `processed-output` - Output room (processed video from TouchDesigner)
+
+**Q: What's the LiveKit URL?**
+A: `wss://claymation-transcription-l6e51sws.livekit.cloud`
+
+**Q: What authentication method?**
+A: JWT tokens via server endpoint
+- POST to `/api/token` with `{roomName, participantName}`
+- Returns `{token}`
+- Use token to connect to LiveKit rooms
+
+---
+
+## INTEGRATION CODE FOR main-site.html:
+
+**Step 1: Publish Local Camera to LiveKit**
+
+```javascript
+// Get token for input room
+const response = await fetch('/api/token', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    roomName: 'claymation-live',
+    participantName: 'main-site-publisher'
+  })
+});
+const { token } = await response.json();
+
+// Connect to LiveKit
+const room = new LivekitClient.Room();
+await room.connect('wss://claymation-transcription-l6e51sws.livekit.cloud', token);
+
+// Publish local camera
+const videoTrack = await LivekitClient.createLocalVideoTrack();
+await room.localParticipant.publishTrack(videoTrack);
+
+// Attach to local video element
+const localVideo = document.getElementById('local-video');
+videoTrack.attach(localVideo);
+```
+
+**Step 2: Subscribe to Processed Stream from LiveKit**
+
+```javascript
+// Get token for output room
+const outputResponse = await fetch('/api/token', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    roomName: 'processed-output',
+    participantName: 'main-site-viewer'
+  })
+});
+const { token: outputToken } = await outputResponse.json();
+
+// Connect to output room
+const outputRoom = new LivekitClient.Room();
+await outputRoom.connect('wss://claymation-transcription-l6e51sws.livekit.cloud', outputToken);
+
+// Subscribe to processed video
+outputRoom.on('trackSubscribed', (track, publication, participant) => {
+  if (track.kind === 'video') {
+    const processedVideo = document.getElementById('processed-video');
+    track.attach(processedVideo);
+  }
+});
+```
+
+**Step 3: Include LiveKit Client Library**
+
+Add to your HTML:
+```html
+<script src="https://unpkg.com/livekit-client/dist/livekit-client.umd.min.js"></script>
+```
+
+---
+
+## READY TO INTEGRATE! 🚀
+
+With these credentials and code, Agent 2 can complete the LiveKit integration in ~15 minutes.
+
+Total time to full system: ~30 minutes from now.

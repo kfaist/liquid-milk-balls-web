@@ -1,0 +1,11 @@
+LiveKit Token for TouchDesigner WebRender
+Generated: 2025-11-22 03:57:29
+Valid until: 2025-11-23 03:57:29
+
+Configuration:
+Room: claymation-live
+Server: wss://claymation-transcription-l6e51sws.livekit.cloud
+Identity: touchdesigner-receiver
+
+Token (copy this):
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ2aWRlbyI6eyJyb29tIjoiY2xheW1hdGlvbi1saXZlIiwicm9vbUpvaW4iOnRydWUsImNhblB1Ymxpc2giOmZhbHNlLCJjYW5TdWJzY3JpYmUiOnRydWV9LCJpc3MiOiJBUElUdzJZcDJUdjN5ZmciLCJzdWIiOiJ0b3VjaGRlc2lnbmVyLXJlY2VpdmVyIiwiaWF0IjoxNzYzODAxODQ5LCJuYmYiOjE3NjM4MDE4NDksImV4cCI6MTc2Mzg4ODI0OX0.7r4VZzzAnbh-On6cw1D2r2kCN84K4QCcorE5-1ZyoA0

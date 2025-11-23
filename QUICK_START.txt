@@ -1,0 +1,91 @@
+========================================================================
+QUICK START - GET VIDEO INTO TOUCHDESIGNER NOW!
+========================================================================
+
+YOUR SYSTEM IS CONFIGURED! Here is how to make it work:
+
+========================================================================
+METHOD 1: USE WEB RENDER TOP IN TOUCHDESIGNER (RECOMMENDED)
+========================================================================
+
+LIVEKIT CONNECTION INFO (COPY THESE):
+
+URL:   wss://claymation-transcription-l6e51sws.livekit.cloud
+ROOM:  claymation-live
+TOKEN: eyJhbGciOiJIUzI1NiJ9.eyJ2aWRlbyI6eyJyb29tIjoiY2xheW1hdGlvbi1saXZlIiwicm9vbUpvaW4iOnRydWUsImNhblB1Ymxpc2giOmZhbHNlLCJjYW5TdWJzY3JpYmUiOnRydWV9LCJpc3MiOiJBUElUdzJZcDJUdjN5ZmciLCJleHAiOjE3NjM4NDg4NDQsIm5iZiI6MCwic3ViIjoidG91Y2hkZXNpZ25lci1yZWNlaXZlciJ9.LScuDiy0yrnxxJKweBRgxfU5EVSsSwCGQC76ZRFqIKs
+
+STEPS:
+1. In TouchDesigner, find or create a "Web Render TOP"
+2. In its parameters, paste the URL, ROOM, and TOKEN above
+3. Enable "Use LiveKit" or similar checkbox
+4. Click "Connect" button
+5. Open publisher page (already open in Firefox tab 103)
+6. Click "Start Publishing" on publisher page
+7. Video should appear in TouchDesigner!
+
+========================================================================
+METHOD 2: USE BROWSER SOURCE (ALTERNATIVE)
+========================================================================
+
+If Web Render TOP does not work, use a Browser CHOP or Web TOP:
+
+1. Create a "Web TOP" in TouchDesigner
+2. Set URL to: https://liquid-milk-balls-web-production-2e8c.up.railway.app/td-auto-viewer.html
+3. This page will automatically show the input video
+4. Use this Web TOP as your video source
+
+========================================================================
+TEST YOUR SETUP RIGHT NOW
+========================================================================
+
+TEST 1 - Verify Publisher Works:
+1. Firefox tab 103 has publisher.html already open
+2. Click "Start Publishing"
+3. You should see your camera feed
+4. Status should say "Publishing" in green
+
+TEST 2 - Verify LiveKit Stream Works:
+1. Open this page in a new tab:
+   https://liquid-milk-balls-web-production-2e8c.up.railway.app/td-auto-viewer.html
+2. You should see the same video feed
+3. This proves the stream is working!
+
+TEST 3 - Get Video Into TouchDesigner:
+1. Use Method 1 or Method 2 above
+2. Video should appear in TD
+
+========================================================================
+YOUR COMPLETE VIDEO FLOW
+========================================================================
+
+[Browser Camera] 
+      ↓
+[publisher.html] 
+      ↓
+[LiveKit "claymation-live" room] ← YOU ARE HERE! CONNECT TD HERE!
+      ↓
+[TouchDesigner Web Render TOP] 
+      ↓
+[Your Effects Chain]
+      ↓
+[NDI Out "TD-LiveKit-Output"]
+      ↓
+[OBS Studio]
+      ↓
+[LiveKit "processed-output" room]
+      ↓
+[return-viewer.html]
+
+========================================================================
+TOKEN EXPIRATION
+========================================================================
+
+The token above expires at: Fri Jan 17 2025 17:47:24 GMT-0500
+
+If you get connection errors after this time:
+1. Run: python td_livekit_token.py
+2. Copy the new token
+3. Update the token parameter in TouchDesigner
+4. Reconnect
+
+========================================================================

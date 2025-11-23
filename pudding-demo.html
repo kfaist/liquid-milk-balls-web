@@ -1,0 +1,30 @@
+﻿<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Pudding Keycap Drops — Demo</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div style="padding:18px;max-width:1100px;margin:24px auto;color:#fff;background:#0b0b0b;border-radius:8px;">
+    <h2>Pudding Keycap Drops — Demo</h2>
+    <p>Click Start to preview the 9→10 minute ramp (demo uses short timings).</p>
+    <div style="margin:12px 0"><button id="startBtn">Start Demo</button> <button id="resetBtn">Clear</button></div>
+
+    <div id="video-wrapper" style="position:relative;width:900px;height:420px;background:#0a0a0a;border-radius:8px;overflow:hidden;">
+      <div class="fake-scene" style="position:absolute;inset:0;background:linear-gradient(90deg, rgba(255,110,90,0.06), rgba(120,200,255,0.06));"></div>
+      <div class="keys" aria-hidden="true" style="position:absolute;left:22px;top:34px;width:856px;height:360px;display:grid;grid-template-columns:repeat(14,1fr);gap:12px;padding:18px;"></div>
+      <div id="watermark-overlay"></div>
+    </div>
+  </div>
+  <script src="/watermark-system.js"></script>
+  <script>
+    // simple wiring for demo
+    document.getElementById('startBtn').addEventListener('click', ()=>{ window.startWatermarkTimer && window.startWatermarkTimer(); });
+    document.getElementById('resetBtn').addEventListener('click', ()=>{ document.querySelectorAll('#watermark-overlay .video-raindrop').forEach(n=>n.remove()); });
+    // populate keys
+    const keys = document.querySelector('.keys'); for(let i=0;i<7*14;i++){ const k=document.createElement('div'); k.className='key'; keys.appendChild(k);}  
+  </script>
+</body>
+</html>

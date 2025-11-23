@@ -1,0 +1,32 @@
+# PASTE THIS INTO TOUCHDESIGNER TEXTPORT
+
+## Step 1: Run the comprehensive fix
+exec(open(r'C:\Users\krista-showputer\Desktop\liquid-milk-balls-web\td_comprehensive_fix.py').read())
+
+## Step 2: Wait 6 seconds for pages to load
+
+## Step 3: Check both WebRender TOPs
+# Look at:
+# - /project1/webrender1
+# - /project1/webrender_livekit_input
+
+## What you should see:
+# ✅ Green info box in top-left corner
+# ✅ Your actual camera video
+# ✅ Info showing "RENDERING" with frame numbers
+
+## If you see green box but NO video:
+# Run this to check video dimensions:
+print("webrender1 output:", op('/project1/webrender1').width, "x", op('/project1/webrender1').height)
+print("webrender_livekit_input output:", op('/project1/webrender_livekit_input').width, "x", op('/project1/webrender_livekit_input').height)
+
+## If still nothing:
+# 1. Check Dialogs → Console for errors
+# 2. Try restarting TouchDesigner
+# 3. Come back and tell me what you see
+
+---
+
+Everything is ready to go! Just paste the first exec() line into TD Textport.
+
+- Claude

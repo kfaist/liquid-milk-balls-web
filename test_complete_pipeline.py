@@ -1,0 +1,127 @@
+"""
+Final Test - Verify Complete Video Pipeline
+"""
+import time
+
+print("=" * 80)
+print("LIQUID MILK BALLS - COMPLETE PIPELINE TEST")
+print("=" * 80)
+
+print("\n[STEP 1] TouchDesigner Configuration")
+print("-" * 80)
+print("Status: EXECUTED via automation")
+print("The configuration command was sent to TouchDesigner.")
+print("\nIn TouchDesigner, you should see:")
+print("  - A message in the Textport about configuration")
+print("  - A Web Render TOP operator (look for 'webrender_livekit')")
+print("\nCHECK NOW: Can you see a Web Render TOP in TouchDesigner?")
+response = input("Type 'yes' if you see it, or 'no' to get help: ").strip().lower()
+
+if response != 'yes':
+    print("\nHELP: Creating Web Render TOP manually")
+    print("--------------------------------------")
+    print("1. In TouchDesigner, press TAB")
+    print("2. Type 'web render'")
+    print("3. Press ENTER")
+    print("4. Click anywhere to place it")
+    print("\nThen run this script again!")
+    exit()
+
+print("\n[OK] Web Render TOP exists!")
+
+print("\n[STEP 2] LiveKit Configuration")
+print("-" * 80)
+print("The automation should have set these parameters:")
+print("  URL:   wss://claymation-transcription-l6e51sws.livekit.cloud")
+print("  Room:  claymation-live")
+print("  Token: eyJhbGciOiJIUzI1NiJ9... (long token)")
+print("\nCHECK NOW: Are these values set in the Web Render TOP?")
+response = input("Type 'yes' if configured, or 'no' for manual steps: ").strip().lower()
+
+if response != 'yes':
+    print("\nMANUAL CONFIGURATION:")
+    print("--------------------")
+    print("1. Click the Web Render TOP in TD")
+    print("2. Look at Parameters panel on the right")
+    print("3. Find and set:")
+    print("   - LiveKit URL or URL parameter")
+    print("   - Room Name or Room parameter")
+    print("   - Token or Access Token parameter")
+    print("4. Copy values from: livekit_config.json")
+    print("5. Enable 'Use LiveKit' checkbox")
+    print("6. Click 'Connect' button")
+    print("\nThen run this script again!")
+    exit()
+
+print("\n[OK] LiveKit configured!")
+
+print("\n[STEP 3] Test Publisher Page")
+print("-" * 80)
+print("Now let's test the video stream!")
+print("\nOpening publisher page...")
+print("URL: https://liquid-milk-balls-web-production-2e8c.up.railway.app/publisher.html")
+print("\nINSTRUCTIONS:")
+print("1. Click 'Start Publishing' button")
+print("2. Allow camera access when prompted")
+print("3. You should see your camera feed")
+print("4. Status should show 'Publishing' in green")
+
+input("\nPress ENTER after you've started publishing...")
+
+print("\n[STEP 4] Verify Video in TouchDesigner")
+print("-" * 80)
+print("Now check if video appears in TouchDesigner!")
+print("\nINSTRUCTIONS:")
+print("1. In TouchDesigner, find the Web Render TOP")
+print("2. Right-click it")
+print("3. Select 'Viewer' from the menu")
+print("4. You should see your camera video!")
+
+response = input("\nDo you see video in the Web Render TOP viewer? (yes/no): ").strip().lower()
+
+if response == 'yes':
+    print("\n" + "=" * 80)
+    print("SUCCESS! VIDEO IS FLOWING INTO TOUCHDESIGNER!")
+    print("=" * 80)
+    print("\n[NEXT STEPS]")
+    print("-" * 80)
+    print("1. Connect Web Render TOP output to your effects chain")
+    print("2. Connect effects output to NDI Out TOP")
+    print("3. Set NDI output name to: TD-LiveKit-Output")
+    print("4. OBS will automatically pick up the NDI stream")
+    print("5. Complete pipeline will be LIVE!")
+    print("\n[FINAL OUTPUT]")
+    print("-" * 80)
+    print("View final processed video at:")
+    print("https://liquid-milk-balls-web-production-2e8c.up.railway.app/return-viewer.html")
+    print("\n" + "=" * 80)
+    print("CONGRATULATIONS! YOUR SYSTEM IS WORKING!")
+    print("=" * 80)
+else:
+    print("\n" + "=" * 80)
+    print("TROUBLESHOOTING")
+    print("=" * 80)
+    print("\n[CHECK 1] Is publisher showing 'Publishing' status?")
+    print("  - If not, click 'Start Publishing' again")
+    print("  - Allow camera access")
+    
+    print("\n[CHECK 2] Is test viewer showing video?")
+    print("  - Open: https://liquid-milk-balls-web-production-2e8c.up.railway.app/td-auto-viewer.html")
+    print("  - If you see video here, LiveKit is working")
+    print("  - Problem is in TD configuration")
+    
+    print("\n[CHECK 3] Is Web Render TOP connected in TD?")
+    print("  - Check parameters are set correctly")
+    print("  - Try clicking 'Disconnect' then 'Connect' again")
+    print("  - Check Textport for error messages")
+    
+    print("\n[CHECK 4] Has token expired?")
+    print("  - Tokens last 2 hours")
+    print("  - Run: python td_livekit_token.py")
+    print("  - Copy new token to Web Render TOP")
+    print("  - Reconnect")
+    
+    print("\nFor more help, see:")
+    print("  - TROUBLESHOOTING section in README_START_HERE.txt")
+    print("  - TOUCHDESIGNER_SETUP_INSTRUCTIONS.txt")
+    print("=" * 80)

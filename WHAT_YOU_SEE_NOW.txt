@@ -1,0 +1,47 @@
+WHICH TAB IS WHICH - LOOK AT THIS NOW!
+======================================
+
+YOU ARE CURRENTLY LOOKING AT:
+------------------------------
+FIREFOX TAB 79 - "Viewer - The Mirror's Echo"
+
+THIS IS: YOUR OUTPUT (Processed Art)
+URL: https://liquid-milk-balls-web-production-2e8c.up.railway.app/return-viewer.html
+
+IF YOU SEE YOURSELF HERE:
+- This is your PROCESSED video
+- This is what the world sees
+- TouchDesigner effects should be applied
+- THIS IS YOUR PUBLIC ART OUTPUT!
+
+
+WHERE IS YOUR INPUT (Raw Camera)?
+----------------------------------
+You need to open this in a NEW tab:
+
+1. Press Ctrl+T (new tab)
+2. Type: localhost:3000/publisher.html
+3. Press Enter
+4. Click "Start Camera"
+
+THIS WILL SHOW: Your raw camera feed (before effects)
+
+
+SIMPLE ANSWER:
+--------------
+RIGHT NOW you are looking at TAB 79 = OUTPUT (processed art)
+
+To see INPUT (raw camera), open: localhost:3000/publisher.html in new tab
+
+
+THE PIPELINE:
+-------------
+Publisher (localhost:3000/publisher.html) = INPUT (raw you)
+    ↓
+TouchDesigner = PROCESSING (adds effects)
+    ↓
+Return Viewer (Tab 79 - what you're seeing) = OUTPUT (art!)
+
+
+IF YOU SEE YOURSELF IN TAB 79:
+Your pipeline is WORKING! You're seeing the processed output!

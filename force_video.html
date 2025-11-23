@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Force Video Test</title>
+<style>
+body { margin: 0; background: #000; }
+#video { width: 100vw; height: 100vh; object-fit: cover; }
+#info { position: fixed; top: 10px; left: 10px; background: lime; color: black; padding: 10px; font-family: monospace; }
+</style>
+</head>
+<body>
+<video id="video" autoplay playsinline muted></video>
+<div id="info">Starting...</div>
+<script>
+const video = document.getElementById('video');
+const info = document.getElementById('info');
+navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+  video.srcObject = stream;
+  video.play();
+  info.innerHTML = 'STREAM ACTIVE<br>ID: ' + stream.id + '<br>Width: ' + video.videoWidth + '<br>Height: ' + video.videoHeight;
+  setInterval(() => {
+    info.innerHTML = 'ACTIVE<br>videoWidth: ' + video.videoWidth + '<br>videoHeight: ' + video.videoHeight + '<br>paused: ' + video.paused + '<br>readyState: ' + video.readyState;
+  }, 1000);
+}).catch(err => {
+  info.innerHTML = 'ERROR: ' + err.message;
+  info.style.background = 'red';
+  info.style.color = 'white';
+});
+</script>
+</body>
+</html>

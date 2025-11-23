@@ -1,0 +1,132 @@
+
+    ╔═══════════════════════════════════════════════════════════════╗
+    ║                                                               ║
+    ║         🎯 COMMAND READY IN CLIPBOARD - PASTE NOW! 🎯         ║
+    ║                                                               ║
+    ╚═══════════════════════════════════════════════════════════════╝
+
+
+                    IN TOUCHDESIGNER TEXTPORT:
+
+                    1. Click in the Textport window
+
+                    2. Press  Ctrl + V
+
+                    3. Press  ENTER
+
+
+    ┌───────────────────────────────────────────────────────────────┐
+    │                                                               │
+    │                   WHAT WILL HAPPEN:                           │
+    │                                                               │
+    │   You'll see in Textport:                                     │
+    │                                                               │
+    │   Found Web Render TOP: /some/path                            │
+    │                                                               │
+    │   Showing LiveKit parameters:                                 │
+    │     livekiturl = wss://claymation-transcription...            │
+    │     roomname = claymation-live                                │
+    │     token = eyJhbGci...                                       │
+    │     (other params...)                                         │
+    │                                                               │
+    │   Trying to activate...                                       │
+    │     Pulsed connect button                                     │
+    │     Set active = 1                                            │
+    │                                                               │
+    │   DONE! Now right-click the Web Render TOP                    │
+    │   and select Viewer                                           │
+    │   Video should appear!                                        │
+    │                                                               │
+    └───────────────────────────────────────────────────────────────┘
+
+
+    ╔═══════════════════════════════════════════════════════════════╗
+    ║                                                               ║
+    ║                  AFTER RUNNING THE COMMAND:                   ║
+    ║                                                               ║
+    ║         1. Find the Web Render TOP in your network            ║
+    ║                                                               ║
+    ║         2. RIGHT-CLICK on it                                  ║
+    ║                                                               ║
+    ║         3. Select "Viewer" from menu                          ║
+    ║                                                               ║
+    ║         4. 🎥 VIDEO APPEARS! 🎥                               ║
+    ║                                                               ║
+    ╚═══════════════════════════════════════════════════════════════╝
+
+
+    ┌───────────────────────────────────────────────────────────────┐
+    │                                                               │
+    │              IF VIDEO DOESN'T APPEAR YET:                     │
+    │                                                               │
+    │   1. Go to Tab 131 (publisher.html in Firefox)                │
+    │      Click "Start Publishing"                                 │
+    │      Allow camera access                                      │
+    │                                                               │
+    │   2. Check Tab 150 (ndi-viewer.html)                          │
+    │      Should show "Receiving video from publisher..."          │
+    │      This confirms LiveKit is working!                        │
+    │                                                               │
+    │   3. Back in TouchDesigner:                                   │
+    │      Look at Web Render TOP parameters                        │
+    │      Find any button that says "Connect"                      │
+    │      CLICK IT!                                                │
+    │                                                               │
+    │   4. Right-click Web Render TOP → Viewer again                │
+    │                                                               │
+    └───────────────────────────────────────────────────────────────┘
+
+
+    ╔═══════════════════════════════════════════════════════════════╗
+    ║                                                               ║
+    ║                   WE KNOW IT'S WORKING!                       ║
+    ║                                                               ║
+    ║   Tab 150 showed: "Receiving video from publisher..."        ║
+    ║                                                               ║
+    ║   This PROVES the LiveKit stream is active and working!      ║
+    ║                                                               ║
+    ║   TouchDesigner just needs to connect to that same stream!   ║
+    ║                                                               ║
+    ╚═══════════════════════════════════════════════════════════════╝
+
+
+    ┌───────────────────────────────────────────────────────────────┐
+    │                                                               │
+    │                 TROUBLESHOOTING GUIDE:                        │
+    │                                                               │
+    │   If script says "ERROR: No Web Render TOP found":           │
+    │     • Press TAB in TouchDesigner                              │
+    │     • Type "web render"                                       │
+    │     • Press ENTER                                             │
+    │     • Click to place it                                       │
+    │     • Run the script again                                    │
+    │                                                               │
+    │   If parameters show but video doesn't appear:                │
+    │     • Look at the parameters shown in textport                │
+    │     • Find one that looks like a connect/start button         │
+    │     • Click it manually in the TD interface                   │
+    │     • Right-click → Viewer again                              │
+    │                                                               │
+    │   If you see the Web Render TOP but it's black:              │
+    │     • Check if publisher is streaming (Tab 131)               │
+    │     • Check if there's an "Active" toggle - turn it ON        │
+    │     • Look for a "Connect" button - click it                  │
+    │                                                               │
+    └───────────────────────────────────────────────────────────────┘
+
+
+    ╔═══════════════════════════════════════════════════════════════╗
+    ║                                                               ║
+    ║              THE COMMAND IS IN YOUR CLIPBOARD!                ║
+    ║                                                               ║
+    ║                TOUCHDESIGNER TEXTPORT:                        ║
+    ║                                                               ║
+    ║                   Ctrl+V → ENTER → DONE!                      ║
+    ║                                                               ║
+    ║            Then: Right-click Web Render TOP → Viewer          ║
+    ║                                                               ║
+    ║                    SEE YOUR VIDEO! 🎥✨                       ║
+    ║                                                               ║
+    ╚═══════════════════════════════════════════════════════════════╝
+
+

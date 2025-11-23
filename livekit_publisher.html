@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>LiveKit Camera Publisher</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #0f0;
+      font-family: monospace;
+      padding: 20px;
+    }
+    #status {
+      background: rgba(0, 255, 0, 0.9);
+      color: #000;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: 20px auto;
+    }
+    #status h2 { margin: 0 0 10px 0; }
+    .step { padding: 5px 0; }
+    .success { color: #0a0; font-weight: bold; }
+    .error { color: #f00; font-weight: bold; }
+    .pending { color: #fa0; }
+    #localVideo {
+      width: 640px;
+      height: 480px;
+      background: #222;
+      border: 2px solid #0f0;
+      display: block;
+      margin: 20px auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="status">
+    <h2>LiveKit Camera Publisher</h2>
+    <div id="log">Initializing...</div>
+  </div>
+  <video id="localVideo" autoplay playsinline muted></video>
+
+  <script src="https://unpkg.com/livekit-client/dist/livekit-client.umd.min.js"></script>
+  
+  <script>
+    const statusDiv = document.getElementById('log');
+    const localVideo = document.getElementById('localVideo');
+    
+    function log(msg, type = '') {
+      const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'pending';
+      statusDiv.innerHTML += `<div class="step ${className}">${msg}</div>`;
+      console.log(msg);
+    }
+    
+    async function start() {
+      try {
+        log('📹 Step 1: Requesting camera...', 'pending');
+        
+        const localStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 1280, height: 720 },
+          audio: false
+        });
+        
+        localVideo.srcObject = localStream;
+        log('✓ Camera captured successfully', 'success');
+        log(`  Stream ID: ${localStream.id}`, '');
+        
+        log('🔌 Step 2: Fetching LiveKit token...', 'pending');
+        
+        const tokenResponse = await fetch('/token?identity=browser-camera&roomName=mirror-echo');
+        const tokenData = await tokenResponse.json();
+        
+        if (!tokenData.token || tokenData.token === 'DEV-PLACEHOLDER-TOKEN') {
+          throw new Error('Got placeholder token - need real LiveKit token endpoint');
+        }
+        
+        log('✓ Token received', 'success');
+        
+        log('🌐 Step 3: Connecting to LiveKit...', 'pending');
+        
+        const room = new LivekitClient.Room({
+          adaptiveStream: true,
+          dynacast: true,
+        });
+        
+        await room.connect('ws://localhost:7880', tokenData.token);
+        log('✓ Connected to LiveKit room', 'success');
+        
+        log('📤 Step 4: Publishing camera track...', 'pending');
+        
+        const videoTrack = localStream.getVideoTracks()[0];
+        await room.localParticipant.publishTrack(videoTrack, {
+          name: 'camera',
+          simulcast: false,
+        });
+        
+        log('✓ Camera published to LiveKit!', 'success');
+        log('', '');
+        log('🎉 SUCCESS! Camera is streaming to LiveKit', 'success');
+        log('TouchDesigner can now subscribe to this stream', '');
+        
+      } catch (err) {
+        log(`✗ ERROR: ${err.message}`, 'error');
+        console.error('Full error:', err);
+      }
+    }
+    
+    // Auto-start
+    start();
+  </script>
+</body>
+</html>

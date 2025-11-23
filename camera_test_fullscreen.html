@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Camera Test - Large Video</title>
+  <style>
+    body { 
+      margin: 0; 
+      padding: 0; 
+      background: #000; 
+      color: #0f0;
+      font-family: monospace;
+    }
+    #video { 
+      width: 100vw; 
+      height: 100vh; 
+      background: #222;
+      object-fit: cover;
+    }
+    #status {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.8);
+      padding: 10px;
+      border: 2px solid #0f0;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <video id="video" autoplay playsinline muted></video>
+  <div id="status">Starting camera...</div>
+  
+  <script>
+    const video = document.getElementById('video');
+    const status = document.getElementById('status');
+    
+    async function startCamera() {
+      try {
+        status.textContent = 'Requesting camera...';
+        
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 1280, height: 720 },
+          audio: false
+        });
+        
+        video.srcObject = stream;
+        status.textContent = '✓ Camera active! Stream ID: ' + stream.id;
+        
+        console.log('Camera started successfully');
+        console.log('Video element:', video);
+        console.log('Stream:', stream);
+        console.log('Video tracks:', stream.getVideoTracks());
+        
+      } catch (err) {
+        status.textContent = '✗ Error: ' + err.message;
+        status.style.borderColor = '#f00';
+        status.style.color = '#f00';
+        console.error('Camera error:', err);
+      }
+    }
+    
+    // Auto-start camera
+    startCamera();
+  </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# Copy these lines and paste into TouchDesigner textport (Alt+T)
+# Then select all (Ctrl+A) and execute (Ctrl+Enter)
+
+wr = op('/webrender_livekit_input')
+wr.par.Url = 'http://localhost:3000/td-auto-viewer.html'
+wr.par.Reload.pulse()
+print("WebRender TOP configured!")
+print(f"URL: {wr.par.Url}")
+print("Now open http://localhost:3000/publisher.html in browser and start publishing")

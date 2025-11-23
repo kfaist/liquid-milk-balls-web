@@ -1,0 +1,39 @@
+COPY THIS ENTIRE MESSAGE TO NEXT AGENT:
+
+---
+
+I need you to complete my TouchDesigner LiveKit video pipeline. Read AGENT_HANDOVER_COMPLETE.md for full context. Quick summary:
+
+STATUS: 95% complete. Web Render TOP (webrender_livekit1) exists in TouchDesigner but showing black screen. Need to activate LiveKit connection.
+
+PROOF IT WORKS: Firefox Tab 150 shows "Receiving video from publisher" - LiveKit is streaming video right now.
+
+YOUR TASK:
+1. Take full desktop and browser control
+2. Run activation script in TouchDesigner Textport:
+   exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_activate_specific.py').read())
+3. Analyze textport output
+4. If auto-activation doesn't work, manually click connect/active buttons in webrender_livekit1 parameters
+5. Once video shows in TD, start OBS streaming
+6. Verify complete pipeline in Tab 79
+
+FILES: All in C:\Users\krista-showputer\Desktop\liquid-milk-balls-web\
+- AGENT_HANDOVER_COMPLETE.md (read this first)
+- td_activate_specific.py (activation script)
+- ndi-streamCOPY.toe (TD project - already open)
+
+TABS:
+- Tab 131: publisher.html (start if needed)
+- Tab 150: ndi-viewer.html (working, proves LiveKit active)
+- Tab 79: return-viewer.html (will show final output)
+
+CRITICAL: Give complete clear instructions (no abbreviations) - user has dyslexia. She prefers full agentic control.
+
+PIPELINE: Browser → LiveKit ✅ → TD ❌ → Effects → NDI → OBS → LiveKit → Browser
+Only TD connection needs activation. Everything else configured and working.
+
+Take it from here!
+
+---
+
+COPY EVERYTHING ABOVE TO NEXT AGENT

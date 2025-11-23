@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-11-23T20:27:39.427Z",
+  "tests": {
+    "livekit": true,
+    "publisher": true,
+    "tdViewer": true,
+    "endpoints": true
+  }
+}

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TouchDesigner LiveKit Receiver</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: monospace;
+            background: #000;
+            color: #0f0;
+            overflow: hidden;
+        }
+        #status {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            font-size: 12px;
+        }
+        video {
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div id="status">INITIALIZING...</div>
+    <video id="remoteVideo" autoplay playsinline></video>
+
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+    <script>
+        let room = null;
+        
+        async function autoConnect() {
+            const statusDiv = document.getElementById('status');
+            const remoteVideo = document.getElementById('remoteVideo');
+            
+            statusDiv.textContent = 'FETCHING TOKEN...';
+            
+            try {
+                // Get viewer token to watch the input room
+                const response = await fetch('/api/viewer-token');
+                if (!response.ok) throw new Error('Failed to get token');
+                const data = await response.json();
+                
+                statusDiv.textContent = 'CONNECTING TO LIVEKIT...';
+                
+                room = new LivekitClient.Room({ 
+                    adaptiveStream: true, 
+                    dynacast: true 
+                });
+                
+                // Handle incoming video tracks
+                room.on(LivekitClient.RoomEvent.TrackSubscribed, (track, publication, participant) => {
+                    console.log('Track received:', track.kind, 'from', participant.identity);
+                    
+                    if (track.kind === LivekitClient.Track.Kind.Video) {
+                        track.attach(remoteVideo);
+                        statusDiv.textContent = 'RECEIVING VIDEO FROM: ' + participant.identity;
+                        
+                        // Hide status after 3 seconds
+                        setTimeout(() => {
+                            statusDiv.style.display = 'none';
+                        }, 3000);
+                    }
+                });
+                
+                room.on(LivekitClient.RoomEvent.TrackUnsubscribed, (track) => {
+                    if (track.kind === LivekitClient.Track.Kind.Video) {
+                        track.detach(remoteVideo);
+                        statusDiv.style.display = 'block';
+                        statusDiv.textContent = 'VIDEO STOPPED';
+                    }
+                });
+                
+                room.on(LivekitClient.RoomEvent.Disconnected, () => {
+                    statusDiv.style.display = 'block';
+                    statusDiv.textContent = 'DISCONNECTED - RECONNECTING...';
+                    setTimeout(autoConnect, 3000);
+                });
+                
+                // Connect to LiveKit
+                await room.connect(data.url, data.token);
+                statusDiv.textContent = 'CONNECTED - WAITING FOR VIDEO...';
+                
+            } catch (error) {
+                console.error('Connection error:', error);
+                statusDiv.textContent = 'ERROR: ' + error.message + ' - RETRYING...';
+                setTimeout(autoConnect, 5000);
+            }
+        }
+        
+        // Auto-connect on load
+        window.addEventListener('load', () => {
+            setTimeout(autoConnect, 1000);
+        });
+        
+        // Cleanup on unload
+        window.addEventListener('beforeunload', () => {
+            if (room) room.disconnect();
+        });
+    </script>
+</body>
+</html>

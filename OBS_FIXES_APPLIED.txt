@@ -1,0 +1,138 @@
+========================================================================
+                    OBS CONFIGURATION FIXED!
+                    Changes Made: November 22, 2025
+========================================================================
+
+ISSUES FOUND:
+1. NDI Source Name Mismatch
+   - OBS was looking for: "KRISTA-SHOWPUTER-01 (TouchDesigner)"
+   - TouchDesigner outputs: "TD-LiveKit-Output"
+   - FIXED: Changed OBS to look for "KRISTA-SHOWPUTER-01 (TD-LiveKit-Output)"
+
+2. WHIP Streaming Token Expired
+   - Old token was expired
+   - FIXED: Updated with fresh token from Railway server
+
+========================================================================
+WHAT WAS CHANGED
+========================================================================
+
+FILE 1: service.json (WHIP Streaming Configuration)
+Location: C:\Users\krista-showputer\AppData\Roaming\obs-studio\basic\profiles\Untitled\service.json
+
+Updated to:
+- Fresh WHIP URL with new token
+- Token expires: Fri Jan 17 2025 18:18:39 GMT-0500
+- Streaming to: processed-output room
+- Server: https://claymation-transcription-l6e51sws.livekit.cloud
+
+FILE 2: Untitled.json (Scene Configuration)
+Location: C:\Users\krista-showputer\AppData\Roaming\obs-studio\basic\scenes\Untitled.json
+
+Changed:
+- ndi_source_name: "KRISTA-SHOWPUTER-01 (TouchDesigner)"
+- To: "KRISTA-SHOWPUTER-01 (TD-LiveKit-Output)"
+
+========================================================================
+NEXT STEPS
+========================================================================
+
+1. RESTART OBS (Required!)
+   - Close OBS completely
+   - Reopen OBS
+   - Changes will take effect
+
+2. VERIFY NDI SOURCE
+   - In OBS, check that NDI Source is receiving video
+   - Source should show: "KRISTA-SHOWPUTER-01 (TD-LiveKit-Output)"
+
+3. START STREAMING
+   - Click "Start Streaming" in OBS
+   - Should connect to LiveKit processed-output room
+   - No more HTTP 200 errors!
+
+4. TEST COMPLETE FLOW
+   - Publisher.html → Send camera
+   - TouchDesigner → Receive and process
+   - OBS → Stream to LiveKit
+   - return-viewer.html → Show final output
+
+========================================================================
+YOUR COMPLETE VIDEO PIPELINE (Updated)
+========================================================================
+
+[Browser Camera]
+      ↓
+[publisher.html]
+      ↓
+[LiveKit "claymation-live"]
+      ↓
+[TouchDesigner Web Render TOP]
+      ↓
+[TD Effects Processing]
+      ↓
+[NDI Out "TD-LiveKit-Output"] ← OBS FIXED TO MATCH THIS!
+      ↓
+[OBS Studio] ← FRESH WHIP TOKEN CONFIGURED!
+      ↓
+[LiveKit "processed-output"]
+      ↓
+[return-viewer.html]
+
+========================================================================
+CONFIGURATION SUMMARY
+========================================================================
+
+NDI SOURCE IN OBS:
+  Looking for: KRISTA-SHOWPUTER-01 (TD-LiveKit-Output)
+  Status: CONFIGURED ✓
+
+WHIP STREAMING:
+  URL: https://claymation-transcription-l6e51sws.livekit.cloud/whip
+  Room: processed-output
+  Token: Fresh (valid for 24 hours)
+  Status: CONFIGURED ✓
+
+========================================================================
+TROUBLESHOOTING
+========================================================================
+
+IF NDI SOURCE SHOWS NO VIDEO:
+  - Make sure TouchDesigner is running
+  - Check that TD has an NDI Out TOP named "TD-LiveKit-Output"
+  - Verify NDI output is active in TD
+
+IF STREAMING STILL FAILS:
+  - Check OBS log: %APPDATA%\obs-studio\logs\
+  - Look for new HTTP errors
+  - May need to regenerate token if expired
+
+IF VIDEO DOESN'T APPEAR IN RETURN VIEWER:
+  - Verify OBS is streaming (green indicator)
+  - Check that streaming is to "processed-output" room
+  - Open return-viewer.html: 
+    https://liquid-milk-balls-web-production-2e8c.up.railway.app/return-viewer.html
+
+========================================================================
+HOW TO REGENERATE TOKENS (If Needed)
+========================================================================
+
+Run this command from liquid-milk-balls-web folder:
+
+python -c "import requests; r = requests.get('https://liquid-milk-balls-web-production-2e8c.up.railway.app/api/processed-publisher-token'); print(r.json()['whipUrl'])"
+
+Then update the server field in:
+C:\Users\krista-showputer\AppData\Roaming\obs-studio\basic\profiles\Untitled\service.json
+
+========================================================================
+STATUS: READY TO STREAM!
+========================================================================
+
+✓ NDI source name fixed
+✓ WHIP token refreshed
+✓ Configuration files updated
+✓ Ready to restart OBS
+
+RESTART OBS NOW to apply all changes!
+
+========================================================================

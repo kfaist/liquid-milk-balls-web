@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>getUserMedia Test</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { background: #111; color: #fff; font-family: monospace; padding: 2rem; }
+    video { width: 640px; height: 360px; background: #000; border: 1px solid #333; display:block; margin-bottom:1rem; }
+    pre { background:#000; border:1px solid #222; padding:1rem; max-width: 640px; white-space:pre-wrap; }
+    button { padding: 0.5rem 1rem; font-family: monospace; margin-right:0.5rem; }
+    .note { opacity: 0.8; font-size: 0.9rem; margin-top: 1rem;}
+  </style>
+</head>
+<body>
+  <h2>getUserMedia Isolation Test</h2>
+  <video id="video" autoplay playsinline></video>
+  <div>
+    <button id="start">Start Camera</button>
+    <button id="stop" disabled>Stop Camera</button>
+  </div>
+  <pre id="log">Status: idle</pre>
+  <p class="note">Tip: open this in Chrome on the TouchDesigner machine first. If Chrome works and TD WebRender doesn't, it's a TD/CEF permission issue.</p>
+  <script>
+    const startBtn = document.getElementById('start');
+    const stopBtn = document.getElementById('stop');
+    const videoEl = document.getElementById('video');
+    const logEl = document.getElementById('log');
+    let stream = null;
+    function log(s) {
+      const ts = new Date().toISOString();
+      logEl.textContent += "\n[" + ts + "] " + s;
+      logEl.scrollTop = logEl.scrollHeight;
+      console.log(s);
+    }
+    startBtn.addEventListener('click', async () => {
+      try {
+        log('Requesting camera...');
+        stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: false });
+        videoEl.srcObject = stream;
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        log('Camera started — stream active.');
+      } catch (err) {
+        log('getUserMedia error: ' + (err.name || err) + ' — ' + (err.message || ''));
+        alert('getUserMedia error: check console or the log area.');
+      }
+    });
+    stopBtn.addEventListener('click', () => {
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+        stream = null;
+        videoEl.srcObject = null;
+        log('Camera stopped.');
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+      }
+    });
+    // auto-start if URL has ?autostart=1
+    if (location.search.indexOf('autostart=1') !== -1) {
+      startBtn.click();
+    }
+  </script>
+</body>
+</html>
