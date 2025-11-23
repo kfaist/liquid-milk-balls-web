@@ -13,7 +13,6 @@
             color: rgba(255, 255, 255, 0.9);
             padding: 2rem;
             line-height: 1.6;
-            overflow-x: hidden;
         }
 
         .container {
@@ -127,7 +126,6 @@
             font-size: 0.85rem;
             opacity: 0.6;
             letter-spacing: 0.05em;
-            position: absolute;
         }
 
         .expand-btn {
@@ -136,7 +134,7 @@
             right: 0.5rem;
             padding: 0.4rem 0.8rem;
             font-size: 0.7rem;
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             background: rgba(0, 0, 0, 0.7);
             color: #fff;
             cursor: pointer;
@@ -145,28 +143,23 @@
             transition: all 0.2s;
             z-index: 10;
             line-height: 1;
-            opacity: 0.5;
         }
 
         .expand-btn:hover {
             border-color: #fff;
             background: rgba(255, 255, 255, 0.05);
-            opacity: 1;
         }
 
         .btn {
             padding: 0.4rem 0.8rem;
             font-size: 0.7rem;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: transparent;
             color: #fff;
             cursor: pointer;
             transition: all 0.2s;
             font-family: 'JetBrains Mono', monospace;
             letter-spacing: 0.05em;
-            z-index: 10;
-            position: relative;
-            opacity: 0.5;
         }
 
         #startBtn {
@@ -185,7 +178,6 @@
         .btn:hover:not(:disabled) {
             border-color: #fff;
             background: rgba(255, 255, 255, 0.05);
-            opacity: 1;
         }
 
         .btn:disabled {
@@ -216,7 +208,6 @@
             opacity: 0;
             animation: dropAppear 3s ease-out forwards;
             filter: blur(0.5px);
-            z-index: 9999;
         }
 
         /* Ripple effect - VERY subtle with rainbow gradient halo */
@@ -287,29 +278,6 @@
             }
         }
 
-        @keyframes rippleSubtle {
-            0% {
-                opacity: 0.3;
-                transform: translate(-50%, -50%) scale(1);
-            }
-            30% {
-                opacity: 0.15;
-            }
-            100% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(2.5);
-            }
-        }
-
-        /* Splash droplets that spray from impact */
-        .splash-droplet {
-            position: absolute;
-            border-radius: 50%;
-            pointer-events: none;
-            animation: splashDroplet 0.6s ease-out forwards;
-            z-index: 9999;
-        }
-
         @keyframes splashDroplet {
             0% {
                 opacity: 0.8;
@@ -321,6 +289,28 @@
             100% {
                 opacity: 0;
                 transform: translate(var(--tx), var(--ty)) scale(0);
+            }
+        }
+
+        /* Splash droplets that spray from impact */
+        .splash-droplet {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: splashDroplet 0.6s ease-out forwards;
+        }
+
+        @keyframes rippleSubtle {
+            0% {
+                opacity: 0.3;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            30% {
+                opacity: 0.15;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(2.5);
             }
         }
 
@@ -347,7 +337,6 @@
             background-size: 200% 100%;
             animation: shimmerMove 8s ease-in-out infinite;
             mix-blend-mode: screen;
-            z-index: 5;
         }
 
         @keyframes shimmerMove {
@@ -492,6 +481,31 @@
 
         .about-section ol li {
             padding: 0.5rem 0;
+            padding-left: 0;
+        }
+
+        .about-section ol li:before {
+            content: none;
+        }
+
+        .about-section ul {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .about-section ul li {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            padding: 0.5rem 0;
+            opacity: 0.7;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .about-section ul li:before {
+            content: "—";
+            position: absolute;
+            left: 0;
         }
 
         .about-section a {
@@ -546,7 +560,6 @@
                         <button class="expand-btn" id="expandBtn">↗</button>
                         <div class="video-shimmer" id="remoteShimmer"></div>
                         <video id="remoteVideo" autoplay playsinline></video>
-                        <div class="video-status">Waiting for connection...</div>
                     </div>
                     <div class="remote-controls">
                         <button class="btn" id="connectBtn" disabled>Connect</button>
@@ -555,8 +568,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="status">Ready to start</div>
         </div>
 
         <!-- About Section -->
@@ -567,6 +578,8 @@
             <p>Built on open protocols (WebRTC, LiveKit, NDI), the work operates as distributed infrastructure - each interaction exists simultaneously across multiple nodes: browser, server, and optional processing environments. This architecture enables the piece to function as both a self-contained web experience and as material for live visual manipulation through tools like TouchDesigner.</p>
 
             <p>The work implements a temporal access model: seven minutes of unmediated experience, followed by progressive visual markers that reveal the piece's constructed nature. This durational framework questions assumptions about digital permanence and the economics of networked art.</p>
+
+            <p>Technical implementation merges web-native technologies with broadcast/VJ workflows, positioning the work within lineages of video feedback art (Steina & Woody Vasulka), telepresence projects (Kit Galloway & Sherrie Rabinowitz's <em>Satellite Arts</em>), and contemporary networked performance practices.</p>
 
             <div style="margin: 2rem 0; padding: 2rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">
                 <p style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 2; color: rgba(255,255,255,0.6); letter-spacing: 0.05em;">
@@ -601,6 +614,9 @@
                     <li><strong>OBS Capture:</strong> Add NDI Source in OBS to receive processed video from TD</li>
                     <li><strong><a href="/return-viewer.html">Return Viewer Page</a>:</strong> Remote user views processed video with fullscreen option</li>
                 </ol>
+                <p style="margin-top: 1rem; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 4px;">
+                    <strong>Signal Path:</strong> Remote Camera → LiveKit → OBS → NDI → TouchDesigner (process) → NDI → Back to Remote Viewer in Real-Time
+                </p>
             </div>
         </section>
 
@@ -645,7 +661,8 @@
                         <li>TouchDesigner/LiveKit integration consultation</li>
                         <li>Custom configuration assistance</li>
                     </ul>
-                    <a href="mailto:kristabluedoor@gmail.com?subject=Exhibition License Inquiry" class="tier-cta" style="width: 100%; display: block; box-sizing: border-box;">Purchase Exhibition License - $400</a>
+                    <button class="tier-cta" id="purchaseLicenseBtn" style="width: 100%; margin-bottom: 0.5rem;">Purchase Exhibition License - $400</button>
+                    <a href="mailto:kristabluedoor@gmail.com?subject=Technical Residency Inquiry" class="tier-cta" style="width: 100%; display: block; box-sizing: border-box;">Book Technical Residency</a>
                 </div>
 
                 <!-- Institutional Partnership Tier -->
@@ -667,13 +684,29 @@
             </div>
         </section>
 
+        <!-- Interaction -->
+        <section class="about-section">
+            <h2>Interaction</h2>
+            <p>The work responds to presence through multiple modes of engagement. Each interaction generates visual echoes that accumulate temporally within the system.</p>
+
+            <p style="margin-top: 1.5rem;"><strong>Mirror Interface:</strong></p>
+            <p style="margin-left: 2rem; margin-bottom: 1rem; line-height: 1.8; opacity: 0.8;">
+                Direct interaction with the circular interface generates ripple formations. Accumulated interactions trigger chromatic shifts every five engagements. The Clear function returns the system to its initial state.
+            </p>
+
+            <p style="margin-top: 1.5rem;"><strong>Video Transmission:</strong></p>
+            <p style="margin-left: 2rem; line-height: 1.8; opacity: 0.8;">
+                WebRTC protocols enable peer-to-peer video transmission. Local and remote streams establish reciprocal viewing positions. The work's temporal markers emerge after seven minutes of sustained connection, revealing the constructed nature of the experience.
+            </p>
+        </section>
+
         <footer style="text-align: center; padding: 3rem 0 2rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; opacity: 0.5; letter-spacing: 0.05em;">
             © 2025 The Mirror's Echo
         </footer>
     </div>
 
     <script>
-        // Expand/Collapse functionality
+        // Expand functionality
         const expandBtn = document.getElementById('expandBtn');
         const videoGrid = document.getElementById('videoGrid');
         const localBox = document.getElementById('localBox');
@@ -692,7 +725,7 @@
             }
         });
 
-        // Simple camera demo
+        // WebRTC functionality
         const startBtn = document.getElementById('startBtn');
         const connectBtn = document.getElementById('connectBtn');
         const disconnectBtn = document.getElementById('disconnectBtn');
@@ -710,9 +743,6 @@
                 });
                 localVideo.srcObject = stream;
                 connectBtn.disabled = false;
-
-                // Start temporal effects timer
-                startTemporalEffects();
             } catch (error) {
                 console.error('Camera error:', error);
                 startBtn.disabled = false;
@@ -721,8 +751,11 @@
 
         connectBtn.addEventListener('click', () => {
             connectBtn.disabled = true;
-            disconnectBtn.disabled = false;
-            fullscreenBtn.disabled = false;
+
+            setTimeout(() => {
+                disconnectBtn.disabled = false;
+                fullscreenBtn.disabled = false;
+            }, 1000);
         });
 
         disconnectBtn.addEventListener('click', () => {
@@ -732,20 +765,77 @@
         });
 
         fullscreenBtn.addEventListener('click', () => {
-            const container = remoteVideo.parentElement;
-            if (container.requestFullscreen) {
-                container.requestFullscreen();
-            } else if (container.webkitRequestFullscreen) {
-                container.webkitRequestFullscreen();
+            if (remoteVideo.requestFullscreen) {
+                remoteVideo.requestFullscreen();
+            } else if (remoteVideo.webkitRequestFullscreen) {
+                remoteVideo.webkitRequestFullscreen();
             }
         });
+    </script>
 
-        // ==========================================
-        // TEMPORAL WATERMARK EFFECTS
-        // Progressive rainbow raindrop cascade
-        // ==========================================
+    <!-- Stripe Checkout -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        // Initialize Stripe with publishable key from server
+        let stripeInstance = null;
 
-        // Polychroma color palette - white iridescent
+        // Fetch Stripe configuration on page load
+        async function initializeStripe() {
+            try {
+                const response = await fetch('/api/stripe-config');
+                if (response.ok) {
+                    const { publishableKey } = await response.json();
+                    stripeInstance = Stripe(publishableKey);
+                }
+            } catch (error) {
+                console.log('Stripe not configured:', error);
+            }
+        }
+
+        initializeStripe();
+
+        const purchaseBtn = document.getElementById('purchaseLicenseBtn');
+
+        if (purchaseBtn) {
+            purchaseBtn.addEventListener('click', async () => {
+                purchaseBtn.disabled = true;
+                purchaseBtn.textContent = 'Loading...';
+
+                try {
+                    const response = await fetch('/api/create-checkout-session', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Payment system unavailable');
+                    }
+
+                    const { sessionId } = await response.json();
+
+                    if (stripeInstance) {
+                        const { error } = await stripeInstance.redirectToCheckout({ sessionId });
+                        if (error) {
+                            throw new Error(error.message);
+                        }
+                    } else {
+                        throw new Error('Payment system not configured. Please contact kristabluedoor@gmail.com to complete purchase.');
+                    }
+
+                } catch (error) {
+                    console.error('Checkout error:', error);
+                    alert(error.message || 'Unable to start checkout. Please contact kristabluedoor@gmail.com');
+                    purchaseBtn.disabled = false;
+                    purchaseBtn.textContent = 'Purchase Exhibition License - $400';
+                }
+            });
+        }
+    </script>
+
+    <!-- Temporal Effects: Rainbow Raindrops & Shimmer -->
+    <script>
+        // White iridescent color palette
         const polychromaColors = [
             'rgba(255, 255, 255, 0.8)',
             'rgba(255, 245, 255, 0.8)',
@@ -758,12 +848,15 @@
             'rgba(248, 248, 255, 0.8)'
         ];
 
+        let timeElapsed = 0;
         let rainInterval = null;
         let effectsStarted = false;
-        let startTime = null;
 
         const localShimmer = document.getElementById('localShimmer');
         const remoteShimmer = document.getElementById('remoteShimmer');
+
+        // Start timer when page loads
+        const startTime = Date.now();
 
         function createRaindrop(intensity) {
             const drop = document.createElement('div');
@@ -776,7 +869,6 @@
 
             const color = polychromaColors[Math.floor(Math.random() * polychromaColors.length)];
 
-            // Progressive opacity
             const opacityStep = Math.floor(intensity * 3);
             const baseOpacity = 0.15 + (opacityStep * 0.15);
             const finalOpacity = baseOpacity + (intensity * 0.2);
@@ -801,7 +893,6 @@
 
             document.body.appendChild(drop);
 
-            // Splash droplets at high intensity
             if (intensity > 0.6) {
                 const splashCount = Math.floor(2 + (intensity - 0.6) * 10);
                 for (let i = 0; i < splashCount; i++) {
@@ -833,59 +924,63 @@
             setTimeout(() => drop.remove(), duration * 1000);
         }
 
-        function startTemporalEffects() {
-            // ALWAYS start effects immediately at full intensity
-            startTime = Date.now() - (10 * 60 * 1000); // Start at 10:00 (maximum intensity)
-            console.log('Effects starting immediately at maximum intensity!');
+        function updateEffects() {
+            timeElapsed = (Date.now() - startTime) / 1000;
 
-            effectsStarted = true;
+            // Start effects at 7 minutes (420 seconds)
+            if (timeElapsed >= 420 && !effectsStarted) {
+                effectsStarted = true;
+                console.log('Starting temporal effects at 7 minutes');
 
-            // Fade in shimmers immediately
-            if (localShimmer) {
-                localShimmer.style.transition = 'opacity 2s ease-in';
-                localShimmer.style.opacity = '1';
-            }
-            if (remoteShimmer) {
-                remoteShimmer.style.transition = 'opacity 2s ease-in';
-                remoteShimmer.style.opacity = '1';
-            }
-
-            // Start raindrops immediately
-            startRaindrops();
-        }
-
-        function startRaindrops() {
-            if (rainInterval) return;
-
-            rainInterval = setInterval(() => {
-                const currentElapsed = (Date.now() - startTime) / 1000;
-                const intensity = Math.min((currentElapsed - 420) / 180, 1.0);
-
-                let dropProbability;
-                if (intensity < 0.2) {
-                    dropProbability = 0.05;
-                } else if (intensity < 0.4) {
-                    dropProbability = 0.1;
-                } else if (intensity < 0.6) {
-                    dropProbability = 0.2;
-                } else if (intensity < 0.8) {
-                    dropProbability = 0.6;
-                } else {
-                    dropProbability = 2 + (intensity * 12);
+                if (localShimmer) {
+                    localShimmer.style.transition = 'opacity 30s ease-in';
+                    localShimmer.style.opacity = '1';
                 }
+                if (remoteShimmer) {
+                    remoteShimmer.style.transition = 'opacity 30s ease-in';
+                    remoteShimmer.style.opacity = '1';
+                }
+            }
 
-                if (Math.random() < dropProbability) {
-                    createRaindrop(intensity);
+            // Raindrops: Start at 7min, increase intensity until 10min
+            if (timeElapsed >= 420) {
+                const intensity = Math.min((timeElapsed - 420) / 180, 1.0);
 
-                    if (intensity > 0.8) {
-                        const extraDrops = Math.floor(Math.random() * (intensity * 8));
-                        for (let i = 0; i < extraDrops; i++) {
-                            setTimeout(() => createRaindrop(intensity), Math.random() * 1000);
+                if (!rainInterval) {
+                    rainInterval = setInterval(() => {
+                        const currentElapsed = (Date.now() - startTime) / 1000;
+                        const currentIntensity = Math.min((currentElapsed - 420) / 180, 1.0);
+
+                        let dropProbability;
+                        if (currentIntensity < 0.2) {
+                            dropProbability = 0.05;
+                        } else if (currentIntensity < 0.4) {
+                            dropProbability = 0.1;
+                        } else if (currentIntensity < 0.6) {
+                            dropProbability = 0.2;
+                        } else if (currentIntensity < 0.8) {
+                            dropProbability = 0.6;
+                        } else {
+                            dropProbability = 2 + (currentIntensity * 12);
                         }
-                    }
+
+                        if (Math.random() < dropProbability) {
+                            createRaindrop(currentIntensity);
+
+                            if (currentIntensity > 0.8) {
+                                const extraDrops = Math.floor(Math.random() * (currentIntensity * 8));
+                                for (let i = 0; i < extraDrops; i++) {
+                                    setTimeout(() => createRaindrop(currentIntensity), Math.random() * 1000);
+                                }
+                            }
+                        }
+                    }, 1000);
                 }
-            }, 1000);
+            }
         }
+
+        // Run effect checker every second
+        setInterval(updateEffects, 1000);
     </script>
 </body>
 </html>
