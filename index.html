@@ -120,13 +120,49 @@
     </style>
 </head>
 <body>
+    <!-- Watermark overlay - appears OVER everything at 8+ minutes (not capturable by OBS) -->
+    <div id="watermark-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></div>
+
     <div class="container">
         <header>
             <h1 class="title">The Mirror's Echo</h1>
-            <p class="subtitle">The Mirror's Echo operates as an unlimited edition under open-source principles. Exhibition licensing and institutional partnerships are available - contact kristabluedoor@gmail.com for details.</p>
+            <div class="licensing-statement">
+                <p>The Mirror's Echo operates as an unlimited edition under open-source principles (AGPL-3.0), ensuring accessibility while sustaining ongoing development. Exhibition licenses and institutional partnerships support the continued evolution of networked digital art practices.</p>
+                <p style="margin-top: 1.5rem;">
+                    <strong>Artist/Technical:</strong> <a href="mailto:kristabluedoor@gmail.com">kristabluedoor@gmail.com</a><br>
+                    <strong>Curatorial/Institutional:</strong> <a href="mailto:chaoscontemporarycraft@gmail.com">chaoscontemporarycraft@gmail.com</a>
+                </p>
+            </div>
         </header>
-        
+
         <main>
+            <section class="webrtc-section">
+                <h2>WebRTC Preview</h2>
+                <div class="video-container">
+                    <div class="video-wrapper video-wrapper-local">
+                        <h3>Local Camera</h3>
+                        <video id="localVideo" autoplay muted playsinline></video>
+                        <button class="popout-button popout-button-local" id="popoutBtnLocal" style="display: none;"></button>
+                    </div>
+                    <div class="video-wrapper video-wrapper-remote">
+                        <h3>Remote Stream</h3>
+                        <video id="remoteVideo" autoplay playsinline></video>
+                        <button class="popout-button" id="popoutBtn" style="display: none;"></button>
+                    </div>
+                </div>
+
+                <div class="webrtc-controls">
+                    <button class="btn" id="startCameraBtn">Start Camera</button>
+                    <button class="btn" id="stopCameraBtn" disabled>Stop Camera</button>
+                    <button class="btn" id="startCallBtn" disabled>Start WebRTC Call</button>
+                    <button class="btn" id="hangupBtn" disabled>Hang Up</button>
+                </div>
+
+                <div class="webrtc-status">
+                    <p id="statusText">Ready to start</p>
+                </div>
+            </section>
+
             <section class="echo-section">
                 <div class="mirror-container">
                     <div class="mirror" id="mirror"></div>
@@ -189,10 +225,6 @@
             <section class="payment-section">
                 <h2>Licensing & Access</h2>
 
-                <div class="licensing-statement">
-                    <p>The Mirror's Echo operates as an unlimited edition under open-source principles (AGPL-3.0), ensuring accessibility while sustaining ongoing development. Exhibition licenses and institutional partnerships support the continued evolution of networked digital art practices.</p>
-                </div>
-
                 <div class="payment-tiers">
                     <!-- Unlimited Edition Tier -->
                     <div class="payment-tier">
@@ -239,8 +271,8 @@
                     <!-- Institutional Partnership Tier -->
                     <div class="payment-tier">
                         <div class="tier-header">
-                            <div class="tier-price">Bespoke</div>
-                            <h3 class="tier-title">Institutional Partnership</h3>
+                            <div class="tier-price">Contact</div>
+                            <h3 class="tier-title">Curatorial & Institutional Partnership</h3>
                         </div>
                         <p class="tier-description">
                             For galleries, museums, and biennials. Comprehensive partnership with curatorial consultation and on-site residency throughout the exhibition period.
@@ -253,43 +285,6 @@
                         <a href="mailto:chaoscontemporarycraft@gmail.com?subject=Institutional Partnership" class="tier-cta">Initiate Partnership</a>
                     </div>
                 </div>
-
-                <div style="margin-top: 3rem;"></div>
-
-                <div class="contact-info">
-                    <p>
-                        <strong>Artist/Technical:</strong> <a href="mailto:kristabluedoor@gmail.com">kristabluedoor@gmail.com</a><br>
-                        <strong>Curatorial/Institutional:</strong> <a href="mailto:chaoscontemporarycraft@gmail.com">chaoscontemporarycraft@gmail.com</a>
-                    </p>
-                </div>
-            </section>
-
-            <section class="webrtc-section">
-                <h2>WebRTC Preview</h2>
-                <div class="video-container">
-                    <div class="video-wrapper video-wrapper-local">
-                        <h3>Local Camera</h3>
-                        <video id="localVideo" autoplay muted playsinline></video>
-                        <button class="popout-button popout-button-local" id="popoutBtnLocal" style="display: none;"></button>
-                    </div>
-                    <div class="video-wrapper video-wrapper-remote">
-                        <h3>Remote Stream</h3>
-                        <video id="remoteVideo" autoplay playsinline></video>
-                        <button class="popout-button" id="popoutBtn" style="display: none;"></button>
-                    </div>
-                </div>
-
-                <div class="webrtc-controls">
-                    <button class="btn" id="startCameraBtn">Start Camera</button>
-                    <button class="btn" id="stopCameraBtn" disabled>Stop Camera</button>
-                    <button class="btn" id="startCallBtn" disabled>Start WebRTC Call</button>
-                    <button class="btn" id="hangupBtn" disabled>Hang Up</button>
-                </div>
-
-                <div class="webrtc-status">
-                    <p id="statusText">Ready to start</p>
-                </div>
-
             </section>
 
             <section class="about-section">
@@ -351,22 +346,15 @@
         const observer = new MutationObserver(() => {
             if (remoteVideo.srcObject) {
                 popoutBtn.style.display = 'flex';
-                remoteWrapper.style.cursor = 'pointer';
+                remoteWrapper.classList.add('connected'); // Expand when stream connects
             } else {
                 popoutBtn.style.display = 'none';
-                remoteWrapper.style.cursor = 'default';
+                remoteWrapper.classList.remove('connected'); // Shrink when disconnected
             }
         });
         observer.observe(remoteVideo, { attributes: true, attributeFilter: ['srcObject'] });
 
-        // Hover over entire remote video area to popup
-        remoteWrapper.addEventListener('mouseenter', () => {
-            if (remoteVideo.srcObject) {
-                openPopup();
-            }
-        });
-
-        // Click button to popup (backup)
+        // Click to open fullscreen popup
         popoutBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             openPopup();
@@ -400,26 +388,97 @@
         const localObserver = new MutationObserver(() => {
             if (localVideo.srcObject) {
                 popoutBtnLocal.style.display = 'flex';
-                localWrapper.style.cursor = 'pointer';
+                localWrapper.classList.add('connected'); // Expand when camera starts
             } else {
                 popoutBtnLocal.style.display = 'none';
-                localWrapper.style.cursor = 'default';
+                localWrapper.classList.remove('connected'); // Shrink when camera stops
             }
         });
         localObserver.observe(localVideo, { attributes: true, attributeFilter: ['srcObject'] });
 
-        // Hover over entire local video area to popup
-        localWrapper.addEventListener('mouseenter', () => {
-            if (localVideo.srcObject) {
-                openLocalPopup();
-            }
-        });
-
-        // Click button to popup (backup)
+        // Click to open fullscreen popup
         popoutBtnLocal.addEventListener('click', (e) => {
             e.stopPropagation();
             openLocalPopup();
         });
+
+        // PLAYFUL CLICK INTERACTION (0-8 minutes)
+        // Clicking creates raindrops on video/mirror elements (capturable by camera/OBS)
+        const mirror = document.getElementById('mirror');
+        let clickCount = 0; // Track total clicks for phase progression
+        let raindropColorIndex = 0; // For color cycling
+
+        // Function to create playful raindrops (inside capturable elements)
+        function createPlayfulRaindrops() {
+            const containers = [
+                document.querySelector('.video-wrapper-local'),
+                document.querySelector('.video-wrapper-remote'),
+                document.querySelector('.mirror')
+            ];
+
+            // More raindrops = more fun! 5-8 drops per click
+            const dropCount = 5 + Math.floor(Math.random() * 4);
+
+            for (let i = 0; i < dropCount; i++) {
+                setTimeout(() => {
+                    const container = containers[Math.floor(Math.random() * containers.length)];
+                    if (!container) return;
+
+                    const raindrop = document.createElement('div');
+                    raindrop.className = 'video-raindrop';
+
+                    const x = Math.random() * 100;
+                    const y = Math.random() * 100;
+                    raindrop.style.left = x + '%';
+                    raindrop.style.top = y + '%';
+
+                    // Color cycles through rainbow every 3 clicks
+                    const hue = (Math.floor(raindropColorIndex / 3) * 40) % 360;
+                    const size = 60 + Math.random() * 120;
+                    const duration = 1.2 + Math.random() * 0.8;
+
+                    raindrop.style.width = size + 'px';
+                    raindrop.style.height = size + 'px';
+                    raindrop.style.border = `3px solid hsla(${hue}, 85%, 65%, 0.9)`;
+                    raindrop.style.animation = `raindropRipple ${duration}s ease-out forwards`;
+
+                    container.appendChild(raindrop);
+                    raindropColorIndex++;
+
+                    setTimeout(() => raindrop.remove(), duration * 1000);
+                }, i * 150); // Faster stagger for more chaos
+            }
+        }
+
+        // Update shimmer phase based on click count
+        function updatePhaseFromClicks() {
+            const body = document.body;
+            body.classList.remove('temporal-phase-1', 'temporal-phase-2', 'temporal-phase-3', 'temporal-phase-4');
+
+            // Gradually increase phase: 0-10 clicks = phase 1, 11-20 = phase 2, etc.
+            if (clickCount > 30) {
+                body.classList.add('temporal-phase-4');
+            } else if (clickCount > 20) {
+                body.classList.add('temporal-phase-3');
+            } else if (clickCount > 10) {
+                body.classList.add('temporal-phase-2');
+            } else if (clickCount > 3) {
+                body.classList.add('temporal-phase-1');
+            }
+        }
+
+        if (mirror) {
+            mirror.addEventListener('click', () => {
+                clickCount++;
+                console.log(`Click ${clickCount} - Creating playful raindrops`);
+
+                // Create raindrops on capturable elements
+                createPlayfulRaindrops();
+
+                // Update shimmer phase
+                updatePhaseFromClicks();
+            });
+        }
     </script>
 
     <!-- Stripe Checkout -->

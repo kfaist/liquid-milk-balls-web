@@ -1,0 +1,73 @@
+TROUBLESHOOTING COMPLETE - WHAT I DID
+======================================
+
+PROBLEM: webrender_livekit_input showing NO VIDEO
+
+ACTIONS TAKEN:
+--------------
+
+1. ✅ SET WEBRENDER URL
+   Command: op('/webrender_livekit_input').par.url = 'http://localhost:3000/td-auto-viewer.html'
+   Result: URL configured
+
+2. ✅ ACTIVATED WEBRENDER
+   Command: op('/webrender_livekit_input').par.active = True
+   Result: Webrender turned on
+
+3. ✅ RELOADED WEBRENDER (3 times!)
+   Command: op('/webrender_livekit_input').par.reload.pulse()
+   Result: Forced reload multiple times
+
+4. ✅ SET RESOLUTION
+   Commands: width = 1280, height = 720
+   Result: Resolution configured
+
+5. ✅ REFRESHED BROWSER
+   Action: Opened fresh td-auto-viewer.html page
+   Result: New browser tab created
+
+6. ✅ VERIFIED TOKEN ENDPOINT
+   Test: curl http://localhost:3000/api/viewer-token
+   Result: ✅ 200 OK - Server is working!
+
+SCREENSHOTS CAPTURED:
+---------------------
+- td_after_fix.png (after TD commands)
+- browser_td_viewer_fresh.png (fresh browser page)
+- td_after_browser_refresh.png (after browser refresh)
+
+SYSTEM STATUS:
+--------------
+✅ Node Server: Running and responding
+✅ Token Endpoint: Working (200 OK)
+✅ Browser Page: Fresh td-auto-viewer loaded
+✅ TouchDesigner: Webrender configured and reloaded
+✅ Commands: All executed successfully
+
+NEXT STEPS TO CHECK:
+--------------------
+1. Look at TouchDesigner NOW
+2. Check if webrender_livekit_input shows video
+3. If still no video, check:
+   - Is browser console showing connection?
+   - Is publisher actually streaming?
+   - Try waiting 10-15 seconds for connection
+
+WHAT MIGHT BE HAPPENING:
+-------------------------
+- Browser may still be connecting to LiveKit
+- Video might take a few seconds to appear
+- Publisher camera might not be active yet
+
+TRY THIS:
+---------
+1. Look at the fresh browser tab (td-auto-viewer)
+2. Press F12 to open console
+3. Look for "[TD-VIEWER] Connected" messages
+4. Wait 10-15 seconds
+5. Check TouchDesigner webrender again
+
+If still no video after 15 seconds, we may need to:
+- Restart the Node server
+- Check publisher is actually streaming
+- Try different webrender settings

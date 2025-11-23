@@ -1,8 +1,5 @@
 /* The Mirror's Echo - Styles */
 
-/* Import JetBrains Mono from Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap');
-
 * {
     margin: 0;
     padding: 0;
@@ -10,7 +7,7 @@
 }
 
 body {
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-family: monospace;
     background: #000000;
     min-height: 100vh;
     display: flex;
@@ -18,6 +15,17 @@ body {
     justify-content: center;
     color: #ffffff;
     overflow-x: hidden;
+}
+
+/* Global header font - Bold monospace for all headers */
+h1, h2, h3, h4, h5, h6 {
+    font-family: monospace;
+    font-weight: 700;
+}
+
+/* All other text uses system monospace */
+p, a, li, span, button, input, textarea {
+    font-family: monospace;
 }
 
 /* Clean, visible link styling */
@@ -45,7 +53,8 @@ header {
 }
 
 .title {
-    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
+    font-family: monospace;
+    font-weight: 700;
     font-size: 3.5rem;
     font-weight: 700;
     text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.1);
@@ -55,7 +64,8 @@ header {
 }
 
 .subtitle {
-    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
+    font-family: monospace;
+    font-weight: 700;
     font-size: 1.2rem;
     opacity: 0.7;
     font-style: italic;
@@ -86,7 +96,7 @@ header {
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 3px solid #ffffff;
+    border: 1px solid #ffffff;
     box-shadow: 
         inset 0 0 80px rgba(255, 255, 255, 0.05),
         0 0 60px rgba(255, 255, 255, 0.2);
@@ -113,11 +123,11 @@ header {
     background: linear-gradient(
         45deg,
         transparent,
-        rgba(255, 255, 255, 0.03),
+        rgba(255, 255, 255, 0.1),
         transparent
     );
     transform: rotate(45deg);
-    animation: shimmer 4s infinite;
+    animation: shimmer 3s infinite;
 }
 
 .echo-text {
@@ -143,7 +153,7 @@ header {
 }
 
 .btn {
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-family: monospace;
     padding: 1rem 2rem;
     font-size: 1.1rem;
     border: 2px solid #ffffff;
@@ -198,7 +208,8 @@ header {
 }
 
 .about-section h2 {
-    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
+    font-family: monospace;
+    font-weight: 700;
     font-size: 2rem;
     margin-bottom: 1rem;
     color: #ffffff;
@@ -239,7 +250,8 @@ header {
 }
 
 .webrtc-section h2 {
-    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
+    font-family: monospace;
+    font-weight: 700;
     font-size: 2rem;
     margin-bottom: 1.5rem;
     text-align: center;
@@ -247,7 +259,8 @@ header {
 }
 
 .webrtc-section h3 {
-    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
+    font-family: monospace;
+    font-weight: 700;
     font-size: 1.2rem;
     margin-bottom: 0.5rem;
     text-align: center;
@@ -283,13 +296,15 @@ header {
 }
 
 .video-wrapper-local {
-    flex: 1;
+    flex: 1 1 0;
     max-width: 800px;
+    min-width: 280px;
 }
 
 .video-wrapper-remote {
-    flex: 1;
+    flex: 1 1 0;
     max-width: 800px;
+    min-width: 280px;
 }
 
 .video-wrapper video {
@@ -511,20 +526,45 @@ footer {
     position: absolute;
     border-radius: 50%;
     pointer-events: none;
-    overflow: hidden;
+    overflow: visible; /* Let glow extend beyond bounds */
     background: radial-gradient(
-        circle at 30% 30%,
-        hsla(var(--raindrop-hue, 200), 70%, 70%, var(--raindrop-intensity, 0.3)) 0%,
-        hsla(var(--raindrop-hue, 200), 70%, 60%, calc(var(--raindrop-intensity, 0.3) * 0.6)) 30%,
-        hsla(var(--raindrop-hue, 200), 70%, 50%, calc(var(--raindrop-intensity, 0.3) * 0.3)) 60%,
+        circle at 40% 40%,
+        hsla(var(--raindrop-hue, 200), 95%, 85%, 0.7) 0%,
+        hsla(var(--raindrop-hue, 200), 90%, 75%, 0.5) 20%,
+        hsla(var(--raindrop-hue, 200), 85%, 65%, 0.3) 40%,
+        hsla(var(--raindrop-hue, 200), 80%, 55%, 0.15) 60%,
         transparent 100%
     );
     box-shadow:
-        inset 0 0 20px hsla(var(--raindrop-hue, 200), 70%, 70%, calc(var(--raindrop-intensity, 0.3) * 0.8)),
-        0 0 30px hsla(var(--raindrop-hue, 200), 70%, 60%, calc(var(--raindrop-intensity, 0.3) * 0.4));
-    backdrop-filter: blur(4px);
+        /* Inner glow - bright core */
+        inset 0 0 30px hsla(var(--raindrop-hue, 200), 100%, 90%, 0.8),
+        inset 0 0 50px hsla(var(--raindrop-hue, 200), 100%, 80%, 0.5),
+        /* Outer glow - diffused through vellum */
+        0 0 40px hsla(var(--raindrop-hue, 200), 90%, 70%, 0.6),
+        0 0 60px hsla(var(--raindrop-hue, 200), 85%, 65%, 0.4),
+        0 0 80px hsla(var(--raindrop-hue, 200), 80%, 60%, 0.2);
+    backdrop-filter: blur(8px); /* Softer vellum effect */
+    filter: blur(1px); /* Slight softness to edges */
     animation: videoRaindrop 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
     transform: translate(-50%, -50%) scale(0);
+}
+
+/* Animation for click-triggered raindrops (used in JavaScript) */
+@keyframes raindropRipple {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+        filter: blur(1px);
+    }
+    15% {
+        opacity: 0.9;
+        transform: translate(-50%, -50%) scale(0.4);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+        filter: blur(3px);
+    }
 }
 
 @keyframes videoRaindrop {
@@ -614,7 +654,8 @@ footer {
 }
 
 .watermark-title {
-    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
+    font-family: monospace;
+    font-weight: 700;
     font-size: 2rem;
     font-weight: 700;
     color: #ffffff;
@@ -624,7 +665,7 @@ footer {
 }
 
 .watermark-subtitle {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: monospace;
     font-size: 1.2rem;
     color: rgba(255, 255, 255, 0.8);
     text-shadow: 0 1px 5px rgba(0, 0, 0, 0.8);
@@ -633,7 +674,7 @@ footer {
 }
 
 .watermark-licensing {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: monospace;
     font-size: 0.9rem;
     color: rgba(255, 255, 255, 0.7);
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
@@ -651,7 +692,8 @@ footer {
 }
 
 .payment-section h2 {
-    font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
+    font-family: monospace;
+    font-weight: 700;
     font-size: 2.2rem;
     margin-bottom: 2rem;
     text-align: center;
@@ -728,7 +770,7 @@ footer {
 }
 
 .tier-price {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: monospace;
     font-size: 0.95rem;
     color: rgba(255, 255, 255, 0.5);
     margin-bottom: 0.5rem;
@@ -738,7 +780,8 @@ footer {
 }
 
 .tier-title {
-    font-family: 'Futura', 'Century Gothic', sans-serif;
+    font-family: monospace;
+    font-weight: 700;
     font-size: 1.4rem;
     color: #ffffff;
     margin-bottom: 0;
@@ -775,7 +818,7 @@ footer {
 }
 
 .tier-cta {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: monospace;
     padding: 0.9rem 2rem;
     font-size: 0.9rem;
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -937,14 +980,15 @@ footer {
 }
 
 .transcription-label {
-    font-family: 'Futura', 'Century Gothic', sans-serif;
+    font-family: monospace;
+    font-weight: 700;
     font-size: 1.2rem;
     color: #ffffff;
     flex: 1;
 }
 
 .btn-transcription-toggle {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: monospace;
     padding: 0.6rem 1.2rem;
     font-size: 0.9rem;
     border: 2px solid #0cf;
@@ -982,7 +1026,7 @@ footer {
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: monospace;
     font-size: 1.1rem;
     line-height: 1.8;
     color: #0cf;
@@ -1207,6 +1251,179 @@ body.temporal-phase-4 #startCameraBtn:not(:disabled) {
     }
 }
 
+/* Text Flickering Effects - Progressive Intensity Through Temporal Phases */
+
+/* Phase 1: Whisper (7-8 min) - Very subtle flicker */
+body.temporal-phase-1 h1,
+body.temporal-phase-1 h2,
+body.temporal-phase-1 h3,
+body.temporal-phase-1 p,
+body.temporal-phase-1 a,
+body.temporal-phase-1 .tier-title,
+body.temporal-phase-1 .tier-description {
+    animation: textFlickerSubtle 8s ease-in-out infinite;
+}
+
+/* Phase 2: Murmur (8-9 min) - More noticeable flicker */
+body.temporal-phase-2 h1,
+body.temporal-phase-2 h2,
+body.temporal-phase-2 h3,
+body.temporal-phase-2 p,
+body.temporal-phase-2 a,
+body.temporal-phase-2 .tier-title,
+body.temporal-phase-2 .tier-description {
+    animation: textFlickerMedium 5s ease-in-out infinite;
+}
+
+/* Phase 3: Presence (9-10 min) - Clear glitchy flicker */
+body.temporal-phase-3 h1,
+body.temporal-phase-3 h2,
+body.temporal-phase-3 h3,
+body.temporal-phase-3 p,
+body.temporal-phase-3 a,
+body.temporal-phase-3 .tier-title,
+body.temporal-phase-3 .tier-description {
+    animation: textFlickerIntense 3s ease-in-out infinite;
+}
+
+/* Phase 4: Undeniable (10+ min) - Strong persistent flicker */
+body.temporal-phase-4 h1,
+body.temporal-phase-4 h2,
+body.temporal-phase-4 h3,
+body.temporal-phase-4 p,
+body.temporal-phase-4 a,
+body.temporal-phase-4 .tier-title,
+body.temporal-phase-4 .tier-description {
+    animation: textFlickerUndeniable 2s ease-in-out infinite;
+}
+
+/* Flickering Keyframe Animations */
+
+/* Subtle flicker - barely perceptible */
+@keyframes textFlickerSubtle {
+    0%, 100% {
+        opacity: 1;
+    }
+    45% {
+        opacity: 1;
+    }
+    47% {
+        opacity: 0.98;
+    }
+    48% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.97;
+    }
+    52% {
+        opacity: 1;
+    }
+}
+
+/* Medium flicker - noticeable static */
+@keyframes textFlickerMedium {
+    0%, 100% {
+        opacity: 1;
+        text-shadow: 0 0 0 transparent;
+    }
+    33% {
+        opacity: 0.95;
+    }
+    34% {
+        opacity: 1;
+    }
+    35% {
+        opacity: 0.92;
+        text-shadow: 1px 0 2px rgba(255, 255, 255, 0.3);
+    }
+    36% {
+        opacity: 1;
+        text-shadow: 0 0 0 transparent;
+    }
+    67% {
+        opacity: 0.94;
+    }
+    68% {
+        opacity: 1;
+    }
+}
+
+/* Intense flicker - obvious glitch effect */
+@keyframes textFlickerIntense {
+    0%, 100% {
+        opacity: 1;
+        text-shadow: 0 0 0 transparent;
+    }
+    20% {
+        opacity: 0.88;
+        text-shadow: -2px 0 4px rgba(255, 0, 0, 0.2), 2px 0 4px rgba(0, 255, 255, 0.2);
+    }
+    21% {
+        opacity: 1;
+        text-shadow: 0 0 0 transparent;
+    }
+    22% {
+        opacity: 0.85;
+    }
+    23% {
+        opacity: 1;
+    }
+    60% {
+        opacity: 0.9;
+        text-shadow: 1px 0 3px rgba(255, 255, 255, 0.4);
+    }
+    61% {
+        opacity: 1;
+        text-shadow: 0 0 0 transparent;
+    }
+}
+
+/* Undeniable flicker - persistent strong glitch */
+@keyframes textFlickerUndeniable {
+    0% {
+        opacity: 1;
+    }
+    10% {
+        opacity: 0.8;
+        text-shadow: -3px 0 5px rgba(255, 0, 0, 0.3), 3px 0 5px rgba(0, 255, 255, 0.3);
+    }
+    11% {
+        opacity: 1;
+        text-shadow: 0 0 0 transparent;
+    }
+    12% {
+        opacity: 0.75;
+    }
+    13% {
+        opacity: 1;
+    }
+    14% {
+        opacity: 0.85;
+    }
+    15% {
+        opacity: 1;
+    }
+    45% {
+        opacity: 0.82;
+        text-shadow: 2px 0 4px rgba(255, 255, 255, 0.5);
+    }
+    46% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 0.88;
+        text-shadow: -2px 0 3px rgba(255, 0, 255, 0.2);
+    }
+    81% {
+        opacity: 1;
+        text-shadow: 0 0 0 transparent;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
 /* Protected areas - NO effects on payment/licensing */
 .payment-section,
 .payment-tier,
@@ -1220,3 +1437,213 @@ body.temporal-phase-4 #startCameraBtn:not(:disabled) {
 .tier-cta::before {
     display: none !important;
 }
+
+/* ============================================
+   PUDDING KEYCAP RAINDROP STYLES
+   ============================================ */
+
+/* Watermark Overlay Container - Ensure it doesn't block controls */
+#watermark-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Allow clicks to pass through */
+    z-index: 9999;
+    overflow: hidden;
+}
+
+/* Enhanced Pudding Keycap Raindrop with depth, gloss, and bump mapping */
+.video-raindrop {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    overflow: visible;
+    
+    /* Pudding keycap gradient with top glossy surface and deeper translucent base */
+    background: 
+        /* Top glossy highlight */
+        radial-gradient(
+            ellipse 60% 40% at 35% 25%,
+            hsla(var(--raindrop-hue, 200), var(--raindrop-sat, 85%), var(--raindrop-top-light, 85%), calc(0.9 * var(--raindrop-gloss, 0.5))),
+            transparent 50%
+        ),
+        /* Mid-tone translucent layer */
+        radial-gradient(
+            circle at 40% 40%,
+            hsla(var(--raindrop-hue, 200), var(--raindrop-sat, 85%), calc(var(--raindrop-base-light, 60%) + 10%), calc(0.6 * var(--raindrop-depth, 0.5))) 0%,
+            hsla(var(--raindrop-hue, 200), var(--raindrop-sat, 85%), var(--raindrop-base-light, 60%), calc(0.5 * var(--raindrop-depth, 0.5))) 30%,
+            hsla(var(--raindrop-hue, 200), calc(var(--raindrop-sat, 85%) - 10%), calc(var(--raindrop-base-light, 60%) - 10%), calc(0.3 * var(--raindrop-depth, 0.5))) 60%,
+            transparent 100%
+        );
+    
+    /* Pudding keycap box-shadow with depth and bump mapping */
+    box-shadow:
+        /* Inner bright core (glossy top surface) */
+        inset 0 calc(-8px * var(--raindrop-bump, 0.5)) calc(25px * var(--raindrop-gloss, 0.5)) 
+            hsla(var(--raindrop-hue, 200), 100%, 95%, calc(0.9 * var(--raindrop-gloss, 0.5))),
+        inset 0 calc(-15px * var(--raindrop-bump, 0.5)) calc(40px * var(--raindrop-gloss, 0.5)) 
+            hsla(var(--raindrop-hue, 200), 100%, 85%, calc(0.6 * var(--raindrop-gloss, 0.5))),
+        
+        /* Inner depth shadow (translucent base) */
+        inset 0 calc(10px * var(--raindrop-depth, 0.5)) calc(30px * var(--raindrop-depth, 0.5)) 
+            hsla(var(--raindrop-hue, 200), 80%, 40%, calc(0.4 * var(--raindrop-depth, 0.5))),
+        
+        /* Outer glow - diffused through keycap walls */
+        0 0 calc(35px * var(--raindrop-gloss, 0.5)) 
+            hsla(var(--raindrop-hue, 200), var(--raindrop-sat, 85%), 70%, calc(0.7 * var(--raindrop-intensity, 0.4))),
+        0 0 calc(50px * var(--raindrop-depth, 0.5)) 
+            hsla(var(--raindrop-hue, 200), var(--raindrop-sat, 85%), 60%, calc(0.5 * var(--raindrop-intensity, 0.4))),
+        0 0 calc(70px * var(--raindrop-depth, 0.5)) 
+            hsla(var(--raindrop-hue, 200), calc(var(--raindrop-sat, 85%) - 10%), 50%, calc(0.3 * var(--raindrop-intensity, 0.4)));
+    
+    /* Soft blur for translucent keycap effect */
+    backdrop-filter: blur(6px);
+    filter: blur(0.5px);
+    
+    /* Animation with subtle bob */
+    animation: videoRaindropPudding 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    transform: translate(-50%, -50%) scale(0);
+}
+
+/* Pudding keycap raindrop animation with subtle "bob" movement */
+@keyframes videoRaindropPudding {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0) translateY(0);
+    }
+    15% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.3) translateY(-2px);
+    }
+    40% {
+        transform: translate(-50%, -50%) scale(0.7) translateY(1px);
+    }
+    70% {
+        transform: translate(-50%, -50%) scale(1) translateY(-1px);
+    }
+    85% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1) translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.2) translateY(2px);
+    }
+}
+
+/* Pudding keycap shimmer effect (travels across the glossy surface) */
+.raindrop-shimmer {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        60deg,
+        transparent 0%,
+        transparent 40%,
+        hsla(var(--shimmer-hue, 200), 90%, 95%, 0.6) 50%,
+        transparent 60%,
+        transparent 100%
+    );
+    transform: rotate(45deg);
+    animation: puddingShimmer infinite;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+}
+
+@keyframes puddingShimmer {
+    0% {
+        transform: rotate(45deg) translate(-100%, -100%);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.8;
+    }
+    50% {
+        transform: rotate(45deg) translate(0%, 0%);
+        opacity: 1;
+    }
+    90% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: rotate(45deg) translate(100%, 100%);
+        opacity: 0;
+    }
+}
+
+/* Additional pudding "bob" animation for idle state (can be applied to demo elements) */
+@keyframes puddingBob {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+/* Ensure controls remain clickable and above overlay */
+.controls,
+.webrtc-controls,
+.btn,
+.tier-cta,
+button,
+input,
+select {
+    position: relative;
+    z-index: 10000; /* Above watermark overlay */
+    pointer-events: auto; /* Ensure buttons are clickable */
+}
+
+/* Keycap grid for demo (optional styling for pudding-demo.html) */
+.keycap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 10px;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.keycap {
+    aspect-ratio: 1;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 255, 255, 0.05) 100%
+    );
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+    animation: puddingBob 3s ease-in-out infinite;
+}
+
+.keycap:nth-child(odd) {
+    animation-delay: 0.15s;
+}
+
+.keycap:nth-child(3n) {
+    animation-delay: 0.3s;
+}
+
+.keycap:hover {
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.25) 0%,
+        rgba(255, 255, 255, 0.1) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-5px);
+}
+
+/* ============================================
+   END PUDDING KEYCAP STYLES
+   ============================================ */

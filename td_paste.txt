@@ -1,0 +1,16 @@
+# Find and activate webrender_livekit1
+webrender = op('webrender_livekit1')
+if webrender:
+    print("Found:", webrender.path)
+    # Try activation methods
+    if hasattr(webrender.par, 'connect'):
+        webrender.par.connect.pulse()
+        print("Pulsed connect")
+    if hasattr(webrender.par, 'active'):
+        webrender.par.active = 1
+        print("Set active = 1")
+    print("Activation complete!")
+else:
+    print("Not found - listing all webrender operators...")
+    for o in root.findChildren(type=webRenderTOP):
+        print(f"  {o.path}")

@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Enhanced Canvas Test</title>
+<style>
+body { margin: 0; background: #000; }
+canvas { width: 100vw; height: 100vh; display: block; }
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<video id="video" style="display:none" autoplay playsinline muted></video>
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d', { alpha: false });
+const video = document.getElementById('video');
+
+canvas.width = 1280;
+canvas.height = 720;
+
+let frameCount = 0;
+let lastFrameTime = Date.now();
+let fps = 0;
+
+async function start() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ 
+      video: { width: 1280, height: 720 },
+      audio: false 
+    });
+    
+    video.srcObject = stream;
+    await video.play();
+    
+    function draw() {
+      const now = Date.now();
+      const deltaTime = now - lastFrameTime;
+      lastFrameTime = now;
+      fps = Math.round(1000 / deltaTime);
+      
+      // Fill with test pattern first
+      ctx.fillStyle = '#222';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Try to draw video
+      if (video.readyState >= 2) {
+        try {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        } catch (e) {
+          // Draw error
+          ctx.fillStyle = 'red';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = 'white';
+          ctx.font = '30px monospace';
+          ctx.fillText('drawImage ERROR: ' + e.message, 50, 100);
+        }
+      }
+      
+      // Draw info overlay
+      ctx.fillStyle = 'rgba(0, 255, 0, 0.95)';
+      ctx.fillRect(10, 10, 400, 180);
+      ctx.fillStyle = 'black';
+      ctx.font = 'bold 20px monospace';
+      ctx.fillText('CANVAS TEST', 20, 40);
+      ctx.font = '16px monospace';
+      ctx.fillText(`Frame: ${frameCount}`, 20, 70);
+      ctx.fillText(`FPS: ${fps}`, 20, 95);
+      ctx.fillText(`Video: ${video.videoWidth}x${video.videoHeight}`, 20, 120);
+      ctx.fillText(`Ready: ${video.readyState}`, 20, 145);
+      ctx.fillText(`Time: ${video.currentTime.toFixed(2)}s`, 20, 170);
+      
+      // Draw corner markers (so we know canvas is updating)
+      ctx.fillStyle = frameCount % 2 === 0 ? 'cyan' : 'magenta';
+      ctx.fillRect(canvas.width - 50, 10, 40, 40);
+      ctx.fillRect(10, canvas.height - 50, 40, 40);
+      ctx.fillRect(canvas.width - 50, canvas.height - 50, 40, 40);
+      
+      frameCount++;
+      requestAnimationFrame(draw);
+    }
+    
+    draw();
+    
+  } catch (err) {
+    ctx.fillStyle = 'red';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'white';
+    ctx.font = '30px monospace';
+    ctx.fillText('ERROR: ' + err.message, 50, 100);
+  }
+}
+
+start();
+</script>
+</body>
+</html>

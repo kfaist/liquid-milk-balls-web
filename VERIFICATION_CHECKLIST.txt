@@ -1,0 +1,138 @@
+════════════════════════════════════════════════════════════════════
+                    VERIFICATION CHECKLIST
+           After Running the Command in TouchDesigner
+════════════════════════════════════════════════════════════════════
+
+STEP 1: CHECK TEXTPORT OUTPUT
+────────────────────────────────────────────────────────────────────
+
+After you press ENTER in TouchDesigner Textport, you should see:
+
+✓ "Starting configuration..."
+✓ "Found Web Render TOP: /some/path" (or "Created: /some/path")
+✓ "Available parameters:" (list of parameters)
+✓ "Set livekiturl"
+✓ "Set roomname"
+✓ "Set token"
+✓ "Enabled LiveKit"
+✓ "Configuration complete!"
+✓ "Done!"
+
+If you see these messages → SUCCESS! Configuration worked!
+
+════════════════════════════════════════════════════════════════════
+
+STEP 2: FIND THE WEB RENDER TOP
+────────────────────────────────────────────────────────────────────
+
+Look in your TouchDesigner network for an operator named:
+  • "webrender_livekit" (if created new)
+  • Or whatever Web Render TOP name you saw in textport
+
+It should exist now!
+
+════════════════════════════════════════════════════════════════════
+
+STEP 3: VIEW THE VIDEO
+────────────────────────────────────────────────────────────────────
+
+Right-click the Web Render TOP → Select "Viewer"
+
+You should see:
+  ✓ Video playing (if publisher is streaming)
+  ✓ Or a LiveKit connection indicator
+
+════════════════════════════════════════════════════════════════════
+
+STEP 4: TEST WITH PUBLISHER
+────────────────────────────────────────────────────────────────────
+
+Go to Firefox Tab 131 (publisher.html)
+
+Action: Click "Start Publishing"
+Result: Status shows "Publishing" (green)
+
+Then in TouchDesigner:
+  → Web Render TOP should show your camera video!
+  → SUCCESS! Video is flowing from browser → LiveKit → TD!
+
+════════════════════════════════════════════════════════════════════
+
+STEP 5: VERIFY IN TEST VIEWER
+────────────────────────────────────────────────────────────────────
+
+Go to Firefox Tab 150 (ndi-viewer.html)
+
+Should show:
+  ✓ "Receiving video from publisher-XXXXX"
+  ✓ Your camera video playing
+
+This proves LiveKit is working perfectly!
+
+════════════════════════════════════════════════════════════════════
+
+IF SOMETHING DOESN'T WORK:
+────────────────────────────────────────────────────────────────────
+
+Problem: Textport shows "ERROR: Could not create Web Render TOP"
+Solution:
+  → Create manually: Press TAB → Type "web render" → ENTER
+  → Run the script again
+  → It will find and configure your manually created one
+
+Problem: Script runs but no video appears
+Solution:
+  → Check Textport output - did all parameters get set?
+  → Check publisher is streaming (Tab 131 shows "Publishing")
+  → Check test viewer works (Tab 150 shows video)
+  → Try disconnecting/reconnecting Web Render TOP
+
+Problem: "invalid syntax" error
+Solution:
+  → You're using the OLD command!
+  → Use the NEW command from FIXED_COMMAND.txt
+  → Make sure it's all on ONE line
+
+Problem: Parameter names don't match
+Solution:
+  → Look at the "Available parameters:" list in textport
+  → Tell me which parameters you see
+  → I'll tell you exactly what to set manually
+
+════════════════════════════════════════════════════════════════════
+
+CURRENT STATUS:
+────────────────────────────────────────────────────────────────────
+
+✅ LiveKit server: WORKING (Tab 150 proves it!)
+✅ Publisher page: READY (Tab 131)
+✅ Test viewer: WORKING (Tab 150 shows video)
+✅ Configuration script: READY (td_simple.py)
+✅ Command: IN YOUR CLIPBOARD!
+
+Only missing:
+  → Execute command in TouchDesigner (Alt+T → Ctrl+V → ENTER)
+  → Video appears in TD!
+  → COMPLETE!
+
+════════════════════════════════════════════════════════════════════
+
+THE MOMENT OF TRUTH:
+────────────────────────────────────────────────────────────────────
+
+In TouchDesigner RIGHT NOW:
+
+1. Press Alt+T
+2. Press Ctrl+V  
+3. Press ENTER
+
+Watch the textport output.
+If you see the success messages, you're DONE!
+
+Then right-click Web Render TOP → Viewer → SEE YOUR VIDEO!
+
+════════════════════════════════════════════════════════════════════
+
+YOU'RE ONE COMMAND AWAY FROM SUCCESS! 🎉
+
+════════════════════════════════════════════════════════════════════

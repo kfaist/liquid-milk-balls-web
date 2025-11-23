@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MASTER TEST CONTROLLER</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+            color: #0ff;
+            min-height: 100vh;
+            padding: 30px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(0, 255, 255, 0.8); }
+            to { text-shadow: 0 0 30px rgba(0, 255, 255, 1), 0 0 40px rgba(0, 255, 255, 0.8); }
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 40px;
+            font-size: 18px;
+        }
+        
+        .test-section {
+            background: rgba(0, 255, 255, 0.05);
+            border: 2px solid #0ff;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .test-section.success {
+            border-color: #0f0;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+        
+        .test-section.error {
+            border-color: #f00;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+        }
+        
+        .test-section.pending {
+            border-color: #ff0;
+            box-shadow: 0 0 30px rgba(255, 255, 0, 0.3);
+        }
+        
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .status-badge.waiting {
+            background: rgba(255, 255, 0, 0.2);
+            border: 1px solid #ff0;
+            color: #ff0;
+        }
+        
+        .status-badge.testing {
+            background: rgba(0, 255, 255, 0.2);
+            border: 1px solid #0ff;
+            color: #0ff;
+        }
+        
+        .status-badge.pass {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #0f0;
+            color: #0f0;
+        }
+        
+        .status-badge.fail {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #f00;
+            color: #f00;
+        }
+        
+        .test-content {
+            margin: 20px 0;
+            line-height: 1.8;
+        }
+        
+        .instruction {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid #0ff;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .instruction-step {
+            display: flex;
+            align-items: flex-start;
+            margin: 10px 0;
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: #0ff;
+            color: #000;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .step-text {
+            flex: 1;
+        }
+        
+        button {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 200, 255, 0.2));
+            border: 2px solid #0ff;
+            color: #fff;
+            padding: 15px 30px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px 10px 10px 0;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.4), rgba(0, 200, 255, 0.4));
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        button.success {
+            border-color: #0f0;
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.2), rgba(0, 200, 0, 0.2));
+        }
+        
+        button.success:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.4), rgba(0, 200, 0, 0.4));
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
+        }
+        
+        .result-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        
+        .success-text {
+            color: #0f0;
+        }
+        
+        .error-text {
+            color: #f00;
+        }
+        
+        .warning-text {
+            color: #ff0;
+        }
+        
+        .code-block {
+            background: #000;
+            border: 1px solid #0ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        
+        .big-action {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 3px solid #0ff;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        
+        .big-action button {
+            font-size: 20px;
+            padding: 20px 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 MASTER TEST CONTROLLER 🚀</h1>
+        <div class="subtitle">Complete Pipeline Testing & Verification</div>
+        
+        <!-- Test 1: Server Health -->
+        <div class="test-section" id="test1">
+            <div class="section-title">
+                <span>TEST 1: SERVER HEALTH</span>
+                <span class="status-badge waiting" id="test1-status">WAITING</span>
+            </div>
+            <div class="test-content">
+                <p>Checking if the Node.js server is running and responding...</p>
+                <button onclick="runTest1()">▶️ RUN TEST 1</button>
+                <div class="result-box" id="test1-result" style="display: none;"></div>
+            </div>
+        </div>
+        
+        <!-- Test 2: LiveKit Token -->
+        <div class="test-section" id="test2">
+            <div class="section-title">
+                <span>TEST 2: LIVEKIT TOKEN GENERATION</span>
+                <span class="status-badge waiting" id="test2-status">WAITING</span>
+            </div>
+            <div class="test-content">
+                <p>Testing if LiveKit tokens can be generated for publisher and viewer...</p>
+                <button onclick="runTest2()">▶️ RUN TEST 2</button>
+                <div class="result-box" id="test2-result" style="display: none;"></div>
+            </div>
+        </div>
+        
+        <!-- Test 3: LiveKit Connection -->
+        <div class="test-section" id="test3">
+            <div class="section-title">
+                <span>TEST 3: LIVEKIT CONNECTION</span>
+                <span class="status-badge waiting" id="test3-status">WAITING</span>
+            </div>
+            <div class="test-content">
+                <p>Connecting to LiveKit room as a viewer to test WebRTC connection...</p>
+                <button onclick="runTest3()">▶️ RUN TEST 3</button>
+                <div class="result-box" id="test3-result" style="display: none;"></div>
+            </div>
+        </div>
+        
+        <!-- Test 4: Publisher Setup -->
+        <div class="test-section" id="test4">
+            <div class="section-title">
+                <span>TEST 4: PUBLISHER SETUP</span>
+                <span class="status-badge waiting" id="test4-status">MANUAL</span>
+            </div>
+            <div class="test-content">
+                <p>This test requires manual action:</p>
+                <div class="instruction">
+                    <div class="instruction-step">
+                        <div class="step-number">1</div>
+                        <div class="step-text">Click the button below to open the publisher page in a new tab</div>
+                    </div>
+                    <div class="instruction-step">
+                        <div class="step-number">2</div>
+                        <div class="step-text">Allow camera access when prompted</div>
+                    </div>
+                    <div class="instruction-step">
+                        <div class="step-number">3</div>
+                        <div class="step-text">Click "Start Publishing" button</div>
+                    </div>
+                    <div class="instruction-step">
+                        <div class="step-number">4</div>
+                        <div class="step-text">Come back here and click "Verify Publisher"</div>
+                    </div>
+                </div>
+                <button onclick="openPublisher()">📹 OPEN PUBLISHER PAGE</button>
+                <button onclick="verifyPublisher()" class="success">✓ VERIFY PUBLISHER</button>
+                <div class="result-box" id="test4-result" style="display: none;"></div>
+            </div>
+        </div>
+        
+        <!-- Test 5: TouchDesigner Configuration -->
+        <div class="test-section" id="test5">
+            <div class="section-title">
+                <span>TEST 5: TOUCHDESIGNER SETUP</span>
+                <span class="status-badge waiting" id="test5-status">MANUAL</span>
+            </div>
+            <div class="test-content">
+                <p>Configure TouchDesigner Web Client TOP:</p>
+                <div class="instruction">
+                    <div class="instruction-step">
+                        <div class="step-number">1</div>
+                        <div class="step-text">Open TouchDesigner (if not already open)</div>
+                    </div>
+                    <div class="instruction-step">
+                        <div class="step-number">2</div>
+                        <div class="step-text">Press Alt+T to open the textport</div>
+                    </div>
+                    <div class="instruction-step">
+                        <div class="step-number">3</div>
+                        <div class="step-text">Copy and paste this command:</div>
+                    </div>
+                </div>
+                <div class="code-block">execfile('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/master_setup.py')</div>
+                <button onclick="copyTDCommand()">📋 COPY COMMAND</button>
+                <div class="result-box" id="test5-result" style="display: none;"></div>
+            </div>
+        </div>
+        
+        <!-- Final Status -->
+        <div class="big-action" id="final-status" style="display: none;">
+            <h2 style="color: #0f0; margin-bottom: 20px;">🎉 ALL TESTS PASSED! 🎉</h2>
+            <p style="font-size: 18px; margin-bottom: 30px;">
+                The input pipeline is configured and ready!<br>
+                Check your TouchDesigner Web Client TOP - you should see video!
+            </p>
+            <button onclick="openStatusDashboard()" class="success">📊 OPEN STATUS DASHBOARD</button>
+            <button onclick="location.reload()">🔄 RUN TESTS AGAIN</button>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+    <script>
+        let room = null;
+        let testsCompleted = 0;
+        
+        function updateStatus(testId, status, resultHtml = '') {
+            const section = document.getElementById(testId);
+            const badge = document.getElementById(`${testId}-status`);
+            const result = document.getElementById(`${testId}-result`);
+            
+            badge.className = `status-badge ${status}`;
+            badge.textContent = status.toUpperCase();
+            
+            if (status === 'pass') {
+                section.classList.add('success');
+                section.classList.remove('error', 'pending');
+                testsCompleted++;
+            } else if (status === 'fail') {
+                section.classList.add('error');
+                section.classList.remove('success', 'pending');
+            } else if (status === 'testing') {
+                section.classList.add('pending');
+                section.classList.remove('success', 'error');
+            }
+            
+            if (resultHtml) {
+                result.innerHTML = resultHtml;
+                result.style.display = 'block';
+            }
+            
+            checkAllTestsComplete();
+        }
+        
+        function checkAllTestsComplete() {
+            if (testsCompleted >= 3) { // Tests 1, 2, 3 are automated
+                document.getElementById('final-status').style.display = 'block';
+                document.getElementById('final-status').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        async function runTest1() {
+            updateStatus('test1', 'testing', 'Checking server...');
+            
+            try {
+                const response = await fetch('/healthz');
+                if (response.ok) {
+                    updateStatus('test1', 'pass', 
+                        '<span class="success-text">✅ Server is online and responding!</span><br>' +
+                        '<small>Server URL: http://localhost:3000</small>');
+                } else {
+                    throw new Error(`Server returned status: ${response.status}`);
+                }
+            } catch (error) {
+                updateStatus('test1', 'fail', 
+                    `<span class="error-text">❌ Server check failed: ${error.message}</span><br>` +
+                    '<small>Make sure server is running: node server.js</small>');
+            }
+        }
+        
+        async function runTest2() {
+            updateStatus('test2', 'testing', 'Generating tokens...');
+            
+            try {
+                const pubResponse = await fetch('/api/publisher-token');
+                const pubData = await pubResponse.json();
+                
+                const viewResponse = await fetch('/api/viewer-token');
+                const viewData = await viewResponse.json();
+                
+                updateStatus('test2', 'pass',
+                    '<span class="success-text">✅ Both tokens generated successfully!</span><br>' +
+                    `<small>Publisher Room: ${pubData.room}<br>` +
+                    `Viewer Room: ${viewData.room}<br>` +
+                    `LiveKit Server: ${pubData.url}</small>`);
+            } catch (error) {
+                updateStatus('test2', 'fail',
+                    `<span class="error-text">❌ Token generation failed: ${error.message}</span>`);
+            }
+        }
+        
+        async function runTest3() {
+            updateStatus('test3', 'testing', 'Connecting to LiveKit...');
+            
+            try {
+                const response = await fetch('/api/viewer-token');
+                const data = await response.json();
+                
+                room = new LivekitClient.Room({
+                    adaptiveStream: true,
+                    dynacast: true,
+                });
+                
+                await room.connect(data.url, data.token);
+                
+                updateStatus('test3', 'pass',
+                    '<span class="success-text">✅ Successfully connected to LiveKit!</span><br>' +
+                    `<small>Room: ${data.room}<br>` +
+                    `Connection State: ${room.state}</small>`);
+                
+            } catch (error) {
+                updateStatus('test3', 'fail',
+                    `<span class="error-text">❌ LiveKit connection failed: ${error.message}</span>`);
+            }
+        }
+        
+        function openPublisher() {
+            window.open('/publisher.html', 'publisher');
+            updateStatus('test4', 'testing', 
+                '<span class="warning-text">⏳ Waiting for you to start publishing...</span><br>' +
+                '<small>Follow the instructions and click "Verify Publisher" when ready</small>');
+        }
+        
+        async function verifyPublisher() {
+            if (!room) {
+                updateStatus('test4', 'fail',
+                    '<span class="error-text">❌ Run Test 3 first to connect to LiveKit</span>');
+                return;
+            }
+            
+            const participantCount = room.remoteParticipants.size;
+            
+            if (participantCount > 0) {
+                const participants = Array.from(room.remoteParticipants.values());
+                const names = participants.map(p => p.identity).join(', ');
+                
+                updateStatus('test4', 'pass',
+                    '<span class="success-text">✅ Publisher detected!</span><br>' +
+                    `<small>Found ${participantCount} participant(s): ${names}</small>`);
+                testsCompleted++;
+                checkAllTestsComplete();
+            } else {
+                updateStatus('test4', 'fail',
+                    '<span class="error-text">❌ No publishers detected</span><br>' +
+                    '<small>Make sure you clicked "Start Publishing" in the publisher page</small>');
+            }
+        }
+        
+        function copyTDCommand() {
+            const command = "execfile('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/master_setup.py')";
+            navigator.clipboard.writeText(command);
+            updateStatus('test5', 'pass',
+                '<span class="success-text">✅ Command copied to clipboard!</span><br>' +
+                '<small>Paste it in TouchDesigner textport (Alt+T)</small>');
+            testsCompleted++;
+            checkAllTestsComplete();
+        }
+        
+        function openStatusDashboard() {
+            window.open('/status-dashboard.html', 'dashboard');
+        }
+        
+        // Auto-run Test 1 on load
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Master Test Controller loaded');
+            setTimeout(runTest1, 500);
+        });
+    </script>
+</body>
+</html>

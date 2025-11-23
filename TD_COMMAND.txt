@@ -1,0 +1,48 @@
+╔════════════════════════════════════════════════════════════════════╗
+║                                                                    ║
+║           TOUCHDESIGNER - PASTE THIS IN TEXTPORT (Alt+T)          ║
+║                                                                    ║
+╚════════════════════════════════════════════════════════════════════╝
+
+exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_ultimate_config.py').read())
+
+
+╔════════════════════════════════════════════════════════════════════╗
+║                                                                    ║
+║                      OR MANUAL CONFIGURATION                       ║
+║                                                                    ║
+╚════════════════════════════════════════════════════════════════════╝
+
+In TouchDesigner:
+
+1. Press TAB → Type "web render" → ENTER → Click to place
+
+2. Set these parameters:
+
+   URL:   wss://claymation-transcription-l6e51sws.livekit.cloud
+   
+   ROOM:  claymation-live
+   
+   TOKEN: eyJhbGciOiJIUzI1NiJ9.eyJ2aWRlbyI6eyJyb29tIjoiY2xheW1hdGlvbi1saXZlIiwicm9vbUpvaW4iOnRydWUsImNhblB1Ymxpc2giOmZhbHNlLCJjYW5TdWJzY3JpYmUiOnRydWV9LCJpc3MiOiJBUElUdzJZcDJUdjN5ZmciLCJleHAiOjE3NjM4NDg4NDQsIm5iZiI6MCwic3ViIjoidG91Y2hkZXNpZ25lci1yZWNlaXZlciJ9.LScuDiy0yrnxxJKweBRgxfU5EVSsSwCGQC76ZRFqIKs
+
+3. Enable "Use LiveKit" → Click "Connect"
+
+4. Start publisher.html → VIDEO APPEARS!
+
+
+╔════════════════════════════════════════════════════════════════════╗
+║                                                                    ║
+║                           TEST PAGES                               ║
+║                                                                    ║
+╚════════════════════════════════════════════════════════════════════╝
+
+Publisher (send video):
+https://liquid-milk-balls-web-production-2e8c.up.railway.app/publisher.html
+
+Test Viewer (verify stream works):
+https://liquid-milk-balls-web-production-2e8c.up.railway.app/td-auto-viewer.html
+
+
+╔════════════════════════════════════════════════════════════════════╗
+║                     YOU'RE ALMOST DONE! 🎨✨                       ║
+╚════════════════════════════════════════════════════════════════════╝

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TouchDesigner Setup - COPY & PASTE</title>
+    <style>
+        body {
+            font-family: 'Consolas', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .container {
+            background: #0a0a0a;
+            border: 2px solid #00ff00;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        h1 {
+            color: #00ff00;
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 30px;
+        }
+        .step {
+            background: #1a1a1a;
+            border-left: 4px solid #00ff00;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .step-number {
+            color: #ffff00;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .code-box {
+            background: #000;
+            border: 1px solid #00ff00;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Consolas', monospace;
+            color: #00ffff;
+            overflow-x: auto;
+            cursor: pointer;
+            position: relative;
+        }
+        .code-box:hover {
+            border-color: #ffff00;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-family: 'Consolas', monospace;
+            font-weight: bold;
+        }
+        .copy-btn:hover {
+            background: #ffff00;
+        }
+        .success {
+            color: #00ff00;
+            font-weight: bold;
+        }
+        .warning {
+            color: #ffff00;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 TOUCHDESIGNER WEBRTC SETUP</h1>
+        
+        <div class="step">
+            <div class="step-number">STEP 1:</div>
+            <p>Open TouchDesigner (if not already open)</p>
+            <p class="warning">Make sure ndi-streamCOPY.toe is loaded</p>
+        </div>
+
+        <div class="step">
+            <div class="step-number">STEP 2:</div>
+            <p>Press <span class="success">Alt+T</span> to open the Textport</p>
+        </div>
+
+        <div class="step">
+            <div class="step-number">STEP 3:</div>
+            <p>Click the code below to copy it:</p>
+            <div class="code-box" onclick="copyCode(this)" id="code1">
+                <button class="copy-btn" onclick="event.stopPropagation(); copyCode(document.getElementById('code1'))">COPY</button>
+                exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_setup_FINAL.py').read())
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">STEP 4:</div>
+            <p>Paste into the Textport and press <span class="success">Enter</span></p>
+        </div>
+
+        <div class="step">
+            <div class="step-number">STEP 5:</div>
+            <p>You should see output like this:</p>
+            <div class="code-box">
+                ============================================================<br>
+                TouchDesigner WebRTC/LiveKit Setup - FINAL<br>
+                ============================================================<br>
+                ✅ Created: /webrender_livekit_input<br>
+                ✅ Created: /ndiout_livekit<br>
+                ✅ Connected: /webrender_livekit_input → /ndiout_livekit<br>
+                SETUP COMPLETE!
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">✅ DONE!</div>
+            <p class="success">Close this page and tell Claude "done" or show him the output!</p>
+        </div>
+    </div>
+
+    <script>
+        function copyCode(element) {
+            const text = element.textContent.replace('COPY', '').trim();
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = element.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = '✓ COPIED!';
+                btn.style.background = '#ffff00';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#00ff00';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

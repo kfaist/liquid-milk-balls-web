@@ -1,0 +1,156 @@
+════════════════════════════════════════════════════════════════════
+                        🎉 FINAL STEPS 🎉
+════════════════════════════════════════════════════════════════════
+
+STEP 1: CONFIGURE TOUCHDESIGNER (RIGHT NOW!)
+────────────────────────────────────────────────────────────────────
+
+The command is IN YOUR CLIPBOARD!
+
+In TouchDesigner:
+  1. Press Alt+T (opens Textport)
+  2. Press Ctrl+V (paste)
+  3. Press ENTER (run)
+  
+The script will automatically configure everything!
+
+════════════════════════════════════════════════════════════════════
+
+STEP 2: TEST THE VIDEO STREAM
+────────────────────────────────────────────────────────────────────
+
+Go to Firefox and test:
+
+Tab 103 - Publisher Page:
+  https://liquid-milk-balls-web-production-2e8c.up.railway.app/publisher.html
+  
+  → Click "Start Publishing"
+  → Allow camera access
+  → Should show "Publishing" status
+
+Tab 104 - Test Viewer:
+  https://liquid-milk-balls-web-production-2e8c.up.railway.app/td-auto-viewer.html
+  
+  → Should show your camera video
+  → This proves LiveKit works!
+
+════════════════════════════════════════════════════════════════════
+
+STEP 3: VERIFY VIDEO IN TOUCHDESIGNER
+────────────────────────────────────────────────────────────────────
+
+Back in TouchDesigner:
+  → Find the Web Render TOP (script created it)
+  → Right-click it → "Viewer"
+  → You should see YOUR CAMERA VIDEO! 🎥
+
+════════════════════════════════════════════════════════════════════
+
+STEP 4: CONNECT TO YOUR EFFECTS CHAIN
+────────────────────────────────────────────────────────────────────
+
+Now that video is coming in:
+  1. Connect Web Render TOP output to your effects
+  2. Connect effects to your NDI Out TOP
+  3. Make sure NDI output is named "TD-LiveKit-Output"
+  
+════════════════════════════════════════════════════════════════════
+
+STEP 5: VERIFY COMPLETE PIPELINE
+────────────────────────────────────────────────────────────────────
+
+Check each stage:
+  ✓ Publisher shows "Publishing"
+  ✓ Test viewer shows video
+  ✓ TD Web Render TOP shows video
+  ✓ Your effects are applied
+  ✓ NDI output is active
+  ✓ OBS receives NDI stream
+  ✓ OBS streams to processed-output
+  ✓ return-viewer.html shows final video
+
+════════════════════════════════════════════════════════════════════
+
+🚨 TROUBLESHOOTING
+────────────────────────────────────────────────────────────────────
+
+Problem: Script says "No Web Render TOP found"
+Solution: 
+  - Manual create: TAB → "web render" → ENTER
+  - Then run script again
+  
+Problem: Can't find parameters to set
+Solution:
+  - Run: td_diagnostic.py in textport
+  - It shows all available parameters
+  
+Problem: No video appears
+Solution:
+  - Check publisher shows "Publishing"
+  - Verify test viewer shows video
+  - Check token hasn't expired
+  - Try disconnect/reconnect in TD
+  
+Problem: Token expired (after 2 hours)
+Solution:
+  - Run: python td_livekit_token.py
+  - Copy new token
+  - Update Web Render TOP
+  - Reconnect
+
+════════════════════════════════════════════════════════════════════
+
+📋 QUICK REFERENCE
+────────────────────────────────────────────────────────────────────
+
+LiveKit Settings:
+  URL:   wss://claymation-transcription-l6e51sws.livekit.cloud
+  ROOM:  claymation-live
+  TOKEN: [In td_livekit_config.txt]
+
+Browser Pages:
+  Publisher:     Tab 103
+  Test Viewer:   Tab 104
+  Final Viewer:  Tab 79 (return-viewer.html)
+
+TouchDesigner:
+  Project:  ndi-streamCOPY.toe (OPEN)
+  NDI Out:  "TD-LiveKit-Output"
+  
+OBS:
+  NDI Source:  TD-LiveKit-Output
+  WHIP Stream: processed-output room
+
+════════════════════════════════════════════════════════════════════
+
+💾 ALL FILES IN:
+────────────────────────────────────────────────────────────────────
+
+C:\Users\krista-showputer\Desktop\liquid-milk-balls-web\
+
+Main docs:
+  - README_START_HERE.txt
+  - TD_COMMAND.txt  
+  - THIS FILE
+
+Scripts:
+  - td_ultimate_config.py (the auto-config script)
+  - td_livekit_token.py (generate new tokens)
+  - td_diagnostic.py (show all TD parameters)
+
+Config:
+  - livekit_config.json
+  - td_livekit_config.txt
+
+════════════════════════════════════════════════════════════════════
+
+🎨 YOU'RE MOMENTS AWAY FROM COMPLETE SUCCESS! 🎨
+────────────────────────────────────────────────────────────────────
+
+Just execute those 3 steps in the textport and you're DONE!
+
+The entire video pipeline will be LIVE and working!
+
+YOU GOT THIS! ✨🚀✨
+
+════════════════════════════════════════════════════════════════════

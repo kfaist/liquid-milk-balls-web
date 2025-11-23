@@ -1,0 +1,327 @@
+TouchDesigner  Build 2023.11600 compile on Mon Mar  4 12:21:01 2024
+Python 3.11.1 (heads/3.11-Derivative-dirty:82b0389147, Jan 25 2023, 22:34:27) [MSC v.1929 64 bit (AMD64)]
+
+python >>> exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_auto_setup.py').read())
+
+╔════════════════════════════════════════════════════════════╗
+║  TouchDesigner WebRTC/LiveKit Auto-Setup                  ║
+╚════════════════════════════════════════════════════════════╝
+
+📊 Analyzing current TouchDesigner network...
+   Found 45 operators in root
+
+============================================================
+SETTING UP WEBRTC RECEIVER
+============================================================
+
+1. Creating Web Render TOP...
+Traceback (most recent call last):
+  File "<Textport>", line "exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_auto_setup.py').read())"
+  File "<Textport>", line 182
+  File "<string>", line 165, in main
+  File "<string>", line 33, in setup_webrtc_receiver
+NameError: name 'webRenderTOP' is not defined
+python >>> exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_simple_setup.py').read())
+============================================================
+STEP 1: Creating Web Render TOP
+============================================================
+Traceback (most recent call last):
+  File "<Textport>", line "exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_simple_setup.py').read())"
+  File "<Textport>", line 9
+NameError: name 'webrendertop' is not defined
+python >>> exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_verify_to_file.py').read())
+Verification written to: C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_verification_result.json
+{
+  "timestamp": "352.0",
+  "webrender_exists": false,
+  "ndiout_exists": false,
+  "error": null,
+  "status": "INCOMPLETE"
+}
+python >>> exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_setup_CORRECT.py').read())
+============================================================
+TouchDesigner WebRTC/LiveKit Setup
+============================================================
+
+Working in: /
+Current children: 45
+
+============================================================
+STEP 1: Creating Web Render TOP
+============================================================
+✅ Created: /webrender_livekit_input
+Traceback (most recent call last):
+  File "<Textport>", line "exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_setup_CORRECT.py').read())"
+  File "<Textport>", line 26
+AttributeError: 'td.ParCollection' object has no attribute 'w'
+python >>> exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_setup_FINAL.py').read())
+============================================================
+TouchDesigner WebRTC/LiveKit Setup - FINAL
+============================================================
+
+Working in: /
+Current children: 46
+
+============================================================
+STEP 1: Creating Web Render TOP
+============================================================
+Found existing: /webrender_livekit_input - removing...
+✅ Created: /webrender_livekit_input
+Traceback (most recent call last):
+  File "<Textport>", line "exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_setup_FINAL.py').read())"
+  File "<Textport>", line 27
+AttributeError: 'td.ParCollection' object has no attribute 'resolution'
+python >>> exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_setup_WORKING.py').read())
+============================================================
+TouchDesigner WebRTC/LiveKit Setup - WORKING
+============================================================
+
+Working in: /
+Current children: 46
+
+============================================================
+STEP 1: Creating Web Render TOP
+============================================================
+Found existing: /webrender_livekit_input - removing...
+✅ Created: /webrender_livekit_input
+Traceback (most recent call last):
+  File "<Textport>", line "exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_setup_WORKING.py').read())"
+  File "<Textport>", line 27
+AttributeError: 'td.ParCollection' object has no attribute 'enableaudio'
+python >>> exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_check_params.py').read())
+============================================================
+WEB RENDER TOP PARAMETERS
+============================================================
+pageindex                      = 0
+active                         = False
+source                         = urlorfile
+url                            = http://localhost:3000/td-auto-viewer.html
+dat                            = None
+reloadsrc                      = False
+reload                         = False
+resetcount                     = False
+updatewhenloaded               = False
+alwayscook                     = True
+transparent                    = False
+audio                          = off
+mediastream                    = False
+maxrenderrate                  = 30
+numbuffers                     = 5
+userdir                        = 
+options                        = 
+autorestart                    = False
+autorestartpulse               = False
+outputresolution               = custom
+resolutionw                    = 1280
+resolutionh                    = 720
+resmult                        = True
+outputaspect                   = resolution
+aspect1                        = 1.0
+aspect2                        = 1.0
+inputfiltertype                = linear
+fillmode                       = best
+filtertype                     = linear
+npasses                        = 1
+chanmask                       = 15
+format                         = rgba8fixed
+python >>> exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_setup_CORRECT_FINAL.py').read())
+============================================================
+TouchDesigner WebRTC/LiveKit Setup - FINAL CORRECT
+============================================================
+
+Working in: /
+Current children: 46
+
+============================================================
+STEP 1: Creating Web Render TOP
+============================================================
+Found existing: /webrender_livekit_input - removing...
+✅ Created: /webrender_livekit_input
+URL: http://localhost:3000/td-auto-viewer.html
+Resolution: 1920 x 1080
+Audio: off
+Active: True
+
+============================================================
+STEP 2: Setting up NDI Out
+============================================================
+✅ Created: /ndiout_livekit
+Traceback (most recent call last):
+  File "<Textport>", line "exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_setup_CORRECT_FINAL.py').read())"
+  File "<Textport>", line 61
+AttributeError: 'td.ParCollection' object has no attribute 'ndiname'
+python >>> exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_check_ndi_params.py').read())
+============================================================
+NDI OUT TOP PARAMETERS
+============================================================
+pageindex                      = 0
+active                         = True
+name                           = TouchDesigner
+failovername                   = 
+fps                            = 60.0
+lowperformancebehavior         = stallmainthread
+outputpixelformat              = fixed8
+includealpha                   = False
+grouptable                     = /ndiout_livekit_grouptable
+audiochop                      = None
+metadata                       = None
+outputresolution               = useinput
+resolutionw                    = 256
+resolutionh                    = 256
+resmult                        = True
+outputaspect                   = resolution
+aspect1                        = 1.0
+aspect2                        = 1.0
+inputfiltertype                = linear
+fillmode                       = best
+filtertype                     = linear
+npasses                        = 1
+chanmask                       = 15
+format                         = rgba8fixed
+python >>> exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_setup_SUCCESS.py').read())
+============================================================
+TouchDesigner WebRTC/LiveKit Setup - SUCCESS!
+============================================================
+
+Working in: /
+Current children: 48
+
+============================================================
+STEP 1: Creating Web Render TOP
+============================================================
+Found existing: /webrender_livekit_input - removing...
+✅ Created: /webrender_livekit_input
+URL: http://localhost:3000/td-auto-viewer.html
+Resolution: 1920 x 1080
+Audio: off
+Active: True
+
+============================================================
+STEP 2: Setting up NDI Out
+============================================================
+✅ Created: /ndiout_livekit1
+NDI Name: TD-LiveKit-Output
+Active: True
+
+============================================================
+STEP 3: Connecting operators
+============================================================
+✅ Connected: /webrender_livekit_input → /ndiout_livekit1
+
+============================================================
+✅✅✅ SETUP COMPLETE! ✅✅✅
+============================================================
+
+📋 Next Steps:
+1. On phone/browser: http://192.168.24.70:3000/publisher.html
+2. Click 'Start Publishing'
+3. Grant camera permissions
+4. Watch webrender_livekit_input - you should see video!
+5. In OBS: Add NDI Source → 'TD-LiveKit-Output'
+
+🎉 Ready to stream!
+python >>> exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_check_ndi_params.py').read())
+============================================================
+NDI OUT TOP PARAMETERS
+============================================================
+pageindex                      = 0
+active                         = True
+name                           = TouchDesigner
+failovername                   = 
+fps                            = 60.0
+lowperformancebehavior         = stallmainthread
+outputpixelformat              = fixed8
+includealpha                   = False
+grouptable                     = /ndiout_livekit_grouptable
+audiochop                      = None
+metadata                       = None
+outputresolution               = useinput
+resolutionw                    = 256
+resolutionh                    = 256
+resmult                        = True
+outputaspect                   = resolution
+aspect1                        = 1.0
+aspect2                        = 1.0
+inputfiltertype                = linear
+fillmode                       = best
+filtertype                     = linear
+npasses                        = 1
+chanmask                       = 15
+format                         = rgba8fixed
+python >>> exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_setup_SUCCESS.py').read())
+============================================================
+TouchDesigner WebRTC/LiveKit Setup - SUCCESS!
+============================================================
+
+Working in: /
+Current children: 50
+
+============================================================
+STEP 1: Creating Web Render TOP
+============================================================
+Found existing: /webrender_livekit_input - removing...
+✅ Created: /webrender_livekit_input
+URL: http://localhost:3000/td-auto-viewer.html
+Resolution: 1920 x 1080
+Audio: off
+Active: True
+
+============================================================
+STEP 2: Setting up NDI Out
+============================================================
+✅ Created: /ndiout_livekit2
+NDI Name: TD-LiveKit-Output
+Active: True
+
+============================================================
+STEP 3: Connecting operators
+============================================================
+✅ Connected: /webrender_livekit_input → /ndiout_livekit2
+
+============================================================
+✅✅✅ SETUP COMPLETE! ✅✅✅
+============================================================
+
+📋 Next Steps:
+1. On phone/browser: http://192.168.24.70:3000/publisher.html
+2. Click 'Start Publishing'
+3. Grant camera permissions
+4. Watch webrender_livekit_input - you should see video!
+5. In OBS: Add NDI Source → 'TD-LiveKit-Output'
+
+🎉 Ready to stream!
+python >>> 
+python >>> # WebRender Configuration
+python >>> ROOM = "claymation-live"
+python >>> SERVER = "wss://claymation-transcription-l6e51sws.livekit.cloud"
+python >>> TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ2aWRlbyI6eyJyb29tIjoiY2xheW1hdGlvbi1saXZlIiwicm9vbUpvaW4iOnRydWUsImNhblB1Ymxpc2giOmZhbHNlLCJjYW5TdWJzY3JpYmUiOnRydWV9LCJpc3MiOiJBUElUdzJZcDJUdjN5ZmciLCJzdWIiOiJ0b3VjaGRlc2lnbmVyLXJlY2VpdmVyIiwiaWF0IjoxNzYzODAxODQ5LCJuYmYiOjE3NjM4MDE4NDksImV4cCI6MTc2Mzg4ODI0OX0.7r4VZzzAnbh-On6cw1D2r2kCN84K4QCcorE5-1ZyoA0"
+python >>> 
+python >>> # Find webrender operators
+python >>> ops = op('/').findChildren(type=webRenderTOP, depth=10)
+Traceback (most recent call last):
+  File "<Textport>", line 1
+NameError: name 'webRenderTOP' is not defined
+python >>> if not ops:
+...     print("No WebRender found. Creating one...")
+...     w = op('/').create(webRenderTOP, 'webrender_livekit_input')
+...     ops = [w]
+... 
+python >>> # Configure each
+python >>> for w in ops:
+...     print(f"Configuring {w.path}")
+...     if hasattr(w.par, 'roomname'): w.par.roomname = ROOM
+...     if hasattr(w.par, 'room'): w.par.room = ROOM  
+...     if hasattr(w.par, 'serverurl'): w.par.serverurl = SERVER
+...     if hasattr(w.par, 'server'): w.par.server = SERVER
+...     if hasattr(w.par, 'url'): w.par.url = SERVER
+...     if hasattr(w.par, 'token'): w.par.token = TOKEN
+...     if hasattr(w.par, 'accesstoken'): w.par.accesstoken = TOKEN
+...     if hasattr(w.par, 'active'): w.par.active = True
+...     print(f"Configured: {w.path}")
+... 
+Traceback (most recent call last):
+  File "<Textport>", line 1
+td.tdError: TD Object not iterable.
+python >>> print("DONE! Check webrender operator for camera feed")
+DONE! Check webrender operator for camera feed
+python >>> 

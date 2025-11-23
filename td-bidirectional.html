@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TouchDesigner Bidirectional Stream</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            font-family: 'Courier New', monospace;
+            color: #0f0;
+            overflow: hidden;
+        }
+        
+        #container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #videos {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+            background: #111;
+        }
+        
+        .video-wrapper {
+            position: relative;
+            background: #000;
+            overflow: hidden;
+        }
+        
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 255, 0, 0.8);
+            color: #000;
+            padding: 5px 10px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 3px;
+            z-index: 10;
+        }
+        
+        #status {
+            background: #111;
+            padding: 15px;
+            font-size: 12px;
+            border-top: 2px solid #0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #status-text {
+            flex: 1;
+        }
+        
+        .status-line {
+            margin: 2px 0;
+        }
+        
+        .connected { color: #0f0; }
+        .disconnected { color: #f00; }
+        .connecting { color: #ff0; }
+        
+        #controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        button:hover {
+            background: #0c0;
+        }
+        
+        button:disabled {
+            background: #555;
+            color: #888;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="videos">
+            <div class="video-wrapper">
+                <div class="label">LOCAL INPUT</div>
+                <video id="localVideo" autoplay muted playsinline></video>
+            </div>
+            <div class="video-wrapper">
+                <div class="label">REMOTE FEED</div>
+                <video id="remoteVideo" autoplay playsinline></video>
+            </div>
+        </div>
+        <div id="status">
+            <div id="status-text">
+                <div class="status-line">Status: <span id="connection-status" class="disconnected">DISCONNECTED</span></div>
+                <div class="status-line">Local: <span id="local-status">NOT STARTED</span></div>
+                <div class="status-line">Remote: <span id="remote-status">NO PARTICIPANTS</span></div>
+            </div>
+            <div id="controls">
+                <button id="startBtn" onclick="start()">START</button>
+                <button id="stopBtn" onclick="stop()" disabled>STOP</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/livekit-client/dist/livekit-client.umd.min.js"></script>
+    <script>
+        const { Room, RoomEvent, Track } = LivekitClient;
+
+        let room = null;
+        let localVideoTrack = null;
+        let localAudioTrack = null;
+        let isConnected = false;
+
+        // Configuration
+        const ROOM_NAME = 'claymation-live';
+        const SERVER_URL = window.location.origin;
+
+        // Status updates
+        function updateStatus(connection, local, remote) {
+            if (connection !== undefined) {
+                const statusEl = document.getElementById('connection-status');
+                statusEl.textContent = connection;
+                statusEl.className = connection.toLowerCase().replace(' ', '-');
+            }
+            if (local !== undefined) {
+                document.getElementById('local-status').textContent = local;
+            }
+            if (remote !== undefined) {
+                document.getElementById('remote-status').textContent = remote;
+            }
+        }
+
+        // Get token from server
+        async function getToken(participantName) {
+            const response = await fetch(`${SERVER_URL}/api/publisher-token?identity=${participantName}`);
+            const data = await response.json();
+            return data;
+        }
+
+        // Start publishing and subscribing
+        async function start() {
+            try {
+                updateStatus('CONNECTING', 'STARTING...', 'WAITING...');
+                document.getElementById('startBtn').disabled = true;
+
+                // Get token
+                const participantName = `td-${Date.now()}`;
+                const tokenData = await getToken(participantName);
+
+                // Create room
+                room = new Room({
+                    adaptiveStream: true,
+                    dynacast: true,
+                    videoCaptureDefaults: {
+                        resolution: {
+                            width: 1920,
+                            height: 1080,
+                            frameRate: 30
+                        }
+                    }
+                });
+
+                // Set up event handlers
+                room.on(RoomEvent.TrackSubscribed, handleTrackSubscribed);
+                room.on(RoomEvent.TrackUnsubscribed, handleTrackUnsubscribed);
+                room.on(RoomEvent.ParticipantConnected, handleParticipantConnected);
+                room.on(RoomEvent.ParticipantDisconnected, handleParticipantDisconnected);
+                room.on(RoomEvent.Disconnected, handleDisconnected);
+                room.on(RoomEvent.Connected, handleConnected);
+
+                // Connect to room
+                await room.connect(tokenData.url, tokenData.token);
+
+                // Get local media
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        frameRate: { ideal: 30 }
+                    },
+                    audio: true
+                });
+
+                // Display local video
+                document.getElementById('localVideo').srcObject = stream;
+
+                // Create tracks from stream
+                const videoTrack = stream.getVideoTracks()[0];
+                const audioTrack = stream.getAudioTracks()[0];
+
+                // Publish to room
+                localVideoTrack = await room.localParticipant.publishTrack(videoTrack, {
+                    name: 'camera',
+                    simulcast: true
+                });
+
+                localAudioTrack = await room.localParticipant.publishTrack(audioTrack, {
+                    name: 'microphone'
+                });
+
+                updateStatus('CONNECTED', 'PUBLISHING', room.participants.size > 0 ? `${room.participants.size} PARTICIPANT(S)` : 'NO PARTICIPANTS');
+                document.getElementById('stopBtn').disabled = false;
+                isConnected = true;
+
+            } catch (error) {
+                console.error('Failed to start:', error);
+                updateStatus('ERROR', error.message, 'FAILED');
+                document.getElementById('startBtn').disabled = false;
+            }
+        }
+
+        // Stop publishing and disconnect
+        async function stop() {
+            if (room) {
+                await room.disconnect();
+                room = null;
+            }
+            
+            if (localVideoTrack) {
+                localVideoTrack = null;
+            }
+            
+            if (localAudioTrack) {
+                localAudioTrack = null;
+            }
+
+            const localVideo = document.getElementById('localVideo');
+            if (localVideo.srcObject) {
+                localVideo.srcObject.getTracks().forEach(track => track.stop());
+                localVideo.srcObject = null;
+            }
+
+            const remoteVideo = document.getElementById('remoteVideo');
+            if (remoteVideo.srcObject) {
+                remoteVideo.srcObject = null;
+            }
+
+            updateStatus('DISCONNECTED', 'NOT STARTED', 'NO PARTICIPANTS');
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            isConnected = false;
+        }
+
+        // Event handlers
+        function handleConnected() {
+            console.log('Connected to room');
+            updateStatus('CONNECTED', undefined, room.participants.size > 0 ? `${room.participants.size} PARTICIPANT(S)` : 'NO PARTICIPANTS');
+        }
+
+        function handleDisconnected() {
+            console.log('Disconnected from room');
+            stop();
+        }
+
+        function handleParticipantConnected(participant) {
+            console.log('Participant connected:', participant.identity);
+            updateStatus(undefined, undefined, `${room.participants.size} PARTICIPANT(S)`);
+            
+            // Subscribe to existing tracks
+            participant.tracks.forEach((publication) => {
+                if (publication.track) {
+                    handleTrackSubscribed(publication.track, publication, participant);
+                }
+            });
+        }
+
+        function handleParticipantDisconnected(participant) {
+            console.log('Participant disconnected:', participant.identity);
+            updateStatus(undefined, undefined, room.participants.size > 0 ? `${room.participants.size} PARTICIPANT(S)` : 'NO PARTICIPANTS');
+        }
+
+        function handleTrackSubscribed(track, publication, participant) {
+            console.log('Track subscribed:', track.kind, 'from', participant.identity);
+            
+            if (track.kind === Track.Kind.Video || track.kind === Track.Kind.Audio) {
+                const remoteVideo = document.getElementById('remoteVideo');
+                const element = track.attach();
+                
+                if (track.kind === Track.Kind.Video) {
+                    // Replace video element
+                    remoteVideo.srcObject = new MediaStream([element]);
+                    updateStatus(undefined, undefined, `RECEIVING VIDEO FROM ${participant.identity}`);
+                } else if (track.kind === Track.Kind.Audio) {
+                    // Add audio track to existing stream or create new one
+                    if (!remoteVideo.srcObject) {
+                        remoteVideo.srcObject = new MediaStream();
+                    }
+                    remoteVideo.srcObject.addTrack(element);
+                    updateStatus(undefined, undefined, `RECEIVING AUDIO FROM ${participant.identity}`);
+                }
+            }
+        }
+
+        function handleTrackUnsubscribed(track, publication, participant) {
+            console.log('Track unsubscribed:', track.kind);
+            track.detach();
+            
+            // Check if we still have any tracks
+            const remoteVideo = document.getElementById('remoteVideo');
+            if (remoteVideo.srcObject && remoteVideo.srcObject.getTracks().length === 0) {
+                remoteVideo.srcObject = null;
+                updateStatus(undefined, undefined, room.participants.size > 0 ? `${room.participants.size} PARTICIPANT(S)` : 'NO PARTICIPANTS');
+            }
+        }
+
+        // Auto-start option (comment out if you want manual control)
+        // window.addEventListener('load', () => {
+        //     setTimeout(start, 1000);
+        // });
+    </script>
+</body>
+</html>

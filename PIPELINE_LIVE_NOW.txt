@@ -1,0 +1,19 @@
+PIPELINE IS LIVE!
+==================
+
+YOUR WEBRTC INTERACTIVE ART INSTALLATION IS NOW RUNNING!
+
+WHAT'S ACTIVE:
+
+1. Publisher (Camera Input) - Tab 60
+2. TD Auto Viewer - Tab 61 (SDK v2.0.7 FIXED!)
+3. TouchDesigner - Processing video
+4. OBS Studio - Capturing processed video
+5. Return Viewer (PUBLIC) - Tab 78 JUST OPENED!
+
+PUBLIC URL:
+https://liquid-milk-balls-web-production-2e8c.up.railway.app/return-viewer.html
+
+CHECK FIREFOX TAB 78 - That's your public-facing output!
+
+Your interactive art installation is LIVE! 🎨

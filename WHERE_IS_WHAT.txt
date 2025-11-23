@@ -1,0 +1,48 @@
+WHERE TO SEE WHAT - SIMPLE GUIDE
+================================
+
+YOUR INPUT (Raw Camera):
+------------------------
+FIREFOX TAB 60 - Publisher
+URL: http://localhost:3000/publisher.html
+
+THIS SHOWS: Your raw camera feed
+THIS IS: What you look like BEFORE TouchDesigner effects
+YOU SHOULD SEE: Yourself, unprocessed
+
+
+YOUR OUTPUT (Processed Art):
+----------------------------
+FIREFOX TAB 78 - Return Viewer
+URL: https://liquid-milk-balls-web-production-2e8c.up.railway.app/return-viewer.html
+
+THIS SHOWS: Your processed video with TouchDesigner effects
+THIS IS: What the world sees - your interactive art!
+YOU SHOULD SEE: Yourself WITH artistic effects applied
+
+
+HOW TO CHECK EACH ONE:
+----------------------
+
+TO SEE INPUT (Raw You):
+- Press Ctrl+1 in Firefox
+- OR look for tab that says "Publisher"
+- This is your RAW camera
+
+TO SEE OUTPUT (Processed Art):
+- Look for tab that says "Viewer" or "Return Viewer"
+- This is your PROCESSED video with effects
+
+WHICH ONE ARE YOU LOOKING AT NOW?
+----------------------------------
+Look at the tab title in Firefox:
+- If it says "Publisher" = INPUT (raw camera)
+- If it says "Viewer" or "Return Viewer" = OUTPUT (processed art)
+
+
+THE DIFFERENCE:
+---------------
+INPUT (Tab 60) = You, normal, no effects
+OUTPUT (Tab 78) = You, with TouchDesigner art effects
+
+Your TouchDesigner applies effects to transform INPUT into OUTPUT!

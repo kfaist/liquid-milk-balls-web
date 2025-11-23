@@ -1,0 +1,13 @@
+# Reload LiveKit Publisher in TouchDesigner
+wr1 = op('/project1/webrender1')
+wr1.par.reloadsrc.pulse()
+print("="*60)
+print("✅ RELOADED LiveKit Publisher")
+print("="*60)
+print("Watch for these status messages:")
+print("  1. ⏳ Waiting for LiveKit library...")
+print("  2. ✓ Camera captured")
+print("  3. ✓ Token received")
+print("  4. ✓ Connected to LiveKit Cloud")
+print("  5. ✓ Camera published!")
+print("="*60)

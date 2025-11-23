@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Ultra Verbose Video Test</title>
+<style>
+body { margin: 0; background: #000; color: lime; font-family: monospace; font-size: 11px; padding: 20px; }
+#video { width: 320px; height: 240px; background: #222; border: 2px solid lime; display: block; margin: 10px 0; }
+#log { white-space: pre-wrap; max-height: 500px; overflow-y: scroll; background: #111; padding: 10px; border: 1px solid #333; }
+.error { color: red; }
+.success { color: lime; font-weight: bold; }
+.info { color: yellow; }
+</style>
+</head>
+<body>
+<h2>ULTRA VERBOSE VIDEO DIAGNOSTIC</h2>
+<video id="video" autoplay playsinline muted></video>
+<div id="log"></div>
+
+<script>
+const video = document.getElementById('video');
+const logEl = document.getElementById('log');
+let logLines = [];
+
+function log(msg, cls = '') {
+    const line = `[${new Date().toISOString().slice(11,23)}] ${msg}`;
+    logLines.push(`<div class="${cls}">${line}</div>`);
+    logEl.innerHTML = logLines.slice(-50).join('');
+    console.log(msg);
+}
+
+log('=== STARTING DIAGNOSTIC ===', 'info');
+log(`Navigator: ${navigator.userAgent.substring(0, 50)}...`);
+log(`MediaDevices available: ${!!navigator.mediaDevices}`);
+
+// Check video element capabilities
+log(`Video element: ${!!video}`);
+log(`Video autoplay: ${video.autoplay}`);
+log(`Video playsinline: ${video.playsInline}`);
+log(`Video muted: ${video.muted}`);
+
+async function startCamera() {
+    try {
+        log('Requesting getUserMedia...', 'info');
+        log('  video: { width: 1280, height: 720 }');
+        
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { width: 1280, height: 720 },
+            audio: false
+        });
+        
+        log('✓ getUserMedia SUCCESS!', 'success');
+        log(`  Stream ID: ${stream.id}`);
+        log(`  Active: ${stream.active}`);
+        log(`  Video tracks: ${stream.getVideoTracks().length}`);
+        
+        const track = stream.getVideoTracks()[0];
+        log(`  Track label: ${track.label}`);
+        log(`  Track state: ${track.readyState}`);
+        log(`  Track enabled: ${track.enabled}`);
+        
+        const settings = track.getSettings();
+        log(`  Track settings: ${settings.width}x${settings.height} @ ${settings.frameRate}fps`);
+        
+        log('Setting video.srcObject...', 'info');
+        video.srcObject = stream;
+        log('✓ srcObject set', 'success');
+        
+        log('Calling video.play()...', 'info');
+        try {
+            await video.play();
+            log('✓ video.play() succeeded', 'success');
+        } catch (e) {
+            log(`✗ video.play() failed: ${e.message}`, 'error');
+        }
+        
+        // Monitor video element
+        let checkCount = 0;
+        const checker = setInterval(() => {
+            checkCount++;
+            log(`Check #${checkCount}:`);
+            log(`  videoWidth: ${video.videoWidth}`);
+            log(`  videoHeight: ${video.videoHeight}`);
+            log(`  readyState: ${video.readyState}`);
+            log(`  paused: ${video.paused}`);
+            log(`  currentTime: ${video.currentTime.toFixed(2)}`);
+            log(`  duration: ${video.duration}`);
+            
+            if (video.videoWidth > 0) {
+                log('✓✓✓ VIDEO DIMENSIONS DETECTED! ✓✓✓', 'success');
+                if (checkCount > 3) clearInterval(checker);
+            }
+            
+            if (checkCount > 10) {
+                log('Stopping checks after 10 attempts', 'error');
+                clearInterval(checker);
+            }
+        }, 1000);
+        
+    } catch (err) {
+        log(`✗✗✗ ERROR: ${err.name}`, 'error');
+        log(`  Message: ${err.message}`, 'error');
+        log(`  Stack: ${err.stack}`, 'error');
+    }
+}
+
+// Start immediately
+log('Starting camera test...', 'info');
+startCamera();
+</script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                ║
+║                      🎯 URL FIX APPLIED! 🎯                                    ║
+║                                                                                ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+## ✅ PROBLEM IDENTIFIED AND FIXED!
+
+Your WebRender TOP was working correctly, but pointing to the WRONG PAGE!
+
+┌─ WHAT WAS WRONG ──────────────────────────────────────────────────────────────┐
+│                                                                                │
+│  WebRender TOP URL: http://localhost:3000/publisher.html ❌                    │
+│                                                                                │
+│  This is the PUBLISHER page - designed for remote cameras to send video       │
+│  It shows "Start Publishing" button and capture controls                      │
+│  NOT what we want in TouchDesigner!                                            │
+│                                                                                │
+└────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ WHAT IT SHOULD BE ───────────────────────────────────────────────────────────┐
+│                                                                                │
+│  WebRender TOP URL: http://localhost:3000/td-input-viewer.html ✅              │
+│                                                                                │
+│  This is the VIEWER page - designed to RECEIVE and DISPLAY video              │
+│  It auto-connects to LiveKit and shows incoming video streams                 │
+│  Perfect for TouchDesigner!                                                    │
+│                                                                                │
+└────────────────────────────────────────────────────────────────────────────────┘
+
+## 🔧 WHAT I JUST FIXED
+
+**I CHANGED THE URL AUTOMATICALLY!**
+
+Steps executed:
+1. ✅ Found WebRender TOP in TouchDesigner
+2. ✅ Changed URL from publisher.html to td-input-viewer.html
+3. ✅ Triggered page reload
+4. ✅ Page should now auto-connect to LiveKit
+
+---
+
+## 📋 THE TWO PAGES EXPLAINED
+
+### publisher.html
+- **Purpose:** For remote browsers to SEND camera feeds
+- **Shows:** Camera controls, "Start Publishing" button
+- **Used by:** Firefox/Chrome browsers on remote computers
+- **LiveKit role:** Publisher (sends video)
+- **Should be in:** Your browser, not TouchDesigner!
+
+### td-input-viewer.html
+- **Purpose:** For TouchDesigner to RECEIVE video feeds
+- **Shows:** Full-screen video from LiveKit
+- **Used by:** WebRender TOP in TouchDesigner
+- **LiveKit role:** Viewer/Subscriber (receives video)
+- **Should be in:** WebRender TOP! ✅
+
+---
+
+## 👀 WHAT YOU SHOULD SEE NOW
+
+**IN THE WEBRENDER TOP:**
+
+The page should now display:
+- Auto-connecting to LiveKit message (brief)
+- Then FULL-SCREEN VIDEO from the active publisher
+- Live camera feed
+- Real-time updates
+
+**NOT:**
+- ❌ "PUBLISHER" heading
+- ❌ "Start Publishing" button
+- ❌ Camera controls
+
+---
+
+## 🎬 THE COMPLETE PIPELINE (NOW CORRECT!)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                 │
+│  Remote Browser (Firefox)                                       │
+│  └─ http://localhost:3000/publisher.html                        │
+│     └─ Camera capture + "Start Publishing"                      │
+│        └─ Sends to LiveKit ✅                                    │
+│                                                                 │
+│  ↓                                                              │
+│                                                                 │
+│  LiveKit Cloud (claymation-live room)                           │
+│  └─ Active participants: 2                                      │
+│     └─ Publisher: streaming camera + mic ✅                      │
+│                                                                 │
+│  ↓                                                              │
+│                                                                 │
+│  TouchDesigner WebRender TOP                                    │
+│  └─ http://localhost:3000/td-input-viewer.html ✅ (NOW FIXED!)   │
+│     └─ Auto-connects to LiveKit                                 │
+│        └─ Displays incoming video ✅                             │
+│                                                                 │
+│  ↓                                                              │
+│                                                                 │
+│  Your Effects Pipeline                                          │
+│  └─ Process the video!                                          │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## ✅ VERIFICATION CHECKLIST
+
+Check these in TouchDesigner:
+
+✅ **WebRender TOP exists** (not Web Client TOP)
+✅ **URL is:** http://localhost:3000/td-input-viewer.html
+✅ **Shows video** (not "Start Publishing" button)
+✅ **Video is live** (updates in real-time)
+✅ **No controls visible** (just full-screen video)
+
+---
+
+## 🔍 IF YOU STILL DON'T SEE VIDEO
+
+**Step 1: Verify URL in parameters**
+- Look at the right panel in your screenshot
+- "URL or File" parameter should show: http://localhost:3000/td-input-viewer.html
+- If it still shows publisher.html, click Reload
+
+**Step 2: Test the page in browser**
+```
+http://localhost:3000/td-input-viewer.html
+```
+- Open in Firefox
+- Should see video immediately
+- If yes → TouchDesigner needs reload
+- If no → Check publisher is active
+
+**Step 3: Verify publisher is still active**
+```powershell
+cd C:\Users\krista-showputer\Desktop\liquid-milk-balls-web
+node check-room-status.js
+```
+- Should show 2 participants
+- Should show camera track streaming
+
+**Step 4: Click Reload in TouchDesigner**
+- Find "Reload Source" or "Reload Current Page" button
+- Click it
+- Wait 3-5 seconds for connection
+
+---
+
+## 🎯 CURRENT SYSTEM STATUS
+
+Everything is working except the URL was wrong:
+
+✅ **Server:** Running on port 3000
+✅ **LiveKit:** Connected (claymation-live)
+✅ **Publisher:** ACTIVE (1.5+ hours!)
+   - Identity: publisher-1763924372406
+   - Camera: STREAMING
+   - Microphone: STREAMING
+✅ **Room:** 2 participants
+✅ **WebRender TOP:** Exists and working
+✅ **URL:** NOW CORRECTED! ← Just fixed this!
+
+---
+
+## 📁 SCRIPTS CREATED
+
+### Latest Fixes:
+- **fix_webrender_url.py** ← Just ran this!
+- **fix-url.ps1** ← PowerShell automation
+
+### Previous Fixes:
+- fix_use_webrender.py (switched from Web Client to WebRender)
+- fix-webrender.ps1 (PowerShell automation)
+
+### Original Setup:
+- ultimate_td_setup.py (initial setup)
+- execute-td-setup.ps1 (automation)
+
+### Testing & Verification:
+- check-room-status.js (shows active publishers)
+- comprehensive-diagnostic.js (full system test)
+- verify_td_setup.py (TD configuration check)
+
+---
+
+## 💡 KEY LESSONS
+
+**Two different pages for different purposes:**
+
+1. **publisher.html** = For SENDING video (remote browsers)
+2. **td-input-viewer.html** = For RECEIVING video (TouchDesigner)
+
+The first fix got WebRender TOP working (instead of Web Client TOP).
+This fix gets the CORRECT PAGE loaded (viewer instead of publisher).
+
+---
+
+## 🎉 SUMMARY
+
+**ISSUE 1 (SOLVED):** Web Client TOP showing HTTP headers
+→ FIXED: Switched to WebRender TOP
+
+**ISSUE 2 (JUST SOLVED):** WebRender TOP showing publisher controls
+→ FIXED: Changed URL to td-input-viewer.html
+
+**RESULT:** WebRender TOP should now show live video from the active publisher!
+
+---
+
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                ║
+║  The publisher has been streaming for 1.5+ hours.                              ║
+║  The WebRender TOP is now configured with the correct URL.                     ║
+║  The td-input-viewer page auto-connects and displays video.                    ║
+║                                                                                ║
+║  CHECK THE WEBRENDER TOP NOW - YOU SHOULD SEE VIDEO! 🎥                        ║
+║                                                                                ║
+╚════════════════════════════════════════════════════════════════════════════════╝

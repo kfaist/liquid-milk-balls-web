@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TD Auto Stream</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #000; overflow: hidden; }
+        #remote-video { 
+            width: 100vw; 
+            height: 100vh; 
+            object-fit: cover; 
+            display: block;
+        }
+        #status {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,255,0,0.8);
+            color: #000;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+        .error { background: rgba(255,0,0,0.8) !important; color: #fff !important; }
+    </style>
+</head>
+<body>
+    <video id="remote-video" autoplay playsinline></video>
+    <div id="status">INITIALIZING...</div>
+
+    <script src="https://unpkg.com/livekit-client/dist/livekit-client.umd.min.js"></script>
+    <script>
+        const { Room, RoomEvent, Track } = LivekitClient;
+        let room = null;
+        const remoteVideo = document.getElementById('remote-video');
+        const status = document.getElementById('status');
+
+        function updateStatus(text, isError = false) {
+            status.textContent = text;
+            if (isError) {
+                status.classList.add('error');
+            } else {
+                status.classList.remove('error');
+            }
+            console.log(text);
+        }
+
+        async function getToken() {
+            const response = await fetch(`${window.location.origin}/api/viewer-token?identity=td-viewer-${Date.now()}`);
+            return await response.json();
+        }
+
+        async function start() {
+            try {
+                updateStatus('CONNECTING...');
+                
+                const tokenData = await getToken();
+                
+                room = new Room({
+                    adaptiveStream: true,
+                    dynacast: true
+                });
+
+                room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
+                    console.log('Track subscribed:', track.kind, 'from', participant.identity);
+                    
+                    if (track.kind === Track.Kind.Video) {
+                        const element = track.attach();
+                        remoteVideo.srcObject = new MediaStream([element]);
+                        updateStatus(`RECEIVING: ${participant.identity}`);
+                    } else if (track.kind === Track.Kind.Audio) {
+                        const element = track.attach();
+                        if (!remoteVideo.srcObject) {
+                            remoteVideo.srcObject = new MediaStream();
+                        }
+                        remoteVideo.srcObject.addTrack(element);
+                    }
+                });
+
+                room.on(RoomEvent.TrackUnsubscribed, (track) => {
+                    track.detach();
+                    updateStatus('WAITING FOR STREAM...');
+                });
+
+                room.on(RoomEvent.ParticipantConnected, (participant) => {
+                    updateStatus(`PARTICIPANT: ${participant.identity}`);
+                });
+
+                room.on(RoomEvent.Disconnected, () => {
+                    updateStatus('DISCONNECTED', true);
+                    setTimeout(() => start(), 3000); // Auto-reconnect
+                });
+
+                await room.connect(tokenData.url, tokenData.token);
+                
+                if (room.participants.size > 0) {
+                    updateStatus(`CONNECTED (${room.participants.size} participants)`);
+                } else {
+                    updateStatus('WAITING FOR STREAM...');
+                }
+
+            } catch (error) {
+                console.error('Connection failed:', error);
+                updateStatus(`ERROR: ${error.message}`, true);
+                setTimeout(() => start(), 5000); // Retry
+            }
+        }
+
+        // Auto-start when page loads
+        window.addEventListener('load', () => {
+            setTimeout(start, 500);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Canvas Camera</title>
+<style>
+body{margin:0;background:#000}
+canvas{width:100vw;height:100vh;display:block}
+#s{position:fixed;top:10px;left:10px;background:#0f0;color:#000;padding:10px;font:12px monospace;z-index:999}
+</style></head><body>
+<canvas id="c" width="1280" height="720"></canvas>
+<div id="s">Init...</div>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d'),s=document.getElementById('s'),v=document.createElement('video');
+v.autoplay=v.muted=v.playsInline=true;
+navigator.mediaDevices.getUserMedia({video:{width:1280,height:720}}).then(stream=>{
+v.srcObject=stream;
+s.textContent='Stream OK';
+function draw(){
+if(v.readyState>=v.HAVE_CURRENT_DATA){
+ctx.drawImage(v,0,0,1280,720);
+s.textContent='LIVE '+v.videoWidth+'x'+v.videoHeight+' F:'+Date.now()%10000;
+}
+requestAnimationFrame(draw);
+}
+v.onloadedmetadata=()=>draw();
+}).catch(e=>{s.textContent='ERR:'+e.message;s.style.background='#f00';s.style.color='#fff'});
+</script></body></html>

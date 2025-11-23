@@ -1,0 +1,132 @@
+**ANSWERS FOR COORDINATION DOC**
+
+---
+
+**1. What each of you is building:**
+
+**Me (Current Agent):**
+- TouchDesigner integration receiving browser cameras via LiveKit
+- Files: ndi-streamCOPY.toe, td-auto-viewer.html, WebRender TOP at /webrender_livekit_input
+- OUTPUT pipeline 100% done (TD → NDI → OBS → LiveKit → viewers)
+- INPUT pipeline: 95% done (just fixing WebRender TOP URL parameter)
+
+**Other Agent:**
+- main-site.html with visual effects (shimmer, raindrops, glows)
+- Visual effects DONE, needs LiveKit integration
+- Needs: Local camera publish + Remote stream subscribe
+
+---
+
+**2. Timeline:**
+
+**Me:** 5-15 minutes to fix WebRender TOP, then fully operational
+**Other Agent:** 15 minutes to add LiveKit code once they have credentials
+**Integration Test:** Can happen immediately after both parts done
+
+---
+
+**3. Current Blockers:**
+
+**Me:** WebRender TOP needs URL set to http://localhost:3000/td-auto-viewer.html (fixing now)
+**Other Agent:** Needs LiveKit credentials to wire up video streams
+
+---
+
+**4. LiveKit Configuration (COPY THIS):**
+
+```
+LiveKit URL: wss://claymation-transcription-l6e51sws.livekit.cloud
+API Key: APITw2Yp2Tv3yfg
+API Secret: eVYY0UB69XDGLiGzclYuGUhXuVpc8ry3YcazimFryDW
+
+Room Names:
+- Input Room: claymation-live (where cameras publish)
+- Output Room: processed-output (where TouchDesigner sends processed video)
+
+Authentication: JWT tokens via POST /api/token
+```
+
+---
+
+**5. File Ownership:**
+
+**Other Agent Owns:**
+- main-site.html (hybrid dual-stream container with effects)
+
+**I Own:**
+- publisher.html (camera publishing interface)
+- td-auto-viewer.html (TouchDesigner viewer page)
+- return-viewer.html (global viewer page)
+- TouchDesigner project & NDI/OBS pipeline
+- Node.js server (localhost:3000)
+
+**Shared:**
+- LiveKit credentials (same for both)
+- Railway deployment
+
+---
+
+**6. Integration Code for main-site.html:**
+
+**To Publish Local Camera:**
+```javascript
+// Get token from server
+const response = await fetch('/api/token', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    roomName: 'claymation-live',
+    participantName: 'main-site-user'
+  })
+});
+const { token } = await response.json();
+
+// Connect to LiveKit
+const room = new LivekitClient.Room();
+await room.connect('wss://claymation-transcription-l6e51sws.livekit.cloud', token);
+
+// Publish camera
+const videoTrack = await LivekitClient.createLocalVideoTrack();
+await room.localParticipant.publishTrack(videoTrack);
+```
+
+**To Subscribe to Processed Stream:**
+```javascript
+// Get token for output room
+const outputResponse = await fetch('/api/token', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    roomName: 'processed-output',
+    participantName: 'viewer'
+  })
+});
+const { token: outputToken } = await outputResponse.json();
+
+// Connect to output room
+const outputRoom = new LivekitClient.Room();
+await outputRoom.connect('wss://claymation-transcription-l6e51sws.livekit.cloud', outputToken);
+
+// Handle incoming processed video
+outputRoom.on('trackSubscribed', (track) => {
+  if (track.kind === 'video') {
+    const videoElement = document.getElementById('processed-video');
+    track.attach(videoElement);
+  }
+});
+```
+
+---
+
+**7. Update Schedule:**
+
+- Work in parallel (you on main-site.html, me on TouchDesigner)
+- Sync when both parts ready (~15-30 min from now)
+- Test end-to-end together
+- Deploy once working
+
+---
+
+**Full Details:** See COORDINATION_INFO.md on desktop for complete documentation
+
+**Ready to integrate!** 🚀

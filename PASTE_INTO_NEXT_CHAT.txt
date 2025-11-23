@@ -1,0 +1,55 @@
+COPY THIS INTO NEXT CHAT - TouchDesigner WebRender Final Fix
+═══════════════════════════════════════════════════════════════
+
+I need you to execute 3 lines in TouchDesigner to complete the WebRender TOP configuration.
+
+CURRENT STATUS:
+✅ TouchDesigner project open: ndi-streamCOPY.toe (PID 47576)
+✅ Node.js server running on localhost:3000 (PID 43492)
+✅ OUTPUT pipeline 100% working (TD → NDI → OBS → LiveKit → viewers)
+⚠️ INPUT needs final fix: WebRender TOP URL configuration
+
+THE FIX (30 SECONDS):
+
+1. Click TouchDesigner window to focus it
+2. Press Alt+T to open textport
+3. Copy and paste these 3 lines:
+
+wr = op('/webrender_livekit_input')
+wr.par.Url = 'http://localhost:3000/td-auto-viewer.html'
+wr.par.Reload.pulse()
+
+4. Press Ctrl+A, then Ctrl+Enter to execute
+5. Done!
+
+TESTING:
+
+After fix:
+1. Open browser: http://localhost:3000/publisher.html
+2. Click "Start Publishing"
+3. Allow camera access
+4. Check TouchDesigner WebRender TOP - should show camera feed!
+
+COMPLETE SYSTEM TEST:
+
+1. Publisher: http://localhost:3000/publisher.html (camera input)
+2. Viewer: http://localhost:3000/return-viewer.html (processed output)
+3. Both should show video flowing through system
+
+FILES READY:
+✅ C:\Users\krista-showputer\Desktop\liquid-milk-balls-web\HANDOFF_FINAL.md (complete details)
+✅ C:\Users\krista-showputer\Desktop\liquid-milk-balls-web\QUICK_FIX_CARD.txt (quick reference)
+✅ C:\Users\krista-showputer\Desktop\liquid-milk-balls-web\SESSION_SUMMARY.md (what was done)
+
+LIVEKIT CONFIG:
+URL: wss://claymation-transcription-l6e51sws.livekit.cloud
+API Key: APITw2Yp2Tv3yfg
+API Secret: eVYY0UB69XDGLiGzclYuGUhXuVpc8ry3YcazimFryDW
+Input Room: claymation-live
+Output Room: processed-output
+
+GOAL: Get browser cameras into TouchDesigner for live processing, then stream processed video globally.
+
+You have full agentic access to desktop, browser, and filesystem.
+
+═══════════════════════════════════════════════════════════════

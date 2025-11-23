@@ -1,0 +1,160 @@
+TOUCHDESIGNER WEBRTC CONFIGURATION GUIDE
+Complete Instructions to Connect Publisher to TouchDesigner
+========================================================================
+
+OVERVIEW:
+Your publisher.html page sends camera video to LiveKit room "claymation-live"
+TouchDesigner needs to receive video from that same room
+This guide will help you set that up
+
+========================================================================
+STEP 1: OPEN TOUCHDESIGNER
+========================================================================
+
+1. TouchDesigner should already be open with "ndi-streamCOPY.toe"
+2. If not, open that file from:
+   C:\Users\krista-showputer\Desktop\liquid-milk-balls-web\ndi-streamCOPY.toe
+
+========================================================================
+STEP 2: RUN DIAGNOSTIC SCRIPT (OPTIONAL BUT HELPFUL)
+========================================================================
+
+1. In TouchDesigner, open the Textport (Alt+T or click the Textport button)
+2. Type or paste this command:
+
+   exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_diagnostic.py').read())
+
+3. Press Enter
+4. This will show you all WebRTC operators and their parameter names
+5. Write down the parameter names - you will need them!
+
+========================================================================
+STEP 3: FIND OR CREATE WEB RENDER TOP
+========================================================================
+
+OPTION A - If you already have a Web Render TOP:
+   1. Find it in your network (look for "webrender" or similar name)
+   2. Click on it to select it
+   3. Look at the Parameter window on the right side
+
+OPTION B - If you need to create a new Web Render TOP:
+   1. Press the TAB key in the network editor
+   2. Type "web" in the search box
+   3. Look for "Web Render TOP" in the list
+   4. Click it or press Enter to create it
+   5. Place it somewhere in your network by clicking
+
+========================================================================
+STEP 4: CONFIGURE THE WEB RENDER TOP FOR LIVEKIT
+========================================================================
+
+With the Web Render TOP selected, look at the Parameters panel.
+You need to set these values:
+
+LIVEKIT URL:
+   Parameter name might be: livekiturl, url, serverurl, server
+   Set to: wss://claymation-transcription-l6e51sws.livekit.cloud
+
+ROOM NAME:
+   Parameter name might be: roomname, room, channelname, channel
+   Set to: claymation-live
+
+TOKEN:
+   Parameter name might be: token, livekittoken, accesstoken, auth
+   Set to: eyJhbGciOiJIUzI1NiJ9.eyJ2aWRlbyI6eyJyb29tIjoiY2xheW1hdGlvbi1saXZlIiwicm9vbUpvaW4iOnRydWUsImNhblB1Ymxpc2giOmZhbHNlLCJjYW5TdWJzY3JpYmUiOnRydWV9LCJpc3MiOiJBUElUdzJZcDJUdjN5ZmciLCJleHAiOjE3NjM4NDg4NDQsIm5iZiI6MCwic3ViIjoidG91Y2hkZXNpZ25lci1yZWNlaXZlciJ9.LScuDiy0yrnxxJKweBRgxfU5EVSsSwCGQC76ZRFqIKs
+
+ENABLE LIVEKIT:
+   Parameter name might be: uselivekit, enablelivekit, mode
+   Set to: On or True or 1 (enabled/checked)
+
+========================================================================
+STEP 5: CONNECT TO LIVEKIT
+========================================================================
+
+Look for a button or parameter that says:
+   - "Connect"
+   - "Start"
+   - "Active"
+   - "Enable"
+
+Click it or set it to On/True/1
+
+The Web Render TOP should now try to connect to the LiveKit room.
+
+========================================================================
+STEP 6: TEST WITH PUBLISHER
+========================================================================
+
+1. Open this page in Firefox (already open in tab 103):
+   https://liquid-milk-balls-web-production-2e8c.up.railway.app/publisher.html
+
+2. Click "Start Publishing" button
+3. Allow camera access when prompted
+4. You should see your camera feed on the publisher page
+5. Go back to TouchDesigner
+6. The Web Render TOP should now show the video feed!
+
+========================================================================
+TROUBLESHOOTING
+========================================================================
+
+IF VIDEO DOES NOT APPEAR:
+
+1. Check that publisher page shows "Publishing" status (green)
+2. In TouchDesigner, right-click the Web Render TOP and select "Viewer"
+3. Check if there are any error messages in the Textport
+4. Try disconnecting and reconnecting the Web Render TOP
+5. Make sure the token has not expired (tokens last 2 hours)
+   - If expired, run td_livekit_token.py again to get a new token
+   - Update the token parameter in the Web Render TOP
+
+IF WEB RENDER TOP DOES NOT EXIST OR DOES NOT WORK:
+
+TouchDesigner might need WebRTC support enabled.
+Alternative approach - use a Browser CHOP instead:
+1. Create a Browser CHOP instead of Web Render TOP
+2. Point it to: https://liquid-milk-balls-web-production-2e8c.up.railway.app/td-auto-viewer.html
+3. This page already has the LiveKit viewer code built-in
+
+========================================================================
+NEXT STEPS AFTER VIDEO IS WORKING
+========================================================================
+
+Once you see video in TouchDesigner:
+1. Connect the Web Render TOP output to your effects chain
+2. Make sure your effects output to the NDI Out TOP
+3. The NDI output should be named "TD-LiveKit-Output"
+4. OBS will pick up this NDI stream automatically
+5. The complete flow will be working!
+
+========================================================================
+AUTOMATED CONFIGURATION (ADVANCED)
+========================================================================
+
+If you want to try automatic configuration:
+1. Open Textport in TouchDesigner (Alt+T)
+2. Type or paste:
+
+   exec(open('C:/Users/krista-showputer/Desktop/liquid-milk-balls-web/td_configure_webrtc.py').read())
+
+3. Press Enter
+4. The script will try to configure everything automatically
+5. Read the output to see if it worked
+
+========================================================================
+NEED HELP?
+========================================================================
+
+All configuration files are saved in:
+C:\Users\krista-showputer\Desktop\liquid-milk-balls-web\
+
+Files created:
+- td_livekit_token.py - Generates fresh LiveKit tokens
+- td_configure_webrtc.py - Automatic configuration script
+- td_diagnostic.py - Shows all operators and parameters
+- td_livekit_config.txt - Saved configuration details
+- THIS FILE - Complete instructions
+
+Run any Python script to get fresh tokens or diagnostic info!
+
+========================================================================

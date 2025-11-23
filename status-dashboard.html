@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipeline Status Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 30px;
+            color: #0ff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card.success {
+            border-color: #0f0;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+        }
+        
+        .card.error {
+            border-color: #f00;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+        }
+        
+        .card.warning {
+            border-color: #ff0;
+            box-shadow: 0 0 20px rgba(255, 255, 0, 0.2);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #0ff;
+        }
+        
+        .card-status {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .card-details {
+            font-size: 14px;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-indicator.online {
+            background: #0f0;
+            box-shadow: 0 0 10px #0f0;
+        }
+        
+        .status-indicator.offline {
+            background: #f00;
+            box-shadow: 0 0 10px #f00;
+        }
+        
+        .status-indicator.pending {
+            background: #ff0;
+            box-shadow: 0 0 10px #ff0;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        button {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 200, 255, 0.2));
+            border: 2px solid #0ff;
+            color: #fff;
+            padding: 12px 24px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.4), rgba(0, 200, 255, 0.4));
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+        
+        .actions {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .timeline {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .timeline-entry {
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 3px solid #0ff;
+            padding-left: 15px;
+        }
+        
+        .timeline-entry.success { border-color: #0f0; }
+        .timeline-entry.error { border-color: #f00; }
+        .timeline-entry.warning { border-color: #ff0; }
+        
+        .timestamp {
+            font-size: 12px;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ LIQUID MILK BALLS - PIPELINE STATUS ⚡</h1>
+        
+        <div class="dashboard">
+            <div class="card" id="serverCard">
+                <div class="card-title">🖥️ SERVER STATUS</div>
+                <div class="card-status">
+                    <span class="status-indicator pending"></span>
+                    <span id="serverStatus">Checking...</span>
+                </div>
+                <div class="card-details" id="serverDetails">Waiting for check...</div>
+            </div>
+            
+            <div class="card" id="livekitCard">
+                <div class="card-title">🔗 LIVEKIT CONNECTION</div>
+                <div class="card-status">
+                    <span class="status-indicator pending"></span>
+                    <span id="livekitStatus">Not Connected</span>
+                </div>
+                <div class="card-details" id="livekitDetails">Click connect button below</div>
+            </div>
+            
+            <div class="card" id="publisherCard">
+                <div class="card-title">📹 PUBLISHERS</div>
+                <div class="card-status">
+                    <span class="status-indicator pending"></span>
+                    <span id="publisherStatus">0</span>
+                </div>
+                <div class="card-details" id="publisherDetails">No publishers detected</div>
+            </div>
+            
+            <div class="card" id="tracksCard">
+                <div class="card-title">🎬 ACTIVE TRACKS</div>
+                <div class="card-status">
+                    <span class="status-indicator pending"></span>
+                    <span id="tracksStatus">0 Video / 0 Audio</span>
+                </div>
+                <div class="card-details" id="tracksDetails">No tracks available</div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button onclick="checkServer()">CHECK SERVER</button>
+            <button onclick="connectLiveKit()">CONNECT TO LIVEKIT</button>
+            <button onclick="openPublisher()">OPEN PUBLISHER</button>
+            <button onclick="openTDViewer()">OPEN TD VIEWER</button>
+            <button onclick="clearTimeline()">CLEAR LOG</button>
+        </div>
+        
+        <h2 style="color: #0ff; margin: 20px 0;">📊 EVENT TIMELINE</h2>
+        <div class="timeline" id="timeline"></div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+    <script>
+        let room = null;
+        const timeline = document.getElementById('timeline');
+        
+        function addTimelineEntry(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `timeline-entry ${type}`;
+            entry.innerHTML = `
+                <div class="timestamp">${new Date().toLocaleTimeString()}</div>
+                <div>${message}</div>
+            `;
+            timeline.insertBefore(entry, timeline.firstChild);
+        }
+        
+        function clearTimeline() {
+            timeline.innerHTML = '';
+        }
+        
+        function updateCard(cardId, status, details, type = 'pending') {
+            const card = document.getElementById(cardId);
+            const statusSpan = card.querySelector('.card-status span:last-child');
+            const detailsDiv = card.querySelector('.card-details');
+            const indicator = card.querySelector('.status-indicator');
+            
+            statusSpan.textContent = status;
+            detailsDiv.textContent = details;
+            indicator.className = `status-indicator ${type}`;
+            
+            card.className = 'card';
+            if (type === 'online') card.classList.add('success');
+            if (type === 'offline') card.classList.add('error');
+            if (type === 'pending') card.classList.add('warning');
+        }
+        
+        async function checkServer() {
+            addTimelineEntry('Checking server status...', 'info');
+            
+            try {
+                const response = await fetch('/healthz');
+                if (response.ok) {
+                    updateCard('serverCard', 'ONLINE', 'Server is responding on port 3000', 'online');
+                    addTimelineEntry('✅ Server is online and responding', 'success');
+                } else {
+                    throw new Error(`Status: ${response.status}`);
+                }
+            } catch (error) {
+                updateCard('serverCard', 'OFFLINE', `Error: ${error.message}`, 'offline');
+                addTimelineEntry(`❌ Server check failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function connectLiveKit() {
+            addTimelineEntry('Connecting to LiveKit...', 'info');
+            
+            try {
+                const response = await fetch('/api/viewer-token');
+                const data = await response.json();
+                
+                addTimelineEntry(`Token received for room: ${data.room}`, 'success');
+                
+                room = new LivekitClient.Room({
+                    adaptiveStream: true,
+                    dynacast: true,
+                });
+                
+                room.on(LivekitClient.RoomEvent.ConnectionStateChanged, (state) => {
+                    addTimelineEntry(`Connection state: ${state}`, 'info');
+                    
+                    if (state === LivekitClient.ConnectionState.Connected) {
+                        updateCard('livekitCard', 'CONNECTED', `Room: ${data.room}`, 'online');
+                        addTimelineEntry('✅ Connected to LiveKit!', 'success');
+                    }
+                });
+                
+                room.on(LivekitClient.RoomEvent.ParticipantConnected, (participant) => {
+                    const count = room.remoteParticipants.size;
+                    updateCard('publisherCard', `${count}`, `${participant.identity} joined`, 'online');
+                    addTimelineEntry(`👤 Publisher connected: ${participant.identity}`, 'success');
+                });
+                
+                room.on(LivekitClient.RoomEvent.ParticipantDisconnected, (participant) => {
+                    const count = room.remoteParticipants.size;
+                    updateCard('publisherCard', `${count}`, count === 0 ? 'No publishers' : `${count} active`, count === 0 ? 'pending' : 'online');
+                    addTimelineEntry(`👤 Publisher disconnected: ${participant.identity}`, 'warning');
+                });
+                
+                room.on(LivekitClient.RoomEvent.TrackSubscribed, (track, publication, participant) => {
+                    updateTrackCounts();
+                    addTimelineEntry(`📹 ${track.kind} track from ${participant.identity}`, 'success');
+                });
+                
+                room.on(LivekitClient.RoomEvent.TrackUnsubscribed, () => {
+                    updateTrackCounts();
+                });
+                
+                await room.connect(data.url, data.token);
+                
+                const count = room.remoteParticipants.size;
+                if (count > 0) {
+                    updateCard('publisherCard', `${count}`, `${count} publisher(s) active`, 'online');
+                } else {
+                    updateCard('publisherCard', '0', 'Waiting for publishers', 'pending');
+                    addTimelineEntry('⚠️ No publishers found. Start publisher.html!', 'warning');
+                }
+                
+            } catch (error) {
+                updateCard('livekitCard', 'ERROR', error.message, 'offline');
+                addTimelineEntry(`❌ LiveKit error: ${error.message}`, 'error');
+            }
+        }
+        
+        function updateTrackCounts() {
+            if (!room) return;
+            
+            let videoCount = 0;
+            let audioCount = 0;
+            
+            room.remoteParticipants.forEach(p => {
+                p.videoTrackPublications.forEach(pub => {
+                    if (pub.isSubscribed) videoCount++;
+                });
+                p.audioTrackPublications.forEach(pub => {
+                    if (pub.isSubscribed) audioCount++;
+                });
+            });
+            
+            updateCard('tracksCard', `${videoCount} Video / ${audioCount} Audio`,
+                      `Active streams: ${videoCount + audioCount} total`,
+                      (videoCount + audioCount) > 0 ? 'online' : 'pending');
+        }
+        
+        function openPublisher() {
+            window.open('/publisher.html', '_blank');
+            addTimelineEntry('🚀 Opening publisher page...', 'info');
+        }
+        
+        function openTDViewer() {
+            window.open('/td-input-viewer.html', '_blank');
+            addTimelineEntry('🚀 Opening TD input viewer...', 'info');
+        }
+        
+        // Auto-check server on load
+        window.addEventListener('DOMContentLoaded', () => {
+            addTimelineEntry('🎬 Dashboard started', 'success');
+            checkServer();
+        });
+    </script>
+</body>
+</html>

@@ -1,80 +1,303 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>LiveKit SDK Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiveKit Connection Test</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            background: #1a1a1a;
-            color: #0cf;
-            font-family: monospace;
-            padding: 40px;
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #0f0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        
+        .status-box {
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid #0f0;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .status-box.error {
+            background: rgba(255, 0, 0, 0.1);
+            border-color: #f00;
+            color: #f00;
+        }
+        
+        .status-box.warning {
+            background: rgba(255, 255, 0, 0.1);
+            border-color: #ff0;
+            color: #ff0;
+        }
+        
+        .log {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+        }
+        
+        .log-entry.info { color: #0ff; }
+        .log-entry.success { color: #0f0; }
+        .log-entry.error { color: #f00; }
+        .log-entry.warning { color: #ff0; }
+        
+        button {
+            background: transparent;
+            border: 2px solid #0f0;
+            color: #0f0;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
             font-size: 16px;
+            margin: 10px 5px;
         }
-        .status { 
-            padding: 20px; 
-            margin: 20px 0; 
-            border: 2px solid #0cf;
-            border-radius: 8px;
+        
+        button:hover {
+            background: rgba(0, 255, 0, 0.2);
         }
-        .success { border-color: #0f0; color: #0f0; }
-        .error { border-color: #f00; color: #f00; }
-        pre { 
-            background: #000; 
-            padding: 15px; 
-            border-radius: 4px; 
-            overflow-x: auto;
+        
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .metric {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #0f0;
+            padding: 10px;
+            border-radius: 3px;
+        }
+        
+        .metric-label {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .metric-value {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
-    <h1>🧪 LiveKit SDK Loading Test</h1>
-    
-    <div class="status" id="status">
-        <strong>Status:</strong> Testing...
+    <div class="container">
+        <h1>🔍 LIVEKIT CONNECTION DIAGNOSTIC</h1>
+        
+        <div id="status" class="status-box">
+            Initializing...
+        </div>
+        
+        <div class="metrics">
+            <div class="metric">
+                <div class="metric-label">CONNECTION STATE</div>
+                <div class="metric-value" id="connState">-</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">ROOM</div>
+                <div class="metric-value" id="room">-</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">PARTICIPANTS</div>
+                <div class="metric-value" id="participants">0</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">VIDEO TRACKS</div>
+                <div class="metric-value" id="videoTracks">0</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">AUDIO TRACKS</div>
+                <div class="metric-value" id="audioTracks">0</div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin: 20px 0;">
+            <button onclick="connect()">CONNECT AS VIEWER</button>
+            <button onclick="clearLog()">CLEAR LOG</button>
+        </div>
+        
+        <div class="log" id="log"></div>
     </div>
-
-    <div id="details"></div>
-
+    
     <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
     <script>
+        let room = null;
         const statusDiv = document.getElementById('status');
-        const detailsDiv = document.getElementById('details');
-
-        setTimeout(() => {
-            if (typeof LivekitClient !== 'undefined') {
-                statusDiv.className = 'status success';
-                statusDiv.innerHTML = '<strong>✅ SUCCESS!</strong> LiveKit SDK loaded correctly!';
+        const logDiv = document.getElementById('log');
+        
+        function log(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(`[${type.toUpperCase()}]`, message);
+        }
+        
+        function updateStatus(message, type = 'info') {
+            statusDiv.textContent = message;
+            statusDiv.className = 'status-box';
+            if (type === 'error') statusDiv.classList.add('error');
+            if (type === 'warning') statusDiv.classList.add('warning');
+        }
+        
+        function updateMetric(id, value) {
+            document.getElementById(id).textContent = value;
+        }
+        
+        function clearLog() {
+            logDiv.innerHTML = '';
+        }
+        
+        async function connect() {
+            try {
+                log('Fetching LiveKit viewer token...', 'info');
+                updateStatus('Fetching token...');
                 
-                detailsDiv.innerHTML = `
-                    <h2>SDK Details:</h2>
-                    <pre>LivekitClient object exists: ${typeof LivekitClient}
-Room class available: ${typeof LivekitClient.Room}
-Track class available: ${typeof LivekitClient.Track}
-RoomEvent enum available: ${typeof LivekitClient.RoomEvent}
-
-✅ All required components are present!
-
-<strong>This means return-viewer.html will work now!</strong></pre>
-                `;
-            } else {
-                statusDiv.className = 'status error';
-                statusDiv.innerHTML = '<strong>❌ FAILED!</strong> LiveKit SDK did not load';
+                const response = await fetch('/api/viewer-token');
+                if (!response.ok) {
+                    throw new Error(`Token request failed: ${response.status}`);
+                }
                 
-                detailsDiv.innerHTML = `
-                    <h2>Error Details:</h2>
-                    <pre>The LivekitClient object is undefined.
-This means the SDK failed to load from:
-https://unpkg.com/livekit-client/dist/livekit-client.umd.min.js
-
-Possible causes:
-- Network connectivity issue
-- CDN is down
-- Script blocked by browser/firewall
-
-Check browser console for errors (F12).</pre>
-                `;
+                const data = await response.json();
+                log(`Token received for room: ${data.room}`, 'success');
+                log(`LiveKit server: ${data.url}`, 'info');
+                updateMetric('room', data.room);
+                
+                updateStatus('Connecting to LiveKit...');
+                log('Creating LiveKit room instance...', 'info');
+                
+                room = new LivekitClient.Room({
+                    adaptiveStream: true,
+                    dynacast: true,
+                });
+                
+                // Connection state changes
+                room.on(LivekitClient.RoomEvent.ConnectionStateChanged, (state) => {
+                    log(`Connection state: ${state}`, 'info');
+                    updateMetric('connState', state);
+                    
+                    if (state === LivekitClient.ConnectionState.Connected) {
+                        updateStatus('✅ Connected to LiveKit!', 'success');
+                        log('Successfully connected!', 'success');
+                    } else if (state === LivekitClient.ConnectionState.Reconnecting) {
+                        updateStatus('⚠️ Reconnecting...', 'warning');
+                        log('Connection lost, attempting to reconnect...', 'warning');
+                    } else if (state === LivekitClient.ConnectionState.Disconnected) {
+                        updateStatus('❌ Disconnected', 'error');
+                        log('Disconnected from room', 'error');
+                    }
+                });
+                
+                // Participant events
+                room.on(LivekitClient.RoomEvent.ParticipantConnected, (participant) => {
+                    log(`👤 Participant connected: ${participant.identity}`, 'success');
+                    updateMetric('participants', room.remoteParticipants.size);
+                });
+                
+                room.on(LivekitClient.RoomEvent.ParticipantDisconnected, (participant) => {
+                    log(`👤 Participant disconnected: ${participant.identity}`, 'warning');
+                    updateMetric('participants', room.remoteParticipants.size);
+                });
+                
+                // Track events
+                room.on(LivekitClient.RoomEvent.TrackSubscribed, (track, publication, participant) => {
+                    log(`📹 ${track.kind} track subscribed from ${participant.identity}`, 'success');
+                    
+                    // Count tracks
+                    let videoCount = 0;
+                    let audioCount = 0;
+                    room.remoteParticipants.forEach(p => {
+                        p.videoTrackPublications.forEach(pub => {
+                            if (pub.isSubscribed) videoCount++;
+                        });
+                        p.audioTrackPublications.forEach(pub => {
+                            if (pub.isSubscribed) audioCount++;
+                        });
+                    });
+                    updateMetric('videoTracks', videoCount);
+                    updateMetric('audioTracks', audioCount);
+                });
+                
+                room.on(LivekitClient.RoomEvent.TrackUnsubscribed, (track, publication, participant) => {
+                    log(`📹 ${track.kind} track unsubscribed from ${participant.identity}`, 'warning');
+                });
+                
+                // Connect
+                log('Connecting to room...', 'info');
+                await room.connect(data.url, data.token);
+                
+                log('✅ Connection established!', 'success');
+                updateStatus('✅ Connected! Waiting for publishers...');
+                
+                // Check existing participants
+                const participants = Array.from(room.remoteParticipants.values());
+                log(`Found ${participants.length} existing participant(s)`, 'info');
+                updateMetric('participants', participants.length);
+                
+                participants.forEach(p => {
+                    log(`  - ${p.identity}`, 'info');
+                    p.videoTrackPublications.forEach(pub => {
+                        log(`    Video track: ${pub.trackSid}`, 'info');
+                    });
+                    p.audioTrackPublications.forEach(pub => {
+                        log(`    Audio track: ${pub.trackSid}`, 'info');
+                    });
+                });
+                
+                if (participants.length === 0) {
+                    log('⚠️ No publishers found. Start a publisher to see video.', 'warning');
+                    updateStatus('⚠️ Connected but no publishers found. Start publisher.html!', 'warning');
+                }
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                updateStatus(`❌ Error: ${error.message}`, 'error');
+                console.error('Connection error:', error);
             }
-        }, 1000);
+        }
+        
+        // Auto-connect on load
+        window.addEventListener('DOMContentLoaded', () => {
+            log('🚀 LiveKit Diagnostic Tool Started', 'success');
+            log('Click "CONNECT AS VIEWER" to test connection', 'info');
+        });
     </script>
 </body>
 </html>

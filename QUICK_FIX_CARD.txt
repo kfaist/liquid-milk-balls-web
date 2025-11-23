@@ -1,0 +1,39 @@
+╔══════════════════════════════════════════════════════════════╗
+║  TOUCHDESIGNER WEBRENDER FIX - 30 SECOND SOLUTION          ║
+╚══════════════════════════════════════════════════════════════╝
+
+1. Click TouchDesigner window
+2. Press Alt+T (opens textport)
+3. Paste these 3 lines:
+
+wr = op('/webrender_livekit_input')
+wr.par.Url = 'http://localhost:3000/td-auto-viewer.html'
+wr.par.Reload.pulse()
+
+4. Press Ctrl+A, then Ctrl+Enter
+5. DONE! ✅
+
+═══════════════════════════════════════════════════════════════
+
+TEST IT:
+• Open: http://localhost:3000/publisher.html
+• Click "Start Publishing"
+• Check TouchDesigner - should show your camera!
+
+═══════════════════════════════════════════════════════════════
+
+WHAT'S ALREADY WORKING:
+✅ OUTPUT pipeline (TD → OBS → LiveKit → Global Viewers)
+✅ Node.js server running on localhost:3000
+✅ LiveKit Cloud configured
+✅ Coordination info ready for other agent
+
+═══════════════════════════════════════════════════════════════
+
+FOR OTHER AGENT:
+• Open: GOOGLE_DOC_ANSWERS.txt
+• Copy all content
+• Paste into Google Doc
+• They'll have everything they need!
+
+═══════════════════════════════════════════════════════════════

@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Simple Color Test</title>
+<style>
+body { 
+    margin: 0; 
+    background: linear-gradient(45deg, red, yellow, lime, cyan, blue, magenta);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+}
+#box {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 0 50px rgba(0,0,0,0.5);
+    text-align: center;
+}
+h1 { color: #000; margin: 0 0 20px 0; }
+.time { font-size: 48px; font-weight: bold; color: #00f; }
+</style>
+</head>
+<body>
+<div id="box">
+    <h1>WebRender Working!</h1>
+    <div class="time" id="time">Loading...</div>
+    <p>If you see this, WebRender can display HTML</p>
+</div>
+<script>
+setInterval(() => {
+    document.getElementById('time').textContent = new Date().toLocaleTimeString();
+}, 100);
+</script>
+</body>
+</html>
