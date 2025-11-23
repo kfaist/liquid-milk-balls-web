@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>getUserMedia Test - Autostart Support</title>
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px;
+            text-align: center;
+            margin: 0;
+        }
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        video {
+            width: 90%;
+            max-width: 1200px;
+            border: 3px solid #0cf;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: block;
+            background: #111;
+        }
+        button {
+            padding: 20px 40px;
+            font-size: 20px;
+            background: #0cf;
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #fff;
+        }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        #status {
+            margin: 20px auto;
+            font-size: 18px;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            max-width: 800px;
+        }
+        .info {
+            margin-top: 30px;
+            font-size: 14px;
+            opacity: 0.7;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎥 getUserMedia Camera Test</h1>
+    <div id="status">Ready to test camera...</div>
+    
+    <video id="video" autoplay muted playsinline></video>
+    
+    <button id="startBtn">Start Camera</button>
+    <button id="stopBtn" style="display:none;">Stop Camera</button>
+    
+    <div class="info">
+        <p>Supports autostart: add <code>?autostart=1</code> to URL to start automatically</p>
+        <p>TouchDesigner: Use this URL in WebRender TOP with "Enable Media Stream" checked</p>
+    </div>
+    
+    <script>
+        const video = document.getElementById('video');
+        const status = document.getElementById('status');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        let stream = null;
+        
+        // Check for autostart parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const autostart = urlParams.get('autostart') === '1';
+        
+        async function startCamera() {
+            try {
+                status.textContent = '🔄 Requesting camera access...';
+                startBtn.disabled = true;
+                
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: {
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    },
+                    audio: false
+                });
+                
+                video.srcObject = stream;
+                status.textContent = '✅ Camera connected! Stream active.';
+                status.style.background = 'rgba(0, 255, 0, 0.2)';
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'inline-block';
+                
+                console.log('Camera started successfully');
+                console.log('Stream tracks:', stream.getTracks());
+                
+            } catch (error) {
+                status.textContent = '❌ Error: ' + error.message;
+                status.style.background = 'rgba(255, 0, 0, 0.2)';
+                startBtn.disabled = false;
+                console.error('Camera error:', error);
+            }
+        }
+        
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => {
+                    track.stop();
+                    console.log('Stopped track:', track.label);
+                });
+                video.srcObject = null;
+                status.textContent = 'Camera stopped. Click Start to try again.';
+                status.style.background = 'rgba(255,255,255,0.1)';
+                startBtn.style.display = 'inline-block';
+                startBtn.disabled = false;
+                stopBtn.style.display = 'none';
+            }
+        }
+        
+        startBtn.onclick = startCamera;
+        stopBtn.onclick = stopCamera;
+        
+        // Autostart if requested
+        if (autostart) {
+            console.log('Autostart enabled - starting camera...');
+            status.textContent = '🔄 Autostart enabled - requesting camera access...';
+            // Small delay to ensure page is fully loaded
+            setTimeout(startCamera, 500);
+        }
+    </script>
+</body>
+</html>

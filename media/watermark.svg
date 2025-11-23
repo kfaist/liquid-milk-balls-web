@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" width="240" height="120" aria-hidden="true">
+  <style>
+    .droplet { transform-origin: center; opacity: 0.85; }
+    .d1 { fill: #ff4d4d; animation: bob 3s ease-in-out infinite; }
+    .d2 { fill: #ffd24d; animation: bob 3.6s ease-in-out .2s infinite; }
+    .d3 { fill: #6ad34a; animation: bob 4s ease-in-out .4s infinite; }
+    .d4 { fill: #4db8ff; animation: bob 4.4s ease-in-out .6s infinite; }
+    .d5 { fill: #c86bff; animation: bob 5s ease-in-out .8s infinite; }
+    @keyframes bob {
+      0% { transform: translateY(0) scale(1); opacity: .18 }
+      50% { transform: translateY(-6px) scale(1.02); opacity: .28 }
+      100% { transform: translateY(0) scale(1); opacity: .18 }
+    }
+  </style>
+  <!-- group of small droplet circles arranged horizontally -->
+  <g transform="translate(20,30) scale(0.9)">
+    <circle class="droplet d1" cx="10" cy="50" r="12" />
+    <circle class="droplet d2" cx="42" cy="46" r="10" />
+    <circle class="droplet d3" cx="74" cy="50" r="11" />
+    <circle class="droplet d4" cx="106" cy="46" r="9" />
+    <circle class="droplet d5" cx="138" cy="50" r="10" />
+  </g>
+</svg>
