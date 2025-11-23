@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mirror's Echo - Hybrid Experience</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .mirrors-echo-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            background: #000;
+            position: relative;
+        }
+
+        /* Local Camera Panel (left/collapsible) */
+        .local-panel {
+            width: 400px;
+            background: #1a1a1a;
+            border-right: 2px solid #333;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .local-panel.collapsed {
+            width: 60px;
+        }
+
+        .local-header {
+            padding: 1.5rem;
+            background: #0a0a0a;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 60px;
+        }
+
+        .local-panel.collapsed .local-header {
+            padding: 1rem 0.5rem;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .local-title {
+            font-family: monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: opacity 0.3s;
+        }
+
+        .local-panel.collapsed .local-title {
+            opacity: 0;
+            width: 0;
+        }
+
+        .collapse-btn {
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .collapse-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .local-video-wrapper {
+            flex: 1;
+            position: relative;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .local-panel.collapsed .local-video-wrapper {
+            display: none;
+        }
+
+        #localVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .local-status {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.5rem 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: monospace;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+
+        .local-status.connected {
+            border-color: rgba(0, 255, 0, 0.5);
+            color: rgba(0, 255, 0, 0.9);
+        }
+
+        /* Remote Stream Panel (right/main) */
+        .remote-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .remote-header {
+            padding: 1.5rem 2rem;
+            background: rgba(0, 0, 0, 0.95);
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.3s;
+            z-index: 5;
+        }
+
+        .remote-header.hidden {
+            transform: translateY(-100%);
+        }
+
+        .remote-title-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .remote-title {
+            font-family: monospace;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #fff;
+            letter-spacing: 0.05em;
+        }
+
+        .timer-display {
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.1em;
+        }
+
+        .timer-display.warning {
+            color: rgba(255, 200, 0, 0.8);
+        }
+
+        .remote-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .control-btn {
+            padding: 0.6rem 1.5rem;
+            font-size: 0.85rem;
+            font-family: monospace;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: transparent;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 6px;
+            letter-spacing: 0.05em;
+        }
+
+        .control-btn:hover:not(:disabled) {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .control-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .remote-video-wrapper {
+            flex: 1;
+            position: relative;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #remoteVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .remote-status {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.05em;
+            text-align: center;
+        }
+
+        .remote-status.hidden {
+            display: none;
+        }
+
+        /* Watermark Overlay (for raindrop effects over everything) */
+        #watermark-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Fullscreen mode */
+        .fullscreen-mode .remote-header {
+            transform: translateY(-100%);
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .mirrors-echo-container {
+                flex-direction: column;
+            }
+
+            .local-panel {
+                width: 100%;
+                height: 200px;
+                border-right: none;
+                border-bottom: 2px solid #333;
+            }
+
+            .local-panel.collapsed {
+                height: 60px;
+                width: 100%;
+            }
+
+            .remote-header {
+                padding: 1rem;
+            }
+
+            .remote-title {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Buttons maintain visibility when watermarked */
+        .control-btn,
+        .collapse-btn {
+            opacity: 0.5;
+            position: relative;
+            z-index: 10000;
+        }
+
+        .control-btn:hover,
+        .collapse-btn:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="mirrors-echo-container" id="mainContainer">
+        <!-- Local Camera Panel -->
+        <div class="local-panel" id="localPanel">
+            <div class="local-header">
+                <div class="local-title">YOUR CAMERA</div>
+                <button class="collapse-btn" id="collapseBtn" title="Collapse panel">◀</button>
+            </div>
+            <div class="local-video-wrapper">
+                <video id="localVideo" autoplay muted playsinline></video>
+                <div class="local-status" id="localStatus">Ready</div>
+            </div>
+        </div>
+
+        <!-- Remote Stream Panel -->
+        <div class="remote-panel">
+            <div class="remote-header" id="remoteHeader">
+                <div class="remote-title-section">
+                    <div class="remote-title">The Mirror's Echo</div>
+                    <div class="timer-display" id="timerDisplay">00:00</div>
+                </div>
+                <div class="remote-controls">
+                    <button class="control-btn" id="connectBtn" onclick="connect()">Connect</button>
+                    <button class="control-btn" id="disconnectBtn" onclick="disconnect()" style="display:none;">Disconnect</button>
+                    <button class="control-btn" id="fullscreenBtn" onclick="toggleFullscreen()">Fullscreen</button>
+                </div>
+            </div>
+
+            <div class="remote-video-wrapper">
+                <video id="remoteVideo" autoplay playsinline></video>
+                <div class="remote-status" id="remoteStatus">Ready to connect</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Watermark Overlay (for raindrop effects) -->
+    <div id="watermark-overlay"></div>
+
+    <!-- LiveKit SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+
+    <!-- Watermark System -->
+    <script src="watermark-system.js"></script>
+
+    <!-- Main Application Logic -->
+    <script>
+        // Elements
+        const localPanel = document.getElementById('localPanel');
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const collapseBtn = document.getElementById('collapseBtn');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const remoteHeader = document.getElementById('remoteHeader');
+        const mainContainer = document.getElementById('mainContainer');
+        const localStatus = document.getElementById('localStatus');
+        const remoteStatus = document.getElementById('remoteStatus');
+        const timerDisplay = document.getElementById('timerDisplay');
+
+        // LiveKit rooms
+        let localRoom = null;
+        let remoteRoom = null;
+        let isConnected = false;
+        let sessionStartTime = null;
+        let timerInterval = null;
+
+        // Initialize local camera
+        async function initLocalCamera() {
+            try {
+                updateLocalStatus('Starting camera...', false);
+
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: 1280, height: 720 },
+                    audio: true
+                });
+
+                localVideo.srcObject = stream;
+                updateLocalStatus('Camera ready', true);
+
+                // Auto-connect to publish
+                await publishLocalCamera(stream);
+            } catch (error) {
+                console.error('Camera error:', error);
+                updateLocalStatus('Camera failed', false);
+            }
+        }
+
+        // Publish local camera to LiveKit INPUT_ROOM
+        async function publishLocalCamera(stream) {
+            try {
+                updateLocalStatus('Connecting...', false);
+
+                const response = await fetch('/api/publisher-token');
+                if (!response.ok) throw new Error('Token request failed');
+                const data = await response.json();
+
+                localRoom = new LivekitClient.Room();
+
+                await localRoom.connect(data.url, data.token);
+
+                // Publish video track
+                const videoTrack = stream.getVideoTracks()[0];
+                await localRoom.localParticipant.publishTrack(videoTrack);
+
+                // Publish audio track
+                const audioTrack = stream.getAudioTracks()[0];
+                await localRoom.localParticipant.publishTrack(audioTrack);
+
+                updateLocalStatus('Publishing', true);
+                console.log('Local camera publishing to INPUT_ROOM');
+
+            } catch (error) {
+                console.error('Publish error:', error);
+                updateLocalStatus('Publish failed', false);
+            }
+        }
+
+        // Connect to remote stream (PROCESSED_ROOM)
+        async function connect() {
+            connectBtn.disabled = true;
+            updateRemoteStatus('Connecting...');
+
+            try {
+                const response = await fetch('/api/processed-viewer-token');
+                if (!response.ok) throw new Error('Token request failed');
+                const data = await response.json();
+
+                remoteRoom = new LivekitClient.Room({
+                    adaptiveStream: true,
+                    dynacast: true
+                });
+
+                remoteRoom.on(LivekitClient.RoomEvent.TrackSubscribed, (track, publication, participant) => {
+                    if (track.kind === LivekitClient.Track.Kind.Video) {
+                        track.attach(remoteVideo);
+                        updateRemoteStatus('', true);
+                        startTimer();
+                    }
+                });
+
+                remoteRoom.on(LivekitClient.RoomEvent.Disconnected, () => {
+                    if (isConnected) disconnect();
+                });
+
+                await remoteRoom.connect(data.url, data.token);
+                isConnected = true;
+
+                updateRemoteStatus('Connected — Waiting for stream...');
+                connectBtn.style.display = 'none';
+                disconnectBtn.style.display = 'inline-block';
+
+            } catch (error) {
+                console.error('Connection error:', error);
+                updateRemoteStatus('Error: ' + error.message);
+                connectBtn.disabled = false;
+                if (remoteRoom) {
+                    await remoteRoom.disconnect();
+                    remoteRoom = null;
+                }
+            }
+        }
+
+        // Disconnect from remote stream
+        async function disconnect() {
+            disconnectBtn.disabled = true;
+            updateRemoteStatus('Disconnecting...');
+
+            if (remoteRoom) {
+                await remoteRoom.disconnect();
+                remoteRoom = null;
+            }
+
+            isConnected = false;
+            remoteVideo.srcObject = null;
+            connectBtn.style.display = 'inline-block';
+            connectBtn.disabled = false;
+            disconnectBtn.style.display = 'none';
+            disconnectBtn.disabled = false;
+
+            updateRemoteStatus('Ready to connect');
+            stopTimer();
+        }
+
+        // Timer management
+        function startTimer() {
+            if (timerInterval) return;
+
+            sessionStartTime = Date.now();
+
+            timerInterval = setInterval(() => {
+                const elapsed = Date.now() - sessionStartTime;
+                const minutes = Math.floor(elapsed / 60000);
+                const seconds = Math.floor((elapsed % 60000) / 1000);
+
+                timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+                // Warning color at 7+ minutes
+                if (elapsed >= 7 * 60 * 1000) {
+                    timerDisplay.classList.add('warning');
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            sessionStartTime = null;
+            timerDisplay.textContent = '00:00';
+            timerDisplay.classList.remove('warning');
+        }
+
+        // Fullscreen toggle
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                mainContainer.requestFullscreen();
+                mainContainer.classList.add('fullscreen-mode');
+            } else {
+                document.exitFullscreen();
+                mainContainer.classList.remove('fullscreen-mode');
+            }
+        }
+
+        // Panel collapse/expand
+        collapseBtn.addEventListener('click', () => {
+            localPanel.classList.toggle('collapsed');
+            collapseBtn.textContent = localPanel.classList.contains('collapsed') ? '▶' : '◀';
+        });
+
+        // Status updates
+        function updateLocalStatus(message, isConnected) {
+            localStatus.textContent = message;
+            if (isConnected) {
+                localStatus.classList.add('connected');
+            } else {
+                localStatus.classList.remove('connected');
+            }
+        }
+
+        function updateRemoteStatus(message, hide = false) {
+            if (hide) {
+                remoteStatus.classList.add('hidden');
+            } else {
+                remoteStatus.classList.remove('hidden');
+                remoteStatus.textContent = message;
+            }
+        }
+
+        // Fullscreen change handler
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                mainContainer.classList.remove('fullscreen-mode');
+            }
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', async () => {
+            if (localRoom) await localRoom.disconnect();
+            if (remoteRoom) await remoteRoom.disconnect();
+        });
+
+        // Auto-start local camera on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initLocalCamera();
+        });
+    </script>
+</body>
+</html>
