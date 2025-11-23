@@ -19,8 +19,10 @@ app.use((req, res, next) => {
 // Enhanced request logger
 app.use((req, res, next) => {
   const timestamp = new Date().toISOString();
+  const userAgent = String(req.headers['user-agent'] || '');
+  const truncated = userAgent.length > 120 ? userAgent.substring(0, 120) + '...' : userAgent;
   console.log(`[${timestamp}] ${req.method} ${req.url}`);
-  console.log(`  User-Agent: ${String(req.headers['user-agent'] || '').substring(0, 120)}...`);
+  console.log(`  User-Agent: ${truncated}`);
   next();
 });
 
@@ -63,11 +65,13 @@ app.use(express.static(path.join(__dirname, '.'), {
 }));
 
 // Dev placeholder /token route (safe for local testing)
+const MAX_RANDOM_USER_ID = 100000;
+
 app.get('/token', (req, res) => {
   res.json({
     token: 'DEV-PLACEHOLDER-TOKEN',
     room: process.env.ROOM_NAME || 'claymation-live',
-    identity: req.query.identity || ('dev_user_' + Math.floor(Math.random()*100000))
+    identity: req.query.identity || ('dev_user_' + Math.floor(Math.random() * MAX_RANDOM_USER_ID))
   });
 });
 
