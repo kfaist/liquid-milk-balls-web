@@ -17,6 +17,15 @@ The Mirror's Echo is a mesmerizing interactive website featuring:
 - **Easter Eggs**: Hidden surprises await the curious
 - **Modern Design**: Glassmorphism effects with smooth animations
 
+### 🎨 NEW: Temporal Watermark Video Experience
+
+A hybrid video interface with progressive temporal watermark effects:
+- **Live Video Streaming**: Local camera + remote participant via LiveKit
+- **Progressive Effects**: Subtle shimmer evolving into iridescent watermark over 7-10 minutes
+- **Demo/Licensing Tool**: Non-intrusive demonstration with commercial licensing option
+- **See**: [MIRRORS-ECHO-README.md](MIRRORS-ECHO-README.md) for detailed documentation
+- **Access**: `/mirrors-echo.html` or `/mirrors-echo.html?demo=true` for testing
+
 ## ⚙️ Prerequisites
 
 Before running this project locally, you need to have **Node.js** installed on your system. Node.js includes npm (Node Package Manager), which is required to install dependencies and run the application.
