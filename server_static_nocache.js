@@ -1,5 +1,10 @@
 // Dev static server with NO CACHING, HTML injection for a site-wide watermark,
 // and verbose request logging.
+// 
+// ⚠️  WARNING: FOR DEVELOPMENT USE ONLY
+// This server has no authentication, rate limiting, or production security features.
+// Use the main server.js for production deployments.
+//
 // Usage: node server_static_nocache.js
 const express = require('express');
 const path = require('path');
