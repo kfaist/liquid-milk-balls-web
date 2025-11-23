@@ -834,38 +834,24 @@
         }
 
         function startTemporalEffects() {
-            // Check for demo mode in URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const isDemoMode = urlParams.get('demo') === 'true';
+            // ALWAYS start effects immediately at full intensity
+            startTime = Date.now() - (10 * 60 * 1000); // Start at 10:00 (maximum intensity)
+            console.log('Effects starting immediately at maximum intensity!');
 
-            if (isDemoMode) {
-                // Demo mode: Start at 7:00 immediately
-                startTime = Date.now() - (7 * 60 * 1000);
-                console.log('DEMO MODE: Effects starting immediately!');
-            } else {
-                startTime = Date.now();
+            effectsStarted = true;
+
+            // Fade in shimmers immediately
+            if (localShimmer) {
+                localShimmer.style.transition = 'opacity 2s ease-in';
+                localShimmer.style.opacity = '1';
+            }
+            if (remoteShimmer) {
+                remoteShimmer.style.transition = 'opacity 2s ease-in';
+                remoteShimmer.style.opacity = '1';
             }
 
-            setInterval(() => {
-                const timeElapsed = (Date.now() - startTime) / 1000;
-
-                // Start effects at 7 minutes (420 seconds)
-                if (timeElapsed >= 420 && !effectsStarted) {
-                    effectsStarted = true;
-                    console.log('Starting temporal effects at 7 minutes');
-
-                    if (localShimmer) {
-                        localShimmer.style.transition = 'opacity 5s ease-in';
-                        localShimmer.style.opacity = '1';
-                    }
-                    if (remoteShimmer) {
-                        remoteShimmer.style.transition = 'opacity 5s ease-in';
-                        remoteShimmer.style.opacity = '1';
-                    }
-
-                    startRaindrops();
-                }
-            }, 1000);
+            // Start raindrops immediately
+            startRaindrops();
         }
 
         function startRaindrops() {
