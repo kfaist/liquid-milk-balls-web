@@ -1,547 +1,331 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The Mirror's Echo - A mesmerizing interactive web experience">
-    <title>The Mirror's Echo</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        .video-wrapper {
-            position: relative;
-        }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>The Mirror's Echo - LiveKit + 30s Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        .popout-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 40px;
-            height: 40px;
-            padding: 0;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            border-radius: 10px;
-            color: #ffffff;
-            font-size: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: breathe 3s ease-in-out infinite;
-        }
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: #0a0a0a;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+    }
 
-        .popout-button:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: #ffffff;
-            transform: scale(1.1);
-            animation: none;
-        }
+    .container {
+      max-width: 1400px;
+      width: 90%;
+      margin: 0 auto;
+      padding: 2rem;
+    }
 
-        .popout-button::before {
-            content: "▢";
-        }
+    h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 2.5rem;
+      text-align: center;
+      margin-bottom: 1rem;
+      letter-spacing: 0.1em;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
 
-        @keyframes breathe {
-            0%, 100% {
-                opacity: 0.6;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 1;
-                transform: scale(1.05);
-            }
-        }
+    .intro-text {
+      text-align: center;
+      margin-bottom: 2rem;
+      opacity: 0.8;
+      font-size: 0.95rem;
+      line-height: 1.8;
+    }
 
-        .fullscreen-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #000;
-            z-index: 1000;
-            flex-direction: column;
-        }
+    .panel {
+      background: #1a1a1a;
+      border-radius: 15px;
+      padding: 2rem;
+      border: 2px solid #333;
+      margin-bottom: 2rem;
+    }
 
-        .fullscreen-overlay.active {
-            display: flex;
-        }
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 1.5rem;
+    }
 
-        .fullscreen-header {
-            padding: 1.5rem;
-            background: rgba(26, 26, 26, 0.95);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #333;
-        }
+    .video-box {
+      position: relative;
+    }
 
-        .fullscreen-header h2 {
-            font-family: 'Futura', 'Century Gothic', sans-serif;
-            color: #ffffff;
-            margin: 0;
-            font-size: 1.8rem;
-        }
+    .video-label {
+      font-size: 1rem;
+      margin-bottom: 0.75rem;
+      text-align: center;
+      opacity: 0.9;
+      font-weight: 600;
+    }
 
-        .close-button {
-            padding: 10px 24px;
-            background: transparent;
-            border: 2px solid #ffffff;
-            border-radius: 50px;
-            color: #ffffff;
-            font-family: 'JetBrains Mono', monospace;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1rem;
-        }
+    .video-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #000;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
 
-        .close-button:hover {
-            background: #ffffff;
-            color: #000;
-            transform: translateY(-2px);
-        }
+    .video-container video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
 
-        .fullscreen-video {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    /* Shimmer overlay animation */
+    .video-shimmer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      overflow: hidden;
+    }
 
-        .fullscreen-video video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-    </style>
+    .video-shimmer::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent 40%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 60%
+      );
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        transform: translateX(-100%) translateY(-100%);
+      }
+      100% {
+        transform: translateX(100%) translateY(100%);
+      }
+    }
+
+    .timeline-label {
+      text-align: center;
+      font-size: 0.9rem;
+      opacity: 0.6;
+      margin-bottom: 0.5rem;
+    }
+
+    .timer {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      font-size: 2rem;
+      font-weight: 700;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      color: #00ff00;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .video-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .timer {
+        bottom: 1rem;
+        right: 1rem;
+        font-size: 1.5rem;
+        padding: 0.75rem 1rem;
+      }
+    }
+
+    /* Fade in animation */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .container {
+      animation: fadeIn 1s ease-in;
+    }
+  </style>
 </head>
 <body>
-    <!-- Watermark overlay - appears OVER everything at 8+ minutes (not capturable by OBS) -->
-    <div id="watermark-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></div>
 
-    <div class="container">
-        <header>
-            <h1 class="title">The Mirror's Echo</h1>
-            <div class="licensing-statement">
-                <p>The Mirror's Echo operates as an unlimited edition under open-source principles (AGPL-3.0), ensuring accessibility while sustaining ongoing development. Exhibition licenses and institutional partnerships support the continued evolution of networked digital art practices.</p>
-                <p style="margin-top: 1.5rem;">
-                    <strong>Artist/Technical:</strong> <a href="mailto:kristabluedoor@gmail.com">kristabluedoor@gmail.com</a><br>
-                    <strong>Curatorial/Institutional:</strong> <a href="mailto:chaoscontemporarycraft@gmail.com">chaoscontemporarycraft@gmail.com</a>
-                </p>
-            </div>
-        </header>
+  <div class="container">
+    <h1>THE MIRROR'S ECHO - 30 SEC DEMO</h1>
 
-        <main>
-            <section class="webrtc-section">
-                <h2>WebRTC Preview</h2>
-                <div class="video-container">
-                    <div class="video-wrapper video-wrapper-local">
-                        <h3>Local Camera</h3>
-                        <video id="localVideo" autoplay muted playsinline></video>
-                        <button class="popout-button popout-button-local" id="popoutBtnLocal" style="display: none;"></button>
-                    </div>
-                    <div class="video-wrapper video-wrapper-remote">
-                        <h3>Remote Stream</h3>
-                        <video id="remoteVideo" autoplay playsinline></video>
-                        <button class="popout-button" id="popoutBtn" style="display: none;"></button>
-                    </div>
-                </div>
-
-                <div class="webrtc-controls">
-                    <button class="btn" id="startCameraBtn">Start Camera</button>
-                    <button class="btn" id="stopCameraBtn" disabled>Stop Camera</button>
-                    <button class="btn" id="startCallBtn" disabled>Start WebRTC Call</button>
-                    <button class="btn" id="hangupBtn" disabled>Hang Up</button>
-                </div>
-
-                <div class="webrtc-status">
-                    <p id="statusText">Ready to start</p>
-                </div>
-            </section>
-
-            <section class="echo-section">
-                <div class="mirror-container">
-                    <div class="mirror" id="mirror"></div>
-                </div>
-                
-                <div class="controls-compact">
-                    <button class="btn btn-small" id="echoBtn">Create Echo</button>
-                    <button class="btn btn-small" id="clearBtn">Clear</button>
-                </div>
-            </section>
-            
-            <section class="about-section">
-                <h2>About</h2>
-                <p><em>The Mirror's Echo</em> is a networked interactive work exploring presence, temporality, and reciprocity through real-time video transmission. The piece positions participants as both observers and subjects, creating a feedback loop where actions generate visual echoes that accumulate and transform over time.</p>
-
-                <p>Built on open protocols (WebRTC, LiveKit, NDI), the work operates as distributed infrastructure - each interaction exists simultaneously across multiple nodes: browser, server, and optional processing environments. This architecture enables the piece to function as both a self-contained web experience and as material for live visual manipulation through tools like TouchDesigner.</p>
-
-                <p>The work implements a temporal access model: seven minutes of unmediated experience, followed by progressive visual markers that reveal the piece's constructed nature. This durational framework questions assumptions about digital permanence and the economics of networked art.</p>
-
-                <p>Technical implementation merges web-native technologies with broadcast/VJ workflows, positioning the work within lineages of video feedback art (Steina & Woody Vasulka), telepresence projects (Kit Galloway & Sherrie Rabinowitz's <em>Satellite Arts</em>), and contemporary networked performance practices.</p>
-
-                <div style="margin: 2rem 0; padding: 2rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">
-                    <p style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 2; color: rgba(255,255,255,0.6); letter-spacing: 0.05em;">
-                        <strong style="color: rgba(255,255,255,0.9);">PROCESSING PIPELINE</strong><br><br>
-                        Camera Input → WebRTC/LiveKit → NVIDIA GPU Processing<br>
-                        ↓<br>
-                        Audio Stream → Whisper (Speech-to-Text)<br>
-                        ↓<br>
-                        Text → spaCy NLP (Entity Recognition, Semantic Analysis)<br>
-                        ↓<br>
-                        Video → TouchDesigner (Visual Processing, Effects, Generative Response)<br>
-                        ↓<br>
-                        Composite Output → NDI → OBS → WebRTC Return Path<br>
-                        ↓<br>
-                        Remote Viewer (Browser/Display)
-                    </p>
-                </div>
-            </section>
-
-            <section class="about-section">
-                <h2>Technical Infrastructure</h2>
-                <p>For production-quality streaming with OBS, NDI, and TouchDesigner integration:</p>
-                <div style="margin: 1.5rem 0; padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 1px solid rgba(255,255,255,0.15);">
-                    <p style="margin-bottom: 1rem;"><strong>Complete Bidirectional Workflow:</strong></p>
-                    <ol style="margin-left: 2rem; line-height: 2;">
-                        <li><strong><a href="/publisher.html">Publisher Page</a>:</strong> Remote user captures webcam and publishes to LiveKit</li>
-                        <li><strong><a href="/ndi-viewer.html">NDI Viewer Page</a>:</strong> View the LiveKit stream (capture this in OBS Browser Source)</li>
-                        <li><strong>OBS:</strong> Capture NDI viewer page and enable NDI output (Tools → NDI Output Settings)</li>
-                        <li><strong>TouchDesigner:</strong> Use NDI In TOP to receive stream from OBS, process & stylize</li>
-                        <li><strong>TD Output:</strong> Use NDI Out TOP to send processed video back to OBS</li>
-                        <li><strong>OBS Capture:</strong> Add NDI Source in OBS to receive processed video from TD</li>
-                        <li><strong><a href="/return-viewer.html">Return Viewer Page</a>:</strong> Remote user views processed video with fullscreen option</li>
-                    </ol>
-                    <p style="margin-top: 1rem; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 4px;">
-                        <strong>Signal Path:</strong> Remote Camera → LiveKit → OBS → NDI → TouchDesigner (process) → NDI → Back to Remote Viewer in Real-Time
-                    </p>
-                </div>
-            </section>
-            
-            <section class="payment-section">
-                <h2>Licensing & Access</h2>
-
-                <div class="payment-tiers">
-                    <!-- Unlimited Edition Tier -->
-                    <div class="payment-tier">
-                        <div class="tier-header">
-                            <div class="tier-price">Open Access</div>
-                            <h3 class="tier-title">Unlimited Edition</h3>
-                        </div>
-                        <p class="tier-description">
-                            An unlimited edition available under open-source principles. Experience the work freely for educational, research, and non-commercial contexts. The piece presents itself fully for seven minutes before revealing its temporal nature through progressive visual markers.
-                        </p>
-                        <ul class="tier-features">
-                            <li>Full source code access (AGPL-3.0)</li>
-                            <li>Unlimited non-commercial use</li>
-                            <li>Seven-minute sustained experience</li>
-                            <li>Progressive temporal markers</li>
-                            <li>Community & documentation support</li>
-                        </ul>
-                        <a href="https://github.com/kfaist/liquid-milk-balls-web" class="tier-cta" target="_blank">Access Source Code</a>
-                    </div>
-
-                    <!-- Exhibition License & Technical Residency Tier -->
-                    <div class="payment-tier featured">
-                        <div class="tier-header">
-                            <div class="tier-price">Starting at $400</div>
-                            <h3 class="tier-title">Exhibition License & Technical Residency</h3>
-                        </div>
-                        <p class="tier-description">
-                            For professional contexts, commercial applications, and exhibition settings. Includes unrestricted access to the work without temporal markers, plus optional technical residency support for complex integrations.
-                        </p>
-                        <ul class="tier-features">
-                            <li>Unlimited sustained experience (no temporal markers)</li>
-                            <li>Commercial exhibition rights</li>
-                            <li>Professional use licensing</li>
-                            <li>Optional: Technical residency support ($150/hour)</li>
-                            <li>TouchDesigner/LiveKit integration consultation</li>
-                            <li>Custom configuration assistance</li>
-                        </ul>
-                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 2rem;">
-                            <button class="tier-cta featured" id="purchaseLicenseBtn">Purchase Exhibition License - $400</button>
-                            <a href="mailto:kristabluedoor@gmail.com?subject=Technical Residency Inquiry" class="tier-cta">Book Technical Residency</a>
-                        </div>
-                    </div>
-
-                    <!-- Institutional Partnership Tier -->
-                    <div class="payment-tier">
-                        <div class="tier-header">
-                            <div class="tier-price">Contact</div>
-                            <h3 class="tier-title">Curatorial & Institutional Partnership</h3>
-                        </div>
-                        <p class="tier-description">
-                            For galleries, museums, and biennials. Comprehensive partnership with curatorial consultation and on-site residency throughout the exhibition period.
-                        </p>
-                        <ul class="tier-features">
-                            <li>Complete licensing</li>
-                            <li>Curatorial consultation</li>
-                            <li>On-site residency</li>
-                        </ul>
-                        <a href="mailto:chaoscontemporarycraft@gmail.com?subject=Institutional Partnership" class="tier-cta">Initiate Partnership</a>
-                    </div>
-                </div>
-            </section>
-
-            <section class="about-section">
-                <h2>Interaction</h2>
-                <p>The work responds to presence through multiple modes of engagement. Each interaction generates visual echoes that accumulate temporally within the system.</p>
-
-                <p style="margin-top: 1.5rem;"><strong>Mirror Interface:</strong></p>
-                <p style="margin-left: 2rem; margin-bottom: 1rem; line-height: 1.8; opacity: 0.8;">
-                    Direct interaction with the circular interface generates ripple formations. Accumulated interactions trigger chromatic shifts every five engagements. The Clear function returns the system to its initial state.
-                </p>
-
-                <p style="margin-top: 1.5rem;"><strong>Video Transmission:</strong></p>
-                <p style="margin-left: 2rem; line-height: 1.8; opacity: 0.8;">
-                    WebRTC protocols enable peer-to-peer video transmission. Local and remote streams establish reciprocal viewing positions. The work's temporal markers emerge after seven minutes of sustained connection, revealing the constructed nature of the experience.
-                </p>
-            </section>
-        </main>
-        
-        <footer>
-            <p>&copy; 2025 The Mirror's Echo</p>
-        </footer>
+    <div class="intro-text">
+      ✨ Full 3-minute effect (7:00→10:00) compressed into 30 seconds<br>
+      Shimmer effect enabled — rainbow drops removed per request
     </div>
 
-    <!-- Fullscreen Overlay -->
-    <div class="fullscreen-overlay" id="fullscreenOverlay">
-        <div class="fullscreen-header">
-            <h2>Remote Stream - Fullscreen</h2>
-            <button class="close-button" id="closeBtn">Close</button>
+    <div class="panel">
+      <div class="video-grid">
+        <div class="video-box">
+          <div class="video-label">Local Camera</div>
+          <div class="video-container" id="localContainer">
+            <!-- Local video element -->
+            <video id="localVideo" autoplay playsinline muted></video>
+            <div class="video-shimmer" id="localShimmer"></div>
+          </div>
         </div>
-        <div class="fullscreen-video">
-            <video id="fullscreenVideo" autoplay playsinline></video>
+
+        <div class="video-box">
+          <div class="video-label">Remote Stream</div>
+          <div class="video-container" id="remoteContainer">
+            <!-- Remote video element -->
+            <video id="remoteVideo" autoplay playsinline></video>
+            <div class="video-shimmer" id="remoteShimmer"></div>
+          </div>
         </div>
+      </div>
     </div>
-    
-    <script src="config.js"></script>
-    <script src="script.js"></script>
-    <script src="webrtc-client.js"></script>
-    <script src="watermark-system.js"></script>
-    <script src="video-color-filter.js"></script>
-    <script src="live-transcription.js"></script>
-    <script>
-        // Popout functionality
-        const popoutBtn = document.getElementById('popoutBtn');
-        const closeBtn = document.getElementById('closeBtn');
-        const fullscreenOverlay = document.getElementById('fullscreenOverlay');
-        const remoteVideo = document.getElementById('remoteVideo');
-        const fullscreenVideo = document.getElementById('fullscreenVideo');
-        const remoteWrapper = document.querySelector('.video-wrapper-remote');
+  </div>
 
-        // Function to open popup
-        function openPopup() {
-            if (remoteVideo.srcObject) {
-                fullscreenVideo.srcObject = remoteVideo.srcObject;
-                fullscreenOverlay.classList.add('active');
-            }
+  <div class="timeline-label">7:00 → 10:00 (compressed to 30s)</div>
+  <div class="timer" id="timer">0.0s</div>
+
+  <script type="module">
+    // Keeps shimmer + timer + demo preview and wires LiveKit via CDN.
+    // IMPORTANT: implement POST /session on your server that returns JSON: { token, url }
+    const timerEl = document.getElementById('timer');
+    const demoStartTime = Date.now() - 420000; // pretend 7:00 already elapsed
+
+    // Timer update loop only (no raindrops)
+    setInterval(() => {
+      const elapsed = (Date.now() - demoStartTime) / 1000;
+      timerEl.textContent = elapsed.toFixed(1) + 's';
+    }, 100);
+
+    // Video attach helpers
+    const localVideoEl = document.getElementById('localVideo');
+    const remoteVideoEl = document.getElementById('remoteVideo');
+
+    function attachLocalStream(mediaStream) {
+      localVideoEl.srcObject = mediaStream;
+      localVideoEl.muted = true;
+      localVideoEl.play().catch(() => {});
+      document.getElementById('localShimmer').style.opacity = 0.9;
+    }
+
+    function attachRemoteStream(mediaStream) {
+      remoteVideoEl.srcObject = mediaStream;
+      remoteVideoEl.play().catch(() => {});
+      document.getElementById('remoteShimmer').style.opacity = 0.9;
+    }
+
+    // Demo fallback: use getUserMedia for local preview and mirror to remote as placeholder
+    async function demoLocalPreview() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        attachLocalStream(stream);
+        setTimeout(() => attachRemoteStream(stream.clone ? stream.clone() : stream), 700);
+      } catch (e) {
+        console.warn('No camera available or permission denied', e);
+      }
+    }
+    demoLocalPreview();
+
+    // LiveKit CDN connect helper (drop-in). Replace '/session' with your token endpoint.
+    async function connectToLiveKitViaCDN() {
+      try {
+        const resp = await fetch('/session', { method: 'POST' }); // server should return { token, url }
+        if (!resp.ok) throw new Error('Failed to fetch token from /session');
+        const { token, url } = await resp.json();
+
+        // dynamic import of LiveKit client from CDN
+        const LK = await import('https://cdn.skypack.dev/@livekit/client');
+        const { connect } = LK;
+
+        const room = await connect(url, token, { autoSubscribe: true });
+        console.log('Connected to LiveKit room', room);
+
+        // Publish local camera
+        try {
+          const localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+          attachLocalStream(localStream);
+
+          const videoTracks = localStream.getVideoTracks();
+          for (const t of videoTracks) {
+            // publishTrack accepts a MediaStreamTrack
+            await room.localParticipant.publishTrack(t);
+          }
+        } catch (e) {
+          console.warn('Could not access camera for publishing', e);
         }
 
-        // Show popout button when remote stream is active
-        const observer = new MutationObserver(() => {
-            if (remoteVideo.srcObject) {
-                popoutBtn.style.display = 'flex';
-                remoteWrapper.classList.add('connected'); // Expand when stream connects
-            } else {
-                popoutBtn.style.display = 'none';
-                remoteWrapper.classList.remove('connected'); // Shrink when disconnected
-            }
-        });
-        observer.observe(remoteVideo, { attributes: true, attributeFilter: ['srcObject'] });
-
-        // Click to open fullscreen popup
-        popoutBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            openPopup();
-        });
-
-        closeBtn.addEventListener('click', () => {
-            fullscreenOverlay.classList.remove('active');
-        });
-
-        // ESC to close
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && fullscreenOverlay.classList.contains('active')) {
-                fullscreenOverlay.classList.remove('active');
-            }
-        });
-
-        // LOCAL VIDEO POPOUT FUNCTIONALITY
-        const popoutBtnLocal = document.getElementById('popoutBtnLocal');
-        const localVideo = document.getElementById('localVideo');
-        const localWrapper = document.querySelector('.video-wrapper-local');
-
-        // Function to open local popup
-        function openLocalPopup() {
-            if (localVideo.srcObject) {
-                fullscreenVideo.srcObject = localVideo.srcObject;
-                fullscreenOverlay.classList.add('active');
-            }
-        }
-
-        // Show popout button when local stream is active
-        const localObserver = new MutationObserver(() => {
-            if (localVideo.srcObject) {
-                popoutBtnLocal.style.display = 'flex';
-                localWrapper.classList.add('connected'); // Expand when camera starts
-            } else {
-                popoutBtnLocal.style.display = 'none';
-                localWrapper.classList.remove('connected'); // Shrink when camera stops
-            }
-        });
-        localObserver.observe(localVideo, { attributes: true, attributeFilter: ['srcObject'] });
-
-        // Click to open fullscreen popup
-        popoutBtnLocal.addEventListener('click', (e) => {
-            e.stopPropagation();
-            openLocalPopup();
+        // Handle new remote track subscriptions
+        room.on('trackSubscribed', (track, publication, participant) => {
+          if (track.kind === 'video') {
+            const ms = new MediaStream([track.mediaStreamTrack]);
+            attachRemoteStream(ms);
+          }
         });
 
-        // PLAYFUL CLICK INTERACTION (0-8 minutes)
-        // Clicking creates raindrops on video/mirror elements (capturable by camera/OBS)
-        const mirror = document.getElementById('mirror');
-        let clickCount = 0; // Track total clicks for phase progression
-        let raindropColorIndex = 0; // For color cycling
-
-        // Function to create playful raindrops (inside capturable elements)
-        function createPlayfulRaindrops() {
-            const containers = [
-                document.querySelector('.video-wrapper-local'),
-                document.querySelector('.video-wrapper-remote'),
-                document.querySelector('.mirror')
-            ];
-
-            // More raindrops = more fun! 5-8 drops per click
-            const dropCount = 5 + Math.floor(Math.random() * 4);
-
-            for (let i = 0; i < dropCount; i++) {
-                setTimeout(() => {
-                    const container = containers[Math.floor(Math.random() * containers.length)];
-                    if (!container) return;
-
-                    const raindrop = document.createElement('div');
-                    raindrop.className = 'video-raindrop';
-
-                    const x = Math.random() * 100;
-                    const y = Math.random() * 100;
-                    raindrop.style.left = x + '%';
-                    raindrop.style.top = y + '%';
-
-                    // Color cycles through rainbow every 3 clicks
-                    const hue = (Math.floor(raindropColorIndex / 3) * 40) % 360;
-                    const size = 60 + Math.random() * 120;
-                    const duration = 1.2 + Math.random() * 0.8;
-
-                    raindrop.style.width = size + 'px';
-                    raindrop.style.height = size + 'px';
-                    raindrop.style.border = `3px solid hsla(${hue}, 85%, 65%, 0.9)`;
-                    raindrop.style.animation = `raindropRipple ${duration}s ease-out forwards`;
-
-                    container.appendChild(raindrop);
-                    raindropColorIndex++;
-
-                    setTimeout(() => raindrop.remove(), duration * 1000);
-                }, i * 150); // Faster stagger for more chaos
+        // Attach already published tracks
+        for (const p of room.participants.values()) {
+          for (const pub of p.tracks.values()) {
+            if (pub.track && pub.track.kind === 'video') {
+              const ms = new MediaStream([pub.track.mediaStreamTrack]);
+              attachRemoteStream(ms);
             }
+          }
         }
 
-        // Update shimmer phase based on click count
-        function updatePhaseFromClicks() {
-            const body = document.body;
-            body.classList.remove('temporal-phase-1', 'temporal-phase-2', 'temporal-phase-3', 'temporal-phase-4');
+        window.addEventListener('beforeunload', () => {
+          room.disconnect();
+        });
 
-            // Gradually increase phase: 0-10 clicks = phase 1, 11-20 = phase 2, etc.
-            if (clickCount > 30) {
-                body.classList.add('temporal-phase-4');
-            } else if (clickCount > 20) {
-                body.classList.add('temporal-phase-3');
-            } else if (clickCount > 10) {
-                body.classList.add('temporal-phase-2');
-            } else if (clickCount > 3) {
-                body.classList.add('temporal-phase-1');
-            }
-        }
+        console.log('LiveKit wiring complete — shimmer + timer remain untouched.');
+        return room;
+      } catch (err) {
+        console.error('LiveKit connect error:', err);
+        throw err;
+      }
+    }
 
-        if (mirror) {
-            mirror.addEventListener('click', () => {
-                clickCount++;
-                console.log(`Click ${clickCount} - Creating playful raindrops`);
+    // Auto-start connect attempt (optional). Remove the call below if you prefer manual join control.
+    // connectToLiveKitViaCDN().catch(() => {});
+  </script>
 
-                // Create raindrops on capturable elements
-                createPlayfulRaindrops();
-
-                // Update shimmer phase
-                updatePhaseFromClicks();
-            });
-        }
-    </script>
-
-    <!-- Stripe Checkout -->
-    <script src="https://js.stripe.com/v3/"></script>
-    <script>
-        // Initialize Stripe with publishable key from server
-        let stripeInstance = null;
-
-        // Fetch Stripe configuration on page load
-        async function initializeStripe() {
-            try {
-                const response = await fetch('/api/stripe-config');
-                if (response.ok) {
-                    const { publishableKey } = await response.json();
-                    stripeInstance = Stripe(publishableKey);
-                }
-            } catch (error) {
-                console.log('Stripe not configured:', error);
-            }
-        }
-
-        initializeStripe();
-
-        const purchaseBtn = document.getElementById('purchaseLicenseBtn');
-
-        if (purchaseBtn) {
-            purchaseBtn.addEventListener('click', async () => {
-                purchaseBtn.disabled = true;
-                purchaseBtn.textContent = 'Loading...';
-
-                try {
-                    // Create checkout session
-                    const response = await fetch('/api/create-checkout-session', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || 'Payment system unavailable');
-                    }
-
-                    const { sessionId } = await response.json();
-
-                    // Redirect to Stripe Checkout if configured
-                    if (stripeInstance) {
-                        const { error } = await stripeInstance.redirectToCheckout({ sessionId });
-                        if (error) {
-                            throw new Error(error.message);
-                        }
-                    } else {
-                        // Fallback if Stripe not configured
-                        throw new Error('Payment system not configured. Please contact kristabluedoor@gmail.com to complete purchase.');
-                    }
-
-                } catch (error) {
-                    console.error('Checkout error:', error);
-                    alert(error.message || 'Unable to start checkout. Please contact kristabluedoor@gmail.com');
-                    purchaseBtn.disabled = false;
-                    purchaseBtn.textContent = 'Purchase Exhibition License - $400';
-                }
-            });
-        }
-    </script>
 </body>
 </html>
