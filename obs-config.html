@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OBS WHIP Configuration - Mirror's Echo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .code-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(102, 126, 234, 0.8);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(102, 126, 234, 1);
+        }
+
+        .copy-btn.copied {
+            background: rgba(76, 175, 80, 0.8);
+        }
+
+        .instructions {
+            line-height: 1.8;
+        }
+
+        .instructions ol {
+            margin-left: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .instructions li {
+            margin: 0.5rem 0;
+        }
+
+        .warning {
+            background: rgba(255, 193, 7, 0.2);
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+
+        .success {
+            background: rgba(76, 175, 80, 0.2);
+            border-left: 4px solid #4caf50;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+
+        button.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+            font-weight: 600;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        button.primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .result {
+            display: none;
+        }
+
+        .result.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 OBS Configuration</h1>
+        <p class="subtitle">Stream TouchDesigner output to Mirror's Echo</p>
+
+        <div class="section">
+            <h2>📋 Quick Setup</h2>
+            <div class="instructions">
+                <p>This will configure OBS to stream your TouchDesigner processed video directly into the Mirror's Echo installation.</p>
+                
+                <div class="warning">
+                    <strong>⚠️ Prerequisites:</strong>
+                    <ul>
+                        <li>TouchDesigner outputting to NDI</li>
+                        <li>OBS with NDI source configured</li>
+                        <li>LiveKit environment variables set on Railway</li>
+                    </ul>
+                </div>
+
+                <button class="primary" onclick="getWhipUrl()">Get OBS WHIP URL</button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 1rem;">Generating streaming configuration...</p>
+        </div>
+
+        <div class="result" id="result">
+            <div class="section">
+                <h2>✅ OBS Streaming Configuration</h2>
+                
+                <div class="success">
+                    <strong>✨ Configuration generated successfully!</strong>
+                </div>
+
+                <h3 style="margin-top: 1.5rem;">Step 1: Copy WHIP URL</h3>
+                <div class="code-box">
+                    <button class="copy-btn" onclick="copyToClipboard('whipUrl', this)">Copy</button>
+                    <div id="whipUrl">Loading...</div>
+                </div>
+
+                <h3 style="margin-top: 1.5rem;">Step 2: Configure OBS</h3>
+                <div class="instructions">
+                    <ol>
+                        <li>Open OBS Studio</li>
+                        <li>Go to <strong>Settings → Stream</strong></li>
+                        <li>Set <strong>Service</strong> to: <code>WHIP</code></li>
+                        <li>Paste the WHIP URL above into the <strong>Server</strong> field</li>
+                        <li>Click <strong>Apply</strong> then <strong>OK</strong></li>
+                        <li>Make sure your NDI source from TouchDesigner is in your scene</li>
+                        <li>Click <strong>Start Streaming</strong></li>
+                    </ol>
+                </div>
+
+                <h3 style="margin-top: 1.5rem;">Step 3: Verify</h3>
+                <div class="instructions">
+                    <p>Open the main Mirror's Echo page and you should see your OBS stream appear as a participant:</p>
+                    <div class="code-box">
+                        <button class="copy-btn" onclick="copyToClipboard('mainUrl', this)">Copy</button>
+                        <div id="mainUrl"></div>
+                    </div>
+                </div>
+
+                <div class="warning" style="margin-top: 1.5rem;">
+                    <strong>📝 Important Notes:</strong>
+                    <ul>
+                        <li>The WHIP URL includes a token that expires in 24 hours</li>
+                        <li>Your stream will appear as "obs-processed-video" in the room</li>
+                        <li>Remote participants can join via the /join page</li>
+                        <li>All streams appear together in the main installation view</li>
+                    </ul>
+                </div>
+
+                <h3 style="margin-top: 1.5rem;">🔧 Troubleshooting</h3>
+                <div class="instructions">
+                    <p><strong>Stream won't start:</strong></p>
+                    <ul>
+                        <li>Verify WHIP URL is complete (should be very long)</li>
+                        <li>Make sure you selected "WHIP" as the service</li>
+                        <li>Check Railway environment variables are set</li>
+                    </ul>
+                    
+                    <p style="margin-top: 1rem;"><strong>Stream not appearing on website:</strong></p>
+                    <ul>
+                        <li>Confirm OBS shows "Streaming" status</li>
+                        <li>Refresh the main display page</li>
+                        <li>Check browser console for errors (F12)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function getWhipUrl() {
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            
+            loading.classList.add('active');
+            result.classList.remove('active');
+
+            try {
+                const response = await fetch('/api/obs-whip-token?room=mirrors-echo-main&identity=obs-processed-video');
+                
+                if (!response.ok) {
+                    throw new Error('Failed to get WHIP configuration');
+                }
+
+                const data = await response.json();
+
+                document.getElementById('whipUrl').textContent = data.whipUrl;
+                document.getElementById('mainUrl').textContent = window.location.origin + '/';
+
+                loading.classList.remove('active');
+                result.classList.add('active');
+
+            } catch (error) {
+                loading.classList.remove('active');
+                alert('Error: ' + error.message + '\n\nMake sure:\n- Server is running\n- LiveKit environment variables are set on Railway\n- LIVEKIT_API_KEY and LIVEKIT_API_SECRET are configured');
+            }
+        }
+
+        function copyToClipboard(elementId, button) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                alert('Failed to copy: ' + err);
+            });
+        }
+    </script>
+</body>
+</html>
