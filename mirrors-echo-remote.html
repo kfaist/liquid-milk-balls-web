@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mirror's Echo - Join Remotely</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 1rem;
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .video-preview {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            margin: 2rem auto;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .controls {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .primary-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .secondary-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .secondary-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .danger-btn {
+            background: rgba(244, 67, 54, 0.8);
+            color: white;
+        }
+
+        .danger-btn:hover:not(:disabled) {
+            background: rgba(244, 67, 54, 1);
+        }
+
+        .status {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            font-size: 1rem;
+        }
+
+        .status.connected {
+            background: rgba(76, 175, 80, 0.3);
+        }
+
+        .status.error {
+            background: rgba(244, 67, 54, 0.3);
+        }
+
+        .instructions {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            text-align: left;
+        }
+
+        .instructions h3 {
+            margin-bottom: 1rem;
+        }
+
+        .instructions ol {
+            margin-left: 1.5rem;
+        }
+
+        .instructions li {
+            margin: 0.5rem 0;
+            line-height: 1.6;
+        }
+
+        .identity-input {
+            margin: 1rem auto;
+            max-width: 400px;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        input::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: rgba(255,255,255,0.6);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .footer {
+            margin-top: 2rem;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ The Mirror's Echo ✨</h1>
+        <p class="subtitle">Join the installation remotely from anywhere in the world</p>
+
+        <div class="identity-input">
+            <input 
+                type="text" 
+                id="identityInput" 
+                placeholder="Enter your name (e.g., Alice from Berlin)"
+                maxlength="50"
+            >
+        </div>
+
+        <div class="video-preview">
+            <video id="localVideo" autoplay muted playsinline></video>
+            <div id="videoOverlay" class="video-overlay">
+                Click "Start Camera" to begin
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="startCameraBtn" class="primary-btn">Start Camera</button>
+            <button id="joinBtn" class="secondary-btn" style="display: none;" disabled>Join Mirror's Echo</button>
+            <button id="leaveBtn" class="danger-btn" style="display: none;">Leave</button>
+        </div>
+
+        <div id="status" class="status">
+            Ready to connect
+        </div>
+
+        <div class="instructions">
+            <h3>📋 How to Participate:</h3>
+            <ol>
+                <li>Enter your name and location above</li>
+                <li>Click "Start Camera" to preview your video</li>
+                <li>Allow camera access when prompted</li>
+                <li>Click "Join Mirror's Echo" to connect to the installation</li>
+                <li>Your video will appear in the live installation at GLEAM 2026!</li>
+            </ol>
+        </div>
+
+        <div class="footer">
+            Part of the Mirror's Echo installation at Olbrich Botanical Gardens - GLEAM 2026
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/livekit-client/dist/livekit-client.umd.min.js"></script>
+    <script>
+        const LIVEKIT_URL = 'wss://liquid-milk-balls-web-production.up.railway.app';
+        const ROOM_NAME = 'mirrors-echo-main';
+
+        let room = null;
+        let localTrack = null;
+
+        const identityInput = document.getElementById('identityInput');
+        const localVideo = document.getElementById('localVideo');
+        const videoOverlay = document.getElementById('videoOverlay');
+        const startCameraBtn = document.getElementById('startCameraBtn');
+        const joinBtn = document.getElementById('joinBtn');
+        const leaveBtn = document.getElementById('leaveBtn');
+        const statusEl = document.getElementById('status');
+
+        function updateStatus(message, type = '') {
+            statusEl.textContent = message;
+            statusEl.className = 'status ' + type;
+        }
+
+        async function startCamera() {
+            try {
+                updateStatus('Starting camera...', '');
+                
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { 
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: 'user'
+                    },
+                    audio: true
+                });
+
+                localVideo.srcObject = stream;
+                videoOverlay.style.display = 'none';
+                localTrack = stream.getVideoTracks()[0];
+
+                startCameraBtn.style.display = 'none';
+                joinBtn.style.display = 'block';
+                joinBtn.disabled = !identityInput.value.trim();
+
+                updateStatus('Camera ready! Enter your name and click "Join"', 'connected');
+
+            } catch (error) {
+                console.error('Error starting camera:', error);
+                updateStatus('Error accessing camera: ' + error.message, 'error');
+            }
+        }
+
+        async function joinRoom() {
+            const identity = identityInput.value.trim();
+            if (!identity) {
+                updateStatus('Please enter your name first!', 'error');
+                return;
+            }
+
+            try {
+                updateStatus('Connecting to Mirror\'s Echo...', '');
+                joinBtn.disabled = true;
+
+                // Get token from server
+                const response = await fetch('/api/token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        roomName: ROOM_NAME,
+                        identity: identity
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to get access token');
+                }
+
+                const { token } = await response.json();
+
+                // Connect to room
+                room = new LivekitClient.Room({
+                    adaptiveStream: true,
+                    dynacast: true,
+                    videoCaptureDefaults: {
+                        resolution: LivekitClient.VideoPresets.h720.resolution,
+                    }
+                });
+
+                room.on('disconnected', () => {
+                    console.log('Disconnected from room');
+                    resetUI();
+                });
+
+                await room.connect(LIVEKIT_URL, token);
+
+                // Publish camera and microphone
+                await room.localParticipant.publishTrack(
+                    await LivekitClient.createLocalVideoTrack({
+                        resolution: LivekitClient.VideoPresets.h720.resolution,
+                    })
+                );
+
+                await room.localParticipant.publishTrack(
+                    await LivekitClient.createLocalAudioTrack()
+                );
+
+                updateStatus('✨ Connected! Your reflection is now part of the installation ✨', 'connected');
+                joinBtn.style.display = 'none';
+                leaveBtn.style.display = 'block';
+                identityInput.disabled = true;
+
+            } catch (error) {
+                console.error('Error joining room:', error);
+                updateStatus('Error connecting: ' + error.message, 'error');
+                joinBtn.disabled = false;
+            }
+        }
+
+        function leaveRoom() {
+            if (room) {
+                room.disconnect();
+                room = null;
+            }
+            resetUI();
+        }
+
+        function resetUI() {
+            if (localVideo.srcObject) {
+                localVideo.srcObject.getTracks().forEach(track => track.stop());
+                localVideo.srcObject = null;
+            }
+
+            videoOverlay.style.display = 'flex';
+            startCameraBtn.style.display = 'block';
+            joinBtn.style.display = 'none';
+            leaveBtn.style.display = 'none';
+            identityInput.disabled = false;
+            joinBtn.disabled = true;
+
+            updateStatus('Ready to connect', '');
+        }
+
+        // Event listeners
+        startCameraBtn.addEventListener('click', startCamera);
+        joinBtn.addEventListener('click', joinRoom);
+        leaveBtn.addEventListener('click', leaveRoom);
+
+        identityInput.addEventListener('input', (e) => {
+            if (localTrack) {
+                joinBtn.disabled = !e.target.value.trim();
+            }
+        });
+
+        // Handle page unload
+        window.addEventListener('beforeunload', () => {
+            if (room) {
+                room.disconnect();
+            }
+        });
+    </script>
+</body>
+</html>

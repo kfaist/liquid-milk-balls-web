@@ -163,6 +163,49 @@ app.get("/api/processed-viewer-token", async (req, res) => {
   }
 });
 
+// Generic token endpoint for Mirror's Echo and other custom rooms
+app.post("/api/token", async (req, res) => {
+  if (!LIVEKIT_API_KEY || !LIVEKIT_API_SECRET || !LIVEKIT_URL) {
+    return res.status(500).json({
+      error: "LiveKit not configured. Set LIVEKIT_API_KEY, LIVEKIT_API_SECRET, and LIVEKIT_URL environment variables."
+    });
+  }
+
+  try {
+    const { roomName, identity } = req.body;
+
+    if (!roomName || !identity) {
+      return res.status(400).json({
+        error: "Missing required fields: roomName and identity"
+      });
+    }
+
+    const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
+      identity: identity,
+      ttl: "2h",
+    });
+
+    // Determine permissions based on identity
+    const canPublish = identity.includes('main-display') ? false : true;
+
+    token.addGrant({
+      room: roomName,
+      roomJoin: true,
+      canPublish: canPublish,
+      canSubscribe: true,
+    });
+
+    res.json({
+      token: await token.toJwt(),
+      url: LIVEKIT_URL,
+      room: roomName,
+    });
+  } catch (error) {
+    console.error("Error generating token:", error);
+    res.status(500).json({ error: "Failed to generate token" });
+  }
+});
+
 // RTMP Ingress Endpoints (for OBS streaming)
 
 // Create RTMP Ingress for OBS
