@@ -140,7 +140,7 @@
         return (Math.floor(raindropCount / 5) * 30) % 360;
     }
 
-    // Create a raindrop ripple effect
+    // Create a raindrop ripple effect with pudding keycap style
     function createRaindrop(container) {
         raindropCount++; // Increment for color changes
 
@@ -156,30 +156,55 @@
         // Get current hue for color cycling
         const hue = getCurrentHue();
 
-        // Random size and duration based on phase
+        // Calculate pudding keycap properties based on elapsed time
+        // Key feature: 9-10 minute ramp for depth/gloss/bump
         const elapsed = Date.now() - startTime;
-        let size, duration, intensity;
+        let size, duration, intensity, depth, gloss, bump;
+
+        // Map elapsed time to depth/gloss/bump values
+        // Before PHASE_1 (9 min): minimal
+        // PHASE_1 to PHASE_2 (9-10 min): THE RAMP - gradually increase
+        // After PHASE_2 (10 min+): stabilized at high values
 
         if (elapsed < PHASE_1) {
-            // Very subtle hint/preview
+            // Phase 0: 8-9 min - Very subtle hint/preview
             size = 30 + Math.random() * 30; // 30-60px (smaller)
             duration = 3 + Math.random() * 2; // 3-5s (slower fade)
             intensity = 0.08; // Very faint
+            depth = 0.3;
+            gloss = 0.3;
+            bump = 0.5;
         } else if (elapsed < PHASE_2) {
-            // Medium
+            // Phase 1: 9-10 min - THE PUDDING RAMP
+            // Progressive increase in depth/gloss/bump creates the signature look
+            const rampProgress = (elapsed - PHASE_1) / (PHASE_2 - PHASE_1);
+            
             size = 60 + Math.random() * 60; // 60-120px
             duration = 2 + Math.random() * 1; // 2-3s
-            intensity = 0.25;
+            intensity = 0.15 + (rampProgress * 0.25); // 0.15 -> 0.40
+            
+            // Ramp depth from 0.5 to 2.0 (3D layering effect)
+            depth = 0.5 + (rampProgress * 1.5);
+            // Ramp gloss from 0.3 to 1.0 (satin to glossy finish)
+            gloss = 0.3 + (rampProgress * 0.7);
+            // Ramp bump from 0.5 to 2.0 (texture prominence)
+            bump = 0.5 + (rampProgress * 1.5);
         } else if (elapsed < PHASE_3) {
-            // Prominent
+            // Phase 2: 10-11 min - Stabilized presence
             size = 80 + Math.random() * 80; // 80-160px
             duration = 1.5 + Math.random() * 1; // 1.5-2.5s
-            intensity = 0.35;
+            intensity = 0.4;
+            depth = 1.8;
+            gloss = 1.0;
+            bump = 1.8;
         } else {
-            // Cannot be ignored
+            // Phase 3: 11+ min - Cannot be ignored
             size = 100 + Math.random() * 100; // 100-200px
             duration = 1 + Math.random() * 1; // 1-2s
-            intensity = 0.45;
+            intensity = 0.5;
+            depth = 2.0;
+            gloss = 1.0;
+            bump = 2.0;
         }
 
         raindrop.style.width = size + 'px';
@@ -187,6 +212,9 @@
         raindrop.style.animationDuration = duration + 's';
         raindrop.style.setProperty('--raindrop-intensity', intensity);
         raindrop.style.setProperty('--raindrop-hue', hue);
+        raindrop.style.setProperty('--depth', depth);
+        raindrop.style.setProperty('--gloss', gloss);
+        raindrop.style.setProperty('--bump', bump);
 
         // Add shimmer line effect (like mirror circle)
         const shimmer = document.createElement('div');

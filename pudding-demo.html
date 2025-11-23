@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pudding Keycap Raindrops Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: monospace;
+            background: #1a1a1a;
+            color: #ffffff;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .demo-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-header p {
+            opacity: 0.7;
+        }
+
+        .keycap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 0.5rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            padding: 2rem;
+            background: #0a0a0a;
+            border-radius: 10px;
+        }
+
+        .keycap {
+            aspect-ratio: 1;
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            border: 1px solid #3a3a3a;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            box-shadow: 
+                0 2px 5px rgba(0, 0, 0, 0.5),
+                inset 0 1px 2px rgba(255, 255, 255, 0.1);
+        }
+
+        #watermark-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            font-family: monospace;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border: 2px solid #ffffff;
+            border-radius: 50px;
+            background: #000000;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 0.5rem;
+        }
+
+        .btn:hover {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .status {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #0a0a0a;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .phase-indicator {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+        }
+
+        .phase-0 { background: #333; }
+        .phase-1 { background: #4a4a00; }
+        .phase-2 { background: #4a2a00; }
+        .phase-3 { background: #4a0000; }
+
+        /* Pudding Keycap Raindrop Styles */
+        .video-raindrop {
+            position: absolute;
+            border-radius: 15px;
+            pointer-events: none;
+            animation: raindropPulse linear forwards;
+            opacity: 0;
+            backdrop-filter: blur(2px);
+            transform-style: preserve-3d;
+            
+            /* CSS variables set by JS */
+            --depth: 1;
+            --gloss: 0.3;
+            --bump: 1;
+            --raindrop-hue: 200;
+            --raindrop-intensity: 0.3;
+            
+            /* Pudding keycap translucent ribbon effect */
+            background: linear-gradient(
+                135deg,
+                hsla(var(--raindrop-hue), 70%, 60%, calc(var(--raindrop-intensity) * var(--gloss))),
+                hsla(var(--raindrop-hue), 70%, 50%, calc(var(--raindrop-intensity) * 0.7 * var(--gloss))),
+                hsla(var(--raindrop-hue), 70%, 40%, calc(var(--raindrop-intensity) * 0.5 * var(--gloss)))
+            );
+            
+            border: calc(1px * var(--bump)) solid hsla(var(--raindrop-hue), 80%, 70%, calc(0.4 * var(--gloss)));
+            
+            box-shadow: 
+                0 calc(2px * var(--depth)) calc(8px * var(--depth)) hsla(var(--raindrop-hue), 70%, 50%, calc(0.3 * var(--gloss))),
+                inset 0 calc(1px * var(--bump)) calc(3px * var(--bump)) hsla(var(--raindrop-hue), 80%, 80%, calc(0.5 * var(--gloss))),
+                inset 0 calc(-1px * var(--bump)) calc(2px * var(--bump)) hsla(var(--raindrop-hue), 70%, 30%, calc(0.4 * var(--gloss)));
+        }
+
+        @keyframes raindropPulse {
+            0% {
+                opacity: 0;
+                transform: scale(0.5) translateZ(0);
+            }
+            10% {
+                opacity: 1;
+                transform: scale(1) translateZ(calc(10px * var(--depth)));
+            }
+            100% {
+                opacity: 0;
+                transform: scale(2) translateZ(calc(20px * var(--depth)));
+            }
+        }
+
+        .raindrop-shimmer {
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            border-radius: inherit;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                hsla(var(--shimmer-hue, 200), 80%, 80%, calc(0.3 * var(--gloss))),
+                transparent
+            );
+            animation: shimmerMove linear forwards;
+            pointer-events: none;
+        }
+
+        @keyframes shimmerMove {
+            0% { transform: translateX(-100%) translateY(-100%); }
+            100% { transform: translateX(100%) translateY(100%); }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-header">
+        <h1>🍮 Pudding Keycap Raindrops</h1>
+        <p>Demo with accelerated timing (seconds instead of minutes)</p>
+    </div>
+
+    <div class="status">
+        <div>Time: <span id="time-display">0s</span></div>
+        <div>Phase: <span id="phase-display">Waiting</span></div>
+    </div>
+
+    <div class="controls">
+        <button class="btn" onclick="startDemo()">Start Demo</button>
+        <button class="btn" onclick="resetDemo()">Reset</button>
+    </div>
+
+    <div class="keycap-grid" id="keycap-grid">
+        <!-- Generated keycaps -->
+    </div>
+
+    <div id="watermark-overlay"></div>
+
+    <script>
+        // Demo configuration - accelerated timing (seconds instead of minutes)
+        const PHASE_START = 5 * 1000;   // 5 seconds (was 8 min)
+        const PHASE_1 = 10 * 1000;      // 10 seconds (was 9 min)
+        const PHASE_2 = 15 * 1000;      // 15 seconds (was 10 min)
+        const PHASE_3 = 20 * 1000;      // 20 seconds (was 11 min)
+
+        let startTime = null;
+        let demoIntervalId = null;
+        let raindropCount = 0;
+
+        // Generate keycap grid
+        function initKeycapGrid() {
+            const grid = document.getElementById('keycap-grid');
+            const keys = 'QWERTYUIOPASDFGHJKLZXCVBNM1234567890';
+            for (let i = 0; i < 40; i++) {
+                const keycap = document.createElement('div');
+                keycap.className = 'keycap';
+                keycap.textContent = keys[i] || '·';
+                grid.appendChild(keycap);
+            }
+        }
+
+        function startDemo() {
+            if (!startTime) {
+                startTime = Date.now();
+                demoIntervalId = setInterval(updateDemo, 100);
+                console.log('Demo started');
+            }
+        }
+
+        function resetDemo() {
+            startTime = null;
+            raindropCount = 0;
+            if (demoIntervalId) {
+                clearInterval(demoIntervalId);
+                demoIntervalId = null;
+            }
+            document.getElementById('watermark-overlay').innerHTML = '';
+            document.getElementById('time-display').textContent = '0s';
+            document.getElementById('phase-display').textContent = 'Waiting';
+            console.log('Demo reset');
+        }
+
+        function updateDemo() {
+            const elapsed = Date.now() - startTime;
+            const seconds = Math.floor(elapsed / 1000);
+            
+            // Update display
+            document.getElementById('time-display').textContent = seconds + 's';
+            
+            // Update phase indicator
+            let phase = 0;
+            let phaseName = 'Waiting';
+            if (elapsed >= PHASE_3) {
+                phase = 3;
+                phaseName = 'Phase 3: Undeniable (20s+)';
+            } else if (elapsed >= PHASE_2) {
+                phase = 2;
+                phaseName = 'Phase 2: Presence (15-20s)';
+            } else if (elapsed >= PHASE_1) {
+                phase = 1;
+                phaseName = 'Phase 1: Murmur (10-15s)';
+            } else if (elapsed >= PHASE_START) {
+                phase = 1;
+                phaseName = 'Phase 0: Whisper (5-10s)';
+            }
+            
+            const phaseDisplay = document.getElementById('phase-display');
+            phaseDisplay.innerHTML = phaseName + ' <span class="phase-indicator phase-' + phase + '">' + phase + '</span>';
+
+            if (elapsed < PHASE_START) return;
+
+            // Get drop frequency
+            const frequency = getDropFrequency(elapsed);
+            
+            // Create raindrop
+            const overlay = document.getElementById('watermark-overlay');
+            if (overlay && Math.random() < frequency) {
+                createRaindrop(overlay, elapsed);
+            }
+        }
+
+        function getDropFrequency(elapsed) {
+            if (elapsed < PHASE_START) return 0;
+            else if (elapsed < PHASE_1) return 0.05;   // ~5% per 100ms
+            else if (elapsed < PHASE_2) return 0.08;   // ~8%
+            else if (elapsed < PHASE_3) return 0.12;   // ~12%
+            else return 0.15;                          // ~15%
+        }
+
+        function getCurrentHue() {
+            return (Math.floor(raindropCount / 5) * 30) % 360;
+        }
+
+        function createRaindrop(container, elapsed) {
+            raindropCount++;
+
+            const raindrop = document.createElement('div');
+            raindrop.className = 'video-raindrop';
+
+            // Random position
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+            raindrop.style.left = x + '%';
+            raindrop.style.top = y + '%';
+
+            const hue = getCurrentHue();
+
+            // Calculate pudding keycap properties based on elapsed time
+            // Key feature: 9-10 minute (here 10-15s) ramp for depth/gloss/bump
+            let size, duration, intensity, depth, gloss, bump;
+
+            // Map elapsed time to depth/gloss/bump values
+            // Before PHASE_1 (10s): minimal
+            // PHASE_1 to PHASE_2 (10-15s): THE RAMP - gradually increase
+            // After PHASE_2 (15s+): stabilized at high values
+
+            if (elapsed < PHASE_1) {
+                // Phase 0: Whisper - very subtle
+                size = 40 + Math.random() * 30;
+                duration = 3 + Math.random() * 2;
+                intensity = 0.15;
+                depth = 0.3;
+                gloss = 0.3;
+                bump = 0.5;
+            } else if (elapsed < PHASE_2) {
+                // Phase 1-2: THE PUDDING RAMP (10-15s)
+                // Progressive increase in depth/gloss/bump
+                const rampProgress = (elapsed - PHASE_1) / (PHASE_2 - PHASE_1);
+                
+                size = 60 + Math.random() * 60;
+                duration = 2.5 + Math.random() * 1.5;
+                intensity = 0.25 + (rampProgress * 0.3);
+                
+                // Ramp depth from 0.5 to 2.0
+                depth = 0.5 + (rampProgress * 1.5);
+                // Ramp gloss from 0.3 to 1.0
+                gloss = 0.3 + (rampProgress * 0.7);
+                // Ramp bump from 0.5 to 2.0
+                bump = 0.5 + (rampProgress * 1.5);
+            } else if (elapsed < PHASE_3) {
+                // Phase 2: Presence - stabilized high values
+                size = 80 + Math.random() * 80;
+                duration = 2 + Math.random() * 1;
+                intensity = 0.5;
+                depth = 1.8;
+                gloss = 1.0;
+                bump = 1.8;
+            } else {
+                // Phase 3: Undeniable - maximum effect
+                size = 100 + Math.random() * 100;
+                duration = 1.5 + Math.random() * 1;
+                intensity = 0.6;
+                depth = 2.0;
+                gloss = 1.0;
+                bump = 2.0;
+            }
+
+            raindrop.style.width = size + 'px';
+            raindrop.style.height = size + 'px';
+            raindrop.style.animationDuration = duration + 's';
+            raindrop.style.setProperty('--raindrop-intensity', intensity);
+            raindrop.style.setProperty('--raindrop-hue', hue);
+            raindrop.style.setProperty('--depth', depth);
+            raindrop.style.setProperty('--gloss', gloss);
+            raindrop.style.setProperty('--bump', bump);
+
+            // Add shimmer effect
+            const shimmer = document.createElement('div');
+            shimmer.className = 'raindrop-shimmer';
+            shimmer.style.animationDuration = (duration * 0.5) + 's';
+            shimmer.style.setProperty('--shimmer-hue', hue);
+            raindrop.appendChild(shimmer);
+
+            container.appendChild(raindrop);
+
+            // Remove after animation
+            setTimeout(() => {
+                raindrop.remove();
+            }, duration * 1000);
+        }
+
+        // Initialize on load
+        initKeycapGrid();
+    </script>
+</body>
+</html>
