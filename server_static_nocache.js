@@ -1,5 +1,13 @@
 // Dev static server with NO CACHING, HTML injection for a site-wide watermark,
 // and verbose request logging.
+// 
+// ⚠️  WARNING: This is a DEVELOPMENT-ONLY server for LOCAL USE.
+// DO NOT use this server in production environments.
+// - No rate limiting (vulnerable to abuse)
+// - No authentication
+// - No input validation
+// - File system access without restrictions
+// 
 // Usage: node server_static_nocache.js
 const express = require('express');
 const path = require('path');

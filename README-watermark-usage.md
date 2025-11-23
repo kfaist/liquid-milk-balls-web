@@ -2,6 +2,10 @@
 
 This adds a small development static server that injects an animated SVG watermark into served HTML pages and provides a getUserMedia test page.
 
+**⚠️ FOR LOCAL DEVELOPMENT ONLY - NOT FOR PRODUCTION USE**
+
+This server is designed for local testing and development with no security measures (no rate limiting, no authentication). Only use on your local machine.
+
 Quick start (PowerShell):
 
 ```powershell
