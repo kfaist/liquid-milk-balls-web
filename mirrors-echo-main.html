@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mirror's Echo - Main Installation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .video-container {
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            background: #000;
+        }
+
+        .participant-name {
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        .controls {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .secondary-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .secondary-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .status {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status.connected {
+            background: rgba(76, 175, 80, 0.3);
+        }
+
+        .status.disconnected {
+            background: rgba(244, 67, 54, 0.3);
+        }
+
+        #participant-count {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+
+        .echo-message {
+            font-size: 1.8rem;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ The Mirror's Echo ✨</h1>
+        <p class="subtitle">Main Installation Display - GLEAM 2026</p>
+
+        <div id="participant-count">Waiting for participants...</div>
+
+        <div class="controls">
+            <button id="connectBtn" class="primary-btn">Connect to Room</button>
+            <button id="disconnectBtn" class="secondary-btn" style="display: none;">Disconnect</button>
+        </div>
+
+        <div id="status" class="status disconnected">
+            Disconnected
+        </div>
+
+        <div class="echo-message" id="echoMessage" style="display: none;">
+            Your reflection awaits...
+        </div>
+
+        <div class="video-grid" id="videoGrid">
+            <!-- Participant videos will be added here dynamically -->
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/livekit-client/dist/livekit-client.umd.min.js"></script>
+    <script>
+        const LIVEKIT_URL = 'wss://liquid-milk-balls-web-production.up.railway.app';
+        const ROOM_NAME = 'mirrors-echo-main';
+
+        let room = null;
+        let connected = false;
+
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const statusEl = document.getElementById('status');
+        const participantCountEl = document.getElementById('participant-count');
+        const echoMessageEl = document.getElementById('echoMessage');
+        const videoGrid = document.getElementById('videoGrid');
+
+        const echoMessages = [
+            "Your reflection tells a story...",
+            "Every movement creates ripples in time...",
+            "The mirror sees what you cannot...",
+            "Your echo resonates through the space...",
+            "Reflections dance with shadows...",
+            "The mirror remembers every soul...",
+            "Your presence transforms the light...",
+            "Echoes of connection ripple outward..."
+        ];
+
+        let messageIndex = 0;
+
+        function updateEchoMessage() {
+            echoMessageEl.textContent = echoMessages[messageIndex];
+            echoMessageEl.style.display = 'block';
+            messageIndex = (messageIndex + 1) % echoMessages.length;
+        }
+
+        function updateParticipantCount() {
+            if (!room) {
+                participantCountEl.textContent = 'Waiting for participants...';
+                return;
+            }
+            const count = room.participants.size;
+            participantCountEl.textContent = `${count} ${count === 1 ? 'soul' : 'souls'} reflected`;
+            
+            if (count > 0) {
+                updateEchoMessage();
+            }
+        }
+
+        function addParticipantVideo(participant) {
+            const container = document.createElement('div');
+            container.className = 'video-container';
+            container.id = `participant-${participant.identity}`;
+
+            const video = document.createElement('video');
+            video.autoplay = true;
+            video.playsInline = true;
+
+            const nameLabel = document.createElement('div');
+            nameLabel.className = 'participant-name';
+            nameLabel.textContent = participant.identity;
+
+            container.appendChild(video);
+            container.appendChild(nameLabel);
+            videoGrid.appendChild(container);
+
+            // Attach tracks
+            participant.tracks.forEach(publication => {
+                if (publication.track) {
+                    attachTrack(publication.track, video);
+                }
+            });
+
+            // Handle new tracks
+            participant.on('trackSubscribed', track => {
+                attachTrack(track, video);
+            });
+
+            updateParticipantCount();
+        }
+
+        function removeParticipantVideo(participant) {
+            const container = document.getElementById(`participant-${participant.identity}`);
+            if (container) {
+                container.remove();
+            }
+            updateParticipantCount();
+        }
+
+        function attachTrack(track, videoElement) {
+            if (track.kind === 'video' || track.kind === 'audio') {
+                const mediaStream = new MediaStream([track.mediaStreamTrack]);
+                videoElement.srcObject = mediaStream;
+            }
+        }
+
+        async function connect() {
+            try {
+                statusEl.textContent = 'Connecting...';
+                statusEl.className = 'status';
+                
+                // Get token from server
+                const response = await fetch('/api/token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        roomName: ROOM_NAME,
+                        identity: 'main-display'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to get token');
+                }
+
+                const { token } = await response.json();
+
+                // Connect to room
+                room = new LivekitClient.Room({
+                    adaptiveStream: true,
+                    dynacast: true,
+                });
+
+                // Set up event handlers
+                room.on('participantConnected', participant => {
+                    console.log('Participant connected:', participant.identity);
+                    addParticipantVideo(participant);
+                });
+
+                room.on('participantDisconnected', participant => {
+                    console.log('Participant disconnected:', participant.identity);
+                    removeParticipantVideo(participant);
+                });
+
+                room.on('disconnected', () => {
+                    console.log('Disconnected from room');
+                    connected = false;
+                    statusEl.textContent = 'Disconnected';
+                    statusEl.className = 'status disconnected';
+                    connectBtn.style.display = 'block';
+                    disconnectBtn.style.display = 'none';
+                    videoGrid.innerHTML = '';
+                    echoMessageEl.style.display = 'none';
+                    updateParticipantCount();
+                });
+
+                await room.connect(LIVEKIT_URL, token);
+
+                connected = true;
+                statusEl.textContent = 'Connected to Mirror\'s Echo';
+                statusEl.className = 'status connected';
+                connectBtn.style.display = 'none';
+                disconnectBtn.style.display = 'block';
+
+                // Add existing participants
+                room.participants.forEach(participant => {
+                    addParticipantVideo(participant);
+                });
+
+                updateParticipantCount();
+
+            } catch (error) {
+                console.error('Error connecting:', error);
+                statusEl.textContent = `Error: ${error.message}`;
+                statusEl.className = 'status disconnected';
+            }
+        }
+
+        function disconnect() {
+            if (room) {
+                room.disconnect();
+                room = null;
+            }
+        }
+
+        connectBtn.addEventListener('click', connect);
+        disconnectBtn.addEventListener('click', disconnect);
+
+        // Auto-connect on page load
+        window.addEventListener('load', () => {
+            setTimeout(connect, 1000);
+        });
+    </script>
+</body>
+</html>
