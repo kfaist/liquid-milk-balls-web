@@ -24,6 +24,15 @@
         }
     }
 
+    // Ensure halo styles are present (inject new CSS file if needed)
+    function ensureHaloStyles() {
+        if (document.querySelector('link[href="/halo-drops.css"], link[href="halo-drops.css"]')) return;
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'halo-drops.css';
+        document.head.appendChild(link);
+    }
+
     // Initialize watermark system when remote video starts playing
     function initWatermark() {
         const remoteVideo = document.getElementById('remoteVideo');
@@ -31,6 +40,9 @@
 
         // Expose manual start function globally for testing
         window.startWatermarkTimer = startWatermarkTimer;
+
+        // Ensure halo stylesheet is available for automatic drops
+        ensureHaloStyles();
 
         if (!remoteVideo) return;
 
@@ -87,7 +99,12 @@
 
         // Create raindrop on the overlay (appears over entire page)
         if (watermarkOverlay && Math.random() < frequency) {
-            createRaindrop(watermarkOverlay);
+            // Create halo-style drop instead of keycap
+            const drop = createRaindrop(elapsed);
+            watermarkOverlay.appendChild(drop);
+            // remove after its animation (duration + buffer)
+            const duration = parseFloat(getComputedStyle(drop).getPropertyValue('--duration')) || 3;
+            setTimeout(() => drop.remove(), Math.ceil(duration * 1000) + 800);
         }
 
         // Show text overlay at 10+ minutes
@@ -140,95 +157,82 @@
         return (Math.floor(raindropCount / 5) * 30) % 360;
     }
 
-    // Create a raindrop ripple effect with pudding keycap style
-    function createRaindrop(container) {
-        raindropCount++; // Increment for color changes
+    // ---- NEW: Create halo-style raindrop element (replaces pudding keycap look) ----
+    // This function maps the existing 9-10 minute ramp to glow/halo intensity and spawn depth,
+    // rather than to bevel/"bump" variables. It emits per-drop CSS variables used by halo-drops.css.
+    function createRaindrop(elapsedMs) {
+        raindropCount++;
 
-        const raindrop = document.createElement('div');
-        raindrop.className = 'video-raindrop';
+        // Compute ramp intensity (0..1) across the existing phase window (PHASE_1..PHASE_2)
+        const rampStart = PHASE_1;
+        const rampEnd = PHASE_2;
+        const t = Math.max(0, Math.min(1, (elapsedMs - rampStart) / (rampEnd - rampStart)));
+        // easeInOutCubic
+        const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-        // Random position within the video
-        const x = Math.random() * 100;
-        const y = Math.random() * 100;
-        raindrop.style.left = x + '%';
-        raindrop.style.top = y + '%';
+        // Map ramp to glow scale and alpha
+        const glowScale = 1 + ease * 3.2;         // halo size multiplier
+        const glowAlpha = 0.16 + ease * 0.28;     // halo alpha
 
-        // Get current hue for color cycling
-        const hue = getCurrentHue();
+        // Pick palette color
+        const PALETTE = ['#8fefff', '#6ec6ff', '#55c2ff', '#4fc3f7', '#9be7ff', '#7feaff'];
+        const color = PALETTE[Math.floor(Math.random() * PALETTE.length)];
 
-        // Calculate pudding keycap properties based on elapsed time
-        // Key feature: 9-10 minute ramp for depth/gloss/bump
-        const elapsed = Date.now() - startTime;
-        let size, duration, intensity, depth, gloss, bump;
+        // size and depth variants
+        const depthRoll = Math.random();
+        const depthClass = depthRoll < 0.18 ? 'rain-depth-far' : (depthRoll < 0.72 ? 'rain-depth-mid' : 'rain-depth-near');
+        const sizeCategoryRoll = Math.random();
+        const sizeClass = sizeCategoryRoll < 0.42 ? 'small' : (sizeCategoryRoll < 0.86 ? 'medium' : 'large');
+        const baseSize = sizeClass === 'small' ? (Math.random() * 4 + 8) : sizeClass === 'medium' ? (Math.random() * 4 + 12) : (Math.random() * 6 + 18);
+        const size = Math.round(baseSize);
 
-        // Map elapsed time to depth/gloss/bump values
-        // Before PHASE_1 (9 min): minimal
-        // PHASE_1 to PHASE_2 (9-10 min): THE RAMP - gradually increase
-        // After PHASE_2 (10 min+): stabilized at high values
+        // durations for fall animation (near faster, far slower)
+        const duration = depthClass === 'rain-depth-far' ? (Math.random() * 1.8 + 4.6) : depthClass === 'rain-depth-mid' ? (Math.random() * 1.4 + 3.2) : (Math.random() * 1.2 + 1.8);
 
-        if (elapsed < PHASE_1) {
-            // Phase 0: 8-9 min - Very subtle hint/preview
-            size = 30 + Math.random() * 30; // 30-60px (smaller)
-            duration = 3 + Math.random() * 2; // 3-5s (slower fade)
-            intensity = 0.08; // Very faint
-            depth = 0.3;
-            gloss = 0.3;
-            bump = 0.5;
-        } else if (elapsed < PHASE_2) {
-            // Phase 1: 9-10 min - THE PUDDING RAMP
-            // Progressive increase in depth/gloss/bump creates the signature look
-            const rampProgress = (elapsed - PHASE_1) / (PHASE_2 - PHASE_1);
-            
-            size = 60 + Math.random() * 60; // 60-120px
-            duration = 2 + Math.random() * 1; // 2-3s
-            intensity = 0.15 + (rampProgress * 0.25); // 0.15 -> 0.40
-            
-            // Ramp depth from 0.5 to 2.0 (3D layering effect)
-            depth = 0.5 + (rampProgress * 1.5);
-            // Ramp gloss from 0.3 to 1.0 (satin to glossy finish)
-            gloss = 0.3 + (rampProgress * 0.7);
-            // Ramp bump from 0.5 to 2.0 (texture prominence)
-            bump = 0.5 + (rampProgress * 1.5);
-        } else if (elapsed < PHASE_3) {
-            // Phase 2: 10-11 min - Stabilized presence
-            size = 80 + Math.random() * 80; // 80-160px
-            duration = 1.5 + Math.random() * 1; // 1.5-2.5s
-            intensity = 0.4;
-            depth = 1.8;
-            gloss = 1.0;
-            bump = 1.8;
-        } else {
-            // Phase 3: 11+ min - Cannot be ignored
-            size = 100 + Math.random() * 100; // 100-200px
-            duration = 1 + Math.random() * 1; // 1-2s
-            intensity = 0.5;
-            depth = 2.0;
-            gloss = 1.0;
-            bump = 2.0;
-        }
+        const left = (Math.random() * 108) - 4; // -4%..104%
+        const angle = (Math.random() * 18 - 24) + 'deg';
+        const drift = ((Math.random() < 0.5 ? -1 : 1) * (Math.random() * 78 + 18)) + 'px';
+        const blur = depthClass === 'rain-depth-far' ? (Math.random() * 1.4 + 0.8) + 'px' : depthClass === 'rain-depth-mid' ? (Math.random() * 0.6 + 0.3) + 'px' : '0px';
 
-        raindrop.style.width = size + 'px';
-        raindrop.style.height = size + 'px';
-        raindrop.style.animationDuration = duration + 's';
-        raindrop.style.setProperty('--raindrop-intensity', intensity);
-        raindrop.style.setProperty('--raindrop-hue', hue);
-        raindrop.style.setProperty('--depth', depth);
-        raindrop.style.setProperty('--gloss', gloss);
-        raindrop.style.setProperty('--bump', bump);
+        // Create element
+        const drop = document.createElement('div');
+        drop.className = `halo-drop ${depthClass} ${sizeClass}`;
 
-        // Add shimmer line effect (like mirror circle)
-        const shimmer = document.createElement('div');
-        shimmer.className = 'raindrop-shimmer';
-        shimmer.style.animationDuration = (duration * 0.5) + 's'; // Faster than raindrop
-        shimmer.style.setProperty('--shimmer-hue', hue);
-        raindrop.appendChild(shimmer);
+        const tail = document.createElement('div');
+        tail.className = 'tail';
+        drop.appendChild(tail);
 
-        container.appendChild(raindrop);
+        drop.style.setProperty('--left', left + '%');
+        drop.style.setProperty('--size', size + 'px');
+        drop.style.setProperty('--color', color);
+        drop.style.setProperty('--duration', duration + 's');
+        drop.style.setProperty('--angle', angle);
+        drop.style.setProperty('--drift', drift);
+        drop.style.setProperty('--blur', blur);
 
-        // Remove after animation
-        setTimeout(() => {
-            raindrop.remove();
-        }, duration * 1000);
+        // glow variables
+        const glowPx = Math.max(10, Math.round(size * glowScale));
+        drop.style.setProperty('--glow', glowPx + 'px');
+        drop.style.setProperty('--glow-color', hexToRgba(color, glowAlpha));
+
+        // small negative delay for variety
+        drop.style.setProperty('--delay', (Math.random() * -0.6).toFixed(2) + 's');
+
+        // store intensity for debugging
+        drop.dataset.rampIntensity = ease.toFixed(3);
+
+        return drop;
+    }
+
+    // helper hex->rgba used by createRaindrop
+    function hexToRgba(hex, alpha = 0.22) {
+        const h = hex.replace('#', '');
+        const hexFull = h.length === 3 ? h.split('').map(s => s + s).join('') : h;
+        const bigint = parseInt(hexFull, 16);
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     }
 
     // Show glassmorphism text overlay at 10 minutes
