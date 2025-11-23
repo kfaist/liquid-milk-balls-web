@@ -1,63 +1,14 @@
-require('dotenv').config();
-const express = require("express");
-const path = require("path");
-const http = require("http");
-const { WebSocketServer } = require("ws");
-const { AccessToken, RoomServiceClient } = require("livekit-server-sdk");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const paypal = require("@paypal/checkout-server-sdk");
-
-const PORT = process.env.PORT || 3000;
+const express = require('express');
+const path = require('path');
 const app = express();
 
-// LiveKit configuration
-const LIVEKIT_API_KEY = process.env.LIVEKIT_API_KEY;
-const LIVEKIT_API_SECRET = process.env.LIVEKIT_API_SECRET;
-const LIVEKIT_URL = process.env.LIVEKIT_URL;
-const INPUT_ROOM = process.env.LIVEKIT_ROOM_NAME || "claymation-live";
-const PROCESSED_ROOM = process.env.LIVEKIT_PROCESSED_ROOM || "processed-output";
+app.use(express.static(path.join(__dirname, '.')));
 
-app.use(express.json());
-app.use(express.static(path.join(__dirname)));
-
-app.get("/healthz", (_req, res) => res.status(200).send("ok"));
-
-// LiveKit Token Generation Endpoints
-
-// Token for remote camera to publish to input room
-app.get("/api/publisher-token", async (req, res) => {
-  if (!LIVEKIT_API_KEY || !LIVEKIT_API_SECRET || !LIVEKIT_URL) {
-    return res.status(500).json({
-      error: "LiveKit not configured. Set LIVEKIT_API_KEY, LIVEKIT_API_SECRET, and LIVEKIT_URL environment variables."
-    });
-  }
-
-  try {
-    const participantName = req.query.identity || `publisher-${Date.now()}`;
-
-    const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
-      identity: participantName,
-      ttl: "2h",
-    });
-
-    token.addGrant({
-      room: INPUT_ROOM,
-      roomJoin: true,
-      canPublish: true,
-      canSubscribe: true,
-    });
-
-    res.json({
-      token: await token.toJwt(),
-      url: LIVEKIT_URL,
-      room: INPUT_ROOM,
-    });
-  } catch (error) {
-    console.error("Error generating publisher token:", error);
-    res.status(500).json({ error: "Failed to generate token" });
-  }
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'mirrors-echo-vibrant.html'));
 });
 
+<<<<<<< HEAD
 // Token for viewing input room (for OBS Browser Source)
 app.get("/api/viewer-token", async (req, res) => {
   if (!LIVEKIT_API_KEY || !LIVEKIT_API_SECRET || !LIVEKIT_URL) {
@@ -464,4 +415,9 @@ server.listen(PORT, "0.0.0.0", () => {
     console.log(`   LIVEKIT_API_SECRET`);
     console.log(`   LIVEKIT_URL`);
   }
+=======
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+>>>>>>> 9f661b2d25a87643e2745018e14471836a77f804
 });
