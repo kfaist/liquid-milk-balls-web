@@ -717,6 +717,50 @@
     </script>
 
     <!-- Rainbow Raindrop Animation -->
+    <style>
+        /* Raindrop ripple animation */
+        @keyframes raindropRipple {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0);
+                filter: blur(1px);
+            }
+            15% {
+                opacity: 0.9;
+                transform: translate(-50%, -50%) scale(0.4);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.5);
+                filter: blur(3px);
+            }
+        }
+
+        .video-raindrop {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            overflow: visible;
+            background: radial-gradient(
+                circle at 40% 40%,
+                hsla(var(--raindrop-hue, 200), 95%, 85%, 0.7) 0%,
+                hsla(var(--raindrop-hue, 200), 90%, 75%, 0.5) 20%,
+                hsla(var(--raindrop-hue, 200), 85%, 65%, 0.3) 40%,
+                hsla(var(--raindrop-hue, 200), 80%, 55%, 0.15) 60%,
+                transparent 100%
+            );
+            box-shadow:
+                inset 0 0 30px hsla(var(--raindrop-hue, 200), 100%, 90%, 0.8),
+                inset 0 0 50px hsla(var(--raindrop-hue, 200), 100%, 80%, 0.5),
+                0 0 40px hsla(var(--raindrop-hue, 200), 90%, 70%, 0.6),
+                0 0 60px hsla(var(--raindrop-hue, 200), 85%, 65%, 0.4),
+                0 0 80px hsla(var(--raindrop-hue, 200), 80%, 60%, 0.2);
+            backdrop-filter: blur(8px);
+            filter: blur(1px);
+            transform: translate(-50%, -50%) scale(0);
+        }
+    </style>
+
     <script>
         // ========================================
         // RAINBOW RAINDROP ANIMATION SYSTEM
@@ -725,27 +769,14 @@
         // TIMING CONFIGURATION
         // For PRODUCTION: TRIGGER_TIME = 420, BUILD_DURATION = 180
         // For TESTING: TRIGGER_TIME = 1, BUILD_DURATION = 3
-        const TRIGGER_TIME = 1; // seconds - when raindrops start appearing
-        const BUILD_DURATION = 3; // seconds - how long to build to peak intensity
+        const TRIGGER_TIME = 420; // seconds - when raindrops start appearing
+        const BUILD_DURATION = 180; // seconds - how long to build to peak intensity
         const PEAK_TIME = TRIGGER_TIME + BUILD_DURATION; // when peak intensity is reached
-
-        // Rainbow color palette
-        const RAINDROP_COLORS = [
-            '#FF1493', // hot pink
-            '#8A2BE2', // blue violet
-            '#4B0082', // indigo
-            '#00BFFF', // deep sky blue
-            '#7FFFD4', // aquamarine
-            '#32CD32', // lime green
-            '#FFD700', // gold
-            '#FF8C00', // dark orange
-            '#FF1493'  // deep pink
-        ];
 
         // Animation state
         let raindropAnimationStartTime = null;
         let raindropAnimationActive = false;
-        let raindropSpawnInterval = null;
+        let raindropColorIndex = 0; // For color cycling
 
         // Start raindrop animation when page loads
         function initRaindropAnimation() {
@@ -787,8 +818,8 @@
             }
 
             // At low intensity: spawn every ~2000ms
-            // At peak intensity: spawn every ~100ms
-            const minDelay = 100;
+            // At peak intensity: spawn every ~200ms (matching reference: 5-8 drops with 150ms stagger)
+            const minDelay = 200;
             const maxDelay = 2000;
             const delay = maxDelay - (intensity * (maxDelay - minDelay));
 
@@ -810,64 +841,43 @@
             }, delay);
         }
 
-        // Create a single raindrop
+        // Create a single raindrop ripple (matching reference implementation)
         function createRaindrop() {
-            const drop = document.createElement('div');
+            // Target the remote video box for raindrops
+            const container = document.getElementById('remoteVideoBox');
+            if (!container) return;
 
-            // Random position across viewport
-            const x = Math.random() * window.innerWidth;
-            const y = -50; // Start above viewport
+            const raindrop = document.createElement('div');
+            raindrop.className = 'video-raindrop';
 
-            // Random color from palette
-            const color = RAINDROP_COLORS[Math.floor(Math.random() * RAINDROP_COLORS.length)];
+            // Random position within container (percentage)
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+            raindrop.style.left = x + '%';
+            raindrop.style.top = y + '%';
 
-            // Random size (20-40px)
-            const size = 20 + Math.random() * 20;
+            // Color cycles through rainbow
+            const hue = (raindropColorIndex * 40) % 360;
+            raindrop.style.setProperty('--raindrop-hue', hue);
 
-            // Random fall duration (1.5-3 seconds)
-            const duration = 1.5 + Math.random() * 1.5;
+            // Random size (60-180px to match reference: 60 + random * 120)
+            const size = 60 + Math.random() * 120;
+            raindrop.style.width = size + 'px';
+            raindrop.style.height = size + 'px';
 
-            // Random horizontal drift
-            const drift = (Math.random() - 0.5) * 100;
+            // Border with rainbow color
+            raindrop.style.border = `3px solid hsla(${hue}, 85%, 65%, 0.9)`;
 
-            // Style the raindrop
-            drop.style.position = 'fixed';
-            drop.style.left = x + 'px';
-            drop.style.top = y + 'px';
-            drop.style.width = size + 'px';
-            drop.style.height = size + 'px';
-            drop.style.borderRadius = '50%';
-            drop.style.pointerEvents = 'none';
-            drop.style.zIndex = '9998'; // Just below watermark overlay (9999)
+            // Duration (matching reference: 1.2 + random * 0.8)
+            const duration = 1.2 + Math.random() * 0.8;
+            raindrop.style.animation = `raindropRipple ${duration}s ease-out forwards`;
 
-            // Radial gradient and glow effect
-            drop.style.background = `radial-gradient(circle at 30% 30%, ${color}FF, ${color}AA 50%, ${color}44)`;
-            drop.style.boxShadow = `0 0 ${size * 0.8}px ${size * 0.4}px ${color}88, inset 0 0 ${size * 0.3}px ${color}FF`;
-
-            // Animation: fade in, fall, fade out
-            drop.style.opacity = '0';
-            drop.style.transition = `opacity 0.3s ease-in, transform ${duration}s linear`;
-
-            // Add to DOM
-            document.body.appendChild(drop);
-
-            // Trigger fade in
-            requestAnimationFrame(() => {
-                drop.style.opacity = '0.9';
-                drop.style.transform = `translate(${drift}px, ${window.innerHeight + 100}px)`;
-            });
+            // Add to container
+            container.appendChild(raindrop);
+            raindropColorIndex++;
 
             // Remove after animation completes
-            setTimeout(() => {
-                // Fade out
-                drop.style.opacity = '0';
-
-                setTimeout(() => {
-                    if (drop.parentNode) {
-                        drop.parentNode.removeChild(drop);
-                    }
-                }, 300); // Wait for fade out
-            }, duration * 1000);
+            setTimeout(() => raindrop.remove(), duration * 1000);
         }
 
         // Initialize animation when page loads
