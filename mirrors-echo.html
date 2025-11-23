@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mirror's Echo</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: #000;
+            color: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Flickering Title */
+        h1.flicker {
+            font-size: 1.5rem;
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 3rem;
+            letter-spacing: 0.1em;
+            opacity: 0.8;
+            animation: flicker 3s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                opacity: 0.8;
+            }
+            20%, 24%, 55% {
+                opacity: 0.3;
+            }
+            22% {
+                opacity: 0.5;
+                transform: translate(-1px, 0);
+            }
+        }
+
+        .intro-text {
+            text-align: center;
+            font-size: 0.65rem;
+            opacity: 0.7;
+            letter-spacing: 0.02em;
+            line-height: 1.6;
+            margin-bottom: 3rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .intro-text a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            transition: border-color 0.2s;
+        }
+
+        .intro-text a:hover {
+            border-color: #fff;
+        }
+
+        /* Video Panel */
+        .panel {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 2rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .video-grid.collapsed {
+            grid-template-columns: 1fr;
+        }
+
+        .video-box {
+            position: relative;
+        }
+
+        .video-box.hidden {
+            display: none;
+        }
+
+        .video-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            opacity: 0.6;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .video-container {
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-status {
+            font-size: 0.85rem;
+            opacity: 0.6;
+            letter-spacing: 0.05em;
+        }
+
+        .expand-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.7rem;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+            z-index: 10;
+            line-height: 1;
+            opacity: 0.5;
+        }
+
+        .expand-btn:hover {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+            opacity: 1;
+        }
+
+        .btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.7rem;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+            z-index: 10;
+            position: relative;
+            opacity: 0.5;
+        }
+
+        #startBtn {
+            display: block;
+            margin: 0.5rem auto 0 auto;
+            width: fit-content;
+        }
+
+        .remote-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            justify-content: flex-start;
+        }
+
+        .btn:hover:not(:disabled) {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+            opacity: 1;
+        }
+
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .status {
+            text-align: center;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            opacity: 0.6;
+            letter-spacing: 0.05em;
+        }
+
+        .status.connected {
+            opacity: 1;
+            color: rgba(127, 255, 212, 0.9);
+        }
+
+        /* Timer display */
+        .timer-display {
+            text-align: center;
+            font-size: 0.75rem;
+            opacity: 0.5;
+            letter-spacing: 0.1em;
+            margin-top: 1rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Content Sections */
+        section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
+        }
+
+        h3 {
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            margin: 1.5rem 0 1rem 0;
+            opacity: 0.8;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        ul {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        ul li {
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        ul li:before {
+            content: "—";
+            position: absolute;
+            left: 0;
+        }
+
+        a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            transition: border-color 0.2s;
+        }
+
+        a:hover {
+            border-color: #fff;
+        }
+
+        strong {
+            font-weight: 600;
+            opacity: 1;
+        }
+
+        /* About Section Styling */
+        .about-section {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .about-section h2 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
+        }
+
+        .about-section h3 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            margin: 1.5rem 0 1rem 0;
+            opacity: 0.8;
+        }
+
+        .about-section p {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            opacity: 0.7;
+        }
+
+        .about-section em {
+            font-style: italic;
+        }
+
+        .about-section ol {
+            list-style: decimal;
+            margin-left: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.8;
+            opacity: 0.7;
+        }
+
+        .about-section ol li {
+            padding: 0.5rem 0;
+            padding-left: 0;
+        }
+
+        .about-section ol li:before {
+            content: none;
+        }
+
+        .about-section ul {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .about-section ul li {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            padding: 0.5rem 0;
+            opacity: 0.7;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .about-section ul li:before {
+            content: "—";
+            position: absolute;
+            left: 0;
+        }
+
+        .about-section a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            transition: border-color 0.2s;
+        }
+
+        .about-section a:hover {
+            border-color: #fff;
+        }
+
+        /* Payment Section Styling */
+        .payment-section {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .payment-section h2 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
+        }
+
+        .tier-features {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .tier-features li {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            padding: 0.5rem 0;
+            opacity: 0.7;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .tier-features li:before {
+            content: "—";
+            position: absolute;
+            left: 0;
+        }
+
+        .tier-cta {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            font-size: 0.9rem;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: transparent;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0.5rem;
+        }
+
+        .tier-cta:hover {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tier-cta.featured {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        button.tier-cta:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Payment Tiers Grid */
+        .payment-tiers {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+            max-width: 1400px;
+        }
+
+        .payment-tier {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tier-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .tier-price {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            opacity: 0.5;
+            margin-bottom: 0.5rem;
+        }
+
+        .tier-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .tier-description {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            opacity: 0.7;
+            flex-grow: 1;
+        }
+
+        @media (max-width: 768px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-tiers {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Watermark overlay for raindrops -->
+    <div id="watermark-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999;"></div>
+
+    <div class="container">
+        <h1 class="flicker">THE MIRROR'S ECHO</h1>
+
+        <div class="intro-text">
+            The Mirror's Echo operates as an unlimited edition under open-source principles (AGPL-3.0), ensuring accessibility while sustaining ongoing development. Exhibition licenses and institutional partnerships support the continued evolution of networked digital art practices.<br><br>
+            Artist/Technical: <a href="mailto:kristabluedoor@gmail.com">kristabluedoor@gmail.com</a><br>
+            Curatorial/Institutional: <a href="mailto:curatorial@themirror'secho.art">curatorial@themirror'secho.art</a>
+        </div>
+
+        <!-- Video Panel -->
+        <div class="panel">
+            <div class="video-grid" id="videoGrid">
+                <!-- Local Camera -->
+                <div class="video-box" id="localBox">
+                    <div class="video-label">Local Camera</div>
+                    <div class="video-container" id="localContainer">
+                        <video id="localVideo" autoplay muted playsinline></video>
+                    </div>
+                    <button class="btn" id="startBtn">Start</button>
+                </div>
+
+                <!-- Remote Stream -->
+                <div class="video-box" id="remoteBox">
+                    <div class="video-label">Remote Stream</div>
+                    <div class="video-container" id="remoteContainer">
+                        <button class="expand-btn" id="expandBtn">↗</button>
+                        <video id="remoteVideo" autoplay playsinline></video>
+                        <div class="video-status" id="remoteStatus">Waiting for connection...</div>
+                    </div>
+                    <div class="remote-controls">
+                        <button class="btn" id="connectBtn" disabled>Connect</button>
+                        <button class="btn" id="disconnectBtn" disabled>Disconnect</button>
+                        <button class="btn" id="fullscreenBtn" disabled>Fullscreen</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="status" id="status">Ready to start</div>
+            <div class="timer-display" id="timerDisplay">00:00</div>
+        </div>
+
+        <!-- About Section -->
+        <section class="about-section">
+            <h2>About</h2>
+            <p><em>The Mirror's Echo</em> is a networked interactive work exploring presence, temporality, and reciprocity through real-time video transmission. The piece positions participants as both observers and subjects, creating a feedback loop where actions generate visual echoes that accumulate and transform over time.</p>
+
+            <p>Built on open protocols (WebRTC, LiveKit, NDI), the work operates as distributed infrastructure - each interaction exists simultaneously across multiple nodes: browser, server, and optional processing environments. This architecture enables the piece to function as both a self-contained web experience and as material for live visual manipulation through tools like TouchDesigner.</p>
+
+            <p>The work implements a temporal access model: seven minutes of unmediated experience, followed by progressive visual markers that reveal the piece's constructed nature. This durational framework questions assumptions about digital permanence and the economics of networked art.</p>
+
+            <p>Technical implementation merges web-native technologies with broadcast/VJ workflows, positioning the work within lineages of video feedback art (Steina & Woody Vasulka), telepresence projects (Kit Galloway & Sherrie Rabinowitz's <em>Satellite Arts</em>), and contemporary networked performance practices.</p>
+
+            <div style="margin: 2rem 0; padding: 2rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">
+                <p style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 2; color: rgba(255,255,255,0.6); letter-spacing: 0.05em;">
+                    <strong style="color: rgba(255,255,255,0.9);">PROCESSING PIPELINE</strong><br><br>
+                    Camera Input → WebRTC/LiveKit → NVIDIA GPU Processing<br>
+                    ↓<br>
+                    Audio Stream → Whisper (Speech-to-Text)<br>
+                    ↓<br>
+                    Text → spaCy NLP (Entity Recognition, Semantic Analysis)<br>
+                    ↓<br>
+                    Video → TouchDesigner (Visual Processing, Effects, Generative Response)<br>
+                    ↓<br>
+                    Composite Output → NDI → OBS → WebRTC Return Path<br>
+                    ↓<br>
+                    Remote Viewer (Browser/Display)
+                </p>
+            </div>
+        </section>
+
+        <!-- Technical Infrastructure -->
+        <section class="about-section">
+            <h2>Technical Infrastructure</h2>
+            <p>For production-quality streaming with OBS, NDI, and TouchDesigner integration:</p>
+            <div style="margin: 1.5rem 0; padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 1px solid rgba(255,255,255,0.15);">
+                <p style="margin-bottom: 1rem;"><strong>Complete Bidirectional Workflow:</strong></p>
+                <ol style="margin-left: 2rem; line-height: 2;">
+                    <li><strong><a href="/publisher.html">Publisher Page</a>:</strong> Remote user captures webcam and publishes to LiveKit</li>
+                    <li><strong><a href="/ndi-viewer.html">NDI Viewer Page</a>:</strong> View the LiveKit stream (capture this in OBS Browser Source)</li>
+                    <li><strong>OBS:</strong> Capture NDI viewer page and enable NDI output (Tools → NDI Output Settings)</li>
+                    <li><strong>TouchDesigner:</strong> Use NDI In TOP to receive stream from OBS, process & stylize</li>
+                    <li><strong>TD Output:</strong> Use NDI Out TOP to send processed video back to OBS</li>
+                    <li><strong>OBS Capture:</strong> Add NDI Source in OBS to receive processed video from TD</li>
+                    <li><strong><a href="/return-viewer.html">Return Viewer Page</a>:</strong> Remote user views processed video with fullscreen option</li>
+                </ol>
+                <p style="margin-top: 1rem; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 4px;">
+                    <strong>Signal Path:</strong> Remote Camera → LiveKit → OBS → NDI → TouchDesigner (process) → NDI → Back to Remote Viewer in Real-Time
+                </p>
+            </div>
+        </section>
+
+        <!-- Licensing & Access -->
+        <section class="about-section">
+            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 3rem;">Licensing & Access</h2>
+
+            <div class="payment-tiers">
+                <!-- Unlimited Edition Tier -->
+                <div class="payment-tier">
+                    <div class="tier-header">
+                        <div class="tier-price">OPEN ACCESS</div>
+                        <h3 class="tier-title">Unlimited Edition</h3>
+                    </div>
+                    <p class="tier-description">
+                        An unlimited edition available under open-source principles. Experience the work freely for educational, research, and non-commercial contexts. The piece presents itself fully for seven minutes before revealing its temporal nature through progressive visual markers.
+                    </p>
+                    <ul class="tier-features">
+                        <li>Full source code access (AGPL-3.0)</li>
+                        <li>Unlimited non-commercial use</li>
+                        <li>Seven-minute sustained experience</li>
+                        <li>Progressive temporal markers</li>
+                        <li>Community & documentation support</li>
+                    </ul>
+                    <a href="https://github.com/kfaist/liquid-milk-balls-web" class="tier-cta" target="_blank">Access Source Code</a>
+                </div>
+
+                <!-- Exhibition License & Technical Residency Tier -->
+                <div class="payment-tier">
+                    <div class="tier-header">
+                        <div class="tier-price">STARTING AT $400</div>
+                        <h3 class="tier-title">Exhibition License & Technical Residency</h3>
+                    </div>
+                    <p class="tier-description">
+                        For professional contexts, commercial applications, and exhibition settings. Includes unrestricted access to the work without temporal markers, plus optional technical residency support for complex integrations.
+                    </p>
+                    <ul class="tier-features">
+                        <li>Unlimited sustained experience (no temporal markers)</li>
+                        <li>Commercial exhibition rights</li>
+                        <li>Professional use licensing</li>
+                        <li>Optional: Technical residency support ($150/hour)</li>
+                        <li>TouchDesigner/LiveKit integration consultation</li>
+                        <li>Custom configuration assistance</li>
+                    </ul>
+                    <button class="tier-cta" id="purchaseLicenseBtn" style="width: 100%; margin-bottom: 0.5rem;">Purchase Exhibition License - $400</button>
+                    <a href="mailto:kristabluedoor@gmail.com?subject=Technical Residency Inquiry" class="tier-cta" style="width: 100%; display: block; box-sizing: border-box;">Book Technical Residency</a>
+                </div>
+
+                <!-- Institutional Partnership Tier -->
+                <div class="payment-tier">
+                    <div class="tier-header">
+                        <div class="tier-price">CONTACT</div>
+                        <h3 class="tier-title">Curatorial & Institutional Partnership</h3>
+                    </div>
+                    <p class="tier-description">
+                        For galleries, museums, and biennials. Comprehensive partnership with curatorial consultation and on-site residency throughout the exhibition period.
+                    </p>
+                    <ul class="tier-features">
+                        <li>Complete licensing</li>
+                        <li>Curatorial consultation</li>
+                        <li>On-site residency</li>
+                    </ul>
+                    <a href="mailto:curatorial@themirror'secho.art?subject=Institutional Partnership Inquiry" class="tier-cta" style="width: 100%; display: block; box-sizing: border-box;">Initiate Partnership</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interaction -->
+        <section class="about-section">
+            <h2>Interaction</h2>
+            <p>The work responds to presence through multiple modes of engagement. Each interaction generates visual echoes that accumulate temporally within the system.</p>
+
+            <p style="margin-top: 1.5rem;"><strong>Mirror Interface:</strong></p>
+            <p style="margin-left: 2rem; margin-bottom: 1rem; line-height: 1.8; opacity: 0.8;">
+                Direct interaction with the circular interface generates ripple formations. Accumulated interactions trigger chromatic shifts every five engagements. The Clear function returns the system to its initial state.
+            </p>
+
+            <p style="margin-top: 1.5rem;"><strong>Video Transmission:</strong></p>
+            <p style="margin-left: 2rem; line-height: 1.8; opacity: 0.8;">
+                LiveKit protocols enable real-time video transmission. Local and remote streams establish reciprocal viewing positions. The work's temporal markers emerge after seven minutes of sustained connection, revealing the constructed nature of the experience.
+            </p>
+        </section>
+
+        <footer style="text-align: center; padding: 3rem 0 2rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; opacity: 0.5; letter-spacing: 0.05em;">
+            © 2025 The Mirror's Echo
+        </footer>
+    </div>
+
+    <!-- LiveKit SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+
+    <!-- Watermark System -->
+    <script src="watermark-system.js"></script>
+
+    <!-- Main Application -->
+    <script>
+        // UI Elements
+        const expandBtn = document.getElementById('expandBtn');
+        const videoGrid = document.getElementById('videoGrid');
+        const localBox = document.getElementById('localBox');
+        const startBtn = document.getElementById('startBtn');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const remoteStatus = document.getElementById('remoteStatus');
+        const statusDiv = document.getElementById('status');
+        const timerDisplay = document.getElementById('timerDisplay');
+
+        let room = null;
+        let isConnected = false;
+        let isExpanded = false;
+        let localStream = null;
+        let sessionStartTime = null;
+        let timerInterval = null;
+
+        // Check for demo mode
+        const urlParams = new URLSearchParams(window.location.search);
+        const isDemoMode = urlParams.get('demo') === 'true';
+
+        // Expand/Collapse functionality
+        expandBtn.addEventListener('click', () => {
+            isExpanded = !isExpanded;
+            if (isExpanded) {
+                localBox.classList.add('hidden');
+                videoGrid.classList.add('collapsed');
+                expandBtn.textContent = '↙';
+            } else {
+                localBox.classList.remove('hidden');
+                videoGrid.classList.remove('collapsed');
+                expandBtn.textContent = '↗';
+            }
+        });
+
+        // Timer update function
+        function updateTimer() {
+            if (!sessionStartTime) return;
+
+            const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        // Start local camera
+        startBtn.addEventListener('click', async () => {
+            startBtn.disabled = true;
+            updateStatus('Starting camera...');
+
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+                    audio: true
+                });
+
+                localVideo.srcObject = localStream;
+                connectBtn.disabled = false;
+                updateStatus('Camera ready. Click Connect to join room.');
+
+            } catch (error) {
+                console.error('Camera error:', error);
+                updateStatus('Error accessing camera: ' + error.message);
+                startBtn.disabled = false;
+            }
+        });
+
+        // Connect to LiveKit room
+        connectBtn.addEventListener('click', async () => {
+            connectBtn.disabled = true;
+            updateStatus('Connecting to room...');
+
+            try {
+                // Get token from server
+                const response = await fetch('/api/publisher-token?identity=mirror-user-' + Date.now());
+                if (!response.ok) throw new Error('Failed to get access token');
+
+                const data = await response.json();
+
+                // Create room
+                room = new LivekitClient.Room({
+                    adaptiveStream: true,
+                    dynacast: true,
+                    videoCaptureDefaults: {
+                        resolution: LivekitClient.VideoPresets.h720.resolution
+                    }
+                });
+
+                // Set up event handlers
+                room.on(LivekitClient.RoomEvent.TrackSubscribed, handleTrackSubscribed);
+                room.on(LivekitClient.RoomEvent.TrackUnsubscribed, handleTrackUnsubscribed);
+                room.on(LivekitClient.RoomEvent.Disconnected, handleDisconnected);
+                room.on(LivekitClient.RoomEvent.ParticipantConnected, (participant) => {
+                    console.log('Participant connected:', participant.identity);
+                    updateStatus(`Connected - ${room.participants.size + 1} participants`);
+                });
+
+                // Connect to room
+                await room.connect(data.url, data.token);
+
+                // Publish local tracks
+                if (localStream) {
+                    const videoTrack = localStream.getVideoTracks()[0];
+                    const audioTrack = localStream.getAudioTracks()[0];
+
+                    if (videoTrack) {
+                        await room.localParticipant.publishTrack(videoTrack, {
+                            name: 'camera',
+                            simulcast: true
+                        });
+                    }
+
+                    if (audioTrack) {
+                        await room.localParticipant.publishTrack(audioTrack, {
+                            name: 'microphone'
+                        });
+                    }
+                }
+
+                isConnected = true;
+                disconnectBtn.disabled = false;
+                fullscreenBtn.disabled = false;
+
+                // Start session timer
+                sessionStartTime = Date.now();
+
+                // In demo mode, fast-forward to 7:00
+                if (isDemoMode) {
+                    sessionStartTime = Date.now() - (7 * 60 * 1000);
+                    console.log('Demo mode: Starting at 7:00');
+                }
+
+                timerInterval = setInterval(updateTimer, 1000);
+                updateTimer();
+
+                updateStatus('Connected to room', true);
+
+                // Manually trigger watermark timer if in demo mode
+                if (isDemoMode && window.startWatermarkTimer) {
+                    window.startWatermarkTimer();
+                }
+
+            } catch (error) {
+                console.error('Connection error:', error);
+                updateStatus('Connection error: ' + error.message);
+                connectBtn.disabled = false;
+                if (room) {
+                    await room.disconnect();
+                    room = null;
+                }
+            }
+        });
+
+        // Handle subscribed track
+        function handleTrackSubscribed(track, publication, participant) {
+            console.log('Track subscribed:', track.kind, 'from', participant.identity);
+
+            if (track.kind === 'video') {
+                const element = track.attach();
+                remoteVideo.replaceWith(element);
+                element.id = 'remoteVideo';
+                element.autoplay = true;
+                element.playsInline = true;
+
+                remoteStatus.style.display = 'none';
+                updateStatus(`Receiving video from ${participant.identity}`, true);
+            }
+        }
+
+        // Handle unsubscribed track
+        function handleTrackUnsubscribed(track, publication, participant) {
+            console.log('Track unsubscribed:', track.kind);
+            track.detach();
+            remoteStatus.style.display = 'block';
+        }
+
+        // Handle disconnection
+        function handleDisconnected() {
+            console.log('Disconnected from room');
+            isConnected = false;
+            disconnectBtn.disabled = true;
+            fullscreenBtn.disabled = true;
+            connectBtn.disabled = false;
+            remoteStatus.style.display = 'block';
+
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+
+            updateStatus('Disconnected from room');
+        }
+
+        // Disconnect button
+        disconnectBtn.addEventListener('click', async () => {
+            if (room) {
+                await room.disconnect();
+                room = null;
+            }
+        });
+
+        // Fullscreen button
+        fullscreenBtn.addEventListener('click', () => {
+            const container = document.getElementById('remoteContainer');
+            if (container.requestFullscreen) {
+                container.requestFullscreen();
+            } else if (container.webkitRequestFullscreen) {
+                container.webkitRequestFullscreen();
+            }
+        });
+
+        // Update status message
+        function updateStatus(message, connected = false) {
+            statusDiv.textContent = message;
+            if (connected) {
+                statusDiv.classList.add('connected');
+            } else {
+                statusDiv.classList.remove('connected');
+            }
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', async () => {
+            if (room) {
+                await room.disconnect();
+            }
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+        });
+    </script>
+
+    <!-- Stripe Checkout -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        let stripeInstance = null;
+
+        async function initializeStripe() {
+            try {
+                const response = await fetch('/api/stripe-config');
+                if (response.ok) {
+                    const { publishableKey } = await response.json();
+                    stripeInstance = Stripe(publishableKey);
+                }
+            } catch (error) {
+                console.log('Stripe not configured:', error);
+            }
+        }
+
+        initializeStripe();
+
+        const purchaseBtn = document.getElementById('purchaseLicenseBtn');
+
+        if (purchaseBtn) {
+            purchaseBtn.addEventListener('click', async () => {
+                purchaseBtn.disabled = true;
+                purchaseBtn.textContent = 'Loading...';
+
+                try {
+                    const response = await fetch('/api/create-checkout-session', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Payment system unavailable');
+                    }
+
+                    const { sessionId } = await response.json();
+
+                    if (stripeInstance) {
+                        const { error } = await stripeInstance.redirectToCheckout({ sessionId });
+                        if (error) {
+                            throw new Error(error.message);
+                        }
+                    } else {
+                        throw new Error('Payment system not configured. Please contact kristabluedoor@gmail.com to complete purchase.');
+                    }
+
+                } catch (error) {
+                    console.error('Checkout error:', error);
+                    alert(error.message || 'Unable to start checkout. Please contact kristabluedoor@gmail.com');
+                    purchaseBtn.disabled = false;
+                    purchaseBtn.textContent = 'Purchase Exhibition License - $400';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
