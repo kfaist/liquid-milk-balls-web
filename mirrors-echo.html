@@ -834,7 +834,17 @@
         }
 
         function startTemporalEffects() {
-            startTime = Date.now();
+            // Check for demo mode in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const isDemoMode = urlParams.get('demo') === 'true';
+
+            if (isDemoMode) {
+                // Demo mode: Start at 7:00 immediately
+                startTime = Date.now() - (7 * 60 * 1000);
+                console.log('DEMO MODE: Effects starting immediately!');
+            } else {
+                startTime = Date.now();
+            }
 
             setInterval(() => {
                 const timeElapsed = (Date.now() - startTime) / 1000;
@@ -845,11 +855,11 @@
                     console.log('Starting temporal effects at 7 minutes');
 
                     if (localShimmer) {
-                        localShimmer.style.transition = 'opacity 30s ease-in';
+                        localShimmer.style.transition = 'opacity 5s ease-in';
                         localShimmer.style.opacity = '1';
                     }
                     if (remoteShimmer) {
-                        remoteShimmer.style.transition = 'opacity 30s ease-in';
+                        remoteShimmer.style.transition = 'opacity 5s ease-in';
                         remoteShimmer.style.opacity = '1';
                     }
 
