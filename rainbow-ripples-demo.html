@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rainbow Raindrop Ripples Demo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            font-family: monospace;
+            color: #fff;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .demo-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .demo-info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 10000;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .demo-info h2 {
+            margin: 0 0 10px 0;
+            color: #00ff00;
+        }
+
+        .timer {
+            font-size: 24px;
+            color: #00ff00;
+            margin-bottom: 10px;
+        }
+
+        /* Raindrop ripple animation */
+        @keyframes raindropRipple {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0);
+                filter: blur(1px);
+            }
+            15% {
+                opacity: 0.9;
+                transform: translate(-50%, -50%) scale(0.4);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.5);
+                filter: blur(3px);
+            }
+        }
+
+        .video-raindrop {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            overflow: visible;
+            background: radial-gradient(
+                circle at 40% 40%,
+                hsla(var(--raindrop-hue, 200), 95%, 85%, 0.7) 0%,
+                hsla(var(--raindrop-hue, 200), 90%, 75%, 0.5) 20%,
+                hsla(var(--raindrop-hue, 200), 85%, 65%, 0.3) 40%,
+                hsla(var(--raindrop-hue, 200), 80%, 55%, 0.15) 60%,
+                transparent 100%
+            );
+            box-shadow:
+                inset 0 0 30px hsla(var(--raindrop-hue, 200), 100%, 90%, 0.8),
+                inset 0 0 50px hsla(var(--raindrop-hue, 200), 100%, 80%, 0.5),
+                0 0 40px hsla(var(--raindrop-hue, 200), 90%, 70%, 0.6),
+                0 0 60px hsla(var(--raindrop-hue, 200), 85%, 65%, 0.4),
+                0 0 80px hsla(var(--raindrop-hue, 200), 80%, 60%, 0.2);
+            backdrop-filter: blur(8px);
+            filter: blur(1px);
+            transform: translate(-50%, -50%) scale(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container" id="container">
+        <div class="demo-info">
+            <h2>🌈 Rainbow Raindrop Ripples</h2>
+            <div class="timer" id="timer">00:00</div>
+            <div>Phase: <span id="phase">Starting...</span></div>
+            <div>Drops spawned: <span id="count">0</span></div>
+            <div style="margin-top: 10px; opacity: 0.7;">
+                • Trigger: 1s<br>
+                • Build: 3s<br>
+                • Peak: 4s+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // TIMING CONFIGURATION - TESTING MODE
+        const TRIGGER_TIME = 1; // seconds
+        const BUILD_DURATION = 3; // seconds
+        const PEAK_TIME = TRIGGER_TIME + BUILD_DURATION;
+
+        // Animation state
+        let raindropAnimationStartTime = null;
+        let raindropAnimationActive = false;
+        let raindropColorIndex = 0;
+        let dropCount = 0;
+
+        // UI elements
+        const container = document.getElementById('container');
+        const timerDisplay = document.getElementById('timer');
+        const phaseDisplay = document.getElementById('phase');
+        const countDisplay = document.getElementById('count');
+
+        // Start animation
+        function initRaindropAnimation() {
+            raindropAnimationStartTime = Date.now();
+            raindropAnimationActive = true;
+            scheduleNextRaindrop();
+            updateUI();
+        }
+
+        // Update UI timer and phase
+        function updateUI() {
+            if (!raindropAnimationActive) return;
+
+            const elapsed = (Date.now() - raindropAnimationStartTime) / 1000;
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = Math.floor(elapsed % 60);
+            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            if (elapsed < TRIGGER_TIME) {
+                phaseDisplay.textContent = 'Waiting...';
+            } else if (elapsed < PEAK_TIME) {
+                const progress = Math.floor(((elapsed - TRIGGER_TIME) / BUILD_DURATION) * 100);
+                phaseDisplay.textContent = `Building ${progress}%`;
+            } else {
+                phaseDisplay.textContent = 'Peak Intensity! 🌈';
+            }
+
+            requestAnimationFrame(updateUI);
+        }
+
+        // Calculate current intensity
+        function getCurrentIntensity() {
+            if (!raindropAnimationActive || !raindropAnimationStartTime) return 0;
+
+            const elapsed = (Date.now() - raindropAnimationStartTime) / 1000;
+
+            if (elapsed < TRIGGER_TIME) {
+                return 0;
+            }
+
+            if (elapsed < PEAK_TIME) {
+                const buildProgress = (elapsed - TRIGGER_TIME) / BUILD_DURATION;
+                return Math.pow(buildProgress, 2);
+            }
+
+            return 1.0;
+        }
+
+        // Calculate spawn delay
+        function getSpawnDelay() {
+            const intensity = getCurrentIntensity();
+
+            if (intensity === 0) {
+                return 1000;
+            }
+
+            const minDelay = 200;
+            const maxDelay = 2000;
+            return maxDelay - (intensity * (maxDelay - minDelay));
+        }
+
+        // Schedule next raindrop
+        function scheduleNextRaindrop() {
+            if (!raindropAnimationActive) return;
+
+            const delay = getSpawnDelay();
+            const intensity = getCurrentIntensity();
+
+            setTimeout(() => {
+                if (intensity > 0) {
+                    createRaindrop();
+                }
+                scheduleNextRaindrop();
+            }, delay);
+        }
+
+        // Create raindrop ripple
+        function createRaindrop() {
+            const raindrop = document.createElement('div');
+            raindrop.className = 'video-raindrop';
+
+            // Random position
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+            raindrop.style.left = x + '%';
+            raindrop.style.top = y + '%';
+
+            // Rainbow color cycling
+            const hue = (raindropColorIndex * 40) % 360;
+            raindrop.style.setProperty('--raindrop-hue', hue);
+
+            // Random size
+            const size = 60 + Math.random() * 120;
+            raindrop.style.width = size + 'px';
+            raindrop.style.height = size + 'px';
+
+            // Border with rainbow color
+            raindrop.style.border = `3px solid hsla(${hue}, 85%, 65%, 0.9)`;
+
+            // Duration
+            const duration = 1.2 + Math.random() * 0.8;
+            raindrop.style.animation = `raindropRipple ${duration}s ease-out forwards`;
+
+            // Add to container
+            container.appendChild(raindrop);
+            raindropColorIndex++;
+            dropCount++;
+            countDisplay.textContent = dropCount;
+
+            // Remove after animation
+            setTimeout(() => raindrop.remove(), duration * 1000);
+        }
+
+        // Start on load
+        window.addEventListener('load', () => {
+            console.log('🌈 Rainbow Raindrop Demo Started');
+            initRaindropAnimation();
+        });
+    </script>
+</body>
+</html>
