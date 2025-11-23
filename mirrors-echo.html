@@ -482,6 +482,129 @@
             flex-grow: 1;
         }
 
+        /* Rainbow Raindrop Effects */
+        .raindrop {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            animation: dropAppear 5s ease-out forwards;
+            filter: blur(0.5px);
+            z-index: 9998;
+        }
+
+        /* Ripple effect - vibrant rainbow gradient halos */
+        .raindrop::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 1px solid;
+            border-image: linear-gradient(45deg,
+                rgba(255, 105, 180, 0.7),
+                rgba(138, 43, 226, 0.7),
+                rgba(0, 191, 255, 0.7)) 1;
+            opacity: 0;
+            animation: rippleSubtle 3s ease-out;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .raindrop::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 1px solid;
+            border-image: linear-gradient(135deg,
+                rgba(127, 255, 212, 0.6),
+                rgba(255, 215, 0, 0.6),
+                rgba(255, 140, 0, 0.6)) 1;
+            opacity: 0;
+            animation: rippleSubtle 3s ease-out 0.8s;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+        }
+
+        @keyframes dropAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0.6);
+            }
+            20% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+            80% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes rippleSubtle {
+            0% {
+                opacity: 0.3;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            30% {
+                opacity: 0.15;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(2.5);
+            }
+        }
+
+        /* Shimmer overlay - vibrant rainbow oil slick */
+        .video-shimmer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            background: linear-gradient(
+                115deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.08) 8%,
+                rgba(255, 105, 180, 0.12) 16%,
+                rgba(138, 43, 226, 0.12) 28%,
+                rgba(0, 191, 255, 0.12) 40%,
+                rgba(127, 255, 212, 0.10) 52%,
+                rgba(255, 215, 0, 0.10) 64%,
+                rgba(255, 140, 0, 0.12) 76%,
+                rgba(255, 20, 147, 0.12) 88%,
+                rgba(255, 255, 255, 0.08) 96%,
+                transparent 100%
+            );
+            background-size: 300% 300%;
+            animation: shimmerMove 8s ease-in-out infinite;
+            mix-blend-mode: screen;
+            z-index: 5;
+        }
+
+        @keyframes shimmerMove {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
         @media (max-width: 768px) {
             .video-grid {
                 grid-template-columns: 1fr;
@@ -513,6 +636,7 @@
                 <div class="video-box" id="localBox">
                     <div class="video-label">Local Camera</div>
                     <div class="video-container" id="localContainer">
+                        <div class="video-shimmer" id="localShimmer"></div>
                         <video id="localVideo" autoplay muted playsinline></video>
                     </div>
                     <button class="btn" id="startBtn">Start</button>
@@ -523,6 +647,7 @@
                     <div class="video-label">Remote Stream</div>
                     <div class="video-container" id="remoteContainer">
                         <button class="expand-btn" id="expandBtn">↗</button>
+                        <div class="video-shimmer" id="remoteShimmer"></div>
                         <video id="remoteVideo" autoplay playsinline></video>
                         <div class="video-status" id="remoteStatus">Waiting for connection...</div>
                     </div>
@@ -917,7 +1042,183 @@
             if (timerInterval) {
                 clearInterval(timerInterval);
             }
+            if (rainEffectsInterval) {
+                clearInterval(rainEffectsInterval);
+            }
         });
+
+        // ==========================================
+        // TEMPORAL WATERMARK EFFECTS
+        // Progressive rainbow raindrop cascade
+        // ==========================================
+
+        // Vibrant polychroma color palette - iridescent rainbow
+        const polychromaColors = [
+            'rgba(255, 105, 180, 0.9)',  // Hot pink
+            'rgba(138, 43, 226, 0.9)',   // Blue violet
+            'rgba(75, 0, 130, 0.9)',     // Indigo
+            'rgba(0, 191, 255, 0.9)',    // Deep sky blue
+            'rgba(127, 255, 212, 0.9)',  // Aquamarine
+            'rgba(50, 205, 50, 0.9)',    // Lime green
+            'rgba(255, 215, 0, 0.9)',    // Gold
+            'rgba(255, 140, 0, 0.9)',    // Dark orange
+            'rgba(255, 20, 147, 0.9)'    // Deep pink
+        ];
+
+        const localShimmer = document.getElementById('localShimmer');
+        const remoteShimmer = document.getElementById('remoteShimmer');
+        const watermarkOverlay = document.getElementById('watermark-overlay');
+        let rainEffectsInterval = null;
+        let effectsStarted = false;
+
+        const EFFECTS_START_TIME = 7 * 60 * 1000; // 7 minutes
+        const EFFECTS_DURATION = 3 * 60 * 1000;   // 3 minutes build (7-10 min)
+
+        function createRaindrop(intensity) {
+            const drop = document.createElement('div');
+            drop.className = 'raindrop';
+
+            // Random position anywhere on viewport
+            drop.style.left = Math.random() * 100 + '%';
+            drop.style.top = Math.random() * 100 + '%';
+
+            // Pick colors for gradient - 3 colors in final phase!
+            const color1 = polychromaColors[Math.floor(Math.random() * polychromaColors.length)];
+            const color2 = polychromaColors[Math.floor(Math.random() * polychromaColors.length)];
+            const color3 = polychromaColors[Math.floor(Math.random() * polychromaColors.length)];
+
+            // PROGRESSIVE opacity - translucent throughout
+            let baseOpacity;
+            if (intensity < 0.33) {
+                baseOpacity = 0.17 + (intensity * 0.09);
+            } else if (intensity < 0.66) {
+                baseOpacity = 0.26 + (intensity * 0.09);
+            } else {
+                baseOpacity = 0.37 + (intensity * 0.11);
+            }
+
+            // Progressive glow
+            const glowIntensity = 15 + (intensity * 65);
+            const glowBoost = 1 + (intensity * 1.5);
+
+            drop.style.color = color1;
+
+            // Gradient: 2 colors first, 3 colors in final phase
+            if (intensity < 0.66) {
+                drop.style.background = `radial-gradient(circle at 40% 40%,
+                    ${color1.replace('0.9', String(baseOpacity * 1.3))} 0%,
+                    ${color2.replace('0.9', String(baseOpacity))} 30%,
+                    ${color1.replace('0.9', String(baseOpacity * 0.6))} 60%,
+                    transparent 100%)`;
+            } else {
+                drop.style.background = `radial-gradient(circle at 40% 40%,
+                    ${color1.replace('0.9', String(baseOpacity * 1.3))} 0%,
+                    ${color2.replace('0.9', String(baseOpacity * 1.1))} 25%,
+                    ${color3.replace('0.9', String(baseOpacity))} 50%,
+                    ${color1.replace('0.9', String(baseOpacity * 0.6))} 75%,
+                    transparent 100%)`;
+            }
+
+            drop.style.boxShadow = `
+                0 0 ${glowIntensity * 0.6 * glowBoost}px ${color1},
+                0 0 ${glowIntensity * 1.2 * glowBoost}px ${color2},
+                0 0 ${glowIntensity * 2 * glowBoost}px ${color1.replace('0.9', String(baseOpacity * 0.4))},
+                inset 0 0 ${glowIntensity * 0.5}px ${color1.replace('0.9', String(baseOpacity * 0.8))}
+            `;
+
+            // Size variation: mix of small, medium, and larger drops
+            const sizeCategory = Math.random();
+            let baseSize, sizeVariation;
+
+            if (sizeCategory < 0.3) {
+                // 30% chance: Small drops
+                baseSize = 20 + (intensity * 10);
+                sizeVariation = Math.random() * 10;
+            } else if (sizeCategory < 0.7) {
+                // 40% chance: Medium drops
+                baseSize = 40 + (intensity * 20);
+                sizeVariation = Math.random() * 10;
+            } else {
+                // 30% chance: Larger drops
+                baseSize = 40 + (intensity * 50);
+                sizeVariation = Math.random() * 25;
+            }
+
+            const size = baseSize + sizeVariation;
+            drop.style.width = size + 'px';
+            drop.style.height = size + 'px';
+
+            const duration = 5 + Math.random() * 3;
+            drop.style.animationDuration = duration + 's';
+
+            watermarkOverlay.appendChild(drop);
+
+            setTimeout(() => drop.remove(), duration * 1000);
+        }
+
+        // Monitor session time and trigger effects
+        function checkTemporalEffects() {
+            if (!sessionStartTime) return;
+
+            const elapsed = Date.now() - sessionStartTime;
+
+            // Start shimmer at 7 minutes
+            if (elapsed >= EFFECTS_START_TIME && !effectsStarted) {
+                effectsStarted = true;
+                console.log('Starting temporal watermark effects at 7:00');
+
+                // Fade in shimmer
+                if (localShimmer) {
+                    localShimmer.style.transition = 'opacity 5s ease-in';
+                    localShimmer.style.opacity = '1';
+                }
+                if (remoteShimmer) {
+                    remoteShimmer.style.transition = 'opacity 5s ease-in';
+                    remoteShimmer.style.opacity = '1';
+                }
+
+                // Start raindrop effects
+                startRainEffects();
+            }
+        }
+
+        function startRainEffects() {
+            if (rainEffectsInterval) return;
+
+            rainEffectsInterval = setInterval(() => {
+                if (!sessionStartTime) return;
+
+                const elapsed = Date.now() - sessionStartTime;
+                const timeSinceStart = elapsed - EFFECTS_START_TIME;
+
+                if (timeSinceStart < 0) return;
+
+                // Calculate progress: 0 at 7min, 1.0 at 10min
+                const progress = Math.min(timeSinceStart / EFFECTS_DURATION, 1.0);
+
+                // Smooth exponential curve for raindrop frequency
+                const baseRate = 0.12;
+                const exponentialGrowth = Math.pow(progress, 2.5);
+                const dropProbability = baseRate * (1 + exponentialGrowth * 40);
+
+                // Create raindrops based on probability
+                if (Math.random() < dropProbability) {
+                    createRaindrop(progress);
+                }
+
+                // Add extra drops in final stretch (after 85% progress)
+                if (progress > 0.85) {
+                    const extraChance = (progress - 0.85) / 0.15;
+                    const extraDrops = Math.floor(Math.random() * (extraChance * 8));
+                    for (let i = 0; i < extraDrops; i++) {
+                        setTimeout(() => createRaindrop(progress), Math.random() * 1000);
+                    }
+                }
+            }, 1000);
+        }
+
+        // Check for effects every second when connected
+        setInterval(checkTemporalEffects, 1000);
     </script>
 
     <!-- Stripe Checkout -->
