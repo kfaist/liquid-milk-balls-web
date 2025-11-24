@@ -31,20 +31,18 @@
         .pop-btn:hover { opacity: 1; border-color: #fff; color: #fff; }
         .pop-btn:disabled { display: none; }
         
-        .btns { display: flex; gap: 0.75rem; margin-top: 0.75rem; justify-content: center; }
+        .btns { display: flex; gap: 0.75rem; margin-top: 0.75rem; justify-content: center; flex-wrap: wrap; }
         .btn { padding: 0.6rem 1.2rem; font-size: 0.85rem; font-weight: 500; background: #111; border: 2px solid #fff; color: #fff; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; }
         .btn:hover { background: #fff; color: #000; }
         .btn:disabled { opacity: 0.25; cursor: not-allowed; border-color: #555; }
         .btn.on { background: #0a0; border-color: #0a0; color: #fff; }
         
+        select.btn { padding: 0.5rem; font-size: 0.75rem; max-width: 180px; }
+        
         .controls { background: #111; border: 1px solid #333; padding: 1rem; margin-bottom: 1.5rem; display: flex; gap: 1.5rem; justify-content: center; align-items: center; flex-wrap: wrap; }
         .controls label { font-size: 0.75rem; opacity: 0.7; margin-right: 0.3rem; }
         .controls input[type="range"] { width: 100px; vertical-align: middle; }
         .controls span { font-size: 0.8rem; color: #a8f; min-width: 40px; display: inline-block; }
-        .force-btn { padding: 0.5rem 1rem; font-size: 0.75rem; background: #630; border: 1px solid #a50; color: #fff; cursor: pointer; font-weight: bold; }
-        .force-btn:hover { background: #850; }
-        .force-btn.active { background: #a50; animation: pulse 0.5s infinite; }
-        @keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:0.7; } }
         
         .sliders { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; background: #0a0a0a; border: 1px solid #222; padding: 1rem; }
         .sl label { display: block; font-size: 0.65rem; opacity: 0.6; margin-bottom: 0.25rem; }
@@ -85,13 +83,15 @@
                 </div>
             </div>
             <div class="box">
-                <div class="label">Remote Stream</div>
+                <div class="label">Remote Stream (OBS/NDI/Camera)</div>
                 <div class="vid-wrap">
                     <video id="remoteV" autoplay playsinline></video>
                     <button class="pop-btn" id="popR" disabled>↗</button>
                 </div>
                 <div class="btns">
-                    <button class="btn" id="connBtn" disabled>CONNECT</button>
+                    <select class="btn" id="remoteCam"><option value="">Select source...</option></select>
+                    <button class="btn" id="remoteBtn">START</button>
+                    <button class="btn" id="fullBtn" disabled>FULLSCREEN</button>
                 </div>
             </div>
         </div>
@@ -99,7 +99,6 @@
         <div class="controls">
             <div><label>Intensity</label><input type="range" id="int" min="0" max="100" value="0"><span id="intV">0%</span></div>
             <div><label>Speed</label><input type="range" id="spd" min="5" max="30" value="10"><span id="spdV">1.0x</span></div>
-            <button class="force-btn" id="force">⬤ FORCE DROPS</button>
         </div>
 
         <div class="sliders">
@@ -113,8 +112,10 @@
 <script>
 const S = {hue:280, sat:85, int:0, sz:50, spd:10, glw:60};
 let stream = null;
+let remoteStream = null;
 let micOn = false;
-let forcing = false;
+const startTime = Date.now();
+const rainStartTime = 480000; // 8 minutes
 
 function updateColors() {
     document.documentElement.style.setProperty('--hue', S.hue);
@@ -136,6 +137,22 @@ if (view === 'local' || view === 'remote') {
 }
 document.getElementById('fsExit').onclick = () => { location.href = location.pathname; };
 
+// Populate camera dropdown
+async function populateCameras() {
+    try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const select = document.getElementById('remoteCam');
+        // Clear old options except first
+        while (select.options.length > 1) select.remove(1);
+        devices.filter(d => d.kind === 'videoinput').forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d.deviceId;
+            opt.textContent = d.label || 'Camera ' + (select.options.length);
+            select.appendChild(opt);
+        });
+    } catch(e) { console.error(e); }
+}
+
 // START WEBCAM
 document.getElementById('camBtn').onclick = async function() {
     this.textContent = 'STARTING...';
@@ -147,7 +164,8 @@ document.getElementById('camBtn').onclick = async function() {
         this.classList.add('on');
         document.getElementById('popL').disabled = false;
         document.getElementById('micBtn').disabled = false;
-        document.getElementById('connBtn').disabled = false;
+        // Populate remote camera dropdown after permission granted
+        setTimeout(populateCameras, 500);
     } catch(e) {
         console.error(e);
         this.textContent = 'RETRY';
@@ -163,21 +181,41 @@ document.getElementById('micBtn').onclick = function() {
     this.classList.toggle('on', micOn);
 };
 
+// REMOTE STREAM START (OBS Virtual Camera, NDI Virtual Input, etc.)
+document.getElementById('remoteBtn').onclick = async function() {
+    const deviceId = document.getElementById('remoteCam').value;
+    this.textContent = 'STARTING...';
+    try {
+        const constraints = deviceId 
+            ? { video: { deviceId: { exact: deviceId }, width: 1280, height: 720 }, audio: false }
+            : { video: { width: 1280, height: 720 }, audio: false };
+        remoteStream = await navigator.mediaDevices.getUserMedia(constraints);
+        document.getElementById('remoteV').srcObject = remoteStream;
+        document.getElementById('fsRemoteV').srcObject = remoteStream;
+        this.textContent = 'ON';
+        this.classList.add('on');
+        document.getElementById('popR').disabled = false;
+        document.getElementById('fullBtn').disabled = false;
+        // Re-populate dropdown with labels now that we have permission
+        populateCameras();
+    } catch(e) {
+        console.error(e);
+        this.textContent = 'RETRY';
+    }
+};
+
+// FULLSCREEN
+document.getElementById('fullBtn').onclick = function() {
+    const vid = document.getElementById('remoteV');
+    if (vid.requestFullscreen) vid.requestFullscreen();
+};
+
 // POP OUT BUTTONS
 document.getElementById('popL').onclick = () => {
     window.open(location.pathname + '?view=local', '_blank', 'width=1280,height=720');
 };
 document.getElementById('popR').onclick = () => {
     window.open(location.pathname + '?view=remote', '_blank', 'width=1280,height=720');
-};
-
-// CONNECT (simulated for now - would use LiveKit)
-document.getElementById('connBtn').onclick = function() {
-    this.textContent = 'CONNECTED';
-    this.classList.add('on');
-    document.getElementById('popR').disabled = false;
-    // Mirror local to remote for demo
-    document.getElementById('remoteV').srcObject = stream;
 };
 
 // INTENSITY & SPEED
@@ -188,20 +226,6 @@ document.getElementById('int').oninput = function() {
 document.getElementById('spd').oninput = function() {
     S.spd = +this.value;
     document.getElementById('spdV').textContent = (S.spd / 10).toFixed(1) + 'x';
-};
-
-// FORCE DROPS
-document.getElementById('force').onmousedown = function() {
-    forcing = true;
-    this.classList.add('active');
-};
-document.getElementById('force').onmouseup = function() {
-    forcing = false;
-    this.classList.remove('active');
-};
-document.getElementById('force').onmouseleave = function() {
-    forcing = false;
-    this.classList.remove('active');
 };
 
 // SLIDERS
@@ -256,13 +280,21 @@ function spawnDrop() {
 
 // ANIMATION LOOP
 function loop() {
-    // Spawn based on intensity OR forcing
-    if (forcing) {
-        for (let i = 0; i < 5; i++) spawnDrop();
-    } else if (S.int > 0) {
+    const elapsed = Date.now() - startTime;
+    
+    // Manual intensity spawns drops anytime
+    if (S.int > 0) {
         const chance = S.int / 500;
         if (Math.random() < chance) spawnDrop();
     }
+    
+    // Auto drops only after 8 minutes
+    if (elapsed >= rainStartTime) {
+        const progress = Math.min((elapsed - rainStartTime) / 120000, 1); // 0-1 over 2 min after 8
+        const autoChance = 0.02 + progress * 0.15;
+        if (Math.random() < autoChance) spawnDrop();
+    }
+    
     requestAnimationFrame(loop);
 }
 loop();
