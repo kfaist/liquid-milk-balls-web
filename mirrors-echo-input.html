@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mirror's Echo - Input</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: #000;
+            color: #fff;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+        .video-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 0.75rem 1.5rem;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
+        button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #fff;
+        }
+        .status {
+            text-align: center;
+            margin-top: 1rem;
+            opacity: 0.7;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Camera Input</h1>
+        
+        <div class="video-container">
+            <video id="inputVideo" autoplay muted playsinline></video>
+        </div>
+
+        <div class="controls">
+            <button id="startBtn">Start Camera</button>
+            <button id="stopBtn">Stop Camera</button>
+        </div>
+
+        <div class="status" id="status">Ready</div>
+    </div>
+
+    <script>
+        const inputVideo = document.getElementById('inputVideo');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const status = document.getElementById('status');
+
+        startBtn.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+                    audio: true 
+                });
+                inputVideo.srcObject = stream;
+                status.textContent = 'Camera active';
+            } catch (err) {
+                status.textContent = 'Error: ' + err.message;
+            }
+        });
+
+        stopBtn.addEventListener('click', () => {
+            if (inputVideo.srcObject) {
+                inputVideo.srcObject.getTracks().forEach(track => track.stop());
+                status.textContent = 'Camera stopped';
+            }
+        });
+    </script>
+</body>
+</html>
