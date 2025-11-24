@@ -985,65 +985,74 @@
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         const localVideo = document.getElementById('localVideo');
         const remoteVideo = document.getElementById('remoteVideo');
-
-        startBtn.addEventListener('click', async () => {
-            startBtn.disabled = true;
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-                    audio: true 
-                });
-                localVideo.srcObject = stream;
-                connectBtn.disabled = false;
-            } catch (error) {
-                console.error('Camera error:', error);
-                startBtn.disabled = false;
-            }
-        });
-
+        
         // LiveKit Configuration
         const LIVEKIT_URL = 'wss://claymation-transcription-l6e51sws.livekit.cloud';
         const API_KEY = 'APITw2Yp2Tv3yfg';
         const API_SECRET = 'eVYY0UB69XDGLiGzclYuGUhXuVpc8ry3YcazimFryDW';
         const INPUT_ROOM = 'claymation-live';
         const OUTPUT_ROOM = 'processed-output';
+        let localStream = null;
         let localRoom = null;
         let remoteRoom = null;
-
+        
         async function generateToken(room, identity) {
             const now = Math.floor(Date.now() / 1000);
-            const claims = { iss: API_KEY, sub: identity, nbf: now, exp: now + 21600, video: { roomJoin: true, room: room, canPublish: true, canSubscribe: true } };
+            const claims = { iss: API_KEY, sub: identity, nbf: now, exp: now + 21600,
+                video: { roomJoin: true, room: room, canPublish: true, canSubscribe: true }
+            };
             const secret = new TextEncoder().encode(API_SECRET);
-            return await new jose.SignJWT(claims).setProtectedHeader({ alg: 'HS256', typ: 'JWT' }).setIssuedAt().setExpirationTime('6h').sign(secret);
+            return await new jose.SignJWT(claims)
+                .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
+                .setIssuedAt().setExpirationTime('6h').sign(secret);
         }
+
+        startBtn.addEventListener('click', async () => {
+            startBtn.disabled = true;
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+                    audio: true 
+                });
+                localVideo.srcObject = localStream;
+                connectBtn.disabled = false;
+                startBtn.textContent = '✓ Camera On';
+            } catch (error) {
+                console.error('Camera error:', error);
+                startBtn.disabled = false;
+            }
+        });
 
         connectBtn.addEventListener('click', async () => {
             connectBtn.disabled = true;
             connectBtn.textContent = 'Connecting...';
             try {
-                const identity = 'user-' + Math.random().toString(36).substr(2, 6);
+                const LivekitClient = window.LivekitClient;
+                const identity = 'mirror-' + Math.random().toString(36).substr(2, 6);
+                
                 const inputToken = await generateToken(INPUT_ROOM, identity);
                 localRoom = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
                 await localRoom.connect(LIVEKIT_URL, inputToken);
-                const stream = localVideo.srcObject;
-                if (stream) {
-                    const vt = stream.getVideoTracks()[0];
-                    const at = stream.getAudioTracks()[0];
+                
+                if (localStream) {
+                    const vt = localStream.getVideoTracks()[0];
+                    const at = localStream.getAudioTracks()[0];
                     if (vt) await localRoom.localParticipant.publishTrack(vt);
                     if (at) await localRoom.localParticipant.publishTrack(at);
                 }
+                
                 const outputToken = await generateToken(OUTPUT_ROOM, identity + '-v');
                 remoteRoom = new LivekitClient.Room({ adaptiveStream: true });
                 remoteRoom.on(LivekitClient.RoomEvent.TrackSubscribed, (track) => {
                     if (track.kind === 'video') remoteVideo.srcObject = track.attach().srcObject;
                 });
                 await remoteRoom.connect(LIVEKIT_URL, outputToken);
+                
                 connectBtn.textContent = '✓ LIVE';
                 connectBtn.style.borderColor = 'lime';
                 connectBtn.style.color = 'lime';
                 disconnectBtn.disabled = false;
                 fullscreenBtn.disabled = false;
-                console.log('Connected to LiveKit!');
             } catch (e) {
                 console.error('Connection error:', e);
                 connectBtn.textContent = 'Error - Retry';
