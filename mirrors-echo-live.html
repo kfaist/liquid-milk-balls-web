@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mirror's Echo - Interactive Installation</title>
+    <!-- LiveKit SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client@1.15.4/dist/livekit-client.umd.min.js"></script>
+    <!-- Jose for JWT generation -->
+    <script src="https://cdn.jsdelivr.net/npm/jose@4.15.4/dist/browser/index.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --hue-value: 280;
+            --hue-complementary: 100;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 50%, #0a0a0a 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-y: auto !important;
+            height: auto !important;
+        }
+        
+        html {
+            overflow-y: auto !important;
+            height: auto !important;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 2.35rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, 
+                hsl(var(--hue-value), 70%, 60%), 
+                hsl(var(--hue-complementary), 70%, 60%));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: flicker 3s infinite;
+        }
+        
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 2rem;
+            font-size: 1.07rem;
+        }
+        
+        .video-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .video-box {
+            background: rgba(20, 10, 30, 0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        
+        .video-label {
+            font-size: 0.96rem;
+            color: #aaa;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            background: #000;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.8rem 2rem;
+            font-family: inherit;
+            font-size: 0.96rem;
+            background: transparent;
+            color: #e0e0e0;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn:hover:not(:disabled) {
+            border-color: hsl(var(--hue-value), 70%, 60%);
+            color: hsl(var(--hue-value), 70%, 60%);
+        }
+        
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .btn.connected {
+            border-color: #0f0 !important;
+            color: #0f0 !important;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
+            margin: 1rem 0;
+            font-size: 0.91rem;
+        }
+        
+        .status.error { color: #f66; }
+        .status.success { color: #6f6; }
+        .status.info { color: #6af; }
+        
+        /* Raindrop styles */
+        .raindrop {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            animation: raindrop-fade 8s ease-out forwards;
+            will-change: transform, opacity;
+            contain: layout style paint;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+        }
+        
+        @keyframes raindrop-fade {
+            0% { opacity: 0; transform: scale(0.3) translateZ(0); }
+            10% { opacity: 1; transform: scale(1) translateZ(0); }
+            90% { opacity: 0.8; }
+            100% { opacity: 0; transform: scale(1.2) translateZ(0); }
+        }
+        
+        .section {
+            background: rgba(20, 10, 30, 0.6);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .section h2 {
+            font-size: 1.18rem;
+            margin-bottom: 1rem;
+            color: hsl(var(--hue-value), 70%, 70%);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .slider-group {
+            margin: 1rem 0;
+        }
+        
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.3rem;
+        }
+        
+        .slider-label {
+            font-size: 0.86rem;
+            color: #aaa;
+        }
+        
+        .slider-value {
+            font-size: 0.86rem;
+            color: hsl(var(--hue-value), 70%, 70%);
+        }
+        
+        .control-slider {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        .control-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: hsl(var(--hue-value), 70%, 60%);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>The Mirror's Echo</h1>
+        <p class="subtitle">Interactive Video Installation</p>
+        
+        <div class="video-grid">
+            <div class="video-box">
+                <div class="video-label">Local Camera (You)</div>
+                <div class="video-container">
+                    <video id="localVideo" autoplay muted playsinline></video>
+                </div>
+            </div>
+            <div class="video-box">
+                <div class="video-label">Remote Stream (Processed)</div>
+                <div class="video-container">
+                    <video id="remoteVideo" autoplay playsinline></video>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" id="startBtn">Start Camera</button>
+            <button class="btn" id="connectBtn" disabled>Connect to LiveKit</button>
+            <button class="btn" id="disconnectBtn" disabled>Disconnect</button>
+            <button class="btn" id="fullscreenBtn" disabled>Fullscreen</button>
+        </div>
+        
+        <div class="status info" id="statusBox">Click "Start Camera" to begin</div>
+        
+        <div class="section">
+            <h2>Interactive Parameters</h2>
+            
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span class="slider-label">Temporal Intensity</span>
+                    <span class="slider-value" id="temporalValue">50%</span>
+                </div>
+                <input type="range" id="temporalSlider" min="0" max="100" value="50" class="control-slider">
+            </div>
+            
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span class="slider-label">Size</span>
+                    <span class="slider-value" id="sizeValue">1.0x</span>
+                </div>
+                <input type="range" id="sizeSlider" min="0.3" max="3" step="0.1" value="1" class="control-slider">
+            </div>
+            
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span class="slider-label">Lifespan</span>
+                    <span class="slider-value" id="lifespanValue">8s</span>
+                </div>
+                <input type="range" id="lifespanSlider" min="2" max="20" value="8" class="control-slider">
+            </div>
+            
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span class="slider-label">Ripple</span>
+                    <span class="slider-value" id="rippleValue">1.0x</span>
+                </div>
+                <input type="range" id="rippleSlider" min="0" max="3" step="0.1" value="1" class="control-slider">
+            </div>
+            
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span class="slider-label">Halo</span>
+                    <span class="slider-value" id="haloValue">1.0</span>
+                </div>
+                <input type="range" id="haloSlider" min="0" max="3" step="0.1" value="1" class="control-slider">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===========================================
+        // LIVEKIT CONFIGURATION - YOUR CREDENTIALS
+        // ===========================================
+        const LIVEKIT_URL = 'wss://claymation-transcription-l6e51sws.livekit.cloud';
+        const API_KEY = 'APITw2Yp2Tv3yfg';
+        const API_SECRET = 'eVYY0UB69XDGLiGzclYuGUhXuVpc8ry3YcazimFryDW';
+        const INPUT_ROOM = 'claymation-live';
+        const OUTPUT_ROOM = 'processed-output';
+        
+        // ===========================================
+        // JWT TOKEN GENERATION (Client-side)
+        // ===========================================
+        async function generateToken(room, identity) {
+            const jose = window.jose;
+            
+            const now = Math.floor(Date.now() / 1000);
+            const exp = now + (6 * 60 * 60); // 6 hours
+            
+            const claims = {
+                iss: API_KEY,
+                sub: identity,
+                nbf: now,
+                exp: exp,
+                video: {
+                    roomJoin: true,
+                    room: room,
+                    canPublish: true,
+                    canSubscribe: true,
+                    canPublishData: true
+                }
+            };
+            
+            const secret = new TextEncoder().encode(API_SECRET);
+            const token = await new jose.SignJWT(claims)
+                .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
+                .setIssuedAt()
+                .setExpirationTime('6h')
+                .sign(secret);
+            
+            return token;
+        }
+        
+        // ===========================================
+        // DOM ELEMENTS
+        // ===========================================
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const startBtn = document.getElementById('startBtn');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const statusBox = document.getElementById('statusBox');
+        
+        let localStream = null;
+        let localRoom = null;
+        let remoteRoom = null;
+        
+        function setStatus(message, type = 'info') {
+            statusBox.textContent = message;
+            statusBox.className = 'status ' + type;
+            console.log('[STATUS]', message);
+        }
+        
+        // ===========================================
+        // CAMERA START
+        // ===========================================
+        startBtn.addEventListener('click', async () => {
+            startBtn.disabled = true;
+            setStatus('Requesting camera access...', 'info');
+            
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+                    audio: true 
+                });
+                localVideo.srcObject = localStream;
+                await localVideo.play();
+                
+                connectBtn.disabled = false;
+                startBtn.textContent = '✓ Camera On';
+                setStatus('Camera ready! Click "Connect to LiveKit" to go live.', 'success');
+                
+            } catch (error) {
+                console.error('Camera error:', error);
+                setStatus('Camera error: ' + error.message, 'error');
+                startBtn.disabled = false;
+            }
+        });
+        
+        // ===========================================
+        // LIVEKIT CONNECTION
+        // ===========================================
+        connectBtn.addEventListener('click', async () => {
+            connectBtn.disabled = true;
+            setStatus('Generating tokens...', 'info');
+            
+            try {
+                const LivekitClient = window.LivekitClient;
+                const identity = 'mirror-user-' + Math.random().toString(36).substr(2, 9);
+                
+                // Generate token for INPUT room (publishing your camera)
+                const inputToken = await generateToken(INPUT_ROOM, identity);
+                setStatus('Connecting to input room...', 'info');
+                
+                // Create and connect to input room
+                localRoom = new LivekitClient.Room({
+                    adaptiveStream: true,
+                    dynacast: true,
+                });
+                
+                // Handle connection events
+                localRoom.on(LivekitClient.RoomEvent.Connected, () => {
+                    console.log('Connected to input room!');
+                });
+                
+                localRoom.on(LivekitClient.RoomEvent.Disconnected, () => {
+                    console.log('Disconnected from input room');
+                    setStatus('Disconnected from input room', 'info');
+                });
+                
+                await localRoom.connect(LIVEKIT_URL, inputToken);
+                setStatus('Connected! Publishing video...', 'info');
+                
+                // Publish local tracks
+                if (localStream) {
+                    const videoTrack = localStream.getVideoTracks()[0];
+                    const audioTrack = localStream.getAudioTracks()[0];
+                    
+                    if (videoTrack) {
+                        await localRoom.localParticipant.publishTrack(videoTrack, {
+                            name: 'camera',
+                            simulcast: false,
+                        });
+                        console.log('Published video track');
+                    }
+                    if (audioTrack) {
+                        await localRoom.localParticipant.publishTrack(audioTrack, {
+                            name: 'microphone',
+                        });
+                        console.log('Published audio track');
+                    }
+                }
+                
+                setStatus('Video published! Connecting to output room...', 'info');
+                
+                // Generate token for OUTPUT room (receiving processed video)
+                const outputToken = await generateToken(OUTPUT_ROOM, identity + '-viewer');
+                
+                // Create and connect to output room
+                remoteRoom = new LivekitClient.Room({
+                    adaptiveStream: true,
+                });
+                
+                // Handle incoming tracks from output room
+                remoteRoom.on(LivekitClient.RoomEvent.TrackSubscribed, (track, publication, participant) => {
+                    console.log('Received track from output room:', track.kind, 'from', participant.identity);
+                    if (track.kind === 'video') {
+                        const element = track.attach();
+                        element.style.width = '100%';
+                        element.style.height = '100%';
+                        element.style.objectFit = 'cover';
+                        remoteVideo.srcObject = element.srcObject;
+                        setStatus('🎉 Receiving processed video!', 'success');
+                    }
+                });
+                
+                remoteRoom.on(LivekitClient.RoomEvent.TrackUnsubscribed, (track) => {
+                    track.detach();
+                });
+                
+                await remoteRoom.connect(LIVEKIT_URL, outputToken);
+                console.log('Connected to output room!');
+                
+                // Update UI
+                connectBtn.textContent = '✓ Connected!';
+                connectBtn.classList.add('connected');
+                disconnectBtn.disabled = false;
+                fullscreenBtn.disabled = false;
+                
+                setStatus('✓ LIVE! Publishing to ' + INPUT_ROOM + ', listening on ' + OUTPUT_ROOM, 'success');
+                
+            } catch (error) {
+                console.error('Connection error:', error);
+                setStatus('Connection error: ' + error.message, 'error');
+                connectBtn.disabled = false;
+                connectBtn.textContent = 'Connect to LiveKit';
+            }
+        });
+        
+        // ===========================================
+        // DISCONNECT
+        // ===========================================
+        disconnectBtn.addEventListener('click', async () => {
+            try {
+                if (localRoom) {
+                    await localRoom.disconnect();
+                    localRoom = null;
+                }
+                if (remoteRoom) {
+                    await remoteRoom.disconnect();
+                    remoteRoom = null;
+                }
+            } catch (e) { 
+                console.error('Disconnect error:', e); 
+            }
+            
+            disconnectBtn.disabled = true;
+            fullscreenBtn.disabled = true;
+            connectBtn.disabled = false;
+            connectBtn.textContent = 'Connect to LiveKit';
+            connectBtn.classList.remove('connected');
+            remoteVideo.srcObject = null;
+            
+            setStatus('Disconnected. Click Connect to rejoin.', 'info');
+        });
+        
+        // ===========================================
+        // FULLSCREEN
+        // ===========================================
+        fullscreenBtn.addEventListener('click', () => {
+            if (remoteVideo.requestFullscreen) {
+                remoteVideo.requestFullscreen();
+            } else if (remoteVideo.webkitRequestFullscreen) {
+                remoteVideo.webkitRequestFullscreen();
+            }
+        });
+        
+        // ===========================================
+        // RAINDROP EFFECT
+        // ===========================================
+        const colors = [
+            'rgba(255, 105, 180, 1.0)',  // Hot pink - BRIGHT
+            'rgba(138, 43, 226, 1.0)',   // Blue violet
+            'rgba(75, 0, 130, 1.0)',     // Indigo
+            'rgba(0, 191, 255, 1.0)',    // Deep sky blue
+            'rgba(127, 255, 212, 1.0)',  // Aquamarine
+            'rgba(50, 205, 50, 1.0)',    // Lime green
+            'rgba(255, 215, 0, 1.0)',    // Gold
+            'rgba(255, 140, 0, 1.0)',    // Dark orange
+            'rgba(255, 20, 147, 1.0)'    // Deep pink
+        ];
+        
+        function createRaindrop(progress) {
+            const sizeMultiplier = parseFloat(document.getElementById('sizeSlider')?.value || 1.0);
+            const lifespanValue = parseFloat(document.getElementById('lifespanSlider')?.value || 8);
+            const rippleValue = parseFloat(document.getElementById('rippleSlider')?.value || 1.0);
+            const haloValue = parseFloat(document.getElementById('haloSlider')?.value || 1.0);
+            const temporalBoost = 1.0 + (parseFloat(document.getElementById('temporalSlider')?.value || 50) / 100) * 1.5;
+            
+            const drop = document.createElement('div');
+            drop.className = 'raindrop';
+            
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight;
+            drop.style.left = x + 'px';
+            drop.style.top = y + 'px';
+            
+            const color1 = colors[Math.floor(Math.random() * colors.length)];
+            const color2 = colors[Math.floor(Math.random() * colors.length)];
+            const color3 = colors[Math.floor(Math.random() * colors.length)];
+            
+            let baseOpacity = (0.25 + (progress * 0.25)) * temporalBoost;
+            baseOpacity = Math.min(baseOpacity, 0.9);
+            
+            let baseSize;
+            const sizeRoll = Math.random();
+            if (sizeRoll < 0.3) {
+                baseSize = 20 + Math.random() * 10;
+            } else if (sizeRoll < 0.7) {
+                baseSize = 40 + Math.random() * 20;
+            } else {
+                baseSize = 40 + Math.random() * 50;
+            }
+            
+            const size = baseSize * sizeMultiplier;
+            const duration = lifespanValue + Math.random() * 3;
+            const glowIntensity = (20 + (progress * 60)) * haloValue * rippleValue;
+            
+            drop.style.width = size + 'px';
+            drop.style.height = size + 'px';
+            
+            drop.style.background = `radial-gradient(circle at 40% 40%, 
+                ${color1.replace('0.9', String(baseOpacity))} 0%, 
+                ${color2.replace('0.9', String(baseOpacity * 0.7))} 30%, 
+                ${color3.replace('0.9', String(baseOpacity * 0.4))} 60%, 
+                transparent 100%)`;
+            
+            drop.style.boxShadow = `
+                ${color1} 0px 0px ${glowIntensity}px,
+                ${color2} 0px 0px ${glowIntensity * 2}px,
+                ${color1.replace('0.9', '0.3')} 0px 0px ${glowIntensity * 3}px,
+                ${color1.replace('0.9', '0.5')} 0px 0px ${glowIntensity * 0.7}px inset`;
+            
+            drop.style.animationDuration = duration + 's';
+            drop.style.zIndex = '1';
+            
+            document.body.appendChild(drop);
+            
+            setTimeout(() => {
+                if (drop.parentNode) {
+                    drop.parentNode.removeChild(drop);
+                }
+            }, duration * 1000);
+        }
+        
+        // Animation loop for raindrops
+        const startTime = Date.now();
+        const rainStartTime = 0; // Start immediately
+        const rainEndTime = 600000; // 10 minutes
+        const duration = rainEndTime;
+        
+        function animate() {
+            const elapsed = Date.now() - startTime;
+            
+            if (elapsed >= rainStartTime) {
+                const rainProgress = Math.min((elapsed - rainStartTime) / (rainEndTime - rainStartTime), 1.0);
+                const progress = rainProgress;
+                
+                const baseRate = 0.03;
+                const exponentialGrowth = Math.pow(progress, 2.5);
+                let dropProbability = baseRate * (1 + exponentialGrowth * 30);
+                
+                if (progress > 0.66) {
+                    const overtakeProgress = (progress - 0.66) / 0.34;
+                    const overtakeMultiplier = 1 + (overtakeProgress * 6);
+                    dropProbability *= overtakeMultiplier;
+                }
+                
+                if (Math.random() < dropProbability) {
+                    createRaindrop(progress);
+                }
+            }
+            
+            if (elapsed < duration + 60000) {
+                requestAnimationFrame(animate);
+            }
+        }
+        
+        animate();
+        
+        // ===========================================
+        // SLIDER EVENT HANDLERS
+        // ===========================================
+        document.getElementById('temporalSlider').addEventListener('input', (e) => {
+            document.getElementById('temporalValue').textContent = e.target.value + '%';
+        });
+        
+        document.getElementById('sizeSlider').addEventListener('input', (e) => {
+            document.getElementById('sizeValue').textContent = parseFloat(e.target.value).toFixed(1) + 'x';
+        });
+        
+        document.getElementById('lifespanSlider').addEventListener('input', (e) => {
+            document.getElementById('lifespanValue').textContent = e.target.value + 's';
+        });
+        
+        document.getElementById('rippleSlider').addEventListener('input', (e) => {
+            document.getElementById('rippleValue').textContent = parseFloat(e.target.value).toFixed(1) + 'x';
+        });
+        
+        document.getElementById('haloSlider').addEventListener('input', (e) => {
+            document.getElementById('haloValue').textContent = parseFloat(e.target.value).toFixed(1);
+        });
+    </script>
+</body>
+</html>
