@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mirror's Echo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --hue-value: 280; --hue-complementary: 100; }
+        body { font-family: 'JetBrains Mono', monospace; background: #000; color: rgba(255,255,255,0.9); padding: 2rem; line-height: 1.6; }
+        .container { max-width: 1400px; width: 100%; margin: 0 auto; }
+        h1.flicker { font-size: 1.5rem; font-weight: 400; text-align: center; margin-bottom: 2rem; letter-spacing: 0.1em; opacity: 0.8; animation: flicker 3s infinite; }
+        @keyframes flicker { 0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 0.8; } 20%, 24%, 55% { opacity: 0.3; } 22% { opacity: 0.5; } }
+        .intro-text { text-align: center; font-size: 0.65rem; opacity: 0.7; letter-spacing: 0.02em; line-height: 1.6; margin-bottom: 2rem; max-width: 800px; margin-left: auto; margin-right: auto; }
+        .intro-text a { color: rgba(255,255,255,0.9); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.3); }
+        .connection-status { text-align: center; padding: 0.5rem; font-size: 0.7rem; letter-spacing: 0.05em; margin-bottom: 1rem; border-radius: 4px; }
+        .connection-status.disconnected { background: rgba(255,100,100,0.2); border: 1px solid rgba(255,100,100,0.4); color: rgba(255,150,150,0.9); }
+        .connection-status.connecting { background: rgba(255,200,100,0.2); border: 1px solid rgba(255,200,100,0.4); color: rgba(255,220,150,0.9); animation: pulse 1s infinite; }
+        .connection-status.connected { background: rgba(100,255,150,0.2); border: 1px solid rgba(100,255,150,0.4); color: rgba(150,255,180,0.9); }
+        @keyframes pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+        .panel { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); padding: 1.5rem; text-align: center; margin: 1.5rem 0; }
+        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+        .video-box { position: relative; }
+        .video-box.hidden { display: none; }
+        .video-label { font-size: 0.75rem; letter-spacing: 0.05em; opacity: 0.6; margin-bottom: 0.5rem; text-transform: uppercase; }
+        .video-container { background: #111; border: 1px solid rgba(255,255,255,0.3); aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        video { width: 100%; height: 100%; object-fit: cover; }
+        .video-controls { position: absolute; top: 0.5rem; left: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem; z-index: 10; }
+        .video-btn { padding: 0.2rem 0.4rem; font-size: 0.55rem; border: 1px solid rgba(255,255,255,0.25); background: rgba(0,0,0,0.7); color: rgba(255,255,255,0.7); cursor: pointer; font-family: 'JetBrains Mono', monospace; opacity: 0.6; transition: all 0.2s; text-align: left; }
+        .video-btn:hover { border-color: #fff; opacity: 1; }
+        .video-btn.active { border-color: rgba(100,255,150,0.6); color: rgba(150,255,180,0.9); }
+        .video-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+        .controls-row { display: flex; gap: 0.5rem; margin-top: 0.5rem; justify-content: center; flex-wrap: wrap; align-items: center; }
+        .room-input { padding: 0.4rem 0.8rem; font-size: 0.7rem; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.5); color: #fff; font-family: 'JetBrains Mono', monospace; width: 140px; }
+        .room-input::placeholder { color: rgba(255,255,255,0.4); }
+        .btn { padding: 0.4rem 0.8rem; font-size: 0.7rem; border: 1px solid rgba(255,255,255,0.3); background: transparent; color: #fff; cursor: pointer; transition: all 0.2s; font-family: 'JetBrains Mono', monospace; }
+        .btn:hover:not(:disabled) { border-color: #fff; background: rgba(255,255,255,0.05); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .control-panel, .color-palette-box { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); padding: 1.5rem; margin: 1.5rem 0; border-radius: 4px; }
+        .control-title, .palette-label { font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; margin-bottom: 1rem; }
+        .color-palette { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0.5rem; margin-bottom: 1rem; }
+        .palette-btn { aspect-ratio: 1; border: 2px solid rgba(255,255,255,0.2); border-radius: 4px; cursor: pointer; transition: all 0.2s; min-height: 28px; opacity: 0.5; }
+        .palette-btn:hover { border-color: rgba(255,255,255,0.6); box-shadow: 0 0 12px currentColor; opacity: 0.7; }
+        .palette-btn.active { opacity: 1; border-color: #fff; box-shadow: 0 0 16px currentColor; }
+        .palette-btn.nearest { border-color: rgba(255,255,255,0.5); opacity: 0.85; }
+        .sliders-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
+        .slider-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .slider-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; }
+        .slider-label { letter-spacing: 0.05em; opacity: 0.6; text-transform: uppercase; }
+        .slider-value { color: hsl(var(--hue-value), 85%, 55%); font-weight: bold; }
+        .control-slider { width: 100%; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.1); -webkit-appearance: none; cursor: pointer; }
+        .control-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: hsl(var(--hue-complementary), 85%, 55%); box-shadow: 0 0 10px hsl(var(--hue-complementary), 85%, 55%); border: 2px solid rgba(255,255,255,0.3); }
+        .video-shimmer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.08) 8%, rgba(255,105,180,0.12) 16%, rgba(138,43,226,0.12) 28%, rgba(0,191,255,0.12) 40%, rgba(127,255,212,0.10) 52%, rgba(255,215,0,0.10) 64%, rgba(255,140,0,0.12) 76%, rgba(255,20,147,0.12) 88%, transparent 100%); background-size: 300% 300%; animation: shimmerMove 8s ease-in-out infinite; mix-blend-mode: screen; }
+        @keyframes shimmerMove { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        .raindrop { position: fixed; border-radius: 50%; pointer-events: none; filter: blur(0.5px); }
+        .watermark-mode .raindrop { pointer-events: none; }
+        section { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 1.5rem; margin: 1.5rem 0; }
+        h2 { font-size: 1.1rem; font-weight: 400; letter-spacing: 0.1em; margin-bottom: 1rem; opacity: 0.8; }
+        p { margin-bottom: 0.8rem; font-size: 0.85rem; opacity: 0.8; }
+        .licensing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.5rem; }
+        .license-card { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); padding: 1.2rem; display: flex; flex-direction: column; }
+        .license-tier { font-size: 0.65rem; letter-spacing: 0.1em; opacity: 0.5; text-transform: uppercase; margin-bottom: 0.4rem; }
+        .license-title { font-size: 1rem; font-weight: 400; margin-bottom: 0.8rem; line-height: 1.3; }
+        .license-description { font-size: 0.75rem; opacity: 0.7; line-height: 1.5; margin-bottom: 1rem; flex-grow: 1; }
+        .license-features { list-style: none; margin-bottom: 1rem; font-size: 0.7rem; }
+        .license-features li { padding: 0.25rem 0; opacity: 0.8; padding-left: 1rem; position: relative; }
+        .license-features li::before { content: '–'; position: absolute; left: 0; opacity: 0.5; }
+        .license-btn { padding: 0.6rem 1rem; font-size: 0.7rem; border: 1px solid rgba(255,255,255,0.4); background: transparent; color: #fff; cursor: pointer; font-family: 'JetBrains Mono', monospace; text-align: center; text-decoration: none; transition: all 0.2s; display: block; margin-top: 0.4rem; }
+        .license-btn:hover { border-color: #fff; background: rgba(255,255,255,0.05); }
+        footer { text-align: center; padding: 2rem 0; font-size: 0.7rem; opacity: 0.5; }
+        @media (max-width: 900px) { .licensing-grid { grid-template-columns: 1fr; } .video-grid { grid-template-columns: 1fr; } }
+        .watermark-notice { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(255,100,100,0.3); border: 1px solid rgba(255,100,100,0.6); padding: 0.5rem 1rem; font-size: 0.7rem; border-radius: 4px; z-index: 9999; display: none; }
+        .watermark-mode .watermark-notice { display: block; }
+    </style>
+</head>
+<body>
+    <div class="watermark-notice">⚠ Watermark Mode Active – <a href="mailto:kristabluedoor@gmail.com?subject=Exhibition%20License" style="color:#fff">License for unmarked experience</a></div>
+    
+    <div class="container">
+        <h1 class="flicker">THE MIRROR'S ECHO</h1>
+
+        <div class="intro-text">
+            The Mirror's Echo operates as an unlimited edition under open-source principles (AGPL-3.0).<br><br>
+            Artist/Technical: <a href="mailto:kristabluedoor@gmail.com">kristabluedoor@gmail.com</a> | Curatorial: <a href="mailto:chaoscontemporarycraft@gmail.com">chaoscontemporarycraft@gmail.com</a>
+        </div>
+
+        <div class="connection-status disconnected" id="connectionStatus">● Disconnected</div>
+
+        <div class="panel">
+            <div class="video-grid" id="videoGrid">
+                <div class="video-box" id="localBox">
+                    <div class="video-label">Local Camera</div>
+                    <div class="video-container" id="localContainer">
+                        <div class="video-controls">
+                            <button class="video-btn" id="localCamBtn">⬤ Start Webcam</button>
+                            <button class="video-btn" id="localMicBtn" disabled>🎤 Enable Mic</button>
+                            <button class="video-btn" id="localNdiBtn" disabled>◈ NDI Bridge</button>
+                            <button class="video-btn" id="localFullBtn" disabled>⛶ Fullscreen</button>
+                            <button class="video-btn" id="localShareBtn" disabled>↗ Share URL</button>
+                        </div>
+                        <div class="video-shimmer" id="localShimmer"></div>
+                        <video id="localVideo" autoplay muted playsinline></video>
+                    </div>
+                </div>
+                <div class="video-box" id="remoteBox">
+                    <div class="video-label">Remote Stream</div>
+                    <div class="video-container" id="remoteContainer">
+                        <div class="video-controls">
+                            <button class="video-btn" id="remoteConnectBtn" disabled>◉ Connect WebRTC</button>
+                            <button class="video-btn" id="remoteDisconnectBtn" disabled>◎ Disconnect</button>
+                            <button class="video-btn" id="remoteNdiBtn" disabled>◈ NDI Bridge</button>
+                            <button class="video-btn" id="remoteFullBtn" disabled>⛶ Fullscreen</button>
+                            <button class="video-btn" id="remoteShareBtn" disabled>↗ Share URL</button>
+                        </div>
+                        <div class="video-shimmer" id="remoteShimmer"></div>
+                        <video id="remoteVideo" autoplay playsinline></video>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-row">
+                <input type="text" class="room-input" id="roomInput" placeholder="room-name" value="mirror-echo">
+            </div>
+        </div>
+
+        <div class="color-palette-box">
+            <div class="palette-label">Color Palette</div>
+            <div class="color-palette">
+                <button class="palette-btn active" data-hue="280" style="background: hsl(280, 85%, 55%);" title="Purple"></button>
+                <button class="palette-btn" data-hue="320" style="background: hsl(320, 95%, 52%);" title="Pink"></button>
+                <button class="palette-btn" data-hue="15" style="background: hsl(15, 95%, 55%);" title="Coral"></button>
+                <button class="palette-btn" data-hue="45" style="background: hsl(45, 90%, 55%);" title="Gold"></button>
+                <button class="palette-btn" data-hue="120" style="background: hsl(120, 85%, 45%);" title="Green"></button>
+                <button class="palette-btn" data-hue="180" style="background: hsl(180, 85%, 45%);" title="Cyan"></button>
+                <button class="palette-btn" data-hue="220" style="background: hsl(220, 85%, 55%);" title="Blue"></button>
+                <button class="palette-btn" data-hue="0" style="background: hsl(0, 95%, 55%);" title="Red"></button>
+            </div>
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span class="slider-label">Hue</span>
+                    <span class="slider-value" id="hueValue">280°</span>
+                </div>
+                <input type="range" id="hueSlider" min="0" max="360" value="280" class="control-slider">
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="control-title">Interactive Parameters</div>
+            <div class="sliders-grid">
+                <div class="slider-group"><div class="slider-header"><span class="slider-label">Saturation</span><span class="slider-value" id="satValue">85%</span></div><input type="range" id="satSlider" min="0" max="100" value="85" class="control-slider"></div>
+                <div class="slider-group"><div class="slider-header"><span class="slider-label">Lightness</span><span class="slider-value" id="lightValue">55%</span></div><input type="range" id="lightSlider" min="0" max="100" value="55" class="control-slider"></div>
+                <div class="slider-group"><div class="slider-header"><span class="slider-label">Intensity</span><span class="slider-value" id="intensityValue">0.50</span></div><input type="range" id="intensitySlider" min="0" max="1" step="0.01" value="0.50" class="control-slider"></div>
+                <div class="slider-group"><div class="slider-header"><span class="slider-label">Depth</span><span class="slider-value" id="depthValue">1.0</span></div><input type="range" id="depthSlider" min="0" max="2" step="0.1" value="1.0" class="control-slider"></div>
+                <div class="slider-group"><div class="slider-header"><span class="slider-label">Gloss</span><span class="slider-value" id="glossValue">0.60</span></div><input type="range" id="glossSlider" min="0" max="1" step="0.05" value="0.60" class="control-slider"></div>
+                <div class="slider-group"><div class="slider-header"><span class="slider-label">Bump</span><span class="slider-value" id="bumpValue">1.0</span></div><input type="range" id="bumpSlider" min="0" max="2" step="0.1" value="1.0" class="control-slider"></div>
+                <div class="slider-group"><div class="slider-header"><span class="slider-label">Speed</span><span class="slider-value" id="speedValue">1.0x</span></div><input type="range" id="speedSlider" min="0.5" max="4" step="0.5" value="1" class="control-slider"></div>
+                <div class="slider-group"><div class="slider-header"><span class="slider-label">Halo</span><span class="slider-value" id="haloValue">1.0</span></div><input type="range" id="haloSlider" min="0" max="2" step="0.1" value="1.0" class="control-slider"></div>
+                <div class="slider-group"><div class="slider-header"><span class="slider-label">Tempo</span><span class="slider-value" id="tempoValue">1.0x</span></div><input type="range" id="tempoSlider" min="0.25" max="4" step="0.25" value="1" class="control-slider"></div>
+                <div class="slider-group"><div class="slider-header"><span class="slider-label">Temporal Intensity</span><span class="slider-value" id="temporalValue">0%</span></div><input type="range" id="temporalSlider" min="0" max="100" value="0" class="control-slider" disabled></div>
+            </div>
+        </div>
+
+        <section>
+            <h2>About</h2>
+            <p><em>The Mirror's Echo</em> is a networked interactive work exploring presence, temporality, and reciprocity through real-time video transmission.</p>
+            <p>The work implements a temporal access model: seven minutes of unmediated experience, followed by progressive visual markers that persist indefinitely at peak intensity as watermarks.</p>
+        </section>
+
+        <section>
+            <h2>Licensing & Access</h2>
+            <div class="licensing-grid">
+                <div class="license-card">
+                    <div class="license-tier">Open Access</div>
+                    <div class="license-title">Unlimited Edition</div>
+                    <div class="license-description">Available under open-source principles. Experience freely for educational, research, and non-commercial contexts.</div>
+                    <ul class="license-features">
+                        <li>Full source code access (AGPL-3.0)</li>
+                        <li>Unlimited non-commercial use</li>
+                        <li>Seven-minute sustained experience</li>
+                        <li>Progressive temporal markers</li>
+                    </ul>
+                    <a href="https://github.com/kristafaist/mirrors-echo" class="license-btn" target="_blank">Access Source Code</a>
+                </div>
+                <div class="license-card">
+                    <div class="license-tier">Starting at $400</div>
+                    <div class="license-title">Exhibition License & Technical Residency</div>
+                    <div class="license-description">For professional contexts and exhibition settings. Includes unrestricted access without temporal markers.</div>
+                    <ul class="license-features">
+                        <li>No temporal markers/watermarks</li>
+                        <li>Commercial exhibition rights</li>
+                        <li>Technical residency ($150/hour)</li>
+                        <li>TouchDesigner/LiveKit support</li>
+                    </ul>
+                    <a href="mailto:kristabluedoor@gmail.com?subject=Exhibition%20License%20Purchase%20-%20The%20Mirror's%20Echo&body=I'm%20interested%20in%20purchasing%20an%20exhibition%20license%20($400)%20for%20The%20Mirror's%20Echo." class="license-btn">Purchase License – $400</a>
+                    <a href="mailto:kristabluedoor@gmail.com?subject=Technical%20Residency%20Booking&body=I'm%20interested%20in%20booking%20technical%20residency%20support%20($150/hour)%20for%20The%20Mirror's%20Echo." class="license-btn">Book Technical Residency</a>
+                </div>
+                <div class="license-card">
+                    <div class="license-tier">Contact</div>
+                    <div class="license-title">Curatorial & Institutional Partnership</div>
+                    <div class="license-description">For galleries, museums, and biennials. Comprehensive partnership with on-site residency.</div>
+                    <ul class="license-features">
+                        <li>Complete licensing</li>
+                        <li>Curatorial consultation</li>
+                        <li>On-site residency</li>
+                    </ul>
+                    <a href="mailto:chaoscontemporarycraft@gmail.com?subject=Institutional%20Partnership%20Inquiry%20-%20The%20Mirror's%20Echo" class="license-btn">Initiate Partnership</a>
+                </div>
+            </div>
+        </section>
+
+        <footer>© 2025 The Mirror's Echo</footer>
+    </div>
+
+    <script>
+        const state = { hue: 280, saturation: 85, lightness: 55, intensity: 0.5, depth: 1.0, gloss: 0.6, bump: 1.0, speed: 1.0, halo: 1.0, tempo: 1.0 };
+        const rainbowHues = [0, 30, 60, 120, 180, 220, 280, 320];
+        const paletteHues = [280, 320, 15, 45, 120, 180, 220, 0];
+        
+        const startTime = Date.now();
+        const rainStartTime = 420000;  // 7 min
+        const peakTime = 600000;       // 10 min
+        let virtualElapsed = 0, lastRealTime = startTime, peakReached = false, watermarkMode = false;
+        let localStream = null, micEnabled = false;
+
+        // Shimmer fade
+        setTimeout(() => {
+            document.getElementById('localShimmer').style.transition = 'opacity 3s';
+            document.getElementById('localShimmer').style.opacity = '1';
+            document.getElementById('remoteShimmer').style.transition = 'opacity 3s';
+            document.getElementById('remoteShimmer').style.opacity = '1';
+        }, 100);
+
+        function createRaindrop(progress) {
+            const drop = document.createElement('div');
+            drop.className = 'raindrop';
+            drop.style.left = Math.random() * window.innerWidth + 'px';
+            drop.style.top = Math.random() * window.innerHeight + 'px';
+            
+            const useSelectedHue = Math.random() < 0.38;
+            let h1, h2, h3;
+            if (useSelectedHue) {
+                const v = 25;
+                h1 = (state.hue + Math.random() * v * 2 - v + 360) % 360;
+                h2 = (state.hue + Math.random() * v + 360) % 360;
+                h3 = (state.hue - Math.random() * v + 360) % 360;
+            } else {
+                h1 = rainbowHues[Math.floor(Math.random() * 8)] + Math.random() * 30 - 15;
+                h2 = rainbowHues[Math.floor(Math.random() * 8)] + Math.random() * 30 - 15;
+                h3 = rainbowHues[Math.floor(Math.random() * 8)] + Math.random() * 30 - 15;
+            }
+            
+            const s = state.saturation, l = state.lightness;
+            // WATERMARK MODE: After peak, drops become more opaque and larger
+            const watermarkBoost = watermarkMode ? 1.8 : 1;
+            const baseOpacity = (0.3 + progress * 0.5) * state.intensity * 2 * watermarkBoost;
+            const glossBoost = state.gloss * 0.6;
+            const glowSize = (20 + progress * 80) * state.halo * watermarkBoost;
+            
+            const layers = state.bump > 1.2 ? 4 : state.bump > 0.6 ? 3 : 2;
+            let gradient;
+            if (layers >= 4) {
+                gradient = `radial-gradient(circle at 35% 35%, hsla(${h1},${s}%,${Math.min(l+30,100)}%,${baseOpacity+glossBoost}) 0%, hsla(${h2},${s}%,${l}%,${baseOpacity*0.9}) 20%, hsla(${h3},${s}%,${l-10}%,${baseOpacity*0.7}) 45%, hsla(${h1},${s}%,${l-20}%,${baseOpacity*0.4}) 70%, transparent 100%)`;
+            } else if (layers >= 3) {
+                gradient = `radial-gradient(circle at 35% 35%, hsla(${h1},${s}%,${Math.min(l+20,100)}%,${baseOpacity+glossBoost}) 0%, hsla(${h2},${s}%,${l}%,${baseOpacity*0.8}) 35%, hsla(${h3},${s}%,${l-15}%,${baseOpacity*0.4}) 70%, transparent 100%)`;
+            } else {
+                gradient = `radial-gradient(circle at 40% 40%, hsla(${h1},${s}%,${l+10}%,${baseOpacity+glossBoost}) 0%, hsla(${h2},${s}%,${l}%,${baseOpacity*0.5}) 50%, transparent 100%)`;
+            }
+            drop.style.background = gradient;
+            drop.style.boxShadow = `0 0 ${glowSize*0.4}px hsla(${h1},${s}%,${l}%,${baseOpacity*0.8}), 0 0 ${glowSize*0.8}px hsla(${h2},${s}%,${l}%,${baseOpacity*0.5}), 0 0 ${glowSize*1.5}px hsla(${h1},${s}%,${l}%,${baseOpacity*0.3})`;
+            
+            const minSize = watermarkMode ? 25 : 15;
+            const maxSize = (40 + state.depth * 60) * watermarkBoost;
+            const size = minSize + progress * (maxSize - minSize) * 0.5 + Math.random() * maxSize * state.depth * 0.5;
+            drop.style.width = size + 'px';
+            drop.style.height = size + 'px';
+            drop.style.zIndex = Math.floor(100 + progress * 9898);
+            
+            const duration = (5 + Math.random() * 3) / state.speed;
+            drop.style.animation = `dropAppear ${duration}s ease-out forwards`;
+            document.body.appendChild(drop);
+            setTimeout(() => drop.remove(), duration * 1000);
+        }
+        
+        const ss = document.createElement('style');
+        ss.textContent = `@keyframes dropAppear { 0% { opacity: 0; transform: scale(0.5); } 15% { opacity: 1; transform: scale(1); } 85% { opacity: 1; } 100% { opacity: 0; transform: scale(1.1); } }`;
+        document.head.appendChild(ss);
+
+        function animate() {
+            const now = Date.now();
+            const realDelta = now - lastRealTime;
+            lastRealTime = now;
+            if (!peakReached) virtualElapsed += realDelta * state.tempo;
+            else virtualElapsed = peakTime;
+            
+            if (virtualElapsed >= rainStartTime) {
+                if (!peakReached && virtualElapsed >= peakTime) {
+                    peakReached = true;
+                    watermarkMode = true;
+                    document.body.classList.add('watermark-mode');
+                    console.log('WATERMARK MODE ACTIVATED');
+                }
+                
+                const progress = peakReached ? 1.0 : Math.min((virtualElapsed - rainStartTime) / (peakTime - rainStartTime), 1.0);
+                document.getElementById('temporalSlider').value = Math.round(progress * 100);
+                document.getElementById('temporalValue').textContent = Math.round(progress * 100) + '%';
+                
+                const spawnMult = (0.5 + state.intensity * 1.5) * (watermarkMode ? 2 : 1);
+                const baseRate = 0.03 * spawnMult;
+                let dropChance = baseRate * (1 + Math.pow(progress, 2) * 30);
+                if (progress > 0.7) dropChance *= 1 + (progress - 0.7) / 0.3 * 5;
+                
+                if (Math.random() < dropChance) createRaindrop(progress);
+                if (progress > 0.9) {
+                    const burst = Math.floor(Math.random() * progress * 8 * state.intensity * (watermarkMode ? 2 : 1));
+                    for (let i = 0; i < burst; i++) setTimeout(() => createRaindrop(progress), Math.random() * 800);
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // === VIDEO CONTROLS ===
+        const localCamBtn = document.getElementById('localCamBtn');
+        const localMicBtn = document.getElementById('localMicBtn');
+        const localNdiBtn = document.getElementById('localNdiBtn');
+        const localFullBtn = document.getElementById('localFullBtn');
+        const localShareBtn = document.getElementById('localShareBtn');
+        const remoteConnectBtn = document.getElementById('remoteConnectBtn');
+        const remoteDisconnectBtn = document.getElementById('remoteDisconnectBtn');
+        const remoteNdiBtn = document.getElementById('remoteNdiBtn');
+        const remoteFullBtn = document.getElementById('remoteFullBtn');
+        const remoteShareBtn = document.getElementById('remoteShareBtn');
+
+        localCamBtn.addEventListener('click', async () => {
+            localCamBtn.textContent = '◌ Starting...';
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: true });
+                document.getElementById('localVideo').srcObject = localStream;
+                localStream.getAudioTracks().forEach(t => t.enabled = false);
+                localCamBtn.textContent = '● Webcam On';
+                localCamBtn.classList.add('active');
+                localMicBtn.disabled = false;
+                localNdiBtn.disabled = false;
+                localFullBtn.disabled = false;
+                localShareBtn.disabled = false;
+                remoteConnectBtn.disabled = false;
+            } catch (e) {
+                localCamBtn.textContent = '✕ Retry Webcam';
+                console.error(e);
+            }
+        });
+
+        localMicBtn.addEventListener('click', () => {
+            if (!localStream) return;
+            micEnabled = !micEnabled;
+            localStream.getAudioTracks().forEach(t => t.enabled = micEnabled);
+            localMicBtn.textContent = micEnabled ? '🎤 Mic On' : '🎤 Mic Off';
+            localMicBtn.classList.toggle('active', micEnabled);
+        });
+
+        localNdiBtn.addEventListener('click', () => {
+            alert('NDI Bridge:\n\nTo output to NDI, use OBS Studio with the NDI plugin.\n1. Add Browser Source → ' + window.location.href + '\n2. Enable NDI output in Tools → NDI Output');
+            localNdiBtn.classList.add('active');
+        });
+
+        localFullBtn.addEventListener('click', () => document.getElementById('localContainer').requestFullscreen?.());
+        remoteFullBtn.addEventListener('click', () => document.getElementById('remoteContainer').requestFullscreen?.());
+
+        localShareBtn.addEventListener('click', () => {
+            const room = document.getElementById('roomInput').value || 'mirror-echo';
+            const url = window.location.origin + window.location.pathname + '?room=' + room + '&view=local';
+            navigator.clipboard.writeText(url);
+            localShareBtn.textContent = '✓ Copied!';
+            setTimeout(() => localShareBtn.textContent = '↗ Share URL', 2000);
+        });
+
+        remoteShareBtn.addEventListener('click', () => {
+            const room = document.getElementById('roomInput').value || 'mirror-echo';
+            const url = window.location.origin + window.location.pathname + '?room=' + room + '&view=remote';
+            navigator.clipboard.writeText(url);
+            remoteShareBtn.textContent = '✓ Copied!';
+            setTimeout(() => remoteShareBtn.textContent = '↗ Share URL', 2000);
+        });
+
+        remoteConnectBtn.addEventListener('click', () => {
+            const status = document.getElementById('connectionStatus');
+            status.className = 'connection-status connecting';
+            status.textContent = '● Connecting...';
+            remoteConnectBtn.disabled = true;
+            setTimeout(() => {
+                status.className = 'connection-status connected';
+                status.textContent = '● Connected';
+                remoteConnectBtn.classList.add('active');
+                remoteConnectBtn.textContent = '◉ Connected';
+                remoteDisconnectBtn.disabled = false;
+                remoteNdiBtn.disabled = false;
+                remoteFullBtn.disabled = false;
+                remoteShareBtn.disabled = false;
+            }, 1500);
+        });
+
+        remoteDisconnectBtn.addEventListener('click', () => {
+            document.getElementById('connectionStatus').className = 'connection-status disconnected';
+            document.getElementById('connectionStatus').textContent = '● Disconnected';
+            remoteConnectBtn.disabled = false;
+            remoteConnectBtn.classList.remove('active');
+            remoteConnectBtn.textContent = '◉ Connect WebRTC';
+            remoteDisconnectBtn.disabled = true;
+        });
+
+        remoteNdiBtn.addEventListener('click', () => {
+            alert('NDI Bridge for Remote:\n\nCapture this window via OBS + NDI plugin to route remote stream to your video system.');
+            remoteNdiBtn.classList.add('active');
+        });
+
+        // === SLIDERS ===
+        const paletteBtns = document.querySelectorAll('.palette-btn');
+        
+        function findNearest(hue) {
+            let min = 360, idx = 0;
+            paletteHues.forEach((h, i) => {
+                const d = Math.min(Math.abs(hue - h), 360 - Math.abs(hue - h));
+                if (d < min) { min = d; idx = i; }
+            });
+            return idx;
+        }
+        
+        function updateHue(hue, fromPalette) {
+            state.hue = parseInt(hue);
+            const comp = (state.hue + 180) % 360;
+            document.getElementById('hueValue').textContent = state.hue + '°';
+            document.getElementById('hueSlider').value = state.hue;
+            document.documentElement.style.setProperty('--hue-value', state.hue);
+            document.documentElement.style.setProperty('--hue-complementary', comp);
+            const nearest = findNearest(state.hue);
+            paletteBtns.forEach((btn, i) => {
+                btn.classList.remove('active', 'nearest');
+                if (fromPalette && parseInt(btn.dataset.hue) === state.hue) btn.classList.add('active');
+                else if (!fromPalette && i === nearest) btn.classList.add('nearest');
+            });
+        }
+        
+        document.getElementById('hueSlider').addEventListener('input', e => updateHue(e.target.value, false));
+        paletteBtns.forEach(btn => btn.addEventListener('click', () => updateHue(btn.dataset.hue, true)));
+        updateHue(280, true);
+        
+        document.getElementById('satSlider').addEventListener('input', e => { state.saturation = parseInt(e.target.value); document.getElementById('satValue').textContent = state.saturation + '%'; });
+        document.getElementById('lightSlider').addEventListener('input', e => { state.lightness = parseInt(e.target.value); document.getElementById('lightValue').textContent = state.lightness + '%'; });
+        document.getElementById('intensitySlider').addEventListener('input', e => { state.intensity = parseFloat(e.target.value); document.getElementById('intensityValue').textContent = state.intensity.toFixed(2); });
+        document.getElementById('depthSlider').addEventListener('input', e => { state.depth = parseFloat(e.target.value); document.getElementById('depthValue').textContent = state.depth.toFixed(1); });
+        document.getElementById('glossSlider').addEventListener('input', e => { state.gloss = parseFloat(e.target.value); document.getElementById('glossValue').textContent = state.gloss.toFixed(2); });
+        document.getElementById('bumpSlider').addEventListener('input', e => { state.bump = parseFloat(e.target.value); document.getElementById('bumpValue').textContent = state.bump.toFixed(1); });
+        document.getElementById('speedSlider').addEventListener('input', e => { state.speed = parseFloat(e.target.value); document.getElementById('speedValue').textContent = state.speed.toFixed(1) + 'x'; });
+        document.getElementById('haloSlider').addEventListener('input', e => { state.halo = parseFloat(e.target.value); document.getElementById('haloValue').textContent = state.halo.toFixed(1); });
+        document.getElementById('tempoSlider').addEventListener('input', e => { state.tempo = parseFloat(e.target.value); document.getElementById('tempoValue').textContent = state.tempo.toFixed(2) + 'x'; });
+    </script>
+</body>
+</html>
