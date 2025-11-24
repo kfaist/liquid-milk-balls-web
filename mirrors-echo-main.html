@@ -1,398 +1,228 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Mirror's Echo</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --hue-value: 280;
-            --hue-complementary: 100;
-            --ui-saturation: 100%;
-        }
-        body {
-            font-family: 'JetBrains Mono', monospace;
-            background: #000;
-            color: #fff;
-            overflow-x: hidden;
-        }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 300;
-            letter-spacing: 0.15em;
-            margin: 2rem 0 2rem 0;
-            text-align: center;
-            opacity: 0.9;
-            filter: saturate(var(--ui-saturation));
-        }
-        .intro-text {
-            text-align: center;
-            font-size: 0.85rem;
-            opacity: 0.7;
-            letter-spacing: 0.02em;
-            line-height: 1.6;
-            max-width: 900px;
-            margin: 0 auto 2.5rem;
-            filter: saturate(var(--ui-saturation));
-        }
-        .intro-text a {
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-        }
-        .video-container {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background: #000;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 2rem;
-        }
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .controls {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-        button {
-            padding: 0.5rem 1rem;
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #fff;
-            cursor: pointer;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            letter-spacing: 0.05em;
-            transition: all 0.2s;
-            filter: saturate(var(--ui-saturation));
-        }
-        button:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: #fff;
-        }
-        .color-palette-box {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            margin: 2rem 0;
-            border-radius: 4px;
-            filter: saturate(var(--ui-saturation));
-        }
-        .palette-label {
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-            opacity: 0.6;
-            text-transform: uppercase;
-            margin-bottom: 0.8rem;
-        }
-        .color-palette {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .palette-btn {
-            aspect-ratio: 1;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-            padding: 0;
-            min-height: 32px;
-            opacity: 0.5;
-        }
-        .palette-btn:hover {
-            border-color: rgba(255, 255, 255, 0.6);
-            transform: scale(1.05);
-            opacity: 0.7;
-        }
-        .palette-btn.active {
-            opacity: 1;
-            border-color: rgba(255, 255, 255, 1);
-        }
-        .control-panel {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            margin: 2rem 0;
-            border-radius: 4px;
-            filter: saturate(var(--ui-saturation));
-        }
-        .control-title {
-            font-size: 0.85rem;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            opacity: 0.7;
-            margin-bottom: 1.5rem;
-        }
-        .sliders-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-        }
-        .slider-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        .slider-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.75rem;
-        }
-        .slider-label {
-            letter-spacing: 0.05em;
-            opacity: 0.6;
-            text-transform: uppercase;
-        }
-        .slider-value {
-            color: hsl(var(--hue-value), 85%, 55%);
-            font-weight: bold;
-            font-size: 0.8rem;
-            filter: saturate(var(--ui-saturation));
-        }
-        .control-slider {
-            width: 100%;
-            height: 4px;
-            border-radius: 2px;
-            background: rgba(255, 255, 255, 0.1);
-            outline: none;
-            -webkit-appearance: none;
-            appearance: none;
-            cursor: pointer;
-        }
-        .control-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: hsl(var(--hue-complementary), 85%, 55%);
-            cursor: pointer;
-            box-shadow: 0 0 8px hsl(var(--hue-complementary), 85%, 55%);
-            transition: all 0.2s;
-            filter: saturate(var(--ui-saturation));
-        }
-        .control-slider::-moz-range-thumb {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: hsl(var(--hue-complementary), 85%, 55%);
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 0 8px hsl(var(--hue-complementary), 85%, 55%);
-            transition: all 0.2s;
-            filter: saturate(var(--ui-saturation));
-        }
-        .control-slider::-moz-range-track {
-            background: transparent;
-            border: none;
-        }
-        section {
-            margin: 3rem 0;
-            filter: saturate(var(--ui-saturation));
-        }
-        h2 {
-            font-size: 1.2rem;
-            font-weight: 400;
-            letter-spacing: 0.1em;
-            margin-bottom: 1.5rem;
-            opacity: 0.8;
-        }
-        p {
-            line-height: 1.8;
-            opacity: 0.8;
-            margin-bottom: 1rem;
-        }
-        footer {
-            text-align: center;
-            opacity: 0.5;
-            font-size: 0.7rem;
-            margin: 3rem 0;
-            padding: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Mirror's Echo</title>
+  <style>
+    :root{--font:'JetBrains Mono',monospace;--bg:#050406;--accent:rgba(255,105,180,0.95)}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font);background:var(--bg);color:#fff;padding:2rem}
+    .container{max-width:1400px;margin:0 auto}
+    .header{ text-align:center;margin-bottom:1rem }
+    h1.title{font-size:2.5rem;letter-spacing:.15em;text-transform:uppercase}
+
+    .layout{display:grid;grid-template-columns:1fr 420px;gap:1rem}
+    .video-column{display:flex;flex-direction:column;gap:1rem}
+    .video-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+    .video-box{position:relative;background:#070508;border-radius:8px;border:1px solid rgba(255,255,255,0.02);padding:.6rem}
+    .video-label{font-size:1rem;text-transform:uppercase;letter-spacing:.12em;margin-bottom:.4rem}
+    .video-container{background:linear-gradient(135deg, rgba(30,28,33,0.6), rgba(18,16,20,0.9));border-radius:6px;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+    .video-placeholder{color:rgba(255,255,255,0.14)}
+
+    /* popout button (upper-right) */
+    .popout-btn{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:8px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;color:#fff;opacity:0.5;cursor:pointer;z-index:20}
+    .popout-btn:hover{opacity:0.95;transform:scale(1.05)}
+
+    .controls-panel{background:rgba(0,0,0,0.36);border:1px solid rgba(255,255,255,0.03);padding:1rem;border-radius:8px;display:flex;flex-direction:column;gap:.75rem}
+    .controls-title{font-size:1rem;text-transform:uppercase;letter-spacing:.12em}
+
+    /* palette */
+    .palette-box{margin-top:1rem;background:rgba(0,0,0,0.35);padding:1rem;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
+    .palette-grid{display:grid;grid-template-columns:repeat(10,28px);gap:8px;justify-content:start}
+    .swatch{width:28px;height:28px;border-radius:4px;border:2px solid rgba(255,255,255,0.06);cursor:pointer;opacity:0.5;transition:all .15s}
+    .swatch.active{opacity:1;box-shadow:0 0 10px rgba(0,0,0,0.4);border-color:rgba(255,255,255,0.7)}
+
+    /* CTA buttons */
+    .tier-cta{display:inline-block;padding:14px 22px;border:1px solid rgba(255,255,255,0.12);color:#fff;text-decoration:none;border-radius:8px;background:transparent}
+
+    /* fullscreen overlay */
+    .fullscreen-overlay{display:none;position:fixed;inset:0;background:#000;z-index:1000;align-items:flex-start;flex-direction:column}
+    .fullscreen-overlay.active{display:flex}
+    .fullscreen-header{display:flex;justify-content:space-between;align-items:center;padding:1rem;background:rgba(0,0,0,0.9);width:100%}
+    .fullscreen-video{flex:1;display:flex;align-items:center;justify-content:center}
+    .fullscreen-video video{width:90%;height:90%;object-fit:contain}
+
+    @media (max-width:1100px){.layout{grid-template-columns:1fr}.video-grid{grid-template-columns:1fr}.palette-grid{grid-template-columns:repeat(8,28px)}}
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>THE MIRROR'S ECHO</h1>
+  <div class="container">
+    <header class="header"><h1 class="title">THE MIRROR'S ECHO</h1></header>
 
-        <div class="intro-text">
-            The Mirror's Echo operates as an unlimited edition under open-source principles (AGPL-3.0), ensuring accessibility while sustaining ongoing development. Exhibition licenses and institutional partnerships support the continued evolution of networked digital art practices.<br><br>
-            Artist/Technical: kristabluedoor@gmail.com<br>
-            Curatorial/Institutional: chaoscontemporarycraft@gmail.com
-        </div>
-
-        <div class="video-container">
-            <video id="mainVideo" autoplay playsinline></video>
-        </div>
-
-        <div class="controls">
-            <button id="connectBtn">Connect</button>
-            <button id="disconnectBtn">Disconnect</button>
-        </div>
-
-        <div class="color-palette-box">
-            <div class="palette-label">Color Palette</div>
-            <div class="color-palette">
-                <button class="palette-btn active" data-hue="280" style="background: hsl(280, 85%, 55%);"></button>
-                <button class="palette-btn" data-hue="320" style="background: hsl(320, 95%, 52%);"></button>
-                <button class="palette-btn" data-hue="15" style="background: hsl(15, 95%, 55%);"></button>
-                <button class="palette-btn" data-hue="40" style="background: hsl(40, 90%, 55%);"></button>
-                <button class="palette-btn" data-hue="120" style="background: hsl(120, 85%, 55%);"></button>
-                <button class="palette-btn" data-hue="180" style="background: hsl(180, 85%, 55%);"></button>
-                <button class="palette-btn" data-hue="220" style="background: hsl(220, 85%, 55%);"></button>
-                <button class="palette-btn" data-hue="0" style="background: hsl(0, 95%, 55%);"></button>
+    <main>
+      <div class="layout">
+        <div class="video-column">
+          <div class="video-grid">
+            <div class="video-box" id="localBox">
+              <div class="video-label">LOCAL CAMERA</div>
+              <div class="video-container" id="localContainer">
+                <video id="localVideo" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover"></video>
+                <div class="video-placeholder" id="localPlaceholder">Local video feed (camera)</div>
+                <button class="popout-btn" id="popLocal" title="Pop out local">▢</button>
+              </div>
             </div>
-            
-            <div class="slider-group">
-                <div class="slider-header">
-                    <span class="slider-label">Color</span>
-                    <span class="slider-value" id="colorSliderValue">280°</span>
-                </div>
-                <input type="range" id="colorSlider" min="0" max="360" value="280" class="control-slider">
+
+            <div class="video-box" id="remoteBox">
+              <div class="video-label">REMOTE STREAM</div>
+              <div class="video-container" id="remoteContainer">
+                <video id="remoteVideo" autoplay playsinline style="width:100%;height:100%;object-fit:cover"></video>
+                <div class="video-placeholder" id="remotePlaceholder">Remote stream (incoming)</div>
+                <button class="popout-btn" id="popRemote" title="Pop out remote">▢</button>
+              </div>
             </div>
+          </div>
+
+          <div class="palette-box" aria-label="Color palette">
+            <div style="font-size:.9rem; text-transform:uppercase; letter-spacing:.12em; margin-bottom:.6rem">Color Palette</div>
+            <div class="palette-grid" id="paletteGrid" role="list"></div>
+          </div>
         </div>
 
-        <div class="control-panel">
-            <div class="control-title">Interactive Parameters</div>
-            <div class="sliders-grid">
-                <div class="slider-group">
-                    <div class="slider-header">
-                        <span class="slider-label">Hue</span>
-                        <span class="slider-value" id="hueValue">280°</span>
-                    </div>
-                    <input type="range" id="hueSlider" min="0" max="360" value="280" class="control-slider">
-                </div>
-                <div class="slider-group">
-                    <div class="slider-header">
-                        <span class="slider-label">Saturation</span>
-                        <span class="slider-value" id="satValue">85%</span>
-                    </div>
-                    <input type="range" id="satSlider" min="0" max="100" value="85" class="control-slider">
-                </div>
-                <div class="slider-group">
-                    <div class="slider-header">
-                        <span class="slider-label">Lightness</span>
-                        <span class="slider-value" id="lightValue">55%</span>
-                    </div>
-                    <input type="range" id="lightSlider" min="0" max="100" value="55" class="control-slider">
-                </div>
-                <div class="slider-group">
-                    <div class="slider-header">
-                        <span class="slider-label">Intensity</span>
-                        <span class="slider-value" id="intensityValue">0.50</span>
-                    </div>
-                    <input type="range" id="intensitySlider" min="0" max="1" step="0.01" value="0.50" class="control-slider">
-                </div>
-            </div>
-        </div>
+        <aside class="controls-panel">
+          <div class="controls-title">Interactive Parameters</div>
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+            <button id="connectBtn" class="tier-cta">Connect</button>
+            <button id="disconnectBtn" class="tier-cta">Disconnect</button>
+          </div>
 
-        <section>
-            <h2>About</h2>
-            <p>The Mirror's Echo is a networked interactive work exploring presence, temporality, and reciprocity through real-time video transmission.</p>
-        </section>
+          <div style="margin-top:12px">
+            <div style="font-size:.85rem;opacity:.8;margin-bottom:6px">Stripe / Purchase</div>
+            <button class="tier-cta" id="purchaseLicenseBtn">Purchase Exhibition License - $400</button>
+          </div>
+        </aside>
+      </div>
 
-        <footer>© 2025 The Mirror's Echo</footer>
+      <!-- Licensing section (kept brief here) -->
+      <section style="margin-top:2rem">
+        <h2 style="text-transform:uppercase;letter-spacing:.12em">Licensing & Access</h2>
+        <p style="opacity:.8">Open source (AGPL-3.0) + exhibition & institutional licensing. Contact via email for professional inquiries.</p>
+      </section>
+    </main>
+  </div>
+
+  <!-- Fullscreen overlay -->
+  <div class="fullscreen-overlay" id="fullscreenOverlay">
+    <div class="fullscreen-header">
+      <h2 id="fullscreenTitle">Fullscreen</h2>
+      <button id="closeFullscreen" class="tier-cta">Close</button>
     </div>
+    <div class="fullscreen-video"><video id="fullscreenVideo" autoplay playsinline></video></div>
+  </div>
 
-    <script>
-        function initializeColorSystem() {
-            document.documentElement.style.setProperty('--hue-value', 280);
-            document.documentElement.style.setProperty('--hue-complementary', 100);
+  <script>
+    // Palette colors (more colors, smaller swatches). Active swatch full opacity, others 50%.
+    const paletteColors = [
+      280, 320, 15, 40, 120, 180, 220, 0, 200, 260,
+      30, 60, 90, 150, 170, 195, 210, 240, 300, 340
+    ];
+
+    const paletteGrid = document.getElementById('paletteGrid');
+    let activeHue = 280;
+
+    function createSwatches(){
+      paletteGrid.innerHTML = '';
+      paletteColors.forEach(h => {
+        const btn = document.createElement('button');
+        btn.className = 'swatch' + (h==activeHue? ' active':'');
+        btn.style.background = `hsl(${h},85%,55%)`;
+        btn.title = `${h}°`;
+        btn.setAttribute('data-hue', h);
+        btn.addEventListener('click', () => {
+          activeHue = h;
+          document.querySelectorAll('.swatch').forEach(s => s.classList.toggle('active', s.dataset.hue==h));
+          // dispatch custom event for other UI to react
+          window.dispatchEvent(new CustomEvent('mirrors:colorchange', { detail: { hue: h } }));
+        });
+        paletteGrid.appendChild(btn);
+      });
+    }
+
+    createSwatches();
+
+    // Popout behavior for both local and remote
+    const popLocal = document.getElementById('popLocal');
+    const popRemote = document.getElementById('popRemote');
+    const fullscreenOverlay = document.getElementById('fullscreenOverlay');
+    const fullscreenVideo = document.getElementById('fullscreenVideo');
+    const fullscreenTitle = document.getElementById('fullscreenTitle');
+    const closeFullscreen = document.getElementById('closeFullscreen');
+
+    function openPopout(sourceVideo, title){
+      if (sourceVideo && sourceVideo.srcObject) {
+        fullscreenVideo.srcObject = sourceVideo.srcObject;
+      } else if (sourceVideo && sourceVideo.currentSrc) {
+        fullscreenVideo.src = sourceVideo.currentSrc;
+      }
+      fullscreenTitle.textContent = title;
+      fullscreenOverlay.classList.add('active');
+    }
+
+    popLocal.addEventListener('click', (e)=>{ e.stopPropagation(); openPopout(document.getElementById('localVideo'),'Local Camera - Fullscreen'); });
+    popRemote.addEventListener('click', (e)=>{ e.stopPropagation(); openPopout(document.getElementById('remoteVideo'),'Remote Stream - Fullscreen'); });
+
+    closeFullscreen.addEventListener('click', ()=>{ fullscreenOverlay.classList.remove('active'); fullscreenVideo.srcObject = null; fullscreenVideo.src = ''; });
+
+    document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') { fullscreenOverlay.classList.remove('active'); fullscreenVideo.srcObject = null; fullscreenVideo.src=''; } });
+
+    // Wire Stripe purchase button (will fallback to mail if not configured)
+    (function(){
+      const purchaseBtn = document.getElementById('purchaseLicenseBtn');
+      if (!purchaseBtn) return;
+      purchaseBtn.addEventListener('click', async ()=>{
+        purchaseBtn.disabled = true; purchaseBtn.textContent='Loading...';
+        try{
+          const res = await fetch('/api/create-checkout-session', { method:'POST', headers:{'Content-Type':'application/json'} });
+          if (!res.ok) throw new Error('Payment API unavailable');
+          const data = await res.json();
+          if (data.checkoutUrl) {
+            window.location = data.checkoutUrl;
+            return;
+          }
+          if (data.sessionId) {
+            // try stripe redirect (requires stripe.js init on page)
+            if (window.Stripe && data.publishableKey) {
+              const stripe = Stripe(data.publishableKey);
+              const { error } = await stripe.redirectToCheckout({ sessionId: data.sessionId });
+              if (error) throw error;
+            } else {
+              // fallback
+              window.location = '/thank-you.html';
+            }
+          }
+        } catch (err) {
+          console.error('Purchase error', err);
+          alert('Unable to process purchase. Please email kristabluedoor@gmail.com to complete the license purchase.');
+          purchaseBtn.disabled = false; purchaseBtn.textContent='Purchase Exhibition License - $400';
         }
+      });
+    })();
 
-        function getComplementaryHue(hue) {
-            return (parseInt(hue) + 180) % 360;
-        }
+    // Ensure popout buttons show only when streams available and are semi-transparent
+    function updatePopoutVisibility(){
+      const localVid = document.getElementById('localVideo');
+      const remoteVid = document.getElementById('remoteVideo');
+      document.getElementById('popLocal').style.display = (localVid && (localVid.srcObject || localVid.currentSrc)) ? 'flex' : 'none';
+      document.getElementById('popRemote').style.display = (remoteVid && (remoteVid.srcObject || remoteVid.currentSrc)) ? 'flex' : 'none';
+    }
 
-        const hueSlider = document.getElementById('hueSlider');
-        const satSlider = document.getElementById('satSlider');
-        const lightSlider = document.getElementById('lightSlider');
-        const intensitySlider = document.getElementById('intensitySlider');
-        const paletteBtns = document.querySelectorAll('.palette-btn');
-        const colorSlider = document.getElementById('colorSlider');
+    // Observe mutations to video elements to toggle popout buttons
+    const observerOpts = { attributes:true, attributeFilter:['srcObject','src'] };
+    const localObserver = new MutationObserver(updatePopoutVisibility);
+    const remoteObserver = new MutationObserver(updatePopoutVisibility);
+    localObserver.observe(document.getElementById('localVideo'), observerOpts);
+    remoteObserver.observe(document.getElementById('remoteVideo'), observerOpts);
 
-        colorSlider.addEventListener('input', (e) => {
-            const hue = e.target.value;
-            const complementary = getComplementaryHue(hue);
-            document.getElementById('colorSliderValue').textContent = hue + '°';
-            hueSlider.value = hue;
-            document.getElementById('hueValue').textContent = hue + '°';
-            document.documentElement.style.setProperty('--hue-value', hue);
-            document.documentElement.style.setProperty('--hue-complementary', complementary);
-            paletteBtns.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.hue === hue);
-            });
-        });
+    // Initial visibility update
+    updatePopoutVisibility();
 
-        hueSlider.addEventListener('input', (e) => {
-            const value = e.target.value;
-            const complementary = getComplementaryHue(value);
-            document.getElementById('hueValue').textContent = value + '°';
-            document.getElementById('colorSliderValue').textContent = value + '°';
-            colorSlider.value = value;
-            document.documentElement.style.setProperty('--hue-value', value);
-            document.documentElement.style.setProperty('--hue-complementary', complementary);
-            paletteBtns.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.hue === value);
-            });
-        });
+    // Expose a small API for other scripts (webrtc-client.js) to call
+    window.MIRRORS_ECHO = {
+      setActiveHue(h){ activeHue = h; createSwatches(); },
+      setLocalStream(s){ const v=document.getElementById('localVideo'); v.srcObject = s; document.getElementById('localPlaceholder').style.display='none'; updatePopoutVisibility(); },
+      setRemoteStream(s){ const v=document.getElementById('remoteVideo'); v.srcObject = s; document.getElementById('remotePlaceholder').style.display='none'; updatePopoutVisibility(); }
+    };
+  </script>
 
-        paletteBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const hue = e.target.dataset.hue;
-                hueSlider.value = hue;
-                colorSlider.value = hue;
-                const complementary = getComplementaryHue(hue);
-                document.getElementById('hueValue').textContent = hue + '°';
-                document.getElementById('colorSliderValue').textContent = hue + '°';
-                document.documentElement.style.setProperty('--hue-value', hue);
-                document.documentElement.style.setProperty('--hue-complementary', complementary);
-                paletteBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            });
-        });
-
-        satSlider.addEventListener('input', (e) => {
-            document.getElementById('satValue').textContent = e.target.value + '%';
-        });
-
-        lightSlider.addEventListener('input', (e) => {
-            document.getElementById('lightValue').textContent = e.target.value + '%';
-        });
-
-        intensitySlider.addEventListener('input', (e) => {
-            document.getElementById('intensityValue').textContent = parseFloat(e.target.value).toFixed(2);
-        });
-
-        const connectBtn = document.getElementById('connectBtn');
-        const disconnectBtn = document.getElementById('disconnectBtn');
-
-        connectBtn.addEventListener('click', () => {
-            console.log('Connect clicked');
-        });
-
-        disconnectBtn.addEventListener('click', () => {
-            console.log('Disconnect clicked');
-        });
-
-        initializeColorSystem();
-    </script>
 </body>
 </html>
