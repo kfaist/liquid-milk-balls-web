@@ -9,7 +9,7 @@ app.use(express.static(__dirname));
 
 // Main route
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'mirrors-echo-live.html'));
+    res.sendFile(path.join(__dirname, 'mirrors-echo-BEST.html'));
 });
 
 // Health check
