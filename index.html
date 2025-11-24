@@ -68,8 +68,9 @@
         .controls { background: #111; border: 1px solid #333; padding: 1rem; margin-bottom: 1.5rem; display: flex; gap: 1.5rem; justify-content: center; align-items: center; flex-wrap: wrap; }
         .controls label { font-size: 0.75rem; opacity: 0.7; margin-right: 0.3rem; }
         .controls input[type="range"] { width: 100px; vertical-align: middle; }
-        /* Value numbers = complementary color */
-        .controls span, .sl span, .color-slider span { font-size: 0.8rem; color: hsl(var(--comp), 85%, 65%); min-width: 40px; display: inline-block; }
+        /* Value numbers = complementary color, except color slider = selected hue */
+        .controls span, .sl span { font-size: 0.8rem; color: hsl(var(--comp), 85%, 65%); min-width: 40px; display: inline-block; }
+        .color-slider span { color: hsl(var(--hue), 85%, 65%) !important; }
         
         .sliders { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; background: #0a0a0a; border: 1px solid #222; padding: 1rem; margin-bottom: 2rem; }
         .sl label { display: block; font-size: 0.65rem; opacity: 0.6; margin-bottom: 0.25rem; }
