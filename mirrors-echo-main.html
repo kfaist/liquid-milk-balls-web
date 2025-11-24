@@ -3,368 +3,793 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Mirror's Echo - Main Installation</title>
+    <title>The Mirror's Echo</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --hue-value: 280;
+            --hue-complementary: 100;
+            --ui-saturation: 100%;
         }
-
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
         }
-
+        
         .container {
-            text-align: center;
+            max-width: 1400px;
+            margin: 0 auto;
             padding: 2rem;
-            max-width: 1200px;
-            width: 100%;
         }
-
+        
         h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .subtitle {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 0.15em;
+            margin: 2rem 0 2rem 0;
+            text-align: center;
             opacity: 0.9;
+            filter: saturate(var(--ui-saturation));
         }
-
-        .video-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
+        
+        .intro-text {
+            text-align: center;
+            font-size: 0.85rem;
+            opacity: 0.7;
+            letter-spacing: 0.02em;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto 2.5rem;
+            filter: saturate(var(--ui-saturation));
         }
-
-        .video-container {
+        
+        .intro-text a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+        }
+        
+        .video-section {
+            margin-bottom: 2rem;
+        }
+        
+        .local-video-container {
             position: relative;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 1rem;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
         }
-
+        
+        .remote-video-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        
         video {
             width: 100%;
-            height: auto;
-            border-radius: 10px;
-            background: #000;
+            height: 100%;
+            object-fit: cover;
         }
-
-        .participant-name {
-            margin-top: 0.5rem;
-            font-weight: 600;
-        }
-
+        
         .controls {
-            margin-top: 2rem;
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem;
             justify-content: center;
+            margin-bottom: 1.5rem;
             flex-wrap: wrap;
         }
-
+        
         button {
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
-            border: none;
-            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+            filter: saturate(var(--ui-saturation));
         }
-
-        .primary-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .primary-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-        }
-
-        .secondary-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            backdrop-filter: blur(10px);
-        }
-
-        .secondary-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .status {
-            margin-top: 1rem;
-            padding: 1rem;
+        
+        button:hover {
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
+            border-color: #fff;
         }
-
-        .status.connected {
-            background: rgba(76, 175, 80, 0.3);
-        }
-
-        .status.disconnected {
-            background: rgba(244, 67, 54, 0.3);
-        }
-
-        #participant-count {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 1rem 0;
-        }
-
-        .echo-message {
-            font-size: 1.8rem;
-            margin: 2rem 0;
+        
+        .color-palette-box {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 2rem;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            animation: fadeIn 1s ease;
+            margin: 2rem 0;
+            border-radius: 4px;
+            filter: saturate(var(--ui-saturation));
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+        
+        .palette-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            opacity: 0.6;
+            text-transform: uppercase;
+            margin-bottom: 0.8rem;
         }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
+        
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .palette-btn {
+            aspect-ratio: 1;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0;
+            min-height: 32px;
+            opacity: 0.5;
+        }
+        
+        .palette-btn:hover {
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: scale(1.05);
+            opacity: 0.7;
+        }
+        
+        .palette-btn.active {
+            opacity: 1;
+            border-color: rgba(255, 255, 255, 1);
+        }
+        
+        .control-panel {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+            filter: saturate(var(--ui-saturation));
+        }
+        
+        .control-title {
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            opacity: 0.7;
+            margin-bottom: 1.5rem;
+        }
+        
+        .sliders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+        }
+        
+        .slider-label {
+            letter-spacing: 0.05em;
+            opacity: 0.6;
+            text-transform: uppercase;
+        }
+        
+        .slider-value {
+            color: hsl(var(--hue-value), 85%, 55%);
+            font-weight: bold;
+            font-size: 0.8rem;
+            filter: saturate(var(--ui-saturation));
+        }
+        
+        .control-slider {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        .control-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
+            background: hsl(var(--hue-complementary), 85%, 55%);
+            cursor: pointer;
+            box-shadow: 0 0 8px hsl(var(--hue-complementary), 85%, 55%);
+            transition: all 0.2s;
+            filter: saturate(var(--ui-saturation));
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        
+        .control-slider::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: hsl(var(--hue-complementary), 85%, 55%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 8px hsl(var(--hue-complementary), 85%, 55%);
+            transition: all 0.2s;
+            filter: saturate(var(--ui-saturation));
+        }
+        
+        .control-slider::-moz-range-track {
+            background: transparent;
+            border: none;
+        }
+        
+        section {
+            margin: 3rem 0;
+            filter: saturate(var(--ui-saturation));
+        }
+        
+        h2 {
+            font-size: 1.2rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
+        }
+        
+        p {
+            line-height: 1.8;
+            opacity: 0.8;
+            margin-bottom: 1rem;
+        }
+        
+        .raindrop {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(0.5px);
+        }
+        
+        .shimmer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(115deg, rgba(255, 255, 255, 0), rgba(255, 105, 180, 0.15) 10%, rgba(138, 43, 226, 0.15) 20%, rgba(75, 0, 130, 0.15) 30%, rgba(0, 191, 255, 0.15) 40%, rgba(0, 255, 255, 0.15) 50%, rgba(255, 215, 0, 0.15) 60%, rgba(255, 165, 0, 0.15) 70%, rgba(255, 20, 147, 0.15) 80%, rgba(255, 255, 255, 0));
+            background-size: 300% 100%;
+            mix-blend-mode: screen;
+            pointer-events: none;
+            opacity: 0;
+            animation: shimmerMove 8s linear infinite;
+            z-index: 9999;
+        }
+        
+        @keyframes shimmerMove {
+            0% { background-position: -300% 0; }
+            100% { background-position: 300% 0; }
+        }
+        
+        footer {
+            text-align: center;
+            opacity: 0.5;
+            font-size: 0.7rem;
+            margin: 3rem 0;
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>✨ The Mirror's Echo ✨</h1>
-        <p class="subtitle">Main Installation Display - GLEAM 2026</p>
+        <h1>THE MIRROR'S ECHO</h1>
 
-        <div id="participant-count">Waiting for participants...</div>
-
-        <div class="controls">
-            <button id="connectBtn" class="primary-btn">Connect to Room</button>
-            <button id="disconnectBtn" class="secondary-btn" style="display: none;">Disconnect</button>
+        <div class="intro-text">
+            The Mirror's Echo operates as an unlimited edition under open-source principles (AGPL-3.0), ensuring accessibility while sustaining ongoing development. Exhibition licenses and institutional partnerships support the continued evolution of networked digital art practices.<br><br>
+            Artist/Technical: kristabluedoor@gmail.com<br>
+            Curatorial/Institutional: chaoscontemporarycraft@gmail.com
         </div>
 
-        <div id="status" class="status disconnected">
-            Disconnected
+        <div class="video-section">
+            <div class="local-video-container">
+                <video id="localVideo" autoplay muted playsinline></video>
+            </div>
+            
+            <div class="controls">
+                <button id="startCameraBtn">Start Camera</button>
+                <button id="connectBtn">Connect</button>
+                <button id="disconnectBtn">Disconnect</button>
+            </div>
+
+            <div class="remote-video-container">
+                <video id="remoteVideo" autoplay playsinline></video>
+            </div>
         </div>
 
-        <div class="echo-message" id="echoMessage" style="display: none;">
-            Your reflection awaits...
+        <div class="color-palette-box">
+            <div class="palette-label">Color Palette</div>
+            <div class="color-palette">
+                <button class="palette-btn active" data-hue="280" style="background: hsl(280, 85%, 55%);"></button>
+                <button class="palette-btn" data-hue="320" style="background: hsl(320, 95%, 52%);"></button>
+                <button class="palette-btn" data-hue="15" style="background: hsl(15, 95%, 55%);"></button>
+                <button class="palette-btn" data-hue="40" style="background: hsl(40, 90%, 55%);"></button>
+                <button class="palette-btn" data-hue="120" style="background: hsl(120, 85%, 55%);"></button>
+                <button class="palette-btn" data-hue="180" style="background: hsl(180, 85%, 55%);"></button>
+                <button class="palette-btn" data-hue="220" style="background: hsl(220, 85%, 55%);"></button>
+                <button class="palette-btn" data-hue="0" style="background: hsl(0, 95%, 55%);"></button>
+            </div>
+            
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span class="slider-label">Color</span>
+                    <span class="slider-value" id="colorSliderValue">280°</span>
+                </div>
+                <input type="range" id="colorSlider" min="0" max="360" value="280" class="control-slider">
+            </div>
         </div>
 
-        <div class="video-grid" id="videoGrid">
-            <!-- Participant videos will be added here dynamically -->
+        <div class="control-panel">
+            <div class="control-title">Interactive Parameters</div>
+            
+            <div class="sliders-grid">
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Temporal Intensity</span>
+                        <span class="slider-value" id="temporalIntensityValue">0%</span>
+                    </div>
+                    <input type="range" id="temporalIntensitySlider" min="0" max="100" value="0" class="control-slider" disabled>
+                </div>
+                
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Hue</span>
+                        <span class="slider-value" id="hueValue">280°</span>
+                    </div>
+                    <input type="range" id="hueSlider" min="0" max="360" value="280" class="control-slider">
+                </div>
+                
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Saturation</span>
+                        <span class="slider-value" id="satValue">85%</span>
+                    </div>
+                    <input type="range" id="satSlider" min="0" max="100" value="85" class="control-slider">
+                </div>
+                
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Lightness</span>
+                        <span class="slider-value" id="lightValue">55%</span>
+                    </div>
+                    <input type="range" id="lightSlider" min="0" max="100" value="55" class="control-slider">
+                </div>
+                
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Intensity</span>
+                        <span class="slider-value" id="intensityValue">0.50</span>
+                    </div>
+                    <input type="range" id="intensitySlider" min="0" max="1" step="0.01" value="0.50" class="control-slider">
+                </div>
+                
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Depth</span>
+                        <span class="slider-value" id="depthValue">1.0</span>
+                    </div>
+                    <input type="range" id="depthSlider" min="0" max="2" step="0.1" value="1.0" class="control-slider">
+                </div>
+                
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Gloss</span>
+                        <span class="slider-value" id="glossValue">0.60</span>
+                    </div>
+                    <input type="range" id="glossSlider" min="0" max="1" step="0.05" value="0.60" class="control-slider">
+                </div>
+                
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Bump</span>
+                        <span class="slider-value" id="bumpValue">1.0</span>
+                    </div>
+                    <input type="range" id="bumpSlider" min="0" max="2" step="0.1" value="1.0" class="control-slider">
+                </div>
+                
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Speed</span>
+                        <span class="slider-value" id="speedValue">1x</span>
+                    </div>
+                    <input type="range" id="speedSlider" min="0.5" max="4" step="0.5" value="1" class="control-slider">
+                </div>
+                
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Halo</span>
+                        <span class="slider-value" id="haloValue">1.0</span>
+                    </div>
+                    <input type="range" id="haloSlider" min="0" max="2" step="0.1" value="1.0" class="control-slider">
+                </div>
+            </div>
         </div>
+
+        <section>
+            <h2>About</h2>
+            <p>The Mirror's Echo is a networked interactive work exploring presence, temporality, and reciprocity through real-time video transmission. The piece positions participants as both observers and subjects, creating a feedback loop where actions generate visual echoes that accumulate and transform over time.</p>
+
+            <p>Built on open protocols (WebRTC, LiveKit, NDI), the work operates as distributed infrastructure - each interaction exists simultaneously across multiple nodes: browser, server, and optional processing environments. This architecture enables the piece to function as both a self-contained web experience and as material for live visual manipulation through tools like TouchDesigner.</p>
+
+            <p>The work implements a temporal access model: seven minutes of unmediated experience, followed by progressive visual markers that reveal the piece's constructed nature. This durational framework questions assumptions about digital permanence and the economics of networked art.</p>
+
+            <p>Technical implementation merges web-native technologies with broadcast/VJ workflows, positioning the work within lineages of video feedback art (Steina & Woody Vasulka), telepresence projects (Kit Galloway & Sherrie Rabinowitz's Satellite Arts), and contemporary networked performance practices.</p>
+        </section>
+
+        <section>
+            <h2>Processing Pipeline</h2>
+            <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 1.5rem; margin: 1.5rem 0; font-size: 0.85rem; line-height: 2; font-family: 'JetBrains Mono', monospace; opacity: 0.8;">
+                Camera Input → WebRTC/LiveKit → NVIDIA GPU Processing<br>
+                ↓<br>
+                Audio Stream → Whisper (Speech-to-Text)<br>
+                ↓<br>
+                Text → spaCy NLP (Entity Recognition, Semantic Analysis)<br>
+                ↓<br>
+                Video → TouchDesigner (Visual Processing, Effects, Generative Response)<br>
+                ↓<br>
+                Composite Output → NDI → OBS → WebRTC Return Path<br>
+                ↓<br>
+                Remote Viewer (Browser/Display)
+            </div>
+        </section>
+
+        <section>
+            <h2>Technical Infrastructure</h2>
+            <p>For production-quality streaming with OBS, NDI, and TouchDesigner integration:</p>
+            
+            <h3>Complete Bidirectional Workflow:</h3>
+            <ul style="margin: 1rem 0 1rem 1.5rem; opacity: 0.8; line-height: 1.8;">
+                <li><strong>Publisher Page:</strong> Remote user captures webcam and publishes to LiveKit</li>
+                <li><strong>NDI Viewer Page:</strong> View the LiveKit stream (capture this in OBS Browser Source)</li>
+                <li><strong>OBS:</strong> Capture NDI viewer page and enable NDI output (Tools → NDI Output Settings)</li>
+                <li><strong>TouchDesigner:</strong> Use NDI In TOP to receive stream from OBS, process & stylize</li>
+                <li><strong>TD Output:</strong> Use NDI Out TOP to send processed video back to OBS</li>
+                <li><strong>OBS Capture:</strong> Add NDI Source in OBS to receive processed video from TD</li>
+                <li><strong>Return Viewer Page:</strong> Remote user views processed video with fullscreen option</li>
+            </ul>
+            
+            <p style="margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 4px;"><strong>Signal Path:</strong> Remote Camera → LiveKit → OBS → NDI → TouchDesigner (process) → NDI → Back to Remote Viewer in Real-Time</p>
+        </section>
+
+        <section>
+            <h2>Licensing & Access</h2>
+            
+            <h3>Open Access - Unlimited Edition</h3>
+            <p>An unlimited edition available under open-source principles. Experience the work freely for educational, research, and non-commercial contexts.</p>
+            <ul style="margin: 1rem 0 1rem 1.5rem; opacity: 0.8; line-height: 1.8;">
+                <li>Full source code access (AGPL-3.0)</li>
+                <li>Unlimited non-commercial use</li>
+                <li>Seven-minute sustained experience</li>
+                <li>Progressive temporal markers</li>
+                <li>Community & documentation support</li>
+            </ul>
+            
+            <h3>Exhibition License & Technical Residency</h3>
+            <p>For professional contexts, commercial applications, and exhibition settings. Starting at $400.</p>
+            <ul style="margin: 1rem 0 1rem 1.5rem; opacity: 0.8; line-height: 1.8;">
+                <li>Unlimited sustained experience (no temporal markers)</li>
+                <li>Commercial exhibition rights</li>
+                <li>Professional use licensing</li>
+                <li>Optional: Technical residency support ($150/hour)</li>
+                <li>TouchDesigner/LiveKit integration consultation</li>
+            </ul>
+            
+            <h3>Curatorial & Institutional Partnership</h3>
+            <p>For galleries, museums, and biennials. Comprehensive partnership with curatorial consultation and on-site residency throughout the exhibition period.</p>
+        </section>
+
+        <section>
+            <h2>Interaction</h2>
+            <p>The work responds to presence through multiple modes of engagement. Each interaction generates visual echoes that accumulate temporally within the system.</p>
+
+            <h3>Mirror Interface:</h3>
+            <p>Direct interaction with the circular interface generates ripple formations. Accumulated interactions trigger chromatic shifts every five engagements. The Clear function returns the system to its initial state.</p>
+
+            <h3>Video Transmission:</h3>
+            <p>WebRTC protocols enable peer-to-peer video transmission. Local and remote streams establish reciprocal viewing positions. The work's temporal markers emerge after seven minutes of sustained connection, revealing the constructed nature of the experience.</p>
+        </section>
+
+        <footer>© 2025 The Mirror's Echo</footer>
     </div>
 
-    <script src="https://unpkg.com/livekit-client/dist/livekit-client.umd.min.js"></script>
+    <div id="shimmerOverlay" class="shimmer-overlay"></div>
+
     <script>
-        const LIVEKIT_URL = 'wss://liquid-milk-balls-web-production.up.railway.app';
-        const ROOM_NAME = 'mirrors-echo-main';
+        function initializeColorSystem() {
+            document.documentElement.style.setProperty('--hue-value', 280);
+            document.documentElement.style.setProperty('--hue-complementary', 100);
+        }
 
-        let room = null;
-        let connected = false;
+        function getComplementaryHue(hue) {
+            return (parseInt(hue) + 180) % 360;
+        }
 
+        const hueSlider = document.getElementById('hueSlider');
+        const satSlider = document.getElementById('satSlider');
+        const lightSlider = document.getElementById('lightSlider');
+        const intensitySlider = document.getElementById('intensitySlider');
+        const depthSlider = document.getElementById('depthSlider');
+        const glossSlider = document.getElementById('glossSlider');
+        const bumpSlider = document.getElementById('bumpSlider');
+        const speedSlider = document.getElementById('speedSlider');
+        const haloSlider = document.getElementById('haloSlider');
+        
+        const paletteBtns = document.querySelectorAll('.palette-btn');
+        const colorSlider = document.getElementById('colorSlider');
+
+        colorSlider.addEventListener('input', (e) => {
+            const hue = e.target.value;
+            const complementary = getComplementaryHue(hue);
+            document.getElementById('colorSliderValue').textContent = hue + '°';
+            hueSlider.value = hue;
+            document.getElementById('hueValue').textContent = hue + '°';
+            document.documentElement.style.setProperty('--hue-value', hue);
+            document.documentElement.style.setProperty('--hue-complementary', complementary);
+            
+            paletteBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.hue === hue);
+            });
+        });
+
+        hueSlider.addEventListener('input', (e) => {
+            const value = e.target.value;
+            const complementary = getComplementaryHue(value);
+            document.getElementById('hueValue').textContent = value + '°';
+            document.getElementById('colorSliderValue').textContent = value + '°';
+            colorSlider.value = value;
+            document.documentElement.style.setProperty('--hue-value', value);
+            document.documentElement.style.setProperty('--hue-complementary', complementary);
+            
+            paletteBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.hue === value);
+            });
+        });
+
+        paletteBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const hue = e.target.dataset.hue;
+                hueSlider.value = hue;
+                colorSlider.value = hue;
+                const complementary = getComplementaryHue(hue);
+                document.getElementById('hueValue').textContent = hue + '°';
+                document.getElementById('colorSliderValue').textContent = hue + '°';
+                document.documentElement.style.setProperty('--hue-value', hue);
+                document.documentElement.style.setProperty('--hue-complementary', complementary);
+                
+                paletteBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        satSlider.addEventListener('input', (e) => {
+            document.getElementById('satValue').textContent = e.target.value + '%';
+        });
+
+        lightSlider.addEventListener('input', (e) => {
+            document.getElementById('lightValue').textContent = e.target.value + '%';
+        });
+
+        intensitySlider.addEventListener('input', (e) => {
+            document.getElementById('intensityValue').textContent = parseFloat(e.target.value).toFixed(2);
+        });
+
+        depthSlider.addEventListener('input', (e) => {
+            document.getElementById('depthValue').textContent = parseFloat(e.target.value).toFixed(1);
+        });
+
+        glossSlider.addEventListener('input', (e) => {
+            document.getElementById('glossValue').textContent = parseFloat(e.target.value).toFixed(2);
+        });
+
+        bumpSlider.addEventListener('input', (e) => {
+            document.getElementById('bumpValue').textContent = parseFloat(e.target.value).toFixed(1);
+        });
+
+        speedSlider.addEventListener('input', (e) => {
+            document.getElementById('speedValue').textContent = parseFloat(e.target.value).toFixed(1) + 'x';
+        });
+
+        haloSlider.addEventListener('input', (e) => {
+            document.getElementById('haloValue').textContent = parseFloat(e.target.value).toFixed(1);
+        });
+
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const startCameraBtn = document.getElementById('startCameraBtn');
         const connectBtn = document.getElementById('connectBtn');
         const disconnectBtn = document.getElementById('disconnectBtn');
-        const statusEl = document.getElementById('status');
-        const participantCountEl = document.getElementById('participant-count');
-        const echoMessageEl = document.getElementById('echoMessage');
-        const videoGrid = document.getElementById('videoGrid');
 
-        const echoMessages = [
-            "Your reflection tells a story...",
-            "Every movement creates ripples in time...",
-            "The mirror sees what you cannot...",
-            "Your echo resonates through the space...",
-            "Reflections dance with shadows...",
-            "The mirror remembers every soul...",
-            "Your presence transforms the light...",
-            "Echoes of connection ripple outward..."
+        startCameraBtn.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                localVideo.srcObject = stream;
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+            }
+        });
+
+        connectBtn.addEventListener('click', () => {
+            console.log('Connect clicked');
+        });
+
+        disconnectBtn.addEventListener('click', () => {
+            if (localVideo.srcObject) {
+                localVideo.srcObject.getTracks().forEach(track => track.stop());
+            }
+        });
+
+        async function initializeEffectsTiming() {
+            const effectsStartTime = 480000;
+            const fadeStart = Date.now();
+            
+            const effectsInterval = setInterval(() => {
+                const elapsed = Date.now() - fadeStart;
+                
+                if (elapsed >= effectsStartTime) {
+                    const timeSinceStart = elapsed - effectsStartTime;
+                    const fadeDuration = 5000;
+                    const progress = Math.min(timeSinceStart / fadeDuration, 1);
+                    const saturation = progress * 100;
+                    document.documentElement.style.setProperty('--ui-saturation', saturation + '%');
+                    
+                    if (progress >= 1) {
+                        clearInterval(effectsInterval);
+                    }
+                }
+            }, 100);
+        }
+
+        const startTime = Date.now();
+        const effectsStartTime = 480000;
+        const rainDuration = 120000;
+        const totalDuration = effectsStartTime + rainDuration;
+        const colors = [
+            'rgba(255, 105, 180, 0.9)',
+            'rgba(138, 43, 226, 0.9)',
+            'rgba(75, 0, 130, 0.9)',
+            'rgba(0, 191, 255, 0.9)',
+            'rgba(0, 255, 255, 0.9)',
+            'rgba(50, 205, 50, 0.9)',
+            'rgba(255, 215, 0, 0.9)',
+            'rgba(255, 165, 0, 0.9)',
+            'rgba(199, 21, 133, 0.9)'
         ];
 
-        let messageIndex = 0;
-
-        function updateEchoMessage() {
-            echoMessageEl.textContent = echoMessages[messageIndex];
-            echoMessageEl.style.display = 'block';
-            messageIndex = (messageIndex + 1) % echoMessages.length;
-        }
-
-        function updateParticipantCount() {
-            if (!room) {
-                participantCountEl.textContent = 'Waiting for participants...';
-                return;
-            }
-            const count = room.participants.size;
-            participantCountEl.textContent = `${count} ${count === 1 ? 'soul' : 'souls'} reflected`;
+        function createRaindrop(progress, rainProgress) {
+            const drop = document.createElement('div');
+            drop.className = 'raindrop';
             
-            if (count > 0) {
-                updateEchoMessage();
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight;
+            drop.style.left = x + 'px';
+            drop.style.top = y + 'px';
+            
+            const color1 = colors[Math.floor(Math.random() * colors.length)];
+            const color2 = colors[Math.floor(Math.random() * colors.length)];
+            const color3 = colors[Math.floor(Math.random() * colors.length)];
+            
+            let baseOpacity = 0.17 + (progress * 0.31);
+            
+            const haloValue = parseFloat(haloSlider.value);
+            const glowIntensity = (15 + (progress * 65)) * haloValue;
+            const glowBoost = (1 + (progress * 1.5)) * haloValue;
+            
+            if (progress < 0.66) {
+                drop.style.background = `radial-gradient(circle at 40% 40%, ${color1.replace('0.9', String(baseOpacity * 1.3))} 0%, ${color2.replace('0.9', String(baseOpacity))} 30%, ${color1.replace('0.9', String(baseOpacity * 0.6))} 60%, transparent 100%)`;
+            } else {
+                drop.style.background = `radial-gradient(circle at 40% 40%, ${color1.replace('0.9', String(baseOpacity * 1.3))} 0%, ${color2.replace('0.9', String(baseOpacity * 1.1))} 25%, ${color3.replace('0.9', String(baseOpacity))} 50%, ${color1.replace('0.9', String(baseOpacity * 0.6))} 75%, transparent 100%)`;
             }
-        }
-
-        function addParticipantVideo(participant) {
-            const container = document.createElement('div');
-            container.className = 'video-container';
-            container.id = `participant-${participant.identity}`;
-
-            const video = document.createElement('video');
-            video.autoplay = true;
-            video.playsInline = true;
-
-            const nameLabel = document.createElement('div');
-            nameLabel.className = 'participant-name';
-            nameLabel.textContent = participant.identity;
-
-            container.appendChild(video);
-            container.appendChild(nameLabel);
-            videoGrid.appendChild(container);
-
-            // Attach tracks
-            participant.tracks.forEach(publication => {
-                if (publication.track) {
-                    attachTrack(publication.track, video);
-                }
-            });
-
-            // Handle new tracks
-            participant.on('trackSubscribed', track => {
-                attachTrack(track, video);
-            });
-
-            updateParticipantCount();
-        }
-
-        function removeParticipantVideo(participant) {
-            const container = document.getElementById(`participant-${participant.identity}`);
-            if (container) {
-                container.remove();
+            
+            drop.style.boxShadow = `0 0 ${glowIntensity * 0.6 * glowBoost}px ${color1}, 0 0 ${glowIntensity * 1.2 * glowBoost}px ${color2}, 0 0 ${glowIntensity * 2 * glowBoost}px ${color1.replace('0.9', String(baseOpacity * 0.4))}, inset 0 0 ${glowIntensity * 0.5}px ${color1.replace('0.9', String(baseOpacity * 0.8))}`;
+            
+            const sizeCategory = Math.random();
+            let baseSize;
+            if (sizeCategory < 0.3) {
+                baseSize = 20 + (progress * 10);
+            } else if (sizeCategory < 0.7) {
+                baseSize = 40 + (progress * 20);
+            } else {
+                baseSize = 40 + (progress * 50);
             }
-            updateParticipantCount();
+            
+            const size = baseSize + (Math.random() * 25);
+            drop.style.width = size + 'px';
+            drop.style.height = size + 'px';
+            
+            const minZIndex = 100;
+            const maxZIndex = 9998;
+            drop.style.zIndex = Math.floor(minZIndex + (rainProgress * (maxZIndex - minZIndex)));
+            
+            const dur = 5 + Math.random() * 3;
+            drop.style.animationDuration = dur + 's';
+            
+            document.body.appendChild(drop);
+            setTimeout(() => drop.remove(), dur * 1000);
         }
 
-        function attachTrack(track, videoElement) {
-            if (track.kind === 'video' || track.kind === 'audio') {
-                const mediaStream = new MediaStream([track.mediaStreamTrack]);
-                videoElement.srcObject = mediaStream;
-            }
+        function updateTemporalIntensity(rainProgress) {
+            const percentage = Math.round(rainProgress * 100);
+            document.getElementById('temporalIntensitySlider').value = percentage;
+            document.getElementById('temporalIntensityValue').textContent = percentage + '%';
         }
 
-        async function connect() {
-            try {
-                statusEl.textContent = 'Connecting...';
-                statusEl.className = 'status';
+        function animate() {
+            const elapsed = Date.now() - startTime;
+            
+            if (elapsed >= effectsStartTime) {
+                const rainProgress = Math.min((elapsed - effectsStartTime) / rainDuration, 1.0);
+                const progress = rainProgress;
                 
-                // Get token from server
-                const response = await fetch('/api/token', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        roomName: ROOM_NAME,
-                        identity: 'main-display'
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to get token');
+                updateTemporalIntensity(rainProgress);
+                
+                const baseRate = 0.05;
+                const exponentialGrowth = Math.pow(progress, 2.5);
+                let dropProbability = baseRate * (1 + exponentialGrowth * 40);
+                
+                if (progress > 0.66) {
+                    const overtakeProgress = (progress - 0.66) / 0.34;
+                    const overtakeMultiplier = 1 + (overtakeProgress * 8);
+                    dropProbability *= overtakeMultiplier;
                 }
-
-                const { token } = await response.json();
-
-                // Connect to room
-                room = new LivekitClient.Room({
-                    adaptiveStream: true,
-                    dynacast: true,
-                });
-
-                // Set up event handlers
-                room.on('participantConnected', participant => {
-                    console.log('Participant connected:', participant.identity);
-                    addParticipantVideo(participant);
-                });
-
-                room.on('participantDisconnected', participant => {
-                    console.log('Participant disconnected:', participant.identity);
-                    removeParticipantVideo(participant);
-                });
-
-                room.on('disconnected', () => {
-                    console.log('Disconnected from room');
-                    connected = false;
-                    statusEl.textContent = 'Disconnected';
-                    statusEl.className = 'status disconnected';
-                    connectBtn.style.display = 'block';
-                    disconnectBtn.style.display = 'none';
-                    videoGrid.innerHTML = '';
-                    echoMessageEl.style.display = 'none';
-                    updateParticipantCount();
-                });
-
-                await room.connect(LIVEKIT_URL, token);
-
-                connected = true;
-                statusEl.textContent = 'Connected to Mirror\'s Echo';
-                statusEl.className = 'status connected';
-                connectBtn.style.display = 'none';
-                disconnectBtn.style.display = 'block';
-
-                // Add existing participants
-                room.participants.forEach(participant => {
-                    addParticipantVideo(participant);
-                });
-
-                updateParticipantCount();
-
-            } catch (error) {
-                console.error('Error connecting:', error);
-                statusEl.textContent = `Error: ${error.message}`;
-                statusEl.className = 'status disconnected';
+                
+                if (Math.random() < dropProbability) {
+                    createRaindrop(progress, rainProgress);
+                }
+                
+                if (progress > 0.85) {
+                    const extraChance = (progress - 0.85) / 0.15;
+                    const extraDrops = Math.floor(Math.random() * (extraChance * 12));
+                    for (let i = 0; i < extraDrops; i++) {
+                        setTimeout(() => createRaindrop(progress, rainProgress), Math.random() * 1000);
+                    }
+                }
+            }
+            
+            if (elapsed < totalDuration + 60000) {
+                requestAnimationFrame(animate);
             }
         }
 
-        function disconnect() {
-            if (room) {
-                room.disconnect();
-                room = null;
-            }
-        }
+        initializeColorSystem();
+        initializeEffectsTiming();
 
-        connectBtn.addEventListener('click', connect);
-        disconnectBtn.addEventListener('click', disconnect);
+        setTimeout(() => {
+            document.getElementById('shimmerOverlay').style.transition = 'opacity 3s ease-in';
+            document.getElementById('shimmerOverlay').style.opacity = '1';
+        }, effectsStartTime);
 
-        // Auto-connect on page load
-        window.addEventListener('load', () => {
-            setTimeout(connect, 1000);
-        });
+        animate();
     </script>
 </body>
 </html>
