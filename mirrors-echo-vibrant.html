@@ -1,378 +1,663 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="--hue-value: 280; --hue-complementary: 100;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Mirror's Echo</title>
-    <script src="https://unpkg.com/livekit-client@2.0.0/dist/livekit-client.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --hue: 0; --comp: 180; --primary: hsl(0, 70%, 60%); --complement: hsl(180, 70%, 60%); }
-        body { font-family: system-ui, sans-serif; background: #000; color: #fff; }
-        .layout { display: flex; height: 100vh; }
-        .video-zone { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1.5rem; padding: 2rem; }
-        h1 { font-size: 1.4rem; font-weight: 300; letter-spacing: 0.15em; opacity: 0.8; }
-        .panes { display: flex; gap: 1.5rem; width: 100%; max-width: 1000px; justify-content: center; }
-        .pane { flex: 1; max-width: 480px; aspect-ratio: 16/9; background: #111; border: 1px solid #333; border-radius: 6px; position: relative; overflow: hidden; }
-        .pane video { width: 100%; height: 100%; object-fit: cover; }
-        .pane-label { position: absolute; bottom: 8px; left: 10px; font-size: 0.6rem; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.1em; }
-        .pane-status { position: absolute; top: 8px; right: 10px; font-size: 0.5rem; padding: 2px 6px; border-radius: 3px; background: rgba(0,0,0,0.7); }
-        .pane-status.on { color: #6f6; }
-        .pane-status.wait { color: #ff6; }
-        .pane-status.off { color: #f66; }
-        .controls { width: 300px; background: #0a0a0a; border-left: 1px solid #222; padding: 1rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; }
-        .section { font-size: 0.6rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid #222; padding-bottom: 0.3rem; margin-top: 0.5rem; }
-        .conn-btn { width: 100%; padding: 0.7rem; font-size: 0.75rem; font-weight: 600; background: transparent; border: 2px solid var(--complement); color: var(--complement); cursor: pointer; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.2s; }
-        .conn-btn:hover { background: var(--complement); color: #000; }
-        .conn-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .conn-btn.disconnect { border-color: #f66; color: #f66; }
-        .conn-btn.disconnect:hover { background: #f66; color: #000; }
-        .color-track { display: flex; height: 28px; border-radius: 4px; overflow: hidden; margin-bottom: 0.4rem; }
-        .color-sq { flex: 1; cursor: pointer; transition: transform 0.15s; }
-        .color-sq:hover { transform: scaleY(1.15); }
-        #colorSlider { width: 100%; height: 5px; border-radius: 3px; background: linear-gradient(90deg, #f66, #fa3, #ff6, #6f6, #6ff, #66f, #f6f, #f66); -webkit-appearance: none; cursor: pointer; }
-        #colorSlider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 3px solid var(--primary); box-shadow: 0 0 10px var(--primary); cursor: pointer; }
-        .sl { margin-bottom: 0.8rem; }
-        .sl-head { display: flex; justify-content: space-between; font-size: 0.65rem; margin-bottom: 0.3rem; }
-        .sl-label { opacity: 0.6; text-transform: uppercase; letter-spacing: 0.05em; }
-        .sl-val { color: var(--primary); font-weight: 600; }
-        .sl input { width: 100%; height: 4px; border-radius: 2px; background: linear-gradient(90deg, rgba(255,255,255,0.1), var(--primary)); -webkit-appearance: none; cursor: pointer; }
-        .sl input::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--complement); border: 2px solid rgba(255,255,255,0.7); box-shadow: 0 0 6px var(--complement); cursor: pointer; }
-        .btn-row { display: flex; gap: 0.5rem; }
-        .sm-btn { flex: 1; padding: 0.4rem; font-size: 0.6rem; background: rgba(255,255,255,0.05); border: 1px solid var(--complement); color: var(--complement); cursor: pointer; border-radius: 3px; text-transform: uppercase; transition: all 0.2s; }
-        .sm-btn:hover { background: var(--complement); color: #000; }
-        .sm-btn.primary { border-color: var(--primary); color: var(--primary); }
-        .sm-btn.primary:hover { background: var(--primary); color: #000; }
-        .status-box { font-size: 0.55rem; opacity: 0.6; padding: 0.5rem; background: rgba(255,255,255,0.02); border-radius: 3px; line-height: 1.5; margin-top: auto; }
-        .raindrop { position: fixed; border-radius: 50%; pointer-events: none; animation: drop 4s ease-out forwards; }
-        @keyframes drop { 0%{opacity:0;transform:scale(0.5)} 15%{opacity:1;transform:scale(1)} 85%{opacity:1} 100%{opacity:0;transform:scale(1.1)} }
-        @media (max-width: 900px) { .layout { flex-direction: column; } .controls { width: 100%; } .panes { flex-direction: column; align-items: center; } }
+        
+        :root {
+            --hue-value: 280;
+            --hue-complementary: 100;
+        }
+        
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: #000;
+            color: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        /* Flickering Title */
+        h1.flicker {
+            font-size: 1.7rem;
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 3rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            opacity: 0.8;
+            animation: flicker 3s infinite;
+        }
+        
+        /* H2 matches H1 styling */
+        h2 {
+            font-size: 1.4rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
+            animation: flicker 3s infinite;
+        }
+        
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin: 1.5rem 0 1rem 0;
+            opacity: 0.7;
+        }
+        
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 0.8; }
+            20%, 24%, 55% { opacity: 0.3; }
+            22% { opacity: 0.5; transform: translate(-1px, 0); }
+        }
+        
+        .intro-text {
+            text-align: center;
+            font-size: 0.85rem;
+            opacity: 0.7;
+            letter-spacing: 0.02em;
+            line-height: 1.6;
+            margin-bottom: 3rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .intro-text a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            transition: border-color 0.2s;
+        }
+        
+        .intro-text a:hover { border-color: #fff; }
+        
+        /* Video Panel */
+        .panel {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 2rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .video-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .video-grid.collapsed { grid-template-columns: 1fr; }
+        .video-box { position: relative; }
+        .video-box.hidden { display: none; }
+        
+        .video-label {
+            font-size: 0.95rem;
+            letter-spacing: 0.05em;
+            opacity: 0.6;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+        
+        .video-container {
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        video { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* Pop-out button - 25% opacity, LEFT side */
+        .popout-btn {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            width: 32px;
+            height: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.4);
+            color: #fff;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.2s;
+            z-index: 10;
+            opacity: 0.25;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+        
+        .popout-btn:hover {
+            opacity: 0.8;
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .popout-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+        
+        .expand-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+            z-index: 10;
+            line-height: 1;
+            opacity: 0.5;
+        }
+        
+        .expand-btn:hover { border-color: #fff; background: rgba(255, 255, 255, 0.05); opacity: 0.8; }
+        
+        .btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: transparent;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+        }
+        
+        #startBtn { display: block; margin: 0.5rem auto 0 auto; width: fit-content; }
+        .remote-controls { display: flex; gap: 0.5rem; margin-top: 0.5rem; justify-content: flex-start; }
+        .btn:hover:not(:disabled) { border-color: #fff; background: rgba(255, 255, 255, 0.05); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        
+        /* Color Palette Box */
+        .color-palette-box {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+        
+        .palette-label {
+            font-size: 0.95rem;
+            letter-spacing: 0.05em;
+            opacity: 0.6;
+            text-transform: uppercase;
+            margin-bottom: 0.8rem;
+        }
+        
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .palette-btn {
+            aspect-ratio: 1;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0;
+            min-height: 32px;
+            opacity: 0.5;
+        }
+        
+        .palette-btn:hover { border-color: rgba(255, 255, 255, 0.6); box-shadow: 0 0 12px currentColor; transform: scale(1.05); opacity: 0.7; }
+        .palette-btn.active { opacity: 1; border-color: rgba(255, 255, 255, 1); box-shadow: 0 0 16px currentColor, inset 0 0 8px rgba(255, 255, 255, 0.3); }
+        
+        /* Control Panel */
+        .control-panel {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+        
+        .control-title {
+            font-size: 1.05rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            opacity: 0.7;
+            margin-bottom: 1.5rem;
+        }
+        
+        .sliders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .slider-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .slider-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; }
+        .slider-label { letter-spacing: 0.05em; opacity: 0.6; text-transform: uppercase; }
+        .slider-value { color: hsl(var(--hue-value), 85%, 55%); font-weight: bold; font-size: 1.0rem; }
+        
+        .control-slider {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        .control-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: hsl(var(--hue-complementary), 85%, 55%);
+            cursor: pointer;
+            box-shadow: 0 0 8px hsl(var(--hue-complementary), 85%, 55%);
+            transition: all 0.2s;
+        }
+        
+        .control-slider::-webkit-slider-thumb:hover { box-shadow: 0 0 12px hsl(var(--hue-complementary), 85%, 55%); transform: scale(1.2); }
+        
+        .control-slider::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: hsl(var(--hue-complementary), 85%, 55%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 8px hsl(var(--hue-complementary), 85%, 55%);
+        }
+        
+        /* Raindrops */
+        .raindrop {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: dropAppear 5s ease-out forwards;
+            filter: blur(0.5px);
+        }
+        
+        @keyframes dropAppear {
+            0% { opacity: 0; transform: scale(0.6); }
+            20% { opacity: 0.5; transform: scale(1); }
+            80% { opacity: 0.5; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.05); }
+        }
+        
+        .video-shimmer {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            background: linear-gradient(115deg, transparent 0%, rgba(255, 255, 255, 0.08) 8%, rgba(255, 105, 180, 0.12) 16%, rgba(138, 43, 226, 0.12) 28%, rgba(0, 191, 255, 0.12) 40%, rgba(127, 255, 212, 0.10) 52%, rgba(255, 215, 0, 0.10) 64%, rgba(255, 140, 0, 0.12) 76%, rgba(255, 20, 147, 0.12) 88%, rgba(255, 255, 255, 0.08) 96%, transparent 100%);
+            background-size: 300% 300%;
+            animation: shimmerMove 8s ease-in-out infinite;
+            mix-blend-mode: screen;
+        }
+        
+        @keyframes shimmerMove { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        
+        section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        p { margin-bottom: 1rem; font-size: 1.1rem; opacity: 0.8; }
+        ul { margin-left: 1.5rem; font-size: 1.0rem; opacity: 0.8; }
+        li { margin-bottom: 0.5rem; }
+        
+        footer {
+            text-align: center;
+            padding: 3rem 0 2rem 0;
+            font-size: 0.95rem;
+            opacity: 0.5;
+            letter-spacing: 0.05em;
+        }
+        
+        @media (max-width: 768px) {
+            .video-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
-<div class="layout">
-    <div class="video-zone">
-        <h1>THE MIRROR'S ECHO</h1>
-        <div class="panes">
-            <div class="pane"><video id="localV" autoplay muted playsinline></video><div class="pane-label">Local</div><div class="pane-status off" id="localStatus">off</div></div>
-            <div class="pane"><video id="remoteV" autoplay playsinline></video><div class="pane-label">Remote</div><div class="pane-status wait" id="remoteStatus">waiting</div></div>
+    <div class="container">
+        <h1 class="flicker">THE MIRROR'S ECHO</h1>
+
+        <div class="intro-text">
+            The Mirror's Echo operates as an unlimited edition under open-source principles (AGPL-3.0), ensuring accessibility while sustaining ongoing development. Exhibition licenses and institutional partnerships support the continued evolution of networked digital art practices.<br><br>
+            Artist/Technical: kristafaist@gmail.com<br>
+            Curatorial/Institutional: chaoscontemporarycraft@gmail.com
         </div>
+
+        <!-- Video Panel -->
+        <div class="panel">
+            <div class="video-grid" id="videoGrid">
+                <div class="video-box" id="localBox">
+                    <div class="video-label">Local Camera</div>
+                    <div class="video-container">
+                        <button class="popout-btn" id="localPopout" title="Pop out to new window">
+                            <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                        </button>
+                        <div class="video-shimmer" id="localShimmer" style="opacity: 1;"></div>
+                        <video id="localVideo" autoplay muted playsinline></video>
+                    </div>
+                    <button class="btn" id="startBtn">Start Camera</button>
+                </div>
+
+                <div class="video-box" id="remoteBox">
+                    <div class="video-label">Remote Stream</div>
+                    <div class="video-container">
+                        <button class="popout-btn" id="remotePopout" title="Pop out to new window">
+                            <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                        </button>
+                        <button class="expand-btn" id="expandBtn">↗</button>
+                        <div class="video-shimmer" id="remoteShimmer" style="opacity: 1;"></div>
+                        <video id="remoteVideo" autoplay playsinline></video>
+                    </div>
+                    <div class="remote-controls">
+                        <button class="btn" id="connectBtn" disabled>Connect</button>
+                        <button class="btn" id="disconnectBtn" disabled>Disconnect</button>
+                        <button class="btn" id="fullscreenBtn" disabled>Fullscreen</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color Palette Box -->
+        <div class="color-palette-box">
+            <div class="palette-label">Color Palette</div>
+            <div class="color-palette">
+                <button class="palette-btn active" data-hue="280" style="background: hsl(280, 85%, 55%);" title="Purple"></button>
+                <button class="palette-btn" data-hue="320" style="background: hsl(320, 95%, 52%);" title="Pink"></button>
+                <button class="palette-btn" data-hue="15" style="background: hsl(15, 95%, 55%);" title="Coral"></button>
+                <button class="palette-btn" data-hue="40" style="background: hsl(40, 90%, 55%);" title="Gold"></button>
+                <button class="palette-btn" data-hue="120" style="background: hsl(120, 85%, 55%);" title="Green"></button>
+                <button class="palette-btn" data-hue="180" style="background: hsl(180, 85%, 55%);" title="Cyan"></button>
+                <button class="palette-btn" data-hue="220" style="background: hsl(220, 85%, 55%);" title="Blue"></button>
+                <button class="palette-btn" data-hue="0" style="background: hsl(0, 95%, 55%);" title="Red"></button>
+            </div>
+            
+            <div class="slider-group" style="margin-top: 1.5rem;">
+                <div class="slider-header">
+                    <span class="slider-label">Color</span>
+                    <span class="slider-value" id="colorSliderValue">280°</span>
+                </div>
+                <input type="range" id="colorSlider" min="0" max="360" value="280" class="control-slider">
+            </div>
+        </div>
+
+        <!-- Control Sliders -->
+        <div class="control-panel">
+            <div class="control-title">Interactive Parameters</div>
+            
+            <div class="sliders-grid">
+                <div class="slider-group">
+                    <div class="slider-header"><span class="slider-label">Hue</span><span class="slider-value" id="hueValue">280°</span></div>
+                    <input type="range" id="hueSlider" min="0" max="360" value="280" class="control-slider">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header"><span class="slider-label">Saturation</span><span class="slider-value" id="satValue">85%</span></div>
+                    <input type="range" id="satSlider" min="0" max="100" value="85" class="control-slider">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header"><span class="slider-label">Lightness</span><span class="slider-value" id="lightValue">55%</span></div>
+                    <input type="range" id="lightSlider" min="0" max="100" value="55" class="control-slider">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header"><span class="slider-label">Intensity</span><span class="slider-value" id="intensityValue">0.50</span></div>
+                    <input type="range" id="intensitySlider" min="0" max="1" step="0.01" value="0.50" class="control-slider">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header"><span class="slider-label">Depth</span><span class="slider-value" id="depthValue">1.0</span></div>
+                    <input type="range" id="depthSlider" min="0" max="2" step="0.1" value="1.0" class="control-slider">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header"><span class="slider-label">Gloss</span><span class="slider-value" id="glossValue">0.60</span></div>
+                    <input type="range" id="glossSlider" min="0" max="1" step="0.05" value="0.60" class="control-slider">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header"><span class="slider-label">Bump</span><span class="slider-value" id="bumpValue">1.0</span></div>
+                    <input type="range" id="bumpSlider" min="0" max="2" step="0.1" value="1.0" class="control-slider">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header"><span class="slider-label">Speed</span><span class="slider-value" id="speedValue">1x</span></div>
+                    <input type="range" id="speedSlider" min="0.5" max="4" step="0.5" value="1" class="control-slider">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header"><span class="slider-label">Halo</span><span class="slider-value" id="haloValue">1.0</span></div>
+                    <input type="range" id="haloSlider" min="0" max="2" step="0.1" value="1.0" class="control-slider">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header"><span class="slider-label">Temporal Intensity</span><span class="slider-value" id="temporalIntensityValue">0%</span></div>
+                    <input type="range" id="temporalIntensitySlider" min="0" max="100" value="0" class="control-slider" disabled>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Section -->
+        <section>
+            <h2>ABOUT</h2>
+            <p><em>The Mirror's Echo</em> is a networked interactive work exploring presence, temporality, and reciprocity through real-time video transmission. The piece positions participants as both observers and subjects, creating a feedback loop where actions generate visual echoes that accumulate and transform over time.</p>
+            <p>Built on open protocols (WebRTC, LiveKit, NDI), the work operates as distributed infrastructure - each interaction exists simultaneously across multiple nodes: browser, server, and optional processing environments.</p>
+        </section>
+
+        <!-- Processing Pipeline -->
+        <section>
+            <h2>PROCESSING PIPELINE</h2>
+            <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 1.5rem; margin: 1.5rem 0; font-size: 1.05rem; line-height: 2; font-family: 'JetBrains Mono', monospace; opacity: 0.8;">
+                Camera Input → WebRTC/LiveKit → NVIDIA GPU Processing<br>
+                ↓<br>
+                Video → TouchDesigner (Visual Processing, Effects)<br>
+                ↓<br>
+                Composite Output → NDI → OBS → WebRTC Return Path<br>
+                ↓<br>
+                Remote Viewer (Browser/Display)
+            </div>
+        </section>
+
+        <!-- Technical Infrastructure -->
+        <section>
+            <h2>TECHNICAL INFRASTRUCTURE</h2>
+            <h3>Complete Bidirectional Workflow</h3>
+            <ul>
+                <li><strong>Publisher Page:</strong> Remote user captures webcam and publishes to LiveKit</li>
+                <li><strong>OBS:</strong> Capture page and enable NDI output</li>
+                <li><strong>TouchDesigner:</strong> Use NDI In TOP to receive stream, process & stylize</li>
+                <li><strong>Return Path:</strong> NDI Out TOP → OBS → Remote viewer</li>
+            </ul>
+        </section>
+
+        <footer>© 2025 THE MIRROR'S ECHO</footer>
     </div>
-    <div class="controls">
-        <div class="section">Connection</div>
-        <button class="conn-btn" id="connBtn">Start Streaming</button>
-        <div class="section">Color Theme</div>
-        <div class="color-track">
-            <div class="color-sq" style="background:#f66" data-hue="0"></div>
-            <div class="color-sq" style="background:#fa3" data-hue="30"></div>
-            <div class="color-sq" style="background:#ff6" data-hue="60"></div>
-            <div class="color-sq" style="background:#6f6" data-hue="120"></div>
-            <div class="color-sq" style="background:#6ff" data-hue="180"></div>
-            <div class="color-sq" style="background:#66f" data-hue="240"></div>
-            <div class="color-sq" style="background:#f6f" data-hue="300"></div>
-        </div>
-        <input type="range" id="colorSlider" min="0" max="360" value="0">
-        <div class="section">Effects</div>
-        <div class="sl"><div class="sl-head"><span class="sl-label">Intensity</span><span class="sl-val" id="intVal">50%</span></div><input type="range" id="intensity" min="0" max="100" value="50"></div>
-        <div class="sl"><div class="sl-head"><span class="sl-label">Speed</span><span class="sl-val" id="spdVal">1.0x</span></div><input type="range" id="speed" min="5" max="30" value="10"></div>
-        <div class="sl"><div class="sl-head"><span class="sl-label">Size</span><span class="sl-val" id="szVal">40</span></div><input type="range" id="size" min="10" max="100" value="40"></div>
-        <div class="sl"><div class="sl-head"><span class="sl-label">Glow</span><span class="sl-val" id="glwVal">60</span></div><input type="range" id="glow" min="0" max="100" value="60"></div>
-        <div class="btn-row">
-            <button class="sm-btn" id="resetBtn">Reset</button>
-            <button class="sm-btn primary" id="forceBtn">Force FX</button>
-        </div>
-        <div class="status-box" id="statusBox">Click "Start Streaming" to connect your camera to LiveKit.</div>
-    </div>
-</div>
-<script>
-// ============================================================
-// THE MIRROR'S ECHO - LiveKit + Bridge API
-// ============================================================
 
-// === LIVEKIT CONFIG ===
-const LIVEKIT_URL = 'wss://claymation-transcription-l6e51sws.livekit.cloud';
-const API_KEY = 'APITw2Yp2Tv3yfg';
-const API_SECRET = 'eVYY0UB69XDGLiGzclYuGUhXuVpc8ry3YcazimFryDW';
-const ROOM_NAME = 'claymation-live';
+    <script>
+        const colors = [
+            'rgba(255, 105, 180, 0.9)', 'rgba(138, 43, 226, 0.9)', 'rgba(75, 0, 130, 0.9)',
+            'rgba(0, 191, 255, 0.9)', 'rgba(127, 255, 212, 0.9)', 'rgba(50, 205, 50, 0.9)',
+            'rgba(255, 215, 0, 0.9)', 'rgba(255, 140, 0, 0.9)', 'rgba(255, 20, 147, 0.9)'
+        ];
 
-// === STATE ===
-let room = null, localStream = null, isConnected = false, forcing = false;
-let hue = 0, intensity = 50, speed = 10, size = 40, glow = 60;
+        const startTime = Date.now();
+        const temporalIntensitySlider = document.getElementById('temporalIntensitySlider');
 
-// === FRAME PACING ===
-let lastRenderTime = 0;
-const renderBudgetMs = 1000 / 30; // 30fps max
-let remoteBusy = false;
+        // Shimmer fade in
+        setTimeout(() => {
+            document.getElementById('localShimmer').style.transition = 'opacity 3s ease-in';
+            document.getElementById('localShimmer').style.opacity = '1';
+            document.getElementById('remoteShimmer').style.transition = 'opacity 3s ease-in';
+            document.getElementById('remoteShimmer').style.opacity = '1';
+        }, 100);
 
-// === ELEMENTS ===
-const localV = document.getElementById('localV');
-const remoteV = document.getElementById('remoteV');
-const localStatus = document.getElementById('localStatus');
-const remoteStatus = document.getElementById('remoteStatus');
-const connBtn = document.getElementById('connBtn');
-const statusBox = document.getElementById('statusBox');
-const colorSlider = document.getElementById('colorSlider');
-
-// ============================================================
-// GLOBAL API: window.mirrorsEcho
-// External scripts, TouchDesigner, or devtools can use this
-// ============================================================
-window.mirrorsEcho = {
-    // Current state (read-only view)
-    get state() {
-        return { hue, intensity, speed, size, glow, forcing, isConnected, remoteBusy };
-    },
-
-    // Attach a remote MediaStream (e.g., from WebRTC peer)
-    attachRemoteStream(stream) {
-        if (stream instanceof MediaStream) {
-            remoteV.srcObject = stream;
-            remoteStatus.textContent = 'receiving';
-            remoteStatus.className = 'pane-status on';
-            console.log('[mirrorsEcho] Remote stream attached');
+        function createRaindrop(progress) {
+            const drop = document.createElement('div');
+            drop.className = 'raindrop';
+            drop.style.left = Math.random() * window.innerWidth + 'px';
+            drop.style.top = Math.random() * window.innerHeight + 'px';
+            
+            const color1 = colors[Math.floor(Math.random() * colors.length)];
+            const color2 = colors[Math.floor(Math.random() * colors.length)];
+            const baseOpacity = 0.17 + (progress * 0.2);
+            const haloValue = parseFloat(document.getElementById('haloSlider').value);
+            const glowIntensity = (15 + (progress * 65)) * haloValue;
+            
+            drop.style.background = `radial-gradient(circle at 40% 40%, ${color1.replace('0.9', String(baseOpacity * 1.3))} 0%, ${color2.replace('0.9', String(baseOpacity))} 30%, transparent 100%)`;
+            drop.style.boxShadow = `0 0 ${glowIntensity}px ${color1}`;
+            
+            const size = 30 + (progress * 40) + (Math.random() * 25);
+            drop.style.width = size + 'px';
+            drop.style.height = size + 'px';
+            drop.style.zIndex = Math.floor(100 + (progress * 9898));
+            
+            const duration = 5 + Math.random() * 3;
+            drop.style.animationDuration = duration + 's';
+            
+            document.body.appendChild(drop);
+            setTimeout(() => drop.remove(), duration * 1000);
         }
-    },
 
-    // Mark remote renderer busy/free (for frame pacing)
-    setRemoteBusy(isBusy) {
-        remoteBusy = !!isBusy;
-        if (!remoteBusy) {
-            // Dispatch event when remote is ready for next frame
-            window.dispatchEvent(new CustomEvent('mirrors-echo-remote-ready', {
-                detail: { timestamp: Date.now() }
-            }));
-        }
-    },
-
-    // Get local stream (for external use)
-    getLocalStream() {
-        return localStream;
-    },
-
-    // Get LiveKit room (for advanced control)
-    getRoom() {
-        return room;
-    },
-
-    // Programmatic connect/disconnect
-    connect,
-    disconnect,
-
-    // Set parameters programmatically
-    setParams(params) {
-        if (params.hue !== undefined) { hue = params.hue; colorSlider.value = hue; updateColors(hue); }
-        if (params.intensity !== undefined) { intensity = params.intensity; document.getElementById('intensity').value = intensity; document.getElementById('intVal').textContent = intensity + '%'; }
-        if (params.speed !== undefined) { speed = params.speed; document.getElementById('speed').value = speed; document.getElementById('spdVal').textContent = (speed/10).toFixed(1) + 'x'; }
-        if (params.size !== undefined) { size = params.size; document.getElementById('size').value = size; document.getElementById('szVal').textContent = size; }
-        if (params.glow !== undefined) { glow = params.glow; document.getElementById('glow').value = glow; document.getElementById('glwVal').textContent = glow; }
-    }
-};
-
-// ============================================================
-// COLOR SYSTEM
-// ============================================================
-function updateColors(h) {
-    hue = h;
-    const comp = (h + 180) % 360;
-    document.documentElement.style.setProperty('--hue', h);
-    document.documentElement.style.setProperty('--comp', comp);
-    document.documentElement.style.setProperty('--primary', `hsl(${h}, 70%, 60%)`);
-    document.documentElement.style.setProperty('--complement', `hsl(${comp}, 70%, 60%)`);
-}
-updateColors(0);
-
-colorSlider.oninput = e => updateColors(+e.target.value);
-document.querySelectorAll('.color-sq').forEach(sq => {
-    sq.onclick = () => { colorSlider.value = sq.dataset.hue; updateColors(+sq.dataset.hue); };
-});
-
-// ============================================================
-// EFFECT SLIDERS
-// ============================================================
-document.getElementById('intensity').oninput = e => { intensity = +e.target.value; document.getElementById('intVal').textContent = intensity + '%'; };
-document.getElementById('speed').oninput = e => { speed = +e.target.value; document.getElementById('spdVal').textContent = (speed/10).toFixed(1) + 'x'; };
-document.getElementById('size').oninput = e => { size = +e.target.value; document.getElementById('szVal').textContent = size; };
-document.getElementById('glow').oninput = e => { glow = +e.target.value; document.getElementById('glwVal').textContent = glow; };
-
-document.getElementById('resetBtn').onclick = () => {
-    colorSlider.value = 0; updateColors(0);
-    document.getElementById('intensity').value = intensity = 50; document.getElementById('intVal').textContent = '50%';
-    document.getElementById('speed').value = speed = 10; document.getElementById('spdVal').textContent = '1.0x';
-    document.getElementById('size').value = size = 40; document.getElementById('szVal').textContent = '40';
-    document.getElementById('glow').value = glow = 60; document.getElementById('glwVal').textContent = '60';
-};
-
-const forceBtn = document.getElementById('forceBtn');
-forceBtn.onmousedown = () => { forcing = true; forceBtn.style.background = 'var(--primary)'; forceBtn.style.color = '#000'; };
-forceBtn.onmouseup = forceBtn.onmouseleave = () => { forcing = false; forceBtn.style.background = ''; forceBtn.style.color = ''; };
-
-// ============================================================
-// JWT TOKEN GENERATION (client-side for LiveKit)
-// ============================================================
-function b64url(s) { return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''); }
-async function genToken(id, rm) {
-    const now = Math.floor(Date.now()/1000);
-    const hdr = b64url(JSON.stringify({alg:'HS256',typ:'JWT'}));
-    const pay = b64url(JSON.stringify({iss:API_KEY,sub:id,iat:now,exp:now+86400,nbf:now,jti:id+'-'+now,video:{room:rm,roomJoin:true,canPublish:true,canSubscribe:true}}));
-    const msg = hdr+'.'+pay;
-    const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(API_SECRET), {name:'HMAC',hash:'SHA-256'}, false, ['sign']);
-    const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(msg));
-    return msg + '.' + b64url(String.fromCharCode(...new Uint8Array(sig)));
-}
-
-// ============================================================
-// LIVEKIT CONNECTION
-// ============================================================
-async function connect() {
-    try {
-        connBtn.disabled = true; connBtn.textContent = 'Connecting...';
-        statusBox.textContent = 'Requesting camera...';
-        
-        localStream = await navigator.mediaDevices.getUserMedia({video:{width:1280,height:720},audio:true});
-        localV.srcObject = localStream;
-        localStatus.textContent = 'camera on'; localStatus.className = 'pane-status on';
-        statusBox.textContent = 'Connecting to LiveKit...';
-        
-        // Dispatch event for external listeners
-        window.dispatchEvent(new CustomEvent('mirrors-echo-local-ready', {
-            detail: { stream: localStream, timestamp: Date.now() }
-        }));
-        
-        const id = 'echo-' + Math.random().toString(36).substr(2,6);
-        const token = await genToken(id, ROOM_NAME);
-        
-        room = new LivekitClient.Room({adaptiveStream:true, dynacast:true});
-        
-        room.on(LivekitClient.RoomEvent.TrackSubscribed, (track, pub, participant) => {
-            if (track.kind === 'video') {
-                track.attach(remoteV);
-                remoteStatus.textContent = 'receiving';
-                remoteStatus.className = 'pane-status on';
-                statusBox.textContent = '✓ Receiving from ' + participant.identity;
+        function animate() {
+            const elapsed = Date.now() - startTime;
+            const rainStartTime = 420000; // 7 minutes
+            const rainEndTime = 600000; // 10 minutes
+            
+            if (elapsed >= rainStartTime) {
+                const rainProgress = Math.min((elapsed - rainStartTime) / (rainEndTime - rainStartTime), 1.0);
+                temporalIntensitySlider.value = Math.round(rainProgress * 100);
+                document.getElementById('temporalIntensityValue').textContent = Math.round(rainProgress * 100) + '%';
                 
-                // Dispatch event
-                window.dispatchEvent(new CustomEvent('mirrors-echo-remote-track', {
-                    detail: { track, participant: participant.identity, timestamp: Date.now() }
-                }));
+                const dropProbability = 0.05 * (1 + Math.pow(rainProgress, 2.5) * 40);
+                if (Math.random() < dropProbability) createRaindrop(rainProgress);
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // Pop-out functionality
+        document.getElementById('localPopout').addEventListener('click', () => {
+            const video = document.getElementById('localVideo');
+            if (video.srcObject) {
+                const popup = window.open('', 'LocalCamera', 'width=1280,height=720,menubar=no,toolbar=no');
+                popup.document.write(`<html><head><title>Local Camera</title><style>*{margin:0;padding:0}body{background:#000}video{width:100vw;height:100vh;object-fit:contain}</style></head><body><video autoplay muted playsinline></video></body></html>`);
+                popup.document.close();
+                popup.document.querySelector('video').srcObject = video.srcObject;
             }
         });
-        
-        room.on(LivekitClient.RoomEvent.TrackUnsubscribed, track => {
-            track.detach();
-            remoteStatus.textContent = 'waiting';
-            remoteStatus.className = 'pane-status wait';
+
+        document.getElementById('remotePopout').addEventListener('click', () => {
+            const video = document.getElementById('remoteVideo');
+            if (video.srcObject) {
+                const popup = window.open('', 'RemoteStream', 'width=1280,height=720,menubar=no,toolbar=no');
+                popup.document.write(`<html><head><title>Remote Stream</title><style>*{margin:0;padding:0}body{background:#000}video{width:100vw;height:100vh;object-fit:contain}</style></head><body><video autoplay playsinline></video></body></html>`);
+                popup.document.close();
+                popup.document.querySelector('video').srcObject = video.srcObject;
+            }
         });
-        
-        room.on(LivekitClient.RoomEvent.Disconnected, handleDisconnect);
-        
-        room.on(LivekitClient.RoomEvent.ParticipantConnected, p => {
-            statusBox.textContent = p.identity + ' joined';
-            window.dispatchEvent(new CustomEvent('mirrors-echo-participant', {
-                detail: { identity: p.identity, action: 'joined', timestamp: Date.now() }
-            }));
+
+        // Expand/collapse
+        const expandBtn = document.getElementById('expandBtn');
+        const videoGrid = document.getElementById('videoGrid');
+        const localBox = document.getElementById('localBox');
+        let isExpanded = false;
+
+        expandBtn.addEventListener('click', () => {
+            isExpanded = !isExpanded;
+            localBox.classList.toggle('hidden', isExpanded);
+            videoGrid.classList.toggle('collapsed', isExpanded);
+            expandBtn.textContent = isExpanded ? '↙' : '↗';
         });
-        
-        room.on(LivekitClient.RoomEvent.ParticipantDisconnected, p => {
-            statusBox.textContent = p.identity + ' left';
-            window.dispatchEvent(new CustomEvent('mirrors-echo-participant', {
-                detail: { identity: p.identity, action: 'left', timestamp: Date.now() }
-            }));
+
+        // Camera controls
+        const startBtn = document.getElementById('startBtn');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+
+        startBtn.addEventListener('click', async () => {
+            startBtn.disabled = true;
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: true });
+                localVideo.srcObject = stream;
+                connectBtn.disabled = false;
+            } catch (error) {
+                console.error('Camera error:', error);
+                startBtn.disabled = false;
+            }
         });
-        
-        await room.connect(LIVEKIT_URL, token);
-        
-        const vt = localStream.getVideoTracks()[0];
-        const at = localStream.getAudioTracks()[0];
-        if (vt) await room.localParticipant.publishTrack(vt, {name:'camera',simulcast:true});
-        if (at) await room.localParticipant.publishTrack(at, {name:'mic'});
-        
-        isConnected = true;
-        connBtn.textContent = 'Disconnect'; connBtn.classList.add('disconnect'); connBtn.disabled = false;
-        localStatus.textContent = 'streaming';
-        statusBox.textContent = '✓ LIVE! Streaming to ' + ROOM_NAME;
-        
-        // Dispatch connected event
-        window.dispatchEvent(new CustomEvent('mirrors-echo-connected', {
-            detail: { room: ROOM_NAME, identity: id, timestamp: Date.now() }
-        }));
-        
-    } catch(e) {
-        console.error(e);
-        statusBox.textContent = '✗ ' + e.message;
-        localStatus.textContent = 'error'; localStatus.className = 'pane-status off';
-        connBtn.textContent = 'Start Streaming'; connBtn.disabled = false;
-        
-        window.dispatchEvent(new CustomEvent('mirrors-echo-error', {
-            detail: { error: e.message, timestamp: Date.now() }
-        }));
-    }
-}
 
-function handleDisconnect() {
-    if (localStream) { localStream.getTracks().forEach(t=>t.stop()); localStream = null; }
-    localV.srcObject = remoteV.srcObject = null;
-    room = null; isConnected = false;
-    connBtn.textContent = 'Start Streaming'; connBtn.classList.remove('disconnect'); connBtn.disabled = false;
-    localStatus.textContent = 'off'; localStatus.className = 'pane-status off';
-    remoteStatus.textContent = 'waiting'; remoteStatus.className = 'pane-status wait';
-    statusBox.textContent = 'Disconnected.';
-    
-    window.dispatchEvent(new CustomEvent('mirrors-echo-disconnected', {
-        detail: { timestamp: Date.now() }
-    }));
-}
+        connectBtn.addEventListener('click', () => {
+            connectBtn.disabled = true;
+            setTimeout(() => { disconnectBtn.disabled = false; fullscreenBtn.disabled = false; }, 1000);
+        });
 
-async function disconnect() { if (room) await room.disconnect(); handleDisconnect(); }
-connBtn.onclick = () => isConnected ? disconnect() : connect();
+        disconnectBtn.addEventListener('click', () => {
+            disconnectBtn.disabled = true;
+            fullscreenBtn.disabled = true;
+            connectBtn.disabled = false;
+        });
 
-// ============================================================
-// RAINDROPS
-// ============================================================
-function spawnDrop() {
-    const d = document.createElement('div'); d.className = 'raindrop';
-    const useHue = Math.random() < 0.35;
-    const h = useHue ? hue + (Math.random()*40-20) : Math.random()*360;
-    const s = size * (0.6 + Math.random()*0.8);
-    const dur = 4 / (speed/10);
-    d.style.cssText = `left:${Math.random()*100}vw;top:${Math.random()*100}vh;width:${s}px;height:${s}px;background:radial-gradient(circle at 30% 30%,hsla(${h},80%,70%,0.9),hsla(${h},70%,50%,0.6),transparent);box-shadow:0 0 ${glow*0.7}px hsl(${h},75%,55%);animation-duration:${dur}s;`;
-    document.body.appendChild(d);
-    setTimeout(() => d.remove(), dur*1000);
-}
+        fullscreenBtn.addEventListener('click', () => { if (remoteVideo.requestFullscreen) remoteVideo.requestFullscreen(); });
 
-// ============================================================
-// MAIN LOOP + FRAME-PACED EVENTS
-// ============================================================
-(function loop() {
-    const now = performance.now();
-    
-    // Spawn raindrops
-    if (forcing) { for(let i=0;i<5;i++) spawnDrop(); }
-    else if (intensity > 0 && Math.random() < intensity/400) spawnDrop();
-    
-    // Frame-paced render requests (only when remote is ready)
-    if (now - lastRenderTime >= renderBudgetMs && !remoteBusy) {
-        lastRenderTime = now;
+        // Color controls
+        function getComplementaryHue(hue) { return (parseInt(hue) + 180) % 360; }
         
-        // Dispatch state for external renderers (TouchDesigner, etc.)
-        window.dispatchEvent(new CustomEvent('mirrors-echo-state', {
-            detail: { hue, intensity, speed, size, glow, forcing, isConnected, timestamp: Date.now() }
-        }));
-        
-        // Also dispatch render request (external systems can listen)
-        window.dispatchEvent(new CustomEvent('mirrors-echo-render-request', {
-            detail: { hue, intensity, speed, size, glow, timestamp: Date.now() }
-        }));
-    }
-    
-    requestAnimationFrame(loop);
-})();
+        const hueSlider = document.getElementById('hueSlider');
+        const colorSlider = document.getElementById('colorSlider');
+        const paletteBtns = document.querySelectorAll('.palette-btn');
 
-// ============================================================
-// STARTUP LOG
-// ============================================================
-console.log('[Mirror\'s Echo] Initialized');
-console.log('[Mirror\'s Echo] API available at window.mirrorsEcho');
-console.log('[Mirror\'s Echo] Events: mirrors-echo-state, mirrors-echo-render-request, mirrors-echo-connected, etc.');
-</script>
+        function updateHue(hue) {
+            const comp = getComplementaryHue(hue);
+            document.documentElement.style.setProperty('--hue-value', hue);
+            document.documentElement.style.setProperty('--hue-complementary', comp);
+            document.getElementById('hueValue').textContent = hue + '°';
+            document.getElementById('colorSliderValue').textContent = hue + '°';
+            hueSlider.value = hue;
+            colorSlider.value = hue;
+            paletteBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.hue === String(hue)));
+        }
+
+        colorSlider.addEventListener('input', e => updateHue(e.target.value));
+        hueSlider.addEventListener('input', e => updateHue(e.target.value));
+        paletteBtns.forEach(btn => btn.addEventListener('click', () => updateHue(btn.dataset.hue)));
+
+        // Other sliders
+        document.getElementById('satSlider').addEventListener('input', e => document.getElementById('satValue').textContent = e.target.value + '%');
+        document.getElementById('lightSlider').addEventListener('input', e => document.getElementById('lightValue').textContent = e.target.value + '%');
+        document.getElementById('intensitySlider').addEventListener('input', e => document.getElementById('intensityValue').textContent = parseFloat(e.target.value).toFixed(2));
+        document.getElementById('depthSlider').addEventListener('input', e => document.getElementById('depthValue').textContent = parseFloat(e.target.value).toFixed(1));
+        document.getElementById('glossSlider').addEventListener('input', e => document.getElementById('glossValue').textContent = parseFloat(e.target.value).toFixed(2));
+        document.getElementById('bumpSlider').addEventListener('input', e => document.getElementById('bumpValue').textContent = parseFloat(e.target.value).toFixed(1));
+        document.getElementById('speedSlider').addEventListener('input', e => document.getElementById('speedValue').textContent = parseFloat(e.target.value).toFixed(1) + 'x');
+        document.getElementById('haloSlider').addEventListener('input', e => document.getElementById('haloValue').textContent = parseFloat(e.target.value).toFixed(1));
+    </script>
 </body>
 </html>
