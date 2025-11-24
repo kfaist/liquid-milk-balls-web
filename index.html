@@ -110,6 +110,14 @@
         /* Licensing Section */
         .licensing { margin: 3rem 0; }
         .licensing h2 { text-align: center; font-size: 1.1rem; font-weight: 300; letter-spacing: 0.15em; font-style: italic; margin-bottom: 0.5rem; padding-bottom: 1rem; border-bottom: 1px solid #333; }
+        .licensing h3 { font-size: 0.9rem; font-weight: 400; margin: 1.5rem 0 0.75rem; opacity: 0.9; }
+        .about-content { max-width: 800px; margin: 0 auto; padding: 1.5rem 0; }
+        .about-content p { font-size: 0.8rem; line-height: 1.7; opacity: 0.8; margin-bottom: 1rem; }
+        .pipeline { font-family: monospace; font-size: 0.75rem; background: #111; border: 1px solid #333; padding: 1rem; overflow-x: auto; line-height: 1.5; opacity: 0.8; }
+        .tech-list { list-style: none; font-size: 0.8rem; opacity: 0.8; margin: 0.75rem 0; }
+        .tech-list li { padding: 0.4rem 0 0.4rem 1rem; position: relative; }
+        .tech-list li::before { content: "•"; position: absolute; left: 0; opacity: 0.5; }
+        .signal-path { font-family: monospace; font-size: 0.75rem; background: #0a0a0a; border: 1px solid #222; padding: 0.75rem; margin-top: 1rem; }
         .license-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1.5rem; }
         .license-box { border: 1px solid #333; padding: 1.5rem; }
         .license-type { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.5; margin-bottom: 0.75rem; }
@@ -203,6 +211,49 @@
             <div class="sl"><label>Saturation <span id="satV">85%</span></label><input type="range" id="sat" min="0" max="100" value="85"></div>
             <div class="sl"><label>Size <span id="szV">50</span></label><input type="range" id="sz" min="10" max="120" value="50"></div>
             <div class="sl"><label>Glow <span id="glwV">60</span></label><input type="range" id="glw" min="0" max="100" value="60"></div>
+        </div>
+
+        <!-- Licensing Section -->
+        <div class="licensing">
+            <h2>About</h2>
+            <div class="about-content">
+                <p>The Mirror's Echo is a networked interactive work exploring presence, temporality, and reciprocity through real-time video transmission. The piece positions participants as both observers and subjects, creating a feedback loop where actions generate visual echoes that accumulate and transform over time.</p>
+                <p>Built on open protocols (WebRTC, LiveKit, NDI), the work operates as distributed infrastructure - each interaction exists simultaneously across multiple nodes: browser, server, and optional processing environments. This architecture enables the piece to function as both a self-contained web experience and as material for live visual manipulation through tools like TouchDesigner.</p>
+                <p>The work implements a temporal access model: seven minutes of unmediated experience, followed by progressive visual markers that reveal the piece's constructed nature. This durational framework questions assumptions about digital permanence and the economics of networked art.</p>
+                <p>Technical implementation merges web-native technologies with broadcast/VJ workflows, positioning the work within lineages of video feedback art (Steina & Woody Vasulka), telepresence projects (Kit Galloway & Sherrie Rabinowitz's Satellite Arts), and contemporary networked performance practices.</p>
+                
+                <h3>Processing Pipeline</h3>
+                <pre class="pipeline">Camera Input → WebRTC/LiveKit → NVIDIA GPU Processing
+       ↓
+Audio Stream → Whisper (Speech-to-Text)
+       ↓
+Text → spaCy NLP (Entity Recognition, Semantic Analysis)
+       ↓
+Video → TouchDesigner (Visual Processing, Effects, Generative Response)
+       ↓
+Composite Output → NDI → OBS → WebRTC Return Path
+       ↓
+Remote Viewer (Browser/Display)</pre>
+
+                <h3>Technical Infrastructure</h3>
+                <p>For production-quality streaming with OBS, NDI, and TouchDesigner integration:</p>
+                <p><strong>Complete Bidirectional Workflow:</strong></p>
+                <ul class="tech-list">
+                    <li><strong>Publisher Page:</strong> Remote user captures webcam and publishes to LiveKit</li>
+                    <li><strong>NDI Viewer Page:</strong> View the LiveKit stream (capture this in OBS Browser Source)</li>
+                    <li><strong>OBS:</strong> Capture NDI viewer page and enable NDI output (Tools → NDI Output Settings)</li>
+                    <li><strong>TouchDesigner:</strong> Use NDI In TOP to receive stream from OBS, process & stylize</li>
+                    <li><strong>TD Output:</strong> Use NDI Out TOP to send processed video back to OBS</li>
+                    <li><strong>OBS Capture:</strong> Add NDI Source in OBS to receive processed video from TD</li>
+                    <li><strong>Return Viewer Page:</strong> Remote user views processed video with fullscreen option</li>
+                </ul>
+                <p class="signal-path">Signal Path: Remote Camera → LiveKit → OBS → NDI → TouchDesigner (process) → NDI → Back to Remote Viewer in Real-Time</p>
+
+                <h3>Interaction</h3>
+                <p>The work responds to presence through multiple modes of engagement. Each interaction generates visual echoes that accumulate temporally within the system.</p>
+                <p><strong>Mirror Interface:</strong> Direct interaction with the circular interface generates ripple formations. Accumulated interactions trigger chromatic shifts every five engagements. The Clear function returns the system to its initial state.</p>
+                <p><strong>Video Transmission:</strong> WebRTC protocols enable peer-to-peer video transmission. Local and remote streams establish reciprocal viewing positions. The work's temporal markers emerge after seven minutes of sustained connection, revealing the constructed nature of the experience.</p>
+            </div>
         </div>
 
         <!-- Licensing Section -->
