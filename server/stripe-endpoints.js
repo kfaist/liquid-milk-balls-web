@@ -79,7 +79,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: 'Exhibition License — The Mirror\'s Echo',
+              name: 'Exhibition License - The Mirror\'s Echo',
               description: 'Commercial exhibition rights for The Mirror\'s Echo art installation. Includes unlimited sustained experience with no temporal markers.',
               images: [], // Add product images if available
             },

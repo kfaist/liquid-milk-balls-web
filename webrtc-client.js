@@ -44,14 +44,25 @@
       const response = await fetch(TURN_CREDENTIALS_ENDPOINT);
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch TURN credentials: ${response.statusText}`);
+        let errorMessage = `Failed to fetch TURN credentials: ${response.statusText}`;
+        
+        // Provide specific error messages based on status code
+        if (response.status === 401 || response.status === 403) {
+          errorMessage = 'Authentication required for TURN credentials';
+        } else if (response.status === 500) {
+          errorMessage = 'TURN server not configured. Check TURN_SECRET and TURN_SERVER_URL environment variables.';
+        } else if (response.status === 503) {
+          errorMessage = 'TURN server temporarily unavailable';
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const credentials = await response.json();
       console.log('[WebRTC] TURN credentials received:', credentials);
       return credentials;
     } catch (error) {
-      console.warn('[WebRTC] Failed to fetch TURN credentials, continuing with STUN only:', error);
+      console.warn('[WebRTC] Failed to fetch TURN credentials, continuing with STUN only:', error.message);
       return null;
     }
   }
@@ -215,18 +226,18 @@
           console.log('[WebRTC] Received offer');
           isInitiator = false;
           await createPeerConnection();
-          await handleOffer(message.offer || message.payload);
+          await handleOffer(message.offer);
           break;
 
         case 'answer':
           // We received an answer to our offer
           console.log('[WebRTC] Received answer');
-          await handleAnswer(message.answer || message.payload);
+          await handleAnswer(message.answer);
           break;
 
         case 'candidate':
           // We received an ICE candidate
-          await handleCandidate(message.candidate || message.payload);
+          await handleCandidate(message.candidate);
           break;
 
         case 'bye':

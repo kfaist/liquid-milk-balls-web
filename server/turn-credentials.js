@@ -17,9 +17,13 @@ const crypto = require('crypto');
  * @param {string} turnServerUrl - TURN server URL (e.g., 'turn.example.com')
  * @returns {Object} Credentials object with username, credential, ttl, and urls
  */
-function generateTurnCredentials(secret, ttl = 3600, turnServerUrl = 'turn.example.com') {
+function generateTurnCredentials(secret, ttl = 3600, turnServerUrl) {
   if (!secret) {
     throw new Error('TURN secret is required');
+  }
+
+  if (!turnServerUrl) {
+    throw new Error('TURN server URL is required. Set TURN_SERVER_URL environment variable.');
   }
 
   // Generate username with expiration timestamp
@@ -54,7 +58,7 @@ function generateTurnCredentials(secret, ttl = 3600, turnServerUrl = 'turn.examp
  */
 function turnCredentialsHandler(req, res) {
   const turnSecret = process.env.TURN_SECRET;
-  const turnServerUrl = process.env.TURN_SERVER_URL || 'turn.example.com';
+  const turnServerUrl = process.env.TURN_SERVER_URL;
   const ttl = parseInt(process.env.TURN_TTL || '3600', 10);
 
   if (!turnSecret) {
@@ -62,6 +66,14 @@ function turnCredentialsHandler(req, res) {
     return res.status(500).json({
       error: 'TURN server not configured. Contact administrator.',
       message: 'TURN_SECRET environment variable is required'
+    });
+  }
+
+  if (!turnServerUrl) {
+    console.error('[TURN] TURN_SERVER_URL environment variable not set');
+    return res.status(500).json({
+      error: 'TURN server not configured. Contact administrator.',
+      message: 'TURN_SERVER_URL environment variable is required'
     });
   }
 
