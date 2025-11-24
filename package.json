@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node server/server.js",
     "validate": "node --version && npm --version && npm ls"
   },
   "engines": {
