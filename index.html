@@ -18,9 +18,10 @@
         .fs-exit:hover { opacity: 1; }
         
         .main-ui { max-width: 1100px; margin: 0 auto; padding: 2rem; }
-        h1 { text-align: center; font-size: 1.3rem; font-weight: 300; letter-spacing: 0.15em; margin-bottom: 1rem; }
-        .intro { text-align: center; font-size: 0.7rem; opacity: 0.6; line-height: 1.6; margin-bottom: 2rem; max-width: 700px; margin-left: auto; margin-right: auto; }
-        .intro a { color: #fff; }
+        h1 { text-align: center; font-size: 1.3rem; font-weight: 300; letter-spacing: 0.15em; margin-bottom: 0.5rem; }
+        .contacts { text-align: center; font-size: 0.75rem; opacity: 0.7; margin-bottom: 1.5rem; }
+        .contacts a { color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.3); }
+        .contacts a:hover { border-color: #fff; }
         
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1.5rem; }
         .box { position: relative; }
@@ -31,31 +32,56 @@
         .pop-btn:hover { opacity: 1; border-color: #fff; color: #fff; }
         .pop-btn:disabled { display: none; }
         
-        .btns { display: flex; gap: 0.75rem; margin-top: 0.75rem; justify-content: center; flex-wrap: wrap; }
-        .btn { padding: 0.6rem 1.2rem; font-size: 0.85rem; font-weight: 500; background: #111; border: 2px solid #fff; color: #fff; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; }
+        .btns { display: flex; gap: 0.5rem; margin-top: 0.75rem; justify-content: center; flex-wrap: wrap; }
+        .btn { padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 500; background: #111; border: 2px solid #fff; color: #fff; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; }
         .btn:hover { background: #fff; color: #000; }
         .btn:disabled { opacity: 0.25; cursor: not-allowed; border-color: #555; }
         .btn.on { background: #0a0; border-color: #0a0; color: #fff; }
+        select.btn { padding: 0.4rem; font-size: 0.7rem; max-width: 160px; }
         
-        select.btn { padding: 0.5rem; font-size: 0.75rem; max-width: 180px; }
+        /* Color Palette */
+        .palette-section { background: #0a0a0a; border: 1px solid #222; padding: 1rem; margin-bottom: 1.5rem; }
+        .palette-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.5; margin-bottom: 0.75rem; }
+        .palette { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0.5rem; margin-bottom: 1rem; }
+        .palette-btn { aspect-ratio: 1; border: 2px solid rgba(255,255,255,0.2); border-radius: 4px; cursor: pointer; transition: all 0.2s; opacity: 0.6; min-height: 40px; }
+        .palette-btn:hover { opacity: 0.85; transform: scale(1.05); border-color: rgba(255,255,255,0.5); }
+        .palette-btn.active { opacity: 1; border-color: #fff; box-shadow: 0 0 12px currentColor; }
+        .color-slider { display: flex; align-items: center; gap: 1rem; }
+        .color-slider label { font-size: 0.65rem; text-transform: uppercase; opacity: 0.5; }
+        .color-slider input { flex: 1; }
+        .color-slider span { font-size: 0.8rem; color: hsl(var(--hue), 85%, 65%); min-width: 45px; text-align: right; }
         
         .controls { background: #111; border: 1px solid #333; padding: 1rem; margin-bottom: 1.5rem; display: flex; gap: 1.5rem; justify-content: center; align-items: center; flex-wrap: wrap; }
         .controls label { font-size: 0.75rem; opacity: 0.7; margin-right: 0.3rem; }
         .controls input[type="range"] { width: 100px; vertical-align: middle; }
         .controls span { font-size: 0.8rem; color: #a8f; min-width: 40px; display: inline-block; }
         
-        .sliders { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; background: #0a0a0a; border: 1px solid #222; padding: 1rem; }
+        .sliders { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; background: #0a0a0a; border: 1px solid #222; padding: 1rem; margin-bottom: 2rem; }
         .sl label { display: block; font-size: 0.65rem; opacity: 0.6; margin-bottom: 0.25rem; }
         .sl input { width: 100%; }
         
-        #hue::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: hsl(var(--hue), 85%, 55%); border: 2px solid #fff; cursor: pointer; }
+        #hue::-webkit-slider-thumb, #colorSlider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: hsl(var(--hue), 85%, 55%); border: 2px solid #fff; cursor: pointer; }
         .sl input:not(#hue)::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: hsl(var(--comp), 85%, 55%); border: 2px solid rgba(255,255,255,0.5); cursor: pointer; }
         input[type="range"] { -webkit-appearance: none; background: rgba(255,255,255,0.15); height: 4px; border-radius: 2px; }
+        
+        /* Licensing Section */
+        .licensing { margin: 3rem 0; }
+        .licensing h2 { text-align: center; font-size: 1.1rem; font-weight: 300; letter-spacing: 0.15em; font-style: italic; margin-bottom: 0.5rem; padding-bottom: 1rem; border-bottom: 1px solid #333; }
+        .license-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1.5rem; }
+        .license-box { border: 1px solid #333; padding: 1.5rem; }
+        .license-type { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.5; margin-bottom: 0.75rem; }
+        .license-title { font-size: 1rem; font-weight: 400; margin-bottom: 1rem; }
+        .license-desc { font-size: 0.75rem; opacity: 0.7; line-height: 1.6; margin-bottom: 1rem; }
+        .license-features { list-style: none; font-size: 0.75rem; opacity: 0.8; margin-bottom: 1.5rem; }
+        .license-features li { padding: 0.3rem 0; padding-left: 1rem; position: relative; }
+        .license-features li::before { content: "—"; position: absolute; left: 0; opacity: 0.5; }
+        .license-btn { display: block; width: 100%; padding: 0.75rem; text-align: center; border: 1px solid #fff; background: transparent; color: #fff; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; text-decoration: none; }
+        .license-btn:hover { background: #fff; color: #000; }
         
         .raindrop { position: fixed; border-radius: 50%; pointer-events: none; }
         @keyframes drop { 0%{opacity:0;transform:scale(0.5)} 15%{opacity:1;transform:scale(1)} 85%{opacity:1} 100%{opacity:0;transform:scale(1.1)} }
         
-        @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } .sliders { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } .sliders { grid-template-columns: 1fr 1fr; } .palette { grid-template-columns: repeat(4, 1fr); } .license-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -65,9 +91,9 @@
 
     <div class="main-ui">
         <h1>THE MIRROR'S ECHO</h1>
-        <div class="intro">
-            The Mirror's Echo operates as an unlimited edition under open-source principles (AGPL-3.0), ensuring accessibility while sustaining ongoing development. Exhibition licenses and institutional partnerships support the continued evolution of networked digital art practices.<br><br>
-            Artist/Technical: <a href="mailto:kristabluedoor@gmail.com">kristabluedoor@gmail.com</a> · Curatorial/Institutional: <a href="mailto:chaoscontemporarycraft@gmail.com">chaoscontemporarycraft@gmail.com</a>
+        <div class="contacts">
+            Artist/Technical: <a href="mailto:kristabluedoor@gmail.com">kristabluedoor@gmail.com</a> · 
+            Curatorial/Institutional: <a href="mailto:chaoscontemporarycraft@gmail.com">chaoscontemporarycraft@gmail.com</a>
         </div>
 
         <div class="grid">
@@ -78,8 +104,10 @@
                     <button class="pop-btn" id="popL" disabled>↗</button>
                 </div>
                 <div class="btns">
-                    <button class="btn" id="camBtn">START WEBCAM</button>
+                    <button class="btn" id="camBtn">START MY WEBCAM</button>
                     <button class="btn" id="micBtn" disabled>MIC OFF</button>
+                    <button class="btn" id="discBtn" disabled>DISCONNECT</button>
+                    <button class="btn" id="fullLocalBtn" disabled>FULLSCREEN</button>
                 </div>
             </div>
             <div class="box">
@@ -91,8 +119,29 @@
                 <div class="btns">
                     <select class="btn" id="remoteCam"><option value="">Select source...</option></select>
                     <button class="btn" id="remoteBtn">START</button>
+                    <button class="btn" id="webrtcBtn" disabled>CONNECT TO WEBRTC</button>
                     <button class="btn" id="fullBtn" disabled>FULLSCREEN</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Color Palette -->
+        <div class="palette-section">
+            <div class="palette-label">Color Palette</div>
+            <div class="palette">
+                <button class="palette-btn active" data-hue="280" style="background: hsl(280, 85%, 55%);" title="Purple"></button>
+                <button class="palette-btn" data-hue="320" style="background: hsl(320, 90%, 55%);" title="Pink"></button>
+                <button class="palette-btn" data-hue="15" style="background: hsl(15, 90%, 55%);" title="Coral"></button>
+                <button class="palette-btn" data-hue="45" style="background: hsl(45, 90%, 55%);" title="Gold"></button>
+                <button class="palette-btn" data-hue="120" style="background: hsl(120, 85%, 45%);" title="Green"></button>
+                <button class="palette-btn" data-hue="180" style="background: hsl(180, 85%, 45%);" title="Cyan"></button>
+                <button class="palette-btn" data-hue="220" style="background: hsl(220, 85%, 55%);" title="Blue"></button>
+                <button class="palette-btn" data-hue="0" style="background: hsl(0, 85%, 55%);" title="Red"></button>
+            </div>
+            <div class="color-slider">
+                <label>Color</label>
+                <input type="range" id="colorSlider" min="0" max="360" value="280">
+                <span id="colorVal">280°</span>
             </div>
         </div>
 
@@ -106,6 +155,49 @@
             <div class="sl"><label>Saturation <span id="satV">85</span></label><input type="range" id="sat" min="0" max="100" value="85"></div>
             <div class="sl"><label>Size <span id="szV">50</span></label><input type="range" id="sz" min="10" max="120" value="50"></div>
             <div class="sl"><label>Glow <span id="glwV">60</span></label><input type="range" id="glw" min="0" max="100" value="60"></div>
+        </div>
+
+        <!-- Licensing Section -->
+        <div class="licensing">
+            <h2>Licensing & Access</h2>
+            <div class="license-grid">
+                <div class="license-box">
+                    <div class="license-type">Open Access</div>
+                    <div class="license-title">Unlimited Edition</div>
+                    <div class="license-desc">An unlimited edition available under open-source principles. Experience the work freely for educational, research, and non-commercial contexts.</div>
+                    <ul class="license-features">
+                        <li>Full source code access (AGPL-3.0)</li>
+                        <li>Unlimited non-commercial use</li>
+                        <li>Eight-minute sustained experience</li>
+                        <li>Progressive temporal markers</li>
+                        <li>Community & documentation support</li>
+                    </ul>
+                    <a href="https://github.com/kfaist/liquid-milk-balls-web" class="license-btn" target="_blank">Access Source Code</a>
+                </div>
+                <div class="license-box">
+                    <div class="license-type">Starting at $400</div>
+                    <div class="license-title">Exhibition License & Technical Residency</div>
+                    <div class="license-desc">For professional contexts, commercial applications, and exhibition settings. Includes unrestricted access to the work without temporal markers.</div>
+                    <ul class="license-features">
+                        <li>Professional use licensing</li>
+                        <li>Optional: Technical residency support ($150/hour)</li>
+                        <li>TouchDesigner/LiveKit integration consultation</li>
+                        <li>Custom configuration assistance</li>
+                    </ul>
+                    <a href="mailto:kristabluedoor@gmail.com?subject=Exhibition License Inquiry" class="license-btn">Purchase Exhibition License - $400</a>
+                </div>
+                <div class="license-box">
+                    <div class="license-type">Contact</div>
+                    <div class="license-title">Curatorial & Institutional Partnership</div>
+                    <div class="license-desc">For galleries, museums, and biennials. Comprehensive partnership with curatorial consultation and on-site residency throughout the exhibition period.</div>
+                    <ul class="license-features">
+                        <li>Complete licensing</li>
+                        <li>Curatorial consultation</li>
+                        <li>On-site residency</li>
+                    </ul>
+                    <a href="mailto:chaoscontemporarycraft@gmail.com?subject=Institutional Partnership Inquiry" class="license-btn">Initiate Partnership</a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -142,12 +234,11 @@ async function populateCameras() {
     try {
         const devices = await navigator.mediaDevices.enumerateDevices();
         const select = document.getElementById('remoteCam');
-        // Clear old options except first
         while (select.options.length > 1) select.remove(1);
         devices.filter(d => d.kind === 'videoinput').forEach(d => {
             const opt = document.createElement('option');
             opt.value = d.deviceId;
-            opt.textContent = d.label || 'Camera ' + (select.options.length);
+            opt.textContent = d.label || 'Camera ' + select.options.length;
             select.appendChild(opt);
         });
     } catch(e) { console.error(e); }
@@ -164,7 +255,8 @@ document.getElementById('camBtn').onclick = async function() {
         this.classList.add('on');
         document.getElementById('popL').disabled = false;
         document.getElementById('micBtn').disabled = false;
-        // Populate remote camera dropdown after permission granted
+        document.getElementById('discBtn').disabled = false;
+        document.getElementById('fullLocalBtn').disabled = false;
         setTimeout(populateCameras, 500);
     } catch(e) {
         console.error(e);
@@ -181,7 +273,28 @@ document.getElementById('micBtn').onclick = function() {
     this.classList.toggle('on', micOn);
 };
 
-// REMOTE STREAM START (OBS Virtual Camera, NDI Virtual Input, etc.)
+// DISCONNECT LOCAL
+document.getElementById('discBtn').onclick = function() {
+    if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+        stream = null;
+        document.getElementById('localV').srcObject = null;
+        document.getElementById('camBtn').textContent = 'START MY WEBCAM';
+        document.getElementById('camBtn').classList.remove('on');
+        document.getElementById('micBtn').disabled = true;
+        document.getElementById('discBtn').disabled = true;
+        document.getElementById('fullLocalBtn').disabled = true;
+        document.getElementById('popL').disabled = true;
+    }
+};
+
+// FULLSCREEN LOCAL
+document.getElementById('fullLocalBtn').onclick = function() {
+    const vid = document.getElementById('localV');
+    if (vid.requestFullscreen) vid.requestFullscreen();
+};
+
+// REMOTE STREAM START
 document.getElementById('remoteBtn').onclick = async function() {
     const deviceId = document.getElementById('remoteCam').value;
     this.textContent = 'STARTING...';
@@ -196,7 +309,7 @@ document.getElementById('remoteBtn').onclick = async function() {
         this.classList.add('on');
         document.getElementById('popR').disabled = false;
         document.getElementById('fullBtn').disabled = false;
-        // Re-populate dropdown with labels now that we have permission
+        document.getElementById('webrtcBtn').disabled = false;
         populateCameras();
     } catch(e) {
         console.error(e);
@@ -204,7 +317,13 @@ document.getElementById('remoteBtn').onclick = async function() {
     }
 };
 
-// FULLSCREEN
+// WEBRTC CONNECT (placeholder)
+document.getElementById('webrtcBtn').onclick = function() {
+    this.textContent = 'CONNECTED';
+    this.classList.add('on');
+};
+
+// FULLSCREEN REMOTE
 document.getElementById('fullBtn').onclick = function() {
     const vid = document.getElementById('remoteV');
     if (vid.requestFullscreen) vid.requestFullscreen();
@@ -216,6 +335,31 @@ document.getElementById('popL').onclick = () => {
 };
 document.getElementById('popR').onclick = () => {
     window.open(location.pathname + '?view=remote', '_blank', 'width=1280,height=720');
+};
+
+// COLOR PALETTE
+document.querySelectorAll('.palette-btn').forEach(btn => {
+    btn.onclick = function() {
+        const hue = +this.dataset.hue;
+        S.hue = hue;
+        document.getElementById('hue').value = hue;
+        document.getElementById('hueV').textContent = hue;
+        document.getElementById('colorSlider').value = hue;
+        document.getElementById('colorVal').textContent = hue + '°';
+        document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        updateColors();
+    };
+});
+
+// COLOR SLIDER
+document.getElementById('colorSlider').oninput = function() {
+    S.hue = +this.value;
+    document.getElementById('hue').value = S.hue;
+    document.getElementById('hueV').textContent = S.hue;
+    document.getElementById('colorVal').textContent = S.hue + '°';
+    document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
+    updateColors();
 };
 
 // INTENSITY & SPEED
@@ -232,6 +376,9 @@ document.getElementById('spd').oninput = function() {
 document.getElementById('hue').oninput = function() {
     S.hue = +this.value;
     document.getElementById('hueV').textContent = S.hue;
+    document.getElementById('colorSlider').value = S.hue;
+    document.getElementById('colorVal').textContent = S.hue + '°';
+    document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
     updateColors();
 };
 document.getElementById('sat').oninput = function() {
@@ -251,29 +398,13 @@ document.getElementById('glw').oninput = function() {
 function spawnDrop() {
     const d = document.createElement('div');
     d.className = 'raindrop';
-    
-    // 30% use selected hue, 70% rainbow
     const useHue = Math.random() < 0.30;
     const h = useHue ? S.hue + (Math.random() * 50 - 25) : Math.random() * 360;
-    
     const size = S.sz * (0.5 + Math.random());
     const opacity = 0.4 + (S.int / 100) * 0.5;
     const glow = S.glw * 0.8;
     const duration = 4 / (S.spd / 10);
-    
-    d.style.cssText = `
-        left: ${Math.random() * 100}vw;
-        top: ${Math.random() * 100}vh;
-        width: ${size}px;
-        height: ${size}px;
-        background: radial-gradient(circle at 30% 30%, 
-            hsla(${h}, ${S.sat}%, 75%, ${opacity + 0.2}), 
-            hsla(${h}, ${S.sat}%, 55%, ${opacity}), 
-            transparent);
-        box-shadow: 0 0 ${glow}px hsl(${h}, ${S.sat}%, 60%);
-        animation: drop ${duration}s ease-out forwards;
-        z-index: ${1000 + Math.floor(Math.random() * 500)};
-    `;
+    d.style.cssText = `left:${Math.random()*100}vw;top:${Math.random()*100}vh;width:${size}px;height:${size}px;background:radial-gradient(circle at 30% 30%,hsla(${h},${S.sat}%,75%,${opacity+0.2}),hsla(${h},${S.sat}%,55%,${opacity}),transparent);box-shadow:0 0 ${glow}px hsl(${h},${S.sat}%,60%);animation:drop ${duration}s ease-out forwards;z-index:${1000+Math.floor(Math.random()*500)};`;
     document.body.appendChild(d);
     setTimeout(() => d.remove(), duration * 1000);
 }
@@ -281,20 +412,15 @@ function spawnDrop() {
 // ANIMATION LOOP
 function loop() {
     const elapsed = Date.now() - startTime;
-    
-    // Manual intensity spawns drops anytime
     if (S.int > 0) {
         const chance = S.int / 500;
         if (Math.random() < chance) spawnDrop();
     }
-    
-    // Auto drops only after 8 minutes
     if (elapsed >= rainStartTime) {
-        const progress = Math.min((elapsed - rainStartTime) / 120000, 1); // 0-1 over 2 min after 8
+        const progress = Math.min((elapsed - rainStartTime) / 120000, 1);
         const autoChance = 0.02 + progress * 0.15;
         if (Math.random() < autoChance) spawnDrop();
     }
-    
     requestAnimationFrame(loop);
 }
 loop();
