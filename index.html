@@ -159,6 +159,7 @@
                 </div>
                 <div class="btns">
                     <select class="btn" id="remoteCam"><option value="">Select source...</option></select>
+                    <button class="btn" id="refreshCam">⟳ REFRESH</button>
                     <button class="btn" id="remoteBtn">START</button>
                     <button class="btn" id="webrtcBtn" disabled>CONNECT TO WEBRTC</button>
                     <button class="btn" id="fullBtn" disabled>FULLSCREEN</button>
@@ -302,6 +303,20 @@ document.getElementById('remoteCam').onclick = async function() {
 
 // Also try on page load
 populateCameras();
+
+// Refresh cameras button
+document.getElementById('refreshCam').onclick = async function() {
+    this.textContent = '...';
+    try {
+        const tempStream = await navigator.mediaDevices.getUserMedia({video: true, audio: false});
+        tempStream.getTracks().forEach(t => t.stop());
+        await populateCameras();
+        this.textContent = '⟳ REFRESH';
+    } catch(e) {
+        console.error(e);
+        this.textContent = '⟳ REFRESH';
+    }
+};
 
 // START WEBCAM
 document.getElementById('camBtn').onclick = async function() {
