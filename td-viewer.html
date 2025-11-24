@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>TD LiveKit Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client@1.15.4/dist/livekit-client.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jose@4.15.4/dist/browser/index.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; }
+        body { background: #000; overflow: hidden; }
+        video { width: 100vw; height: 100vh; object-fit: contain; }
+        #status { position: fixed; top: 10px; left: 10px; color: lime; font-family: monospace; font-size: 14px; z-index: 100; }
+    </style>
+</head>
+<body>
+    <div id="status">Connecting...</div>
+    <video id="video" autoplay playsinline></video>
+    
+    <script>
+        const LIVEKIT_URL = 'wss://claymation-transcription-l6e51sws.livekit.cloud';
+        const API_KEY = 'APITw2Yp2Tv3yfg';
+        const API_SECRET = 'eVYY0UB69XDGLiGzclYuGUhXuVpc8ry3YcazimFryDW';
+        const ROOM_NAME = 'claymation-live';
+        
+        const video = document.getElementById('video');
+        const status = document.getElementById('status');
+        
+        async function generateToken(room, identity) {
+            const now = Math.floor(Date.now() / 1000);
+            const claims = {
+                iss: API_KEY,
+                sub: identity,
+                nbf: now,
+                exp: now + 21600,
+                video: { roomJoin: true, room: room, canPublish: false, canSubscribe: true }
+            };
+            const secret = new TextEncoder().encode(API_SECRET);
+            return await new jose.SignJWT(claims)
+                .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
+                .setIssuedAt()
+                .setExpirationTime('6h')
+                .sign(secret);
+        }
+        
+        async function connect() {
+            try {
+                const identity = 'td-viewer-' + Math.random().toString(36).substr(2, 6);
+                status.textContent = 'Generating token...';
+                
+                const token = await generateToken(ROOM_NAME, identity);
+                status.textContent = 'Connecting to ' + ROOM_NAME + '...';
+                
+                const room = new LivekitClient.Room({ adaptiveStream: true });
+                
+                room.on(LivekitClient.RoomEvent.TrackSubscribed, (track, publication, participant) => {
+                    console.log('Track subscribed:', track.kind, 'from', participant.identity);
+                    if (track.kind === 'video') {
+                        const element = track.attach();
+                        video.srcObject = element.srcObject;
+                        status.textContent = '✓ RECEIVING from ' + participant.identity;
+                        status.style.color = 'lime';
+                    }
+                });
+                
+                room.on(LivekitClient.RoomEvent.ParticipantConnected, (p) => {
+                    status.textContent = 'Participant joined: ' + p.identity;
+                });
+                
+                room.on(LivekitClient.RoomEvent.Disconnected, () => {
+                    status.textContent = 'Disconnected - will retry...';
+                    status.style.color = 'orange';
+                    setTimeout(connect, 3000);
+                });
+                
+                await room.connect(LIVEKIT_URL, token);
+                status.textContent = 'Connected! Waiting for video...';
+                status.style.color = 'yellow';
+                
+                // Check for existing participants
+                room.remoteParticipants.forEach((p) => {
+                    p.trackPublications.forEach((pub) => {
+                        if (pub.track && pub.track.kind === 'video') {
+                            const element = pub.track.attach();
+                            video.srcObject = element.srcObject;
+                            status.textContent = '✓ RECEIVING from ' + p.identity;
+                            status.style.color = 'lime';
+                        }
+                    });
+                });
+                
+            } catch (e) {
+                status.textContent = 'Error: ' + e.message;
+                status.style.color = 'red';
+                console.error(e);
+                setTimeout(connect, 5000);
+            }
+        }
+        
+        connect();
+    </script>
+</body>
+</html>

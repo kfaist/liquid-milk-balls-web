@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Processed Video - The Mirror's Echo</title>
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client@1.15.4/dist/livekit-client.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jose@4.15.4/dist/browser/index.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; }
+        body { background: #000; overflow: hidden; }
+        video { width: 100vw; height: 100vh; object-fit: contain; cursor: pointer; }
+        #status { position: fixed; bottom: 20px; left: 20px; color: #fff; font-family: monospace; font-size: 14px; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 4px; }
+        #fullscreenHint { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(255,255,255,0.5); font-family: monospace; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <video id="video" autoplay playsinline></video>
+    <div id="status">Connecting to processed-output...</div>
+    <div id="fullscreenHint">Click video for fullscreen</div>
+    
+    <script>
+        const LIVEKIT_URL = 'wss://claymation-transcription-l6e51sws.livekit.cloud';
+        const API_KEY = 'APITw2Yp2Tv3yfg';
+        const API_SECRET = 'eVYY0UB69XDGLiGzclYuGUhXuVpc8ry3YcazimFryDW';
+        const ROOM_NAME = 'processed-output';
+        
+        const video = document.getElementById('video');
+        const status = document.getElementById('status');
+        const hint = document.getElementById('fullscreenHint');
+        
+        video.addEventListener('click', () => {
+            if (video.requestFullscreen) video.requestFullscreen();
+            hint.style.display = 'none';
+        });
+        
+        async function generateToken(room, identity) {
+            const now = Math.floor(Date.now() / 1000);
+            const claims = {
+                iss: API_KEY,
+                sub: identity,
+                nbf: now,
+                exp: now + 21600,
+                video: { roomJoin: true, room: room, canPublish: false, canSubscribe: true }
+            };
+            const secret = new TextEncoder().encode(API_SECRET);
+            return await new jose.SignJWT(claims)
+                .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
+                .setIssuedAt()
+                .setExpirationTime('6h')
+                .sign(secret);
+        }
+        
+        async function connect() {
+            try {
+                const identity = 'viewer-' + Math.random().toString(36).substr(2, 6);
+                const token = await generateToken(ROOM_NAME, identity);
+                
+                const room = new LivekitClient.Room({ adaptiveStream: true });
+                
+                room.on(LivekitClient.RoomEvent.TrackSubscribed, (track, pub, participant) => {
+                    if (track.kind === 'video') {
+                        video.srcObject = track.attach().srcObject;
+                        status.textContent = '✓ Receiving processed video from ' + participant.identity;
+                        status.style.color = 'lime';
+                        hint.style.display = 'none';
+                    }
+                });
+                
+                room.on(LivekitClient.RoomEvent.Disconnected, () => {
+                    status.textContent = 'Disconnected - reconnecting...';
+                    status.style.color = 'orange';
+                    setTimeout(connect, 3000);
+                });
+                
+                await room.connect(LIVEKIT_URL, token);
+                status.textContent = 'Connected to ' + ROOM_NAME + ' - waiting for OBS stream...';
+                status.style.color = 'yellow';
+                
+                room.remoteParticipants.forEach((p) => {
+                    p.trackPublications.forEach((pub) => {
+                        if (pub.track && pub.track.kind === 'video') {
+                            video.srcObject = pub.track.attach().srcObject;
+                            status.textContent = '✓ Receiving from ' + p.identity;
+                            status.style.color = 'lime';
+                        }
+                    });
+                });
+                
+            } catch (e) {
+                status.textContent = 'Error: ' + e.message;
+                status.style.color = 'red';
+                setTimeout(connect, 5000);
+            }
+        }
+        
+        connect();
+    </script>
+</body>
+</html>

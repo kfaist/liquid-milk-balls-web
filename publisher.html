@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Publisher - The Mirror's Echo</title>
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client@1.15.4/dist/livekit-client.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jose@4.15.4/dist/browser/index.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #111; color: #fff; font-family: monospace; padding: 20px; }
+        h1 { font-size: 1.5rem; margin-bottom: 20px; }
+        video { width: 640px; height: 360px; background: #000; border: 1px solid #333; }
+        button { padding: 10px 20px; font-size: 1rem; margin: 10px 5px 10px 0; cursor: pointer; background: #333; color: #fff; border: 1px solid #555; }
+        button:hover { background: #444; }
+        button:disabled { opacity: 0.4; cursor: not-allowed; }
+        button.live { background: #060; border-color: lime; color: lime; }
+        #status { margin: 15px 0; padding: 10px; background: #222; font-size: 0.9rem; }
+        .success { color: lime; }
+        .error { color: #f66; }
+        .info { color: #6af; }
+    </style>
+</head>
+<body>
+    <h1>📹 Camera Publisher</h1>
+    <video id="localVideo" autoplay muted playsinline></video>
+    <div>
+        <button id="startBtn">Start Camera</button>
+        <button id="publishBtn" disabled>Publish to LiveKit</button>
+        <button id="stopBtn" disabled>Stop</button>
+    </div>
+    <div id="status" class="info">Click "Start Camera" to begin</div>
+    
+    <script>
+        const LIVEKIT_URL = 'wss://claymation-transcription-l6e51sws.livekit.cloud';
+        const API_KEY = 'APITw2Yp2Tv3yfg';
+        const API_SECRET = 'eVYY0UB69XDGLiGzclYuGUhXuVpc8ry3YcazimFryDW';
+        const ROOM_NAME = 'claymation-live';
+        
+        let localStream = null;
+        let room = null;
+        
+        const localVideo = document.getElementById('localVideo');
+        const startBtn = document.getElementById('startBtn');
+        const publishBtn = document.getElementById('publishBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const status = document.getElementById('status');
+        
+        function setStatus(msg, type) {
+            status.textContent = msg;
+            status.className = type || 'info';
+        }
+        
+        async function generateToken(roomName, identity) {
+            const now = Math.floor(Date.now() / 1000);
+            const claims = {
+                iss: API_KEY,
+                sub: identity,
+                nbf: now,
+                exp: now + 21600,
+                video: { roomJoin: true, room: roomName, canPublish: true, canSubscribe: false }
+            };
+            const secret = new TextEncoder().encode(API_SECRET);
+            return await new jose.SignJWT(claims)
+                .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
+                .setIssuedAt()
+                .setExpirationTime('6h')
+                .sign(secret);
+        }
+        
+        startBtn.addEventListener('click', async () => {
+            startBtn.disabled = true;
+            setStatus('Starting camera...', 'info');
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 1280, height: 720 },
+                    audio: true 
+                });
+                localVideo.srcObject = localStream;
+                publishBtn.disabled = false;
+                startBtn.textContent = '✓ Camera On';
+                setStatus('Camera ready! Click "Publish to LiveKit"', 'success');
+            } catch (e) {
+                setStatus('Camera error: ' + e.message, 'error');
+                startBtn.disabled = false;
+            }
+        });
+        
+        publishBtn.addEventListener('click', async () => {
+            publishBtn.disabled = true;
+            setStatus('Connecting to LiveKit...', 'info');
+            try {
+                const identity = 'publisher-' + Math.random().toString(36).substr(2, 6);
+                const token = await generateToken(ROOM_NAME, identity);
+                
+                room = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
+                await room.connect(LIVEKIT_URL, token);
+                
+                setStatus('Connected! Publishing tracks...', 'info');
+                
+                const videoTrack = localStream.getVideoTracks()[0];
+                const audioTrack = localStream.getAudioTracks()[0];
+                
+                if (videoTrack) await room.localParticipant.publishTrack(videoTrack);
+                if (audioTrack) await room.localParticipant.publishTrack(audioTrack);
+                
+                publishBtn.textContent = '🔴 LIVE';
+                publishBtn.classList.add('live');
+                stopBtn.disabled = false;
+                setStatus('✓ PUBLISHING to room: ' + ROOM_NAME + ' as ' + identity, 'success');
+                
+            } catch (e) {
+                setStatus('Publish error: ' + e.message, 'error');
+                publishBtn.disabled = false;
+            }
+        });
+        
+        stopBtn.addEventListener('click', async () => {
+            if (room) {
+                await room.disconnect();
+                room = null;
+            }
+            publishBtn.textContent = 'Publish to LiveKit';
+            publishBtn.classList.remove('live');
+            publishBtn.disabled = false;
+            stopBtn.disabled = true;
+            setStatus('Stopped publishing', 'info');
+        });
+    </script>
+</body>
+</html>
