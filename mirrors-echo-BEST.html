@@ -1,580 +1,77 @@
 <!DOCTYPE html>
-<!-- saved from url=(0059)file:///C:/Users/Krista/Downloads/mirrors-echo-vibrant.html -->
-<html lang="en" data-kantu="1" style="--hue-value: 280; --hue-complementary: 100;"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
+<html lang="en" style="--hue-value: 280; --hue-complementary: 100;">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Mirror's Echo</title>
-    <!-- LiveKit SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/livekit-client@1.15.4/dist/livekit-client.umd.min.js"></script>
-    <!-- Jose for JWT -->
-    <script src="https://cdn.jsdelivr.net/npm/jose@4.15.4/dist/browser/index.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --hue-value: 280; --hue-complementary: 100; }
+        body { font-family: 'JetBrains Mono', monospace; background: #000; color: rgba(255, 255, 255, 0.9); padding: 2rem; line-height: 1.6; }
+        .container { max-width: 1400px; width: 100%; margin: 0 auto; }
         
-        :root {
-            --hue-value: 280;
-            --hue-complementary: 100;
-        }
-        
-        body {
-            font-family: 'JetBrains Mono', monospace;
-            background: #000;
-            color: rgba(255, 255, 255, 0.9);
-            padding: 2rem;
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 1400px;
-            width: 100%;
-            margin: 0 auto;
-        }
-        
-        /* Flickering Title */
-        h1.flicker {
-            font-size: 1.5rem;
-            font-weight: 400;
-            text-align: center;
-            margin-bottom: 3rem;
-            letter-spacing: 0.1em;
-            opacity: 0.8;
-            animation: flicker 3s infinite;
-        }
-        
+        h1.flicker { font-size: 1.5rem; font-weight: 400; text-align: center; margin-bottom: 3rem; letter-spacing: 0.1em; opacity: 0.8; animation: flicker 3s infinite; }
         @keyframes flicker {
-            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-                opacity: 0.8;
-            }
-            20%, 24%, 55% {
-                opacity: 0.3;
-            }
-            22% {
-                opacity: 0.5;
-                transform: translate(-1px, 0);
-            }
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 0.8; }
+            20%, 24%, 55% { opacity: 0.3; }
+            22% { opacity: 0.5; transform: translate(-1px, 0); }
         }
         
-        .intro-text {
-            text-align: center;
-            font-size: 0.65rem;
-            opacity: 0.7;
-            letter-spacing: 0.02em;
-            line-height: 1.6;
-            margin-bottom: 3rem;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
+        .intro-text { text-align: center; font-size: 0.65rem; opacity: 0.7; letter-spacing: 0.02em; line-height: 1.6; margin-bottom: 3rem; max-width: 800px; margin-left: auto; margin-right: auto; }
+        .intro-text a { color: rgba(255, 255, 255, 0.9); text-decoration: none; border-bottom: 1px solid rgba(255, 255, 255, 0.3); transition: border-color 0.2s; }
+        .intro-text a:hover { border-color: #fff; }
         
-        .intro-text a {
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-            transition: border-color 0.2s;
-        }
+        .panel { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.15); padding: 2rem; text-align: center; margin: 2rem 0; }
+        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+        .video-grid.collapsed { grid-template-columns: 1fr; }
+        .video-box { position: relative; }
+        .video-box.hidden { display: none; }
+        .video-label { font-size: 0.75rem; letter-spacing: 0.05em; opacity: 0.6; margin-bottom: 0.5rem; text-transform: uppercase; }
+        .video-container { background: #000; border: 1px solid rgba(255, 255, 255, 0.3); aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        video { width: 100%; height: 100%; object-fit: cover; }
         
-        .intro-text a:hover {
-            border-color: #fff;
-        }
+        .expand-btn { position: absolute; top: 0.5rem; right: 0.5rem; padding: 0.4rem 0.8rem; font-size: 0.7rem; border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(0, 0, 0, 0.3); color: #fff; cursor: pointer; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em; transition: all 0.2s; z-index: 10; line-height: 1; opacity: 0.5; }
+        .expand-btn:hover { border-color: #fff; background: rgba(255, 255, 255, 0.05); opacity: 0.8; }
         
-        /* Video Panel */
-        .panel {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 2rem;
-            text-align: center;
-            margin: 2rem 0;
-        }
+        .btn { padding: 0.4rem 0.8rem; font-size: 0.7rem; border: 1px solid rgba(255, 255, 255, 0.3); background: transparent; color: #fff; cursor: pointer; transition: all 0.2s; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em; }
+        #startBtn { display: block; margin: 0.5rem auto 0 auto; width: fit-content; }
+        .remote-controls { display: flex; gap: 0.5rem; margin-top: 0.5rem; justify-content: flex-start; }
+        .btn:hover:not(:disabled) { border-color: #fff; background: rgba(255, 255, 255, 0.05); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
         
-        .video-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
+        .color-palette-box { background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); padding: 2rem; margin: 2rem 0; border-radius: 4px; }
+        .palette-label { font-size: 0.75rem; letter-spacing: 0.05em; opacity: 0.6; text-transform: uppercase; margin-bottom: 0.8rem; }
+        .color-palette { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0.5rem; margin-bottom: 1.5rem; }
+        .palette-btn { aspect-ratio: 1; border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 4px; cursor: pointer; transition: all 0.2s; padding: 0; min-height: 32px; opacity: 0.5; }
+        .palette-btn:hover { border-color: rgba(255, 255, 255, 0.6); box-shadow: 0 0 12px currentColor; transform: scale(1.05); opacity: 0.7; }
+        .palette-btn.active { opacity: 1; border-color: rgba(255, 255, 255, 1); box-shadow: 0 0 16px currentColor, inset 0 0 8px rgba(255, 255, 255, 0.3); }
         
-        .video-grid.collapsed {
-            grid-template-columns: 1fr;
-        }
+        .control-panel { background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); padding: 2rem; margin: 2rem 0; border-radius: 4px; }
+        .control-title { font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; margin-bottom: 1.5rem; }
+        .sliders-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
+        .slider-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .slider-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; }
+        .slider-label { letter-spacing: 0.05em; opacity: 0.6; text-transform: uppercase; }
+        .slider-value { color: hsl(var(--hue-value), 85%, 55%); font-weight: bold; font-size: 0.8rem; }
         
-        .video-box {
-            position: relative;
-        }
+        .control-slider { width: 100%; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.1); outline: none; -webkit-appearance: none; appearance: none; cursor: pointer; }
+        .control-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: hsl(var(--hue-complementary), 85%, 55%); cursor: pointer; box-shadow: 0 0 8px hsl(var(--hue-complementary), 85%, 55%); transition: all 0.2s; }
+        .control-slider::-webkit-slider-thumb:hover { box-shadow: 0 0 12px hsl(var(--hue-complementary), 85%, 55%); transform: scale(1.2); }
+        .control-slider::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: hsl(var(--hue-complementary), 85%, 55%); cursor: pointer; border: none; box-shadow: 0 0 8px hsl(var(--hue-complementary), 85%, 55%); }
         
-        .video-box.hidden {
-            display: none;
-        }
+        .video-shimmer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; background: linear-gradient(115deg, transparent 0%, rgba(255, 255, 255, 0.08) 8%, rgba(255, 105, 180, 0.12) 16%, rgba(138, 43, 226, 0.12) 28%, rgba(0, 191, 255, 0.12) 40%, rgba(127, 255, 212, 0.10) 52%, rgba(255, 215, 0, 0.10) 64%, rgba(255, 140, 0, 0.12) 76%, rgba(255, 20, 147, 0.12) 88%, rgba(255, 255, 255, 0.08) 96%, transparent 100%); background-size: 300% 300%; animation: shimmerMove 8s ease-in-out infinite; mix-blend-mode: screen; }
+        @keyframes shimmerMove { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
         
-        .video-label {
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-            opacity: 0.6;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-        }
+        .raindrop { position: fixed; border-radius: 50%; pointer-events: none; animation: dropAppear 5s ease-out forwards; filter: blur(0.5px); }
+        @keyframes dropAppear { 0% { opacity: 0; transform: scale(0.6); } 20% { opacity: 0.5; transform: scale(1); } 80% { opacity: 0.5; transform: scale(1); } 100% { opacity: 0; transform: scale(1.05); } }
         
-        .video-container {
-            background: #000;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            aspect-ratio: 16/9;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-        }
+        section { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); padding: 2rem; margin: 2rem 0; }
+        h2 { font-size: 1.2rem; font-weight: 400; letter-spacing: 0.1em; margin-bottom: 1.5rem; opacity: 0.8; }
+        h3 { font-size: 1rem; font-weight: 400; letter-spacing: 0.05em; margin: 1.5rem 0 1rem 0; opacity: 0.7; }
+        p { margin-bottom: 1rem; font-size: 0.9rem; opacity: 0.8; }
+        footer { text-align: center; padding: 3rem 0 2rem 0; font-size: 0.75rem; opacity: 0.5; letter-spacing: 0.05em; }
         
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .expand-btn {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            padding: 0.4rem 0.8rem;
-            font-size: 0.7rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            background: rgba(0, 0, 0, 0.3);
-            color: #fff;
-            cursor: pointer;
-            font-family: 'JetBrains Mono', monospace;
-            letter-spacing: 0.05em;
-            transition: all 0.2s;
-            z-index: 10;
-            line-height: 1;
-            opacity: 0.5;
-        }
-        
-        .expand-btn:hover {
-            border-color: #fff;
-            background: rgba(255, 255, 255, 0.05);
-            opacity: 0.8;
-        }
-        
-        .btn {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.7rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            background: transparent;
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: 'JetBrains Mono', monospace;
-            letter-spacing: 0.05em;
-        }
-        
-        #startBtn {
-            display: block;
-            margin: 0.5rem auto 0 auto;
-            width: fit-content;
-        }
-        
-        .remote-controls {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-            justify-content: flex-start;
-        }
-        
-        .btn:hover:not(:disabled) {
-            border-color: #fff;
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
-        .btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-        
-        /* Intensity Slider with Squares */
-        .intensity-control {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 105, 180, 0.3);
-            padding: 2rem;
-            margin: 2rem 0;
-            border-radius: 4px;
-        }
-        
-        .intensity-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .intensity-label {
-            font-size: 0.85rem;
-            letter-spacing: 0.1em;
-            opacity: 0.7;
-            text-transform: uppercase;
-        }
-        
-        .intensity-time {
-            font-size: 0.9rem;
-            color: rgba(255, 105, 180, 0.9);
-            font-weight: bold;
-        }
-        
-        .square-slider {
-            display: grid;
-            grid-template-columns: repeat(20, 1fr);
-            gap: 6px;
-            margin-bottom: 1.5rem;
-        }
-        
-        .square {
-            aspect-ratio: 1;
-            background: rgba(255, 105, 180, 0.2);
-            border: 1px solid rgba(255, 105, 180, 0.4);
-            border-radius: 2px;
-            transition: all 0.3s ease;
-        }
-        
-        .square.active {
-            background: rgba(255, 105, 180, 0.8);
-            border-color: rgba(255, 105, 180, 1);
-            box-shadow: 0 0 12px rgba(255, 105, 180, 0.6);
-        }
-        
-        .square.active.glow {
-            animation: squareGlow 0.6s ease-out;
-        }
-        
-        @keyframes squareGlow {
-            0% {
-                box-shadow: 0 0 4px rgba(255, 105, 180, 0.4);
-            }
-            50% {
-                box-shadow: 0 0 20px rgba(255, 105, 180, 1);
-            }
-            100% {
-                box-shadow: 0 0 12px rgba(255, 105, 180, 0.6);
-            }
-        }
-        
-        /* Control Panel */
-        .control-panel {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            margin: 2rem 0;
-            border-radius: 4px;
-        }
-        
-        .control-title {
-            font-size: 0.85rem;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            opacity: 0.7;
-            margin-bottom: 1.5rem;
-        }
-        
-        /* Color Palette Box */
-        .color-palette-box {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            margin: 2rem 0;
-            border-radius: 4px;
-        }
-        
-        .palette-label {
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-            opacity: 0.6;
-            text-transform: uppercase;
-            margin-bottom: 0.8rem;
-        }
-        
-        .color-palette {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .palette-btn {
-            aspect-ratio: 1;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-            padding: 0;
-            min-height: 32px;
-            opacity: 0.5;
-        }
-        
-        .palette-btn:hover {
-            border-color: rgba(255, 255, 255, 0.6);
-            box-shadow: 0 0 12px currentColor;
-            transform: scale(1.05);
-            opacity: 0.7;
-        }
-        
-        .palette-btn.active {
-            opacity: 1;
-            border-color: rgba(255, 255, 255, 1);
-            box-shadow: 0 0 16px currentColor, inset 0 0 8px rgba(255, 255, 255, 0.3);
-        }
-        
-        .sliders-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .slider-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        
-        .slider-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.75rem;
-        }
-        
-        .slider-label {
-            letter-spacing: 0.05em;
-            opacity: 0.6;
-            text-transform: uppercase;
-        }
-        
-        .slider-value {
-            color: hsl(var(--hue-value), 85%, 55%);
-            font-weight: bold;
-            font-size: 0.8rem;
-        }
-        
-        .control-slider {
-            width: 100%;
-            height: 4px;
-            border-radius: 2px;
-            background: rgba(255, 255, 255, 0.1);
-            outline: none;
-            -webkit-appearance: none;
-            appearance: none;
-            cursor: pointer;
-        }
-        
-        .control-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: hsl(var(--hue-complementary), 85%, 55%);
-            cursor: pointer;
-            box-shadow: 0 0 8px hsl(var(--hue-complementary), 85%, 55%);
-            transition: all 0.2s;
-        }
-        
-        .control-slider::-webkit-slider-thumb:hover {
-            box-shadow: 0 0 12px hsl(var(--hue-complementary), 85%, 55%);
-            transform: scale(1.2);
-        }
-        
-        .control-slider::-moz-range-thumb {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: hsl(var(--hue-complementary), 85%, 55%);
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 0 8px hsl(var(--hue-complementary), 85%, 55%);
-            transition: all 0.2s;
-        }
-        
-        .control-slider::-moz-range-thumb:hover {
-            box-shadow: 0 0 12px hsl(var(--hue-complementary), 85%, 55%);
-            transform: scale(1.2);
-        }
-        
-        .control-slider::-moz-range-track {
-            background: transparent;
-            border: none;
-        }
-        
-        .intensity-display {
-            text-align: center;
-            font-size: 0.9rem;
-            opacity: 0.7;
-        }
-        
-        .intensity-percent {
-            font-size: 1.2rem;
-            color: rgba(255, 105, 180, 0.9);
-            font-weight: bold;
-            margin-top: 0.5rem;
-        }
-        
-        /* Raindrops */
-        .raindrop {
-            position: fixed;
-            border-radius: 50%;
-            pointer-events: none;
-            animation: dropAppear 5s ease-out forwards;
-            filter: blur(0.5px);
-        }
-        
-        .raindrop::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 1px solid;
-            border-image: linear-gradient(45deg, 
-                rgba(255, 105, 180, 0.7), 
-                rgba(138, 43, 226, 0.7), 
-                rgba(0, 191, 255, 0.7)) 1;
-            opacity: 0;
-            animation: rippleSubtle 3s ease-out;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
-        
-        .raindrop::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 1px solid;
-            border-image: linear-gradient(135deg, 
-                rgba(127, 255, 212, 0.6), 
-                rgba(255, 215, 0, 0.6), 
-                rgba(255, 140, 0, 0.6)) 1;
-            opacity: 0;
-            animation: rippleSubtle 3s ease-out 0.8s;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
-        }
-        
-        @keyframes dropAppear {
-            0% {
-                opacity: 0;
-                transform: scale(0.6);
-            }
-            20% {
-                opacity: 0.5;
-                transform: scale(1);
-            }
-            80% {
-                opacity: 0.5;
-                transform: scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: scale(1.05);
-            }
-        }
-        
-        @keyframes rippleSubtle {
-            0% {
-                opacity: 0.3;
-                transform: translate(-50%, -50%) scale(1);
-            }
-            30% {
-                opacity: 0.15;
-            }
-            100% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(2.5);
-            }
-        }
-        
-        .video-shimmer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            opacity: 0;
-            background: linear-gradient(
-                115deg,
-                transparent 0%,
-                rgba(255, 255, 255, 0.08) 8%,
-                rgba(255, 105, 180, 0.12) 16%,
-                rgba(138, 43, 226, 0.12) 28%,
-                rgba(0, 191, 255, 0.12) 40%,
-                rgba(127, 255, 212, 0.10) 52%,
-                rgba(255, 215, 0, 0.10) 64%,
-                rgba(255, 140, 0, 0.12) 76%,
-                rgba(255, 20, 147, 0.12) 88%,
-                rgba(255, 255, 255, 0.08) 96%,
-                transparent 100%
-            );
-            background-size: 300% 300%;
-            animation: shimmerMove 8s ease-in-out infinite;
-            mix-blend-mode: screen;
-        }
-        
-        @keyframes shimmerMove {
-            0%, 100% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-        }
-        
-        section {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            margin: 2rem 0;
-        }
-        
-        h2 {
-            font-size: 1.2rem;
-            font-weight: 400;
-            letter-spacing: 0.1em;
-            margin-bottom: 1.5rem;
-            opacity: 0.8;
-        }
-        
-        h3 {
-            font-size: 1rem;
-            font-weight: 400;
-            letter-spacing: 0.05em;
-            margin: 1.5rem 0 1rem 0;
-            opacity: 0.7;
-        }
-        
-        p {
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 3rem 0 2rem 0;
-            font-size: 0.75rem;
-            opacity: 0.5;
-            letter-spacing: 0.05em;
-        }
-        
-        @media (max-width: 768px) {
-            .video-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .square-slider {
-                grid-template-columns: repeat(10, 1fr);
-            }
-        }
+        @media (max-width: 768px) { .video-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -583,39 +80,36 @@
 
         <div class="intro-text">
             The Mirror's Echo operates as an unlimited edition under open-source principles (AGPL-3.0), ensuring accessibility while sustaining ongoing development. Exhibition licenses and institutional partnerships support the continued evolution of networked digital art practices.<br><br>
-            Artist/Technical: kristabluedoor@gmail.com<br>
-            Curatorial/Institutional: chaoscontemporarycraft@gmail.com
+            Artist/Technical: <a href="mailto:kristabluedoor@gmail.com">kristabluedoor@gmail.com</a><br>
+            Curatorial/Institutional: <a href="mailto:chaoscontemporarycraft@gmail.com">chaoscontemporarycraft@gmail.com</a>
         </div>
 
-        <!-- Video Panel -->
         <div class="panel">
             <div class="video-grid" id="videoGrid">
                 <div class="video-box" id="localBox">
                     <div class="video-label">Local Camera</div>
                     <div class="video-container">
-                        <div class="video-shimmer" id="localShimmer" style="transition: opacity 3s ease-in; opacity: 1;"></div>
-                        <video id="localVideo" autoplay="" muted="" playsinline=""></video>
+                        <div class="video-shimmer" id="localShimmer"></div>
+                        <video id="localVideo" autoplay muted playsinline></video>
                     </div>
                     <button class="btn" id="startBtn">Start Camera</button>
                 </div>
-
                 <div class="video-box" id="remoteBox">
                     <div class="video-label">Remote Stream</div>
                     <div class="video-container">
                         <button class="expand-btn" id="expandBtn">↗</button>
-                        <div class="video-shimmer" id="remoteShimmer" style="transition: opacity 3s ease-in; opacity: 1;"></div>
-                        <video id="remoteVideo" autoplay="" playsinline=""></video>
+                        <div class="video-shimmer" id="remoteShimmer"></div>
+                        <video id="remoteVideo" autoplay playsinline></video>
                     </div>
                     <div class="remote-controls">
-                        <button class="btn" id="connectBtn" disabled="">Connect</button>
-                        <button class="btn" id="disconnectBtn" disabled="">Disconnect</button>
-                        <button class="btn" id="fullscreenBtn" disabled="">Fullscreen</button>
+                        <button class="btn" id="connectBtn" disabled>Connect</button>
+                        <button class="btn" id="disconnectBtn" disabled>Disconnect</button>
+                        <button class="btn" id="fullscreenBtn" disabled>Fullscreen</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Color Palette Box -->
         <div class="color-palette-box">
             <div class="palette-label">Color Palette</div>
             <div class="color-palette">
@@ -628,9 +122,7 @@
                 <button class="palette-btn" data-hue="220" style="background: hsl(220, 85%, 55%);" title="Blue"></button>
                 <button class="palette-btn" data-hue="0" style="background: hsl(0, 95%, 55%);" title="Red"></button>
             </div>
-            
-            <!-- Color Slider -->
-            <div class="slider-group" style="margin-top: 1.5rem;">
+            <div class="slider-group">
                 <div class="slider-header">
                     <span class="slider-label">Color</span>
                     <span class="slider-value" id="colorSliderValue">280°</span>
@@ -639,124 +131,62 @@
             </div>
         </div>
 
-        <!-- Control Sliders -->
         <div class="control-panel">
             <div class="control-title">Interactive Parameters</div>
-            
             <div class="sliders-grid">
-                <!-- Hue -->
                 <div class="slider-group">
-                    <div class="slider-header">
-                        <span class="slider-label">Hue</span>
-                        <span class="slider-value" id="hueValue">280°</span>
-                    </div>
+                    <div class="slider-header"><span class="slider-label">Hue</span><span class="slider-value" id="hueValue">280°</span></div>
                     <input type="range" id="hueSlider" min="0" max="360" value="280" class="control-slider">
                 </div>
-                
-                <!-- Saturation -->
                 <div class="slider-group">
-                    <div class="slider-header">
-                        <span class="slider-label">Saturation</span>
-                        <span class="slider-value" id="satValue">85%</span>
-                    </div>
+                    <div class="slider-header"><span class="slider-label">Saturation</span><span class="slider-value" id="satValue">85%</span></div>
                     <input type="range" id="satSlider" min="0" max="100" value="85" class="control-slider">
                 </div>
-                
-                <!-- Lightness -->
                 <div class="slider-group">
-                    <div class="slider-header">
-                        <span class="slider-label">Lightness</span>
-                        <span class="slider-value" id="lightValue">55%</span>
-                    </div>
+                    <div class="slider-header"><span class="slider-label">Lightness</span><span class="slider-value" id="lightValue">55%</span></div>
                     <input type="range" id="lightSlider" min="0" max="100" value="55" class="control-slider">
                 </div>
-                
-                <!-- Intensity -->
                 <div class="slider-group">
-                    <div class="slider-header">
-                        <span class="slider-label">Intensity</span>
-                        <span class="slider-value" id="intensityValue">0.50</span>
-                    </div>
+                    <div class="slider-header"><span class="slider-label">Intensity</span><span class="slider-value" id="intensityValue">0.50</span></div>
                     <input type="range" id="intensitySlider" min="0" max="1" step="0.01" value="0.50" class="control-slider">
                 </div>
-                
-                <!-- Depth -->
                 <div class="slider-group">
-                    <div class="slider-header">
-                        <span class="slider-label">Depth</span>
-                        <span class="slider-value" id="depthValue">1.0</span>
-                    </div>
+                    <div class="slider-header"><span class="slider-label">Depth</span><span class="slider-value" id="depthValue">1.0</span></div>
                     <input type="range" id="depthSlider" min="0" max="2" step="0.1" value="1.0" class="control-slider">
                 </div>
-                
-                <!-- Gloss -->
                 <div class="slider-group">
-                    <div class="slider-header">
-                        <span class="slider-label">Gloss</span>
-                        <span class="slider-value" id="glossValue">0.60</span>
-                    </div>
+                    <div class="slider-header"><span class="slider-label">Gloss</span><span class="slider-value" id="glossValue">0.60</span></div>
                     <input type="range" id="glossSlider" min="0" max="1" step="0.05" value="0.60" class="control-slider">
                 </div>
-                
-                <!-- Bump -->
                 <div class="slider-group">
-                    <div class="slider-header">
-                        <span class="slider-label">Bump</span>
-                        <span class="slider-value" id="bumpValue">1.0</span>
-                    </div>
+                    <div class="slider-header"><span class="slider-label">Bump</span><span class="slider-value" id="bumpValue">1.0</span></div>
                     <input type="range" id="bumpSlider" min="0" max="2" step="0.1" value="1.0" class="control-slider">
                 </div>
-                
-                <!-- Speed -->
                 <div class="slider-group">
-                    <div class="slider-header">
-                        <span class="slider-label">Speed</span>
-                        <span class="slider-value" id="speedValue">1x</span>
-                    </div>
+                    <div class="slider-header"><span class="slider-label">Speed</span><span class="slider-value" id="speedValue">1x</span></div>
                     <input type="range" id="speedSlider" min="0.5" max="4" step="0.5" value="1" class="control-slider">
                 </div>
-                
-                <!-- Halo -->
                 <div class="slider-group">
-                    <div class="slider-header">
-                        <span class="slider-label">Halo</span>
-                        <span class="slider-value" id="haloValue">1.0</span>
-                    </div>
+                    <div class="slider-header"><span class="slider-label">Halo</span><span class="slider-value" id="haloValue">1.0</span></div>
                     <input type="range" id="haloSlider" min="0" max="2" step="0.1" value="1.0" class="control-slider">
                 </div>
-                
-                <!-- Temporal Intensity -->
                 <div class="slider-group">
-                    <div class="slider-header">
-                        <span class="slider-label">Temporal Intensity</span>
-                        <span class="slider-value" id="temporalIntensityValue">10%</span>
-                    </div>
-                    <input type="range" id="temporalIntensitySlider" min="0" max="100" value="0" class="control-slider" disabled="">
+                    <div class="slider-header"><span class="slider-label">Temporal Intensity</span><span class="slider-value" id="temporalIntensityValue">0%</span></div>
+                    <input type="range" id="temporalIntensitySlider" min="0" max="100" value="0" class="control-slider" disabled>
                 </div>
             </div>
         </div>
 
-        <!-- About Section -->
         <section>
             <h2>About</h2>
             <p><em>The Mirror's Echo</em> is a networked interactive work exploring presence, temporality, and reciprocity through real-time video transmission. The piece positions participants as both observers and subjects, creating a feedback loop where actions generate visual echoes that accumulate and transform over time.</p>
-
-            <p>Built on open protocols (WebRTC, LiveKit, NDI), the work operates as distributed infrastructure - each interaction exists simultaneously across multiple nodes: browser, server, and optional processing environments. This architecture enables the piece to function as both a self-contained web experience and as material for live visual manipulation through tools like TouchDesigner.</p>
-
-            <p>The work implements a temporal access model: seven minutes of unmediated experience, followed by progressive visual markers that reveal the piece's constructed nature. This durational framework questions assumptions about digital permanence and the economics of networked art.</p>
-
-            <p>Technical implementation merges web-native technologies with broadcast/VJ workflows, positioning the work within lineages of video feedback art (Steina &amp; Woody Vasulka), telepresence projects (Kit Galloway &amp; Sherrie Rabinowitz's <em>Satellite Arts</em>), and contemporary networked performance practices.</p>
+            <p>Built on open protocols (WebRTC, LiveKit, NDI), the work operates as distributed infrastructure - each interaction exists simultaneously across multiple nodes: browser, server, and optional processing environments.</p>
         </section>
 
-        <!-- Processing Pipeline -->
         <section>
             <h2>Processing Pipeline</h2>
-            <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 1.5rem; margin: 1.5rem 0; font-size: 0.85rem; line-height: 2; font-family: &#39;JetBrains Mono&#39;, monospace; opacity: 0.8;">
+            <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 1.5rem; margin: 1.5rem 0; font-size: 0.85rem; line-height: 2; font-family: 'JetBrains Mono', monospace; opacity: 0.8;">
                 Camera Input → WebRTC/LiveKit → NVIDIA GPU Processing<br>
-                ↓<br>
-                Audio Stream → Whisper (Speech-to-Text)<br>
-                ↓<br>
-                Text → spaCy NLP (Entity Recognition, Semantic Analysis)<br>
                 ↓<br>
                 Video → TouchDesigner (Visual Processing, Effects, Generative Response)<br>
                 ↓<br>
@@ -766,450 +196,175 @@
             </div>
         </section>
 
-        <!-- Technical Infrastructure -->
-        <section>
-            <h2>Technical Infrastructure</h2>
-            <p>For production-quality streaming with OBS, NDI, and TouchDesigner integration:</p>
-            
-            <h3>Complete Bidirectional Workflow:</h3>
-            <ul>
-                <li><strong>Publisher Page:</strong> Remote user captures webcam and publishes to LiveKit</li>
-                <li><strong>NDI Viewer Page:</strong> View the LiveKit stream (capture this in OBS Browser Source)</li>
-                <li><strong>OBS:</strong> Capture NDI viewer page and enable NDI output (Tools → NDI Output Settings)</li>
-                <li><strong>TouchDesigner:</strong> Use NDI In TOP to receive stream from OBS, process &amp; stylize</li>
-                <li><strong>TD Output:</strong> Use NDI Out TOP to send processed video back to OBS</li>
-                <li><strong>OBS Capture:</strong> Add NDI Source in OBS to receive processed video from TD</li>
-                <li><strong>Return Viewer Page:</strong> Remote user views processed video with fullscreen option</li>
-            </ul>
-            
-            <p style="margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 4px;"><strong>Signal Path:</strong> Remote Camera → LiveKit → OBS → NDI → TouchDesigner (process) → NDI → Back to Remote Viewer in Real-Time</p>
-        </section>
-
-        <!-- Interaction -->
-        <section>
-            <h2>Interaction</h2>
-            <p>The work responds to presence through multiple modes of engagement. Each interaction generates visual echoes that accumulate temporally within the system.</p>
-
-            <h3>Mirror Interface:</h3>
-            <p>Direct interaction with the circular interface generates ripple formations. Accumulated interactions trigger chromatic shifts every five engagements. The Clear function returns the system to its initial state.</p>
-
-            <h3>Video Transmission:</h3>
-            <p>WebRTC protocols enable peer-to-peer video transmission. Local and remote streams establish reciprocal viewing positions. The work's temporal markers emerge after seven minutes of sustained connection, revealing the constructed nature of the experience.</p>
-        </section>
-
-        <footer>© 2025 The Mirror's Echo</footer>
+        <footer>© 2025 The Mirror's Echo | Krista Faist</footer>
     </div>
 
-    <script>
-        // Temporal Intensity Slider (read-only, updates automatically)
-        const temporalIntensitySlider = document.getElementById('temporalIntensitySlider');
+<script>
+const colors = [
+    'rgba(255, 105, 180, 0.9)', 'rgba(138, 43, 226, 0.9)', 'rgba(75, 0, 130, 0.9)',
+    'rgba(0, 191, 255, 0.9)', 'rgba(127, 255, 212, 0.9)', 'rgba(50, 205, 50, 0.9)',
+    'rgba(255, 215, 0, 0.9)', 'rgba(255, 140, 0, 0.9)', 'rgba(255, 20, 147, 0.9)'
+];
 
-        // Vibrant colors
-        const colors = [
-            'rgba(255, 105, 180, 0.9)',  // Hot pink
-            'rgba(138, 43, 226, 0.9)',   // Blue violet
-            'rgba(75, 0, 130, 0.9)',     // Indigo
-            'rgba(0, 191, 255, 0.9)',    // Deep sky blue
-            'rgba(127, 255, 212, 0.9)',  // Aquamarine
-            'rgba(50, 205, 50, 0.9)',    // Lime green
-            'rgba(255, 215, 0, 0.9)',    // Gold
-            'rgba(255, 140, 0, 0.9)',    // Dark orange
-            'rgba(255, 20, 147, 0.9)'    // Deep pink
-        ];
+const startTime = Date.now();
+const duration = 600000;
 
-        const startTime = Date.now();
-        const duration = 600000; // 10 minutes total
-        const rainStartTime = 0; // Start immediately
-        const rainEndTime = 600000; // 10 minutes
-        let rainInterval = null;
-        let effectsStarted = false;
+// Shimmer fade in
+setTimeout(() => {
+    document.getElementById('localShimmer').style.transition = 'opacity 3s ease-in';
+    document.getElementById('localShimmer').style.opacity = '1';
+    document.getElementById('remoteShimmer').style.transition = 'opacity 3s ease-in';
+    document.getElementById('remoteShimmer').style.opacity = '1';
+}, 100);
 
-        // Shimmer fade in
-        setTimeout(() => {
-            document.getElementById('localShimmer').style.transition = 'opacity 3s ease-in';
-            document.getElementById('localShimmer').style.opacity = '1';
-            document.getElementById('remoteShimmer').style.transition = 'opacity 3s ease-in';
-            document.getElementById('remoteShimmer').style.opacity = '1';
-        }, 100);
+function createRaindrop(progress, rainProgress) {
+    const drop = document.createElement('div');
+    drop.className = 'raindrop';
+    drop.style.left = Math.random() * window.innerWidth + 'px';
+    drop.style.top = Math.random() * window.innerHeight + 'px';
+    
+    const color1 = colors[Math.floor(Math.random() * colors.length)];
+    const color2 = colors[Math.floor(Math.random() * colors.length)];
+    
+    let baseOpacity = progress < 0.33 ? 0.17 + (progress * 0.09) : progress < 0.66 ? 0.26 + (progress * 0.09) : 0.37 + (progress * 0.11);
+    const haloValue = parseFloat(document.getElementById('haloSlider').value);
+    const glowIntensity = (15 + (progress * 65)) * haloValue;
+    const glowBoost = (1 + (progress * 1.5)) * haloValue;
+    
+    drop.style.background = `radial-gradient(circle at 40% 40%, ${color1.replace('0.9', String(baseOpacity * 1.3))} 0%, ${color2.replace('0.9', String(baseOpacity))} 30%, ${color1.replace('0.9', String(baseOpacity * 0.6))} 60%, transparent 100%)`;
+    drop.style.boxShadow = `0 0 ${glowIntensity * 0.6 * glowBoost}px ${color1}, 0 0 ${glowIntensity * 1.2 * glowBoost}px ${color2}, 0 0 ${glowIntensity * 2 * glowBoost}px ${color1.replace('0.9', String(baseOpacity * 0.4))}`;
+    
+    const baseSize = Math.random() < 0.3 ? 20 + (progress * 10) : Math.random() < 0.7 ? 40 + (progress * 20) : 40 + (progress * 50);
+    const size = baseSize + (Math.random() * 25);
+    drop.style.width = size + 'px';
+    drop.style.height = size + 'px';
+    drop.style.zIndex = Math.floor(100 + (rainProgress * 9898));
+    
+    const dur = 5 + Math.random() * 3;
+    drop.style.animationDuration = dur + 's';
+    document.body.appendChild(drop);
+    setTimeout(() => drop.remove(), dur * 1000);
+}
 
-        function createRaindrop(progress, rainProgress) {
-            const drop = document.createElement('div');
-            drop.className = 'raindrop';
-            
-            const x = Math.random() * window.innerWidth;
-            const y = Math.random() * window.innerHeight;
-            drop.style.left = x + 'px';
-            drop.style.top = y + 'px';
-            
-            const color1 = colors[Math.floor(Math.random() * colors.length)];
-            const color2 = colors[Math.floor(Math.random() * colors.length)];
-            const color3 = colors[Math.floor(Math.random() * colors.length)];
-            
-            let baseOpacity;
-            if (progress < 0.33) {
-                baseOpacity = 0.17 + (progress * 0.09);
-            } else if (progress < 0.66) {
-                baseOpacity = 0.26 + (progress * 0.09);
-            } else {
-                baseOpacity = 0.37 + (progress * 0.11);
-            }
-            
-            // Get halo value from slider
-            const haloValue = parseFloat(document.getElementById('haloSlider').value);
-            const glowIntensity = (15 + (progress * 65)) * haloValue;
-            const glowBoost = (1 + (progress * 1.5)) * haloValue;
-            
-            if (progress < 0.66) {
-                drop.style.background = `radial-gradient(circle at 40% 40%, 
-                    ${color1.replace('0.9', String(baseOpacity * 1.3))} 0%, 
-                    ${color2.replace('0.9', String(baseOpacity))} 30%,
-                    ${color1.replace('0.9', String(baseOpacity * 0.6))} 60%,
-                    transparent 100%)`;
-            } else {
-                drop.style.background = `radial-gradient(circle at 40% 40%, 
-                    ${color1.replace('0.9', String(baseOpacity * 1.3))} 0%, 
-                    ${color2.replace('0.9', String(baseOpacity * 1.1))} 25%,
-                    ${color3.replace('0.9', String(baseOpacity))} 50%,
-                    ${color1.replace('0.9', String(baseOpacity * 0.6))} 75%,
-                    transparent 100%)`;
-            }
-            
-            drop.style.boxShadow = `
-                0 0 ${glowIntensity * 0.6 * glowBoost}px ${color1},
-                0 0 ${glowIntensity * 1.2 * glowBoost}px ${color2},
-                0 0 ${glowIntensity * 2 * glowBoost}px ${color1.replace('0.9', String(baseOpacity * 0.4))},
-                inset 0 0 ${glowIntensity * 0.5}px ${color1.replace('0.9', String(baseOpacity * 0.8))}
-            `;
-            
-            const sizeCategory = Math.random();
-            let baseSize;
-            if (sizeCategory < 0.3) {
-                baseSize = 20 + (progress * 10);
-            } else if (sizeCategory < 0.7) {
-                baseSize = 40 + (progress * 20);
-            } else {
-                baseSize = 40 + (progress * 50);
-            }
-            
-            const size = baseSize + (Math.random() * 25);
-            drop.style.width = size + 'px';
-            drop.style.height = size + 'px';
-            
-            // Z-INDEX PROGRESSION: 0-7 min = background, 7-10 min = gradually to overlay
-            // rainProgress = 0 at 7 min, 1 at 10 min
-            const minZIndex = 100; // background
-            const maxZIndex = 9998; // just below water mark overlay
-            drop.style.zIndex = Math.floor(minZIndex + (rainProgress * (maxZIndex - minZIndex)));
-            
-            const duration = 5 + Math.random() * 3;
-            drop.style.animationDuration = duration + 's';
-            
-            document.body.appendChild(drop);
-            setTimeout(() => drop.remove(), duration * 1000);
+function updateTemporalIntensity(rainProgress) {
+    const percentage = Math.round(rainProgress * 100);
+    document.getElementById('temporalIntensitySlider').value = percentage;
+    document.getElementById('temporalIntensityValue').textContent = percentage + '%';
+}
+
+function animate() {
+    const elapsed = Date.now() - startTime;
+    if (elapsed >= 0) {
+        const rainProgress = Math.min(elapsed / duration, 1.0);
+        const progress = rainProgress;
+        updateTemporalIntensity(rainProgress);
+        
+        const baseRate = 0.05;
+        const exponentialGrowth = Math.pow(progress, 2.5);
+        let dropProbability = baseRate * (1 + exponentialGrowth * 40);
+        if (progress > 0.66) dropProbability *= 1 + ((progress - 0.66) / 0.34) * 8;
+        
+        if (Math.random() < dropProbability) createRaindrop(progress, rainProgress);
+        if (progress > 0.85) {
+            const extraDrops = Math.floor(Math.random() * (((progress - 0.85) / 0.15) * 12));
+            for (let i = 0; i < extraDrops; i++) setTimeout(() => createRaindrop(progress, rainProgress), Math.random() * 1000);
         }
+    }
+    if (elapsed < duration + 60000) requestAnimationFrame(animate);
+}
+animate();
 
-        function updateTemporalIntensity(rainProgress) {
-            const percentage = Math.round(rainProgress * 100);
-            temporalIntensitySlider.value = percentage;
-            document.getElementById('temporalIntensityValue').textContent = percentage + '%';
-        }
+// Video controls
+const expandBtn = document.getElementById('expandBtn');
+const videoGrid = document.getElementById('videoGrid');
+const localBox = document.getElementById('localBox');
+let isExpanded = false;
 
-        function animate() {
-            const elapsed = Date.now() - startTime;
-            
-            // Only spawn raindrops after 7 minutes (420000 ms)
-            if (elapsed >= rainStartTime) {
-                const rainProgress = Math.min((elapsed - rainStartTime) / (rainEndTime - rainStartTime), 1.0);
-                const progress = rainProgress; // 0-1 over the 7-10 min window
-                
-                // Update squares
-                updateTemporalIntensity(rainProgress);
-                
-                // Spawn raindrops
-                const baseRate = 0.05; // Start very light
-                const exponentialGrowth = Math.pow(progress, 2.5);
-                let dropProbability = baseRate * (1 + exponentialGrowth * 40);
-                
-                if (progress > 0.66) {
-                    const overtakeProgress = (progress - 0.66) / 0.34;
-                    const overtakeMultiplier = 1 + (overtakeProgress * 8);
-                    dropProbability *= overtakeMultiplier;
-                }
-                
-                if (Math.random() < dropProbability) {
-                    createRaindrop(progress, rainProgress);
-                }
-                
-                if (progress > 0.85) {
-                    const extraChance = (progress - 0.85) / 0.15;
-                    const extraDrops = Math.floor(Math.random() * (extraChance * 12));
-                    for (let i = 0; i < extraDrops; i++) {
-                        setTimeout(() => createRaindrop(progress, rainProgress), Math.random() * 1000);
-                    }
-                }
-                
-                if (!effectsStarted) {
-                    effectsStarted = true;
-                }
-            }
-            
-            if (elapsed < duration + 60000) {
-                requestAnimationFrame(animate);
-            }
-        }
-        
-        animate();
+expandBtn.addEventListener('click', () => {
+    isExpanded = !isExpanded;
+    localBox.classList.toggle('hidden', isExpanded);
+    videoGrid.classList.toggle('collapsed', isExpanded);
+    expandBtn.textContent = isExpanded ? '↙' : '↗';
+});
 
-        // WebRTC
-        const expandBtn = document.getElementById('expandBtn');
-        const videoGrid = document.getElementById('videoGrid');
-        const localBox = document.getElementById('localBox');
-        let isExpanded = false;
+document.getElementById('startBtn').addEventListener('click', async function() {
+    this.disabled = true;
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: true });
+        document.getElementById('localVideo').srcObject = stream;
+        document.getElementById('connectBtn').disabled = false;
+    } catch (e) {
+        console.error('Camera error:', e);
+        this.disabled = false;
+    }
+});
 
-        expandBtn.addEventListener('click', () => {
-            isExpanded = !isExpanded;
-            if (isExpanded) {
-                localBox.classList.add('hidden');
-                videoGrid.classList.add('collapsed');
-                expandBtn.textContent = '↙';
-            } else {
-                localBox.classList.remove('hidden');
-                videoGrid.classList.remove('collapsed');
-                expandBtn.textContent = '↗';
-            }
-        });
+document.getElementById('connectBtn').addEventListener('click', function() {
+    this.disabled = true;
+    setTimeout(() => {
+        document.getElementById('disconnectBtn').disabled = false;
+        document.getElementById('fullscreenBtn').disabled = false;
+    }, 1000);
+});
 
-        const startBtn = document.getElementById('startBtn');
-        const connectBtn = document.getElementById('connectBtn');
-        const disconnectBtn = document.getElementById('disconnectBtn');
-        const fullscreenBtn = document.getElementById('fullscreenBtn');
-        const localVideo = document.getElementById('localVideo');
-        const remoteVideo = document.getElementById('remoteVideo');
-        
-        // LiveKit Configuration
-        const LIVEKIT_URL = 'wss://claymation-transcription-l6e51sws.livekit.cloud';
-        const API_KEY = 'APITw2Yp2Tv3yfg';
-        const API_SECRET = 'eVYY0UB69XDGLiGzclYuGUhXuVpc8ry3YcazimFryDW';
-        const INPUT_ROOM = 'claymation-live';
-        const OUTPUT_ROOM = 'processed-output';
-        let localStream = null;
-        let localRoom = null;
-        let remoteRoom = null;
-        
-        async function generateToken(room, identity) {
-            const now = Math.floor(Date.now() / 1000);
-            const claims = { iss: API_KEY, sub: identity, nbf: now, exp: now + 21600,
-                video: { roomJoin: true, room: room, canPublish: true, canSubscribe: true }
-            };
-            const secret = new TextEncoder().encode(API_SECRET);
-            return await new jose.SignJWT(claims)
-                .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
-                .setIssuedAt().setExpirationTime('6h').sign(secret);
-        }
+document.getElementById('disconnectBtn').addEventListener('click', function() {
+    this.disabled = true;
+    document.getElementById('fullscreenBtn').disabled = true;
+    document.getElementById('connectBtn').disabled = false;
+});
 
-        startBtn.addEventListener('click', async () => {
-            startBtn.disabled = true;
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-                    audio: true 
-                });
-                localVideo.srcObject = localStream;
-                connectBtn.disabled = false;
-                startBtn.textContent = '✓ Camera On';
-            } catch (error) {
-                console.error('Camera error:', error);
-                startBtn.disabled = false;
-            }
-        });
+document.getElementById('fullscreenBtn').addEventListener('click', () => {
+    const v = document.getElementById('remoteVideo');
+    if (v.requestFullscreen) v.requestFullscreen();
+});
 
-        connectBtn.addEventListener('click', async () => {
-            connectBtn.disabled = true;
-            connectBtn.textContent = 'Connecting...';
-            try {
-                const LivekitClient = window.LivekitClient;
-                const identity = 'mirror-' + Math.random().toString(36).substr(2, 6);
-                
-                const inputToken = await generateToken(INPUT_ROOM, identity);
-                localRoom = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
-                await localRoom.connect(LIVEKIT_URL, inputToken);
-                
-                if (localStream) {
-                    const vt = localStream.getVideoTracks()[0];
-                    const at = localStream.getAudioTracks()[0];
-                    if (vt) await localRoom.localParticipant.publishTrack(vt);
-                    if (at) await localRoom.localParticipant.publishTrack(at);
-                }
-                
-                const outputToken = await generateToken(OUTPUT_ROOM, identity + '-v');
-                remoteRoom = new LivekitClient.Room({ adaptiveStream: true });
-                remoteRoom.on(LivekitClient.RoomEvent.TrackSubscribed, (track) => {
-                    if (track.kind === 'video') remoteVideo.srcObject = track.attach().srcObject;
-                });
-                await remoteRoom.connect(LIVEKIT_URL, outputToken);
-                
-                connectBtn.textContent = '✓ LIVE';
-                connectBtn.style.borderColor = 'lime';
-                connectBtn.style.color = 'lime';
-                disconnectBtn.disabled = false;
-                fullscreenBtn.disabled = false;
-            } catch (e) {
-                console.error('Connection error:', e);
-                connectBtn.textContent = 'Error - Retry';
-                connectBtn.disabled = false;
-            }
-        });
+// Color controls
+function getComplementaryHue(hue) { return (parseInt(hue) + 180) % 360; }
 
-        disconnectBtn.addEventListener('click', async () => {
-            if (localRoom) { await localRoom.disconnect(); localRoom = null; }
-            if (remoteRoom) { await remoteRoom.disconnect(); remoteRoom = null; }
-            disconnectBtn.disabled = true;
-            fullscreenBtn.disabled = true;
-            connectBtn.disabled = false;
-            connectBtn.textContent = 'Connect';
-            connectBtn.style.borderColor = '';
-            connectBtn.style.color = '';
-        });
+document.getElementById('colorSlider').addEventListener('input', function() {
+    const hue = this.value;
+    const comp = getComplementaryHue(hue);
+    document.getElementById('colorSliderValue').textContent = hue + '°';
+    document.getElementById('hueSlider').value = hue;
+    document.getElementById('hueValue').textContent = hue + '°';
+    document.documentElement.style.setProperty('--hue-value', hue);
+    document.documentElement.style.setProperty('--hue-complementary', comp);
+    document.querySelectorAll('.palette-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.hue === hue));
+});
 
-        fullscreenBtn.addEventListener('click', () => {
-            if (remoteVideo.requestFullscreen) {
-                remoteVideo.requestFullscreen();
-            }
-        });
-    </script>
+document.getElementById('hueSlider').addEventListener('input', function() {
+    const hue = this.value;
+    const comp = getComplementaryHue(hue);
+    document.getElementById('hueValue').textContent = hue + '°';
+    document.getElementById('colorSliderValue').textContent = hue + '°';
+    document.getElementById('colorSlider').value = hue;
+    document.documentElement.style.setProperty('--hue-value', hue);
+    document.documentElement.style.setProperty('--hue-complementary', comp);
+});
 
-    <!-- Control Sliders Script -->
-    <script>
-        // Set initial CSS variable
-        document.documentElement.style.setProperty('--hue-value', 280);
-        document.documentElement.style.setProperty('--hue-complementary', 100);
-        
-        // Helper function to calculate complementary color
-        function getComplementaryHue(hue) {
-            return (parseInt(hue) + 180) % 360;
-        }
-        
-        // Get all slider elements
-        const hueSlider = document.getElementById('hueSlider');
-        const satSlider = document.getElementById('satSlider');
-        const lightSlider = document.getElementById('lightSlider');
-        const intensitySlider = document.getElementById('intensitySlider');
-        const depthSlider = document.getElementById('depthSlider');
-        const glossSlider = document.getElementById('glossSlider');
-        const bumpSlider = document.getElementById('bumpSlider');
-        const speedSlider = document.getElementById('speedSlider');
-        
-        // Color palette buttons
-        const paletteBtns = document.querySelectorAll('.palette-btn');
-        const colorSlider = document.getElementById('colorSlider');
-        
-        // Color Slider listener
-        colorSlider.addEventListener('input', (e) => {
-            const hue = e.target.value;
-            const complementary = getComplementaryHue(hue);
-            document.getElementById('colorSliderValue').textContent = hue + '°';
-            hueSlider.value = hue;
-            document.getElementById('hueValue').textContent = hue + '°';
-            document.documentElement.style.setProperty('--hue-value', hue);
-            document.documentElement.style.setProperty('--hue-complementary', complementary);
-            
-            // Update palette button active state
-            paletteBtns.forEach(btn => {
-                if (btn.dataset.hue === hue) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-        });
-        
-        // Hue slider - changes all highlight colors
-        hueSlider.addEventListener('input', (e) => {
-            const value = e.target.value;
-            const complementary = getComplementaryHue(value);
-            document.getElementById('hueValue').textContent = value + '°';
-            document.getElementById('colorSliderValue').textContent = value + '°';
-            colorSlider.value = value;
-            document.documentElement.style.setProperty('--hue-value', value);
-            document.documentElement.style.setProperty('--hue-complementary', complementary);
-            
-            // Update active palette button
-            paletteBtns.forEach(btn => {
-                if (btn.dataset.hue === value) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-        });
-        
-        // Palette button listeners
-        paletteBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const hue = e.target.dataset.hue;
-                hueSlider.value = hue;
-                colorSlider.value = hue;
-                const complementary = getComplementaryHue(hue);
-                document.getElementById('hueValue').textContent = hue + '°';
-                document.getElementById('colorSliderValue').textContent = hue + '°';
-                document.documentElement.style.setProperty('--hue-value', hue);
-                document.documentElement.style.setProperty('--hue-complementary', complementary);
-                
-                // Update active state
-                paletteBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            });
-        });
-        
-        // Saturation slider
-        satSlider.addEventListener('input', (e) => {
-            const value = e.target.value;
-            document.getElementById('satValue').textContent = value + '%';
-        });
-        
-        // Lightness slider
-        lightSlider.addEventListener('input', (e) => {
-            const value = e.target.value;
-            document.getElementById('lightValue').textContent = value + '%';
-        });
-        
-        // Intensity slider
-        intensitySlider.addEventListener('input', (e) => {
-            const value = parseFloat(e.target.value);
-            document.getElementById('intensityValue').textContent = value.toFixed(2);
-        });
-        
-        // Depth slider
-        depthSlider.addEventListener('input', (e) => {
-            const value = parseFloat(e.target.value);
-            document.getElementById('depthValue').textContent = value.toFixed(1);
-        });
-        
-        // Gloss slider
-        glossSlider.addEventListener('input', (e) => {
-            const value = parseFloat(e.target.value);
-            document.getElementById('glossValue').textContent = value.toFixed(2);
-        });
-        
-        // Bump slider
-        bumpSlider.addEventListener('input', (e) => {
-            const value = parseFloat(e.target.value);
-            document.getElementById('bumpValue').textContent = value.toFixed(1);
-        });
-        
-        // Speed slider
-        speedSlider.addEventListener('input', (e) => {
-            const value = parseFloat(e.target.value);
-            document.getElementById('speedValue').textContent = value.toFixed(1) + 'x';
-        });
-        
-        // Halo slider
-        const haloSlider = document.getElementById('haloSlider');
-        haloSlider.addEventListener('input', (e) => {
-            const value = parseFloat(e.target.value);
-            document.getElementById('haloValue').textContent = value.toFixed(1);
-        });
-    </script>
+document.querySelectorAll('.palette-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const hue = this.dataset.hue;
+        document.getElementById('hueSlider').value = hue;
+        document.getElementById('colorSlider').value = hue;
+        document.getElementById('hueValue').textContent = hue + '°';
+        document.getElementById('colorSliderValue').textContent = hue + '°';
+        document.documentElement.style.setProperty('--hue-value', hue);
+        document.documentElement.style.setProperty('--hue-complementary', getComplementaryHue(hue));
+        document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
 
-
-<div class="raindrop" style="left: 1077.49px; top: 586.128px; background: radial-gradient(circle at 40% 40%, rgba(255, 105, 180, 0.23) 0%, rgba(75, 0, 130, 0.176) 30%, rgba(255, 105, 180, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 105, 180, 0.9) 0px 0px 14.2833px, rgba(75, 0, 130, 0.9) 0px 0px 28.5666px, rgba(255, 105, 180, 0.07) 0px 0px 47.611px, rgba(255, 105, 180, 0.14) 0px 0px 10.4685px inset; width: 56.8909px; height: 56.8909px; z-index: 1004; animation-duration: 7.30134s;"></div><div class="raindrop" style="left: 1010.06px; top: 412.363px; background: radial-gradient(circle at 40% 40%, rgba(255, 215, 0, 0.23) 0%, rgba(255, 140, 0, 0.176) 30%, rgba(255, 215, 0, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 215, 0, 0.9) 0px 0px 14.308px, rgba(255, 140, 0, 0.9) 0px 0px 28.6159px, rgba(255, 215, 0, 0.07) 0px 0px 47.6932px, rgba(255, 215, 0, 0.14) 0px 0px 10.4812px inset; width: 28.3473px; height: 28.3473px; z-index: 1007; animation-duration: 7.21481s;"></div><div class="raindrop" style="left: 364.532px; top: 174.133px; background: radial-gradient(circle at 40% 40%, rgba(255, 20, 147, 0.23) 0%, rgba(50, 205, 50, 0.176) 30%, rgba(255, 20, 147, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 20, 147, 0.9) 0px 0px 14.3195px, rgba(50, 205, 50, 0.9) 0px 0px 28.6389px, rgba(255, 20, 147, 0.07) 0px 0px 47.7315px, rgba(255, 20, 147, 0.14) 0px 0px 10.4871px inset; width: 50.1632px; height: 50.1632px; z-index: 1009; animation-duration: 7.87339s;"></div><div class="raindrop" style="left: 231.422px; top: 429.098px; background: radial-gradient(circle at 40% 40%, rgba(50, 205, 50, 0.23) 0%, rgba(255, 105, 180, 0.176) 30%, rgba(50, 205, 50, 0.106) 60%, transparent 100%); box-shadow: rgba(50, 205, 50, 0.9) 0px 0px 14.3392px, rgba(255, 105, 180, 0.9) 0px 0px 28.6783px, rgba(50, 205, 50, 0.07) 0px 0px 47.7972px, rgba(50, 205, 50, 0.14) 0px 0px 10.4972px inset; width: 67.8822px; height: 67.8822px; z-index: 1012; animation-duration: 7.32376s;"></div><div class="raindrop" style="left: 629.108px; top: 600.741px; background: radial-gradient(circle at 40% 40%, rgba(255, 140, 0, 0.23) 0%, rgba(255, 140, 0, 0.176) 30%, rgba(255, 140, 0, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 140, 0, 0.9) 0px 0px 14.4078px, rgba(255, 140, 0, 0.9) 0px 0px 28.8156px, rgba(255, 140, 0, 0.07) 0px 0px 48.026px, rgba(255, 140, 0, 0.14) 0px 0px 10.5324px inset; width: 62.8066px; height: 62.8066px; z-index: 1023; animation-duration: 6.1905s;"></div><div class="raindrop" style="left: 1145.89px; top: 135.867px; background: radial-gradient(circle at 40% 40%, rgba(255, 20, 147, 0.23) 0%, rgba(255, 140, 0, 0.18) 30%, rgba(255, 20, 147, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 20, 147, 0.9) 0px 0px 14.4343px, rgba(255, 140, 0, 0.9) 0px 0px 28.8687px, rgba(255, 20, 147, 0.07) 0px 0px 48.1145px, rgba(255, 20, 147, 0.14) 0px 0px 10.546px inset; width: 58.6124px; height: 58.6124px; z-index: 1027; animation-duration: 7.97893s;"></div><div class="raindrop" style="left: 12.6364px; top: 403.128px; background: radial-gradient(circle at 40% 40%, rgba(75, 0, 130, 0.23) 0%, rgba(255, 140, 0, 0.18) 30%, rgba(75, 0, 130, 0.106) 60%, transparent 100%); box-shadow: rgba(75, 0, 130, 0.9) 0px 0px 14.4443px, rgba(255, 140, 0, 0.9) 0px 0px 28.8886px, rgba(75, 0, 130, 0.07) 0px 0px 48.1476px, rgba(75, 0, 130, 0.14) 0px 0px 10.5511px inset; width: 44.3323px; height: 44.3323px; z-index: 1029; animation-duration: 7.78429s;"></div><div class="raindrop" style="left: 1572.05px; top: 168.905px; background: radial-gradient(circle at 40% 40%, rgba(0, 191, 255, 0.23) 0%, rgba(75, 0, 130, 0.18) 30%, rgba(0, 191, 255, 0.106) 60%, transparent 100%); box-shadow: rgba(0, 191, 255, 0.9) 0px 0px 14.4588px, rgba(75, 0, 130, 0.9) 0px 0px 28.9176px, rgba(0, 191, 255, 0.07) 0px 0px 48.196px, rgba(0, 191, 255, 0.14) 0px 0px 10.5585px inset; width: 58.2883px; height: 58.2883px; z-index: 1031; animation-duration: 6.43187s;"></div><div class="raindrop" style="left: 1236.45px; top: 263.875px; background: radial-gradient(circle at 40% 40%, rgba(255, 215, 0, 0.23) 0%, rgba(255, 105, 180, 0.18) 30%, rgba(255, 215, 0, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 215, 0, 0.9) 0px 0px 14.4886px, rgba(255, 105, 180, 0.9) 0px 0px 28.9773px, rgba(255, 215, 0, 0.07) 0px 0px 48.2955px, rgba(255, 215, 0, 0.14) 0px 0px 10.5738px inset; width: 46.9696px; height: 46.9696px; z-index: 1036; animation-duration: 6.48166s;"></div><div class="raindrop" style="left: 168.51px; top: 798.052px; background: radial-gradient(circle at 40% 40%, rgba(255, 20, 147, 0.23) 0%, rgba(255, 105, 180, 0.18) 30%, rgba(255, 20, 147, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 20, 147, 0.9) 0px 0px 14.4987px, rgba(255, 105, 180, 0.9) 0px 0px 28.9974px, rgba(255, 20, 147, 0.07) 0px 0px 48.329px, rgba(255, 20, 147, 0.14) 0px 0px 10.5789px inset; width: 56.8936px; height: 56.8936px; z-index: 1037; animation-duration: 5.28733s;"></div><div class="raindrop" style="left: 866.725px; top: 642.903px; background: radial-gradient(circle at 40% 40%, rgba(138, 43, 226, 0.23) 0%, rgba(127, 255, 212, 0.18) 30%, rgba(138, 43, 226, 0.106) 60%, transparent 100%); box-shadow: rgba(138, 43, 226, 0.9) 0px 0px 14.5138px, rgba(127, 255, 212, 0.9) 0px 0px 29.0275px, rgba(138, 43, 226, 0.07) 0px 0px 48.3792px, rgba(138, 43, 226, 0.14) 0px 0px 10.5866px inset; width: 27.1969px; height: 27.1969px; z-index: 1040; animation-duration: 5.54929s;"></div><div class="raindrop" style="left: 202.616px; top: 696.599px; background: radial-gradient(circle at 40% 40%, rgba(127, 255, 212, 0.23) 0%, rgba(255, 105, 180, 0.18) 30%, rgba(127, 255, 212, 0.106) 60%, transparent 100%); box-shadow: rgba(127, 255, 212, 0.9) 0px 0px 14.525px, rgba(255, 105, 180, 0.9) 0px 0px 29.05px, rgba(127, 255, 212, 0.07) 0px 0px 48.4167px, rgba(127, 255, 212, 0.14) 0px 0px 10.5924px inset; width: 29.326px; height: 29.326px; z-index: 1041; animation-duration: 7.71498s;"></div><div class="raindrop" style="left: 1442.24px; top: 917.708px; background: radial-gradient(circle at 40% 40%, rgba(75, 0, 130, 0.23) 0%, rgba(255, 215, 0, 0.18) 30%, rgba(75, 0, 130, 0.106) 60%, transparent 100%); box-shadow: rgba(75, 0, 130, 0.9) 0px 0px 14.5391px, rgba(255, 215, 0, 0.9) 0px 0px 29.0782px, rgba(75, 0, 130, 0.07) 0px 0px 48.4637px, rgba(75, 0, 130, 0.14) 0px 0px 10.5996px inset; width: 65.7071px; height: 65.7071px; z-index: 1043; animation-duration: 5.13015s;"></div><div class="raindrop" style="left: 273.864px; top: 925.924px; background: radial-gradient(circle at 40% 40%, rgba(255, 20, 147, 0.23) 0%, rgba(255, 140, 0, 0.18) 30%, rgba(255, 20, 147, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 20, 147, 0.9) 0px 0px 14.5445px, rgba(255, 140, 0, 0.9) 0px 0px 29.0891px, rgba(255, 20, 147, 0.07) 0px 0px 48.4818px, rgba(255, 20, 147, 0.14) 0px 0px 10.6023px inset; width: 63.2127px; height: 63.2127px; z-index: 1044; animation-duration: 5.17865s;"></div><div class="raindrop" style="left: 608.865px; top: 197.222px; background: radial-gradient(circle at 40% 40%, rgba(255, 105, 180, 0.23) 0%, rgba(0, 191, 255, 0.18) 30%, rgba(255, 105, 180, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 105, 180, 0.9) 0px 0px 14.5778px, rgba(0, 191, 255, 0.9) 0px 0px 29.1555px, rgba(255, 105, 180, 0.07) 0px 0px 48.5925px, rgba(255, 105, 180, 0.14) 0px 0px 10.6193px inset; width: 32.4217px; height: 32.4217px; z-index: 1049; animation-duration: 7.5024s;"></div><div class="raindrop" style="left: 333.249px; top: 731.549px; background: radial-gradient(circle at 40% 40%, rgba(75, 0, 130, 0.23) 0%, rgba(50, 205, 50, 0.18) 30%, rgba(75, 0, 130, 0.106) 60%, transparent 100%); box-shadow: rgba(75, 0, 130, 0.9) 0px 0px 14.5832px, rgba(50, 205, 50, 0.9) 0px 0px 29.1663px, rgba(75, 0, 130, 0.07) 0px 0px 48.6106px, rgba(75, 0, 130, 0.14) 0px 0px 10.6221px inset; width: 55.36px; height: 55.36px; z-index: 1050; animation-duration: 7.72226s;"></div><div class="raindrop" style="left: 712.904px; top: 722.575px; background: radial-gradient(circle at 40% 40%, rgba(127, 255, 212, 0.23) 0%, rgba(255, 20, 147, 0.18) 30%, rgba(127, 255, 212, 0.106) 60%, transparent 100%); box-shadow: rgba(127, 255, 212, 0.9) 0px 0px 14.5912px, rgba(255, 20, 147, 0.9) 0px 0px 29.1825px, rgba(127, 255, 212, 0.07) 0px 0px 48.6375px, rgba(127, 255, 212, 0.14) 0px 0px 10.6262px inset; width: 57.1578px; height: 57.1578px; z-index: 1052; animation-duration: 5.40938s;"></div><div class="raindrop" style="left: 73.2784px; top: 322.542px; background: radial-gradient(circle at 40% 40%, rgba(255, 215, 0, 0.23) 0%, rgba(75, 0, 130, 0.18) 30%, rgba(255, 215, 0, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 215, 0, 0.9) 0px 0px 14.5972px, rgba(75, 0, 130, 0.9) 0px 0px 29.1944px, rgba(255, 215, 0, 0.07) 0px 0px 48.6573px, rgba(255, 215, 0, 0.14) 0px 0px 10.6292px inset; width: 48.3102px; height: 48.3102px; z-index: 1053; animation-duration: 6.11932s;"></div><div class="raindrop" style="left: 1069.72px; top: 341.734px; background: radial-gradient(circle at 40% 40%, rgba(50, 205, 50, 0.23) 0%, rgba(255, 215, 0, 0.18) 30%, rgba(50, 205, 50, 0.106) 60%, transparent 100%); box-shadow: rgba(50, 205, 50, 0.9) 0px 0px 14.6004px, rgba(255, 215, 0, 0.9) 0px 0px 29.2008px, rgba(50, 205, 50, 0.07) 0px 0px 48.668px, rgba(50, 205, 50, 0.14) 0px 0px 10.6308px inset; width: 48.2133px; height: 48.2133px; z-index: 1053; animation-duration: 6.28298s;"></div><div class="raindrop" style="left: 312.997px; top: 344px; background: radial-gradient(circle at 40% 40%, rgba(255, 215, 0, 0.23) 0%, rgba(138, 43, 226, 0.18) 30%, rgba(255, 215, 0, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 215, 0, 0.9) 0px 0px 14.6098px, rgba(138, 43, 226, 0.9) 0px 0px 29.2197px, rgba(255, 215, 0, 0.07) 0px 0px 48.6995px, rgba(255, 215, 0, 0.14) 0px 0px 10.6357px inset; width: 59.913px; height: 59.913px; z-index: 1054; animation-duration: 5.53633s;"></div><div class="raindrop" style="left: 1354.81px; top: 793.675px; background: radial-gradient(circle at 40% 40%, rgba(127, 255, 212, 0.23) 0%, rgba(0, 191, 255, 0.18) 30%, rgba(127, 255, 212, 0.106) 60%, transparent 100%); box-shadow: rgba(127, 255, 212, 0.9) 0px 0px 14.6213px, rgba(0, 191, 255, 0.9) 0px 0px 29.2427px, rgba(127, 255, 212, 0.07) 0px 0px 48.7378px, rgba(127, 255, 212, 0.14) 0px 0px 10.6415px inset; width: 66.8065px; height: 66.8065px; z-index: 1056; animation-duration: 7.97169s;"></div><div class="raindrop" style="left: 364.769px; top: 706.173px; background: radial-gradient(circle at 40% 40%, rgba(50, 205, 50, 0.23) 0%, rgba(75, 0, 130, 0.18) 30%, rgba(50, 205, 50, 0.106) 60%, transparent 100%); box-shadow: rgba(50, 205, 50, 0.9) 0px 0px 14.6761px, rgba(75, 0, 130, 0.9) 0px 0px 29.3523px, rgba(50, 205, 50, 0.07) 0px 0px 48.9205px, rgba(50, 205, 50, 0.14) 0px 0px 10.6694px inset; width: 56.1452px; height: 56.1452px; z-index: 1065; animation-duration: 5.43978s;"></div><div class="raindrop" style="left: 1659.5px; top: 860.715px; background: radial-gradient(circle at 40% 40%, rgba(255, 20, 147, 0.23) 0%, rgba(255, 20, 147, 0.18) 30%, rgba(255, 20, 147, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 20, 147, 0.9) 0px 0px 14.6835px, rgba(255, 20, 147, 0.9) 0px 0px 29.367px, rgba(255, 20, 147, 0.07) 0px 0px 48.945px, rgba(255, 20, 147, 0.14) 0px 0px 10.6731px inset; width: 51.7803px; height: 51.7803px; z-index: 1066; animation-duration: 7.94413s;"></div><div class="raindrop" style="left: 954.649px; top: 360.59px; background: radial-gradient(circle at 40% 40%, rgba(0, 191, 255, 0.23) 0%, rgba(50, 205, 50, 0.18) 30%, rgba(0, 191, 255, 0.106) 60%, transparent 100%); box-shadow: rgba(0, 191, 255, 0.9) 0px 0px 14.7192px, rgba(50, 205, 50, 0.9) 0px 0px 29.4384px, rgba(0, 191, 255, 0.07) 0px 0px 49.064px, rgba(0, 191, 255, 0.14) 0px 0px 10.6913px inset; width: 64.3155px; height: 64.3155px; z-index: 1071; animation-duration: 6.57388s;"></div><div class="raindrop" style="left: 1369.41px; top: 540.391px; background: radial-gradient(circle at 40% 40%, rgba(255, 140, 0, 0.23) 0%, rgba(75, 0, 130, 0.18) 30%, rgba(255, 140, 0, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 140, 0, 0.9) 0px 0px 14.7362px, rgba(75, 0, 130, 0.9) 0px 0px 29.4723px, rgba(255, 140, 0, 0.07) 0px 0px 49.1205px, rgba(255, 140, 0, 0.14) 0px 0px 10.6999px inset; width: 68.6708px; height: 68.6708px; z-index: 1074; animation-duration: 5.84216s;"></div><div class="raindrop" style="left: 24.1171px; top: 48.5993px; background: radial-gradient(circle at 40% 40%, rgba(255, 215, 0, 0.23) 0%, rgba(255, 105, 180, 0.18) 30%, rgba(255, 215, 0, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 215, 0, 0.9) 0px 0px 14.7379px, rgba(255, 105, 180, 0.9) 0px 0px 29.4757px, rgba(255, 215, 0, 0.07) 0px 0px 49.1262px, rgba(255, 215, 0, 0.14) 0px 0px 10.7008px inset; width: 47.9175px; height: 47.9175px; z-index: 1074; animation-duration: 7.34733s;"></div><div class="raindrop" style="left: 723.275px; top: 127.457px; background: radial-gradient(circle at 40% 40%, rgba(75, 0, 130, 0.23) 0%, rgba(255, 20, 147, 0.18) 30%, rgba(75, 0, 130, 0.106) 60%, transparent 100%); box-shadow: rgba(75, 0, 130, 0.9) 0px 0px 14.7427px, rgba(255, 20, 147, 0.9) 0px 0px 29.4853px, rgba(75, 0, 130, 0.07) 0px 0px 49.1422px, rgba(75, 0, 130, 0.14) 0px 0px 10.7032px inset; width: 66.8119px; height: 66.8119px; z-index: 1075; animation-duration: 6.00688s;"></div><div class="raindrop" style="left: 538.359px; top: 824.757px; background: radial-gradient(circle at 40% 40%, rgba(0, 191, 255, 0.23) 0%, rgba(127, 255, 212, 0.18) 30%, rgba(0, 191, 255, 0.106) 60%, transparent 100%); box-shadow: rgba(0, 191, 255, 0.9) 0px 0px 14.7437px, rgba(127, 255, 212, 0.9) 0px 0px 29.4875px, rgba(0, 191, 255, 0.07) 0px 0px 49.1458px, rgba(0, 191, 255, 0.14) 0px 0px 10.7037px inset; width: 46.2566px; height: 46.2566px; z-index: 1075; animation-duration: 5.48221s;"></div><div class="raindrop" style="left: 773.055px; top: 348.419px; background: radial-gradient(circle at 40% 40%, rgba(255, 105, 180, 0.23) 0%, rgba(138, 43, 226, 0.18) 30%, rgba(255, 105, 180, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 105, 180, 0.9) 0px 0px 14.7523px, rgba(138, 43, 226, 0.9) 0px 0px 29.5046px, rgba(255, 105, 180, 0.07) 0px 0px 49.1743px, rgba(255, 105, 180, 0.14) 0px 0px 10.7081px inset; width: 44.104px; height: 44.104px; z-index: 1077; animation-duration: 6.84353s;"></div><div class="raindrop" style="left: 831.013px; top: 916.717px; background: radial-gradient(circle at 40% 40%, rgba(0, 191, 255, 0.23) 0%, rgba(127, 255, 212, 0.18) 30%, rgba(0, 191, 255, 0.106) 60%, transparent 100%); box-shadow: rgba(0, 191, 255, 0.9) 0px 0px 14.7536px, rgba(127, 255, 212, 0.9) 0px 0px 29.5071px, rgba(0, 191, 255, 0.07) 0px 0px 49.1785px, rgba(0, 191, 255, 0.14) 0px 0px 10.7087px inset; width: 64.722px; height: 64.722px; z-index: 1077; animation-duration: 6.34473s;"></div><div class="raindrop" style="left: 67.047px; top: 381.074px; background: radial-gradient(circle at 40% 40%, rgba(255, 20, 147, 0.23) 0%, rgba(138, 43, 226, 0.18) 30%, rgba(255, 20, 147, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 20, 147, 0.9) 0px 0px 14.7615px, rgba(138, 43, 226, 0.9) 0px 0px 29.5229px, rgba(255, 20, 147, 0.07) 0px 0px 49.2049px, rgba(255, 20, 147, 0.14) 0px 0px 10.7127px inset; width: 49.8626px; height: 49.8626px; z-index: 1078; animation-duration: 7.1491s;"></div><div class="raindrop" style="left: 1076.8px; top: 346.489px; background: radial-gradient(circle at 40% 40%, rgba(0, 191, 255, 0.23) 0%, rgba(0, 191, 255, 0.18) 30%, rgba(0, 191, 255, 0.106) 60%, transparent 100%); box-shadow: rgba(0, 191, 255, 0.9) 0px 0px 14.7727px, rgba(0, 191, 255, 0.9) 0px 0px 29.5453px, rgba(0, 191, 255, 0.07) 0px 0px 49.2422px, rgba(0, 191, 255, 0.14) 0px 0px 10.7184px inset; width: 67.5558px; height: 67.5558px; z-index: 1080; animation-duration: 5.62968s;"></div><div class="raindrop" style="left: 555.508px; top: 167.229px; background: radial-gradient(circle at 40% 40%, rgba(50, 205, 50, 0.23) 0%, rgba(255, 105, 180, 0.18) 30%, rgba(50, 205, 50, 0.106) 60%, transparent 100%); box-shadow: rgba(50, 205, 50, 0.9) 0px 0px 14.7793px, rgba(255, 105, 180, 0.9) 0px 0px 29.5586px, rgba(50, 205, 50, 0.07) 0px 0px 49.2643px, rgba(50, 205, 50, 0.145) 0px 0px 10.7218px inset; width: 60.7077px; height: 60.7077px; z-index: 1081; animation-duration: 5.56649s;"></div><div class="raindrop" style="left: 941.105px; top: 230.987px; background: radial-gradient(circle at 40% 40%, rgba(138, 43, 226, 0.23) 0%, rgba(127, 255, 212, 0.18) 30%, rgba(138, 43, 226, 0.106) 60%, transparent 100%); box-shadow: rgba(138, 43, 226, 0.9) 0px 0px 14.7815px, rgba(127, 255, 212, 0.9) 0px 0px 29.5631px, rgba(138, 43, 226, 0.07) 0px 0px 49.2718px, rgba(138, 43, 226, 0.145) 0px 0px 10.7229px inset; width: 54.3774px; height: 54.3774px; z-index: 1081; animation-duration: 5.41398s;"></div><div class="raindrop" style="left: 1406.01px; top: 828.97px; background: radial-gradient(circle at 40% 40%, rgba(255, 215, 0, 0.23) 0%, rgba(255, 140, 0, 0.18) 30%, rgba(255, 215, 0, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 215, 0, 0.9) 0px 0px 14.7847px, rgba(255, 140, 0, 0.9) 0px 0px 29.5695px, rgba(255, 215, 0, 0.07) 0px 0px 49.2825px, rgba(255, 215, 0, 0.145) 0px 0px 10.7245px inset; width: 59.1582px; height: 59.1582px; z-index: 1082; animation-duration: 5.62873s;"></div><div class="raindrop" style="left: 870.469px; top: 917.264px; background: radial-gradient(circle at 40% 40%, rgba(138, 43, 226, 0.23) 0%, rgba(255, 215, 0, 0.18) 30%, rgba(138, 43, 226, 0.106) 60%, transparent 100%); box-shadow: rgba(138, 43, 226, 0.9) 0px 0px 14.7977px, rgba(255, 215, 0, 0.9) 0px 0px 29.5954px, rgba(138, 43, 226, 0.07) 0px 0px 49.3256px, rgba(138, 43, 226, 0.145) 0px 0px 10.7311px inset; width: 60.5742px; height: 60.5742px; z-index: 1084; animation-duration: 5.24111s;"></div><div class="raindrop" style="left: 1218.51px; top: 498.312px; background: radial-gradient(circle at 40% 40%, rgba(255, 215, 0, 0.23) 0%, rgba(255, 140, 0, 0.18) 30%, rgba(255, 215, 0, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 215, 0, 0.9) 0px 0px 14.8516px, rgba(255, 140, 0, 0.9) 0px 0px 29.7032px, rgba(255, 215, 0, 0.07) 0px 0px 49.5053px, rgba(255, 215, 0, 0.145) 0px 0px 10.7584px inset; width: 64.6953px; height: 64.6953px; z-index: 1092; animation-duration: 7.77218s;"></div><div class="raindrop" style="left: 887.08px; top: 304.574px; background: radial-gradient(circle at 40% 40%, rgba(138, 43, 226, 0.23) 0%, rgba(138, 43, 226, 0.18) 30%, rgba(138, 43, 226, 0.106) 60%, transparent 100%); box-shadow: rgba(138, 43, 226, 0.9) 0px 0px 14.8815px, rgba(138, 43, 226, 0.9) 0px 0px 29.7629px, rgba(138, 43, 226, 0.07) 0px 0px 49.6049px, rgba(138, 43, 226, 0.145) 0px 0px 10.7735px inset; width: 37.114px; height: 37.114px; z-index: 1096; animation-duration: 7.64284s;"></div><div class="raindrop" style="left: 537.662px; top: 72.0626px; background: radial-gradient(circle at 40% 40%, rgba(255, 105, 180, 0.23) 0%, rgba(50, 205, 50, 0.18) 30%, rgba(255, 105, 180, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 105, 180, 0.9) 0px 0px 14.9045px, rgba(50, 205, 50, 0.9) 0px 0px 29.809px, rgba(255, 105, 180, 0.07) 0px 0px 49.6817px, rgba(255, 105, 180, 0.145) 0px 0px 10.7852px inset; width: 30.9978px; height: 30.9978px; z-index: 1100; animation-duration: 7.83626s;"></div><div class="raindrop" style="left: 1553.94px; top: 65.8294px; background: radial-gradient(circle at 40% 40%, rgba(127, 255, 212, 0.23) 0%, rgba(255, 215, 0, 0.18) 30%, rgba(127, 255, 212, 0.106) 60%, transparent 100%); box-shadow: rgba(127, 255, 212, 0.9) 0px 0px 14.9159px, rgba(255, 215, 0, 0.9) 0px 0px 29.8318px, rgba(127, 255, 212, 0.07) 0px 0px 49.7196px, rgba(127, 255, 212, 0.145) 0px 0px 10.7909px inset; width: 66.8774px; height: 66.8774px; z-index: 1102; animation-duration: 7.04273s;"></div><div class="raindrop" style="left: 857.53px; top: 777.06px; background: radial-gradient(circle at 40% 40%, rgba(0, 191, 255, 0.23) 0%, rgba(255, 20, 147, 0.18) 30%, rgba(0, 191, 255, 0.106) 60%, transparent 100%); box-shadow: rgba(0, 191, 255, 0.9) 0px 0px 14.92px, rgba(255, 20, 147, 0.9) 0px 0px 29.8399px, rgba(0, 191, 255, 0.07) 0px 0px 49.7332px, rgba(0, 191, 255, 0.145) 0px 0px 10.793px inset; width: 56.2771px; height: 56.2771px; z-index: 1102; animation-duration: 6.83663s;"></div><div class="raindrop" style="left: 1514.73px; top: 723.511px; background: radial-gradient(circle at 40% 40%, rgba(127, 255, 212, 0.23) 0%, rgba(255, 20, 147, 0.18) 30%, rgba(127, 255, 212, 0.106) 60%, transparent 100%); box-shadow: rgba(127, 255, 212, 0.9) 0px 0px 14.9333px, rgba(255, 20, 147, 0.9) 0px 0px 29.8665px, rgba(127, 255, 212, 0.07) 0px 0px 49.7775px, rgba(127, 255, 212, 0.145) 0px 0px 10.7997px inset; width: 22.8173px; height: 22.8173px; z-index: 1104; animation-duration: 5.65916s;"></div><div class="raindrop" style="left: 905.119px; top: 82.3288px; background: radial-gradient(circle at 40% 40%, rgba(255, 140, 0, 0.23) 0%, rgba(50, 205, 50, 0.18) 30%, rgba(255, 140, 0, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 140, 0, 0.9) 0px 0px 14.9504px, rgba(50, 205, 50, 0.9) 0px 0px 29.9009px, rgba(255, 140, 0, 0.07) 0px 0px 49.8348px, rgba(255, 140, 0, 0.145) 0px 0px 10.8083px inset; width: 68.0084px; height: 68.0084px; z-index: 1107; animation-duration: 6.32138s;"></div><div class="raindrop" style="left: 660.923px; top: 220.742px; background: radial-gradient(circle at 40% 40%, rgba(75, 0, 130, 0.23) 0%, rgba(138, 43, 226, 0.18) 30%, rgba(75, 0, 130, 0.106) 60%, transparent 100%); box-shadow: rgba(75, 0, 130, 0.9) 0px 0px 14.9652px, rgba(138, 43, 226, 0.9) 0px 0px 29.9305px, rgba(75, 0, 130, 0.07) 0px 0px 49.8841px, rgba(75, 0, 130, 0.145) 0px 0px 10.8158px inset; width: 57.3463px; height: 57.3463px; z-index: 1109; animation-duration: 6.33672s;"></div><div class="raindrop" style="left: 348.26px; top: 915.8px; background: radial-gradient(circle at 40% 40%, rgba(255, 20, 147, 0.23) 0%, rgba(255, 140, 0, 0.18) 30%, rgba(255, 20, 147, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 20, 147, 0.9) 0px 0px 14.9767px, rgba(255, 140, 0, 0.9) 0px 0px 29.9535px, rgba(255, 20, 147, 0.07) 0px 0px 49.9225px, rgba(255, 20, 147, 0.145) 0px 0px 10.8216px inset; width: 45.8935px; height: 45.8935px; z-index: 1111; animation-duration: 5.30215s;"></div><div class="raindrop" style="left: 1095.57px; top: 204.662px; background: radial-gradient(circle at 40% 40%, rgba(75, 0, 130, 0.23) 0%, rgba(255, 20, 147, 0.18) 30%, rgba(75, 0, 130, 0.106) 60%, transparent 100%); box-shadow: rgba(75, 0, 130, 0.9) 0px 0px 14.9854px, rgba(255, 20, 147, 0.9) 0px 0px 29.9709px, rgba(75, 0, 130, 0.07) 0px 0px 49.9515px, rgba(75, 0, 130, 0.145) 0px 0px 10.826px inset; width: 23.044px; height: 23.044px; z-index: 1112; animation-duration: 7.82773s;"></div><div class="raindrop" style="left: 1307.25px; top: 783.654px; background: radial-gradient(circle at 40% 40%, rgba(255, 215, 0, 0.23) 0%, rgba(255, 140, 0, 0.18) 30%, rgba(255, 215, 0, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 215, 0, 0.9) 0px 0px 15.0146px, rgba(255, 140, 0, 0.9) 0px 0px 30.0291px, rgba(255, 215, 0, 0.07) 0px 0px 50.0486px, rgba(255, 215, 0, 0.145) 0px 0px 10.8407px inset; width: 59.5812px; height: 59.5812px; z-index: 1117; animation-duration: 6.63916s;"></div><div class="raindrop" style="left: 838.472px; top: 607.855px; background: radial-gradient(circle at 40% 40%, rgba(255, 20, 147, 0.23) 0%, rgba(255, 105, 180, 0.18) 30%, rgba(255, 20, 147, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 20, 147, 0.9) 0px 0px 15.0195px, rgba(255, 105, 180, 0.9) 0px 0px 30.039px, rgba(255, 20, 147, 0.07) 0px 0px 50.0651px, rgba(255, 20, 147, 0.145) 0px 0px 10.8432px inset; width: 66.3426px; height: 66.3426px; z-index: 1118; animation-duration: 7.25638s;"></div><div class="raindrop" style="left: 438.878px; top: 919.836px; background: radial-gradient(circle at 40% 40%, rgba(255, 20, 147, 0.23) 0%, rgba(127, 255, 212, 0.18) 30%, rgba(255, 20, 147, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 20, 147, 0.9) 0px 0px 15.0334px, rgba(127, 255, 212, 0.9) 0px 0px 30.0668px, rgba(255, 20, 147, 0.07) 0px 0px 50.1113px, rgba(255, 20, 147, 0.145) 0px 0px 10.8502px inset; width: 67.2px; height: 67.2px; z-index: 1120; animation-duration: 7.02425s;"></div><div class="raindrop" style="left: 868.279px; top: 211.657px; background: radial-gradient(circle at 40% 40%, rgba(255, 215, 0, 0.23) 0%, rgba(255, 140, 0, 0.18) 30%, rgba(255, 215, 0, 0.106) 60%, transparent 100%); box-shadow: rgba(255, 215, 0, 0.9) 0px 0px 15.0421px, rgba(255, 140, 0, 0.9) 0px 0px 30.0842px, rgba(255, 215, 0, 0.07) 0px 0px 50.1404px, rgba(255, 215, 0, 0.145) 0px 0px 10.8545px inset; width: 66.3847px; height: 66.3847px; z-index: 1121; animation-duration: 7.09622s;"></div></body></html>
+// Other sliders
+document.getElementById('satSlider').addEventListener('input', function() { document.getElementById('satValue').textContent = this.value + '%'; });
+document.getElementById('lightSlider').addEventListener('input', function() { document.getElementById('lightValue').textContent = this.value + '%'; });
+document.getElementById('intensitySlider').addEventListener('input', function() { document.getElementById('intensityValue').textContent = parseFloat(this.value).toFixed(2); });
+document.getElementById('depthSlider').addEventListener('input', function() { document.getElementById('depthValue').textContent = parseFloat(this.value).toFixed(1); });
+document.getElementById('glossSlider').addEventListener('input', function() { document.getElementById('glossValue').textContent = parseFloat(this.value).toFixed(2); });
+document.getElementById('bumpSlider').addEventListener('input', function() { document.getElementById('bumpValue').textContent = parseFloat(this.value).toFixed(1); });
+document.getElementById('speedSlider').addEventListener('input', function() { document.getElementById('speedValue').textContent = parseFloat(this.value).toFixed(1) + 'x'; });
+document.getElementById('haloSlider').addEventListener('input', function() { document.getElementById('haloValue').textContent = parseFloat(this.value).toFixed(1); });
+</script>
+</body>
+</html>
