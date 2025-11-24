@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mirror's Echo</title>
+    <script src="https://unpkg.com/livekit-client@2.0.0/dist/livekit-client.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --hue: 0; --comp: 180; --primary: hsl(0, 70%, 60%); --complement: hsl(180, 70%, 60%); }
+        body { font-family: system-ui, sans-serif; background: #000; color: #fff; }
+        .layout { display: flex; height: 100vh; }
+        .video-zone { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1.5rem; padding: 2rem; }
+        h1 { font-size: 1.4rem; font-weight: 300; letter-spacing: 0.15em; opacity: 0.8; }
+        .panes { display: flex; gap: 1.5rem; width: 100%; max-width: 1000px; justify-content: center; }
+        .pane { flex: 1; max-width: 480px; aspect-ratio: 16/9; background: #111; border: 1px solid #333; border-radius: 6px; position: relative; overflow: hidden; }
+        .pane video { width: 100%; height: 100%; object-fit: cover; }
+        .pane-label { position: absolute; bottom: 8px; left: 10px; font-size: 0.6rem; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.1em; }
+        .pane-status { position: absolute; top: 8px; right: 10px; font-size: 0.5rem; padding: 2px 6px; border-radius: 3px; background: rgba(0,0,0,0.7); }
+        .pane-status.on { color: #6f6; }
+        .pane-status.wait { color: #ff6; }
+        .pane-status.off { color: #f66; }
+        .controls { width: 300px; background: #0a0a0a; border-left: 1px solid #222; padding: 1rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; }
+        .section { font-size: 0.6rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid #222; padding-bottom: 0.3rem; margin-top: 0.5rem; }
+        .conn-btn { width: 100%; padding: 0.7rem; font-size: 0.75rem; font-weight: 600; background: transparent; border: 2px solid var(--complement); color: var(--complement); cursor: pointer; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.2s; }
+        .conn-btn:hover { background: var(--complement); color: #000; }
+        .conn-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .conn-btn.disconnect { border-color: #f66; color: #f66; }
+        .conn-btn.disconnect:hover { background: #f66; color: #000; }
+        .color-track { display: flex; height: 28px; border-radius: 4px; overflow: hidden; margin-bottom: 0.4rem; }
+        .color-sq { flex: 1; cursor: pointer; transition: transform 0.15s; }
+        .color-sq:hover { transform: scaleY(1.15); }
+        #colorSlider { width: 100%; height: 5px; border-radius: 3px; background: linear-gradient(90deg, #f66, #fa3, #ff6, #6f6, #6ff, #66f, #f6f, #f66); -webkit-appearance: none; cursor: pointer; }
+        #colorSlider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 3px solid var(--primary); box-shadow: 0 0 10px var(--primary); cursor: pointer; }
+        .sl { margin-bottom: 0.8rem; }
+        .sl-head { display: flex; justify-content: space-between; font-size: 0.65rem; margin-bottom: 0.3rem; }
+        .sl-label { opacity: 0.6; text-transform: uppercase; letter-spacing: 0.05em; }
+        .sl-val { color: var(--primary); font-weight: 600; }
+        .sl input { width: 100%; height: 4px; border-radius: 2px; background: linear-gradient(90deg, rgba(255,255,255,0.1), var(--primary)); -webkit-appearance: none; cursor: pointer; }
+        .sl input::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--complement); border: 2px solid rgba(255,255,255,0.7); box-shadow: 0 0 6px var(--complement); cursor: pointer; }
+        .btn-row { display: flex; gap: 0.5rem; }
+        .sm-btn { flex: 1; padding: 0.4rem; font-size: 0.6rem; background: rgba(255,255,255,0.05); border: 1px solid var(--complement); color: var(--complement); cursor: pointer; border-radius: 3px; text-transform: uppercase; transition: all 0.2s; }
+        .sm-btn:hover { background: var(--complement); color: #000; }
+        .sm-btn.primary { border-color: var(--primary); color: var(--primary); }
+        .sm-btn.primary:hover { background: var(--primary); color: #000; }
+        .status-box { font-size: 0.55rem; opacity: 0.6; padding: 0.5rem; background: rgba(255,255,255,0.02); border-radius: 3px; line-height: 1.5; margin-top: auto; }
+        .raindrop { position: fixed; border-radius: 50%; pointer-events: none; animation: drop 4s ease-out forwards; }
+        @keyframes drop { 0%{opacity:0;transform:scale(0.5)} 15%{opacity:1;transform:scale(1)} 85%{opacity:1} 100%{opacity:0;transform:scale(1.1)} }
+        @media (max-width: 900px) { .layout { flex-direction: column; } .controls { width: 100%; } .panes { flex-direction: column; align-items: center; } }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <div class="video-zone">
+        <h1>THE MIRROR'S ECHO</h1>
+        <div class="panes">
+            <div class="pane"><video id="localV" autoplay muted playsinline></video><div class="pane-label">Local</div><div class="pane-status off" id="localStatus">off</div></div>
+            <div class="pane"><video id="remoteV" autoplay playsinline></video><div class="pane-label">Remote</div><div class="pane-status wait" id="remoteStatus">waiting</div></div>
+        </div>
+    </div>
+    <div class="controls">
+        <div class="section">Connection</div>
+        <button class="conn-btn" id="connBtn">Start Streaming</button>
+        <div class="section">Color Theme</div>
+        <div class="color-track">
+            <div class="color-sq" style="background:#f66" data-hue="0"></div>
+            <div class="color-sq" style="background:#fa3" data-hue="30"></div>
+            <div class="color-sq" style="background:#ff6" data-hue="60"></div>
+            <div class="color-sq" style="background:#6f6" data-hue="120"></div>
+            <div class="color-sq" style="background:#6ff" data-hue="180"></div>
+            <div class="color-sq" style="background:#66f" data-hue="240"></div>
+            <div class="color-sq" style="background:#f6f" data-hue="300"></div>
+        </div>
+        <input type="range" id="colorSlider" min="0" max="360" value="0">
+        <div class="section">Effects</div>
+        <div class="sl"><div class="sl-head"><span class="sl-label">Intensity</span><span class="sl-val" id="intVal">50%</span></div><input type="range" id="intensity" min="0" max="100" value="50"></div>
+        <div class="sl"><div class="sl-head"><span class="sl-label">Speed</span><span class="sl-val" id="spdVal">1.0x</span></div><input type="range" id="speed" min="5" max="30" value="10"></div>
+        <div class="sl"><div class="sl-head"><span class="sl-label">Size</span><span class="sl-val" id="szVal">40</span></div><input type="range" id="size" min="10" max="100" value="40"></div>
+        <div class="sl"><div class="sl-head"><span class="sl-label">Glow</span><span class="sl-val" id="glwVal">60</span></div><input type="range" id="glow" min="0" max="100" value="60"></div>
+        <div class="btn-row">
+            <button class="sm-btn" id="resetBtn">Reset</button>
+            <button class="sm-btn primary" id="forceBtn">Force FX</button>
+        </div>
+        <div class="status-box" id="statusBox">Click "Start Streaming" to connect your camera to LiveKit.</div>
+    </div>
+</div>
+<script>
+// ============================================================
+// THE MIRROR'S ECHO - LiveKit + Bridge API
+// ============================================================
+
+// === LIVEKIT CONFIG ===
+const LIVEKIT_URL = 'wss://claymation-transcription-l6e51sws.livekit.cloud';
+const API_KEY = 'APITw2Yp2Tv3yfg';
+const API_SECRET = 'eVYY0UB69XDGLiGzclYuGUhXuVpc8ry3YcazimFryDW';
+const ROOM_NAME = 'claymation-live';
+
+// === STATE ===
+let room = null, localStream = null, isConnected = false, forcing = false;
+let hue = 0, intensity = 50, speed = 10, size = 40, glow = 60;
+
+// === FRAME PACING ===
+let lastRenderTime = 0;
+const renderBudgetMs = 1000 / 30; // 30fps max
+let remoteBusy = false;
+
+// === ELEMENTS ===
+const localV = document.getElementById('localV');
+const remoteV = document.getElementById('remoteV');
+const localStatus = document.getElementById('localStatus');
+const remoteStatus = document.getElementById('remoteStatus');
+const connBtn = document.getElementById('connBtn');
+const statusBox = document.getElementById('statusBox');
+const colorSlider = document.getElementById('colorSlider');
+
+// ============================================================
+// GLOBAL API: window.mirrorsEcho
+// External scripts, TouchDesigner, or devtools can use this
+// ============================================================
+window.mirrorsEcho = {
+    // Current state (read-only view)
+    get state() {
+        return { hue, intensity, speed, size, glow, forcing, isConnected, remoteBusy };
+    },
+
+    // Attach a remote MediaStream (e.g., from WebRTC peer)
+    attachRemoteStream(stream) {
+        if (stream instanceof MediaStream) {
+            remoteV.srcObject = stream;
+            remoteStatus.textContent = 'receiving';
+            remoteStatus.className = 'pane-status on';
+            console.log('[mirrorsEcho] Remote stream attached');
+        }
+    },
+
+    // Mark remote renderer busy/free (for frame pacing)
+    setRemoteBusy(isBusy) {
+        remoteBusy = !!isBusy;
+        if (!remoteBusy) {
+            // Dispatch event when remote is ready for next frame
+            window.dispatchEvent(new CustomEvent('mirrors-echo-remote-ready', {
+                detail: { timestamp: Date.now() }
+            }));
+        }
+    },
+
+    // Get local stream (for external use)
+    getLocalStream() {
+        return localStream;
+    },
+
+    // Get LiveKit room (for advanced control)
+    getRoom() {
+        return room;
+    },
+
+    // Programmatic connect/disconnect
+    connect,
+    disconnect,
+
+    // Set parameters programmatically
+    setParams(params) {
+        if (params.hue !== undefined) { hue = params.hue; colorSlider.value = hue; updateColors(hue); }
+        if (params.intensity !== undefined) { intensity = params.intensity; document.getElementById('intensity').value = intensity; document.getElementById('intVal').textContent = intensity + '%'; }
+        if (params.speed !== undefined) { speed = params.speed; document.getElementById('speed').value = speed; document.getElementById('spdVal').textContent = (speed/10).toFixed(1) + 'x'; }
+        if (params.size !== undefined) { size = params.size; document.getElementById('size').value = size; document.getElementById('szVal').textContent = size; }
+        if (params.glow !== undefined) { glow = params.glow; document.getElementById('glow').value = glow; document.getElementById('glwVal').textContent = glow; }
+    }
+};
+
+// ============================================================
+// COLOR SYSTEM
+// ============================================================
+function updateColors(h) {
+    hue = h;
+    const comp = (h + 180) % 360;
+    document.documentElement.style.setProperty('--hue', h);
+    document.documentElement.style.setProperty('--comp', comp);
+    document.documentElement.style.setProperty('--primary', `hsl(${h}, 70%, 60%)`);
+    document.documentElement.style.setProperty('--complement', `hsl(${comp}, 70%, 60%)`);
+}
+updateColors(0);
+
+colorSlider.oninput = e => updateColors(+e.target.value);
+document.querySelectorAll('.color-sq').forEach(sq => {
+    sq.onclick = () => { colorSlider.value = sq.dataset.hue; updateColors(+sq.dataset.hue); };
+});
+
+// ============================================================
+// EFFECT SLIDERS
+// ============================================================
+document.getElementById('intensity').oninput = e => { intensity = +e.target.value; document.getElementById('intVal').textContent = intensity + '%'; };
+document.getElementById('speed').oninput = e => { speed = +e.target.value; document.getElementById('spdVal').textContent = (speed/10).toFixed(1) + 'x'; };
+document.getElementById('size').oninput = e => { size = +e.target.value; document.getElementById('szVal').textContent = size; };
+document.getElementById('glow').oninput = e => { glow = +e.target.value; document.getElementById('glwVal').textContent = glow; };
+
+document.getElementById('resetBtn').onclick = () => {
+    colorSlider.value = 0; updateColors(0);
+    document.getElementById('intensity').value = intensity = 50; document.getElementById('intVal').textContent = '50%';
+    document.getElementById('speed').value = speed = 10; document.getElementById('spdVal').textContent = '1.0x';
+    document.getElementById('size').value = size = 40; document.getElementById('szVal').textContent = '40';
+    document.getElementById('glow').value = glow = 60; document.getElementById('glwVal').textContent = '60';
+};
+
+const forceBtn = document.getElementById('forceBtn');
+forceBtn.onmousedown = () => { forcing = true; forceBtn.style.background = 'var(--primary)'; forceBtn.style.color = '#000'; };
+forceBtn.onmouseup = forceBtn.onmouseleave = () => { forcing = false; forceBtn.style.background = ''; forceBtn.style.color = ''; };
+
+// ============================================================
+// JWT TOKEN GENERATION (client-side for LiveKit)
+// ============================================================
+function b64url(s) { return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''); }
+async function genToken(id, rm) {
+    const now = Math.floor(Date.now()/1000);
+    const hdr = b64url(JSON.stringify({alg:'HS256',typ:'JWT'}));
+    const pay = b64url(JSON.stringify({iss:API_KEY,sub:id,iat:now,exp:now+86400,nbf:now,jti:id+'-'+now,video:{room:rm,roomJoin:true,canPublish:true,canSubscribe:true}}));
+    const msg = hdr+'.'+pay;
+    const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(API_SECRET), {name:'HMAC',hash:'SHA-256'}, false, ['sign']);
+    const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(msg));
+    return msg + '.' + b64url(String.fromCharCode(...new Uint8Array(sig)));
+}
+
+// ============================================================
+// LIVEKIT CONNECTION
+// ============================================================
+async function connect() {
+    try {
+        connBtn.disabled = true; connBtn.textContent = 'Connecting...';
+        statusBox.textContent = 'Requesting camera...';
+        
+        localStream = await navigator.mediaDevices.getUserMedia({video:{width:1280,height:720},audio:true});
+        localV.srcObject = localStream;
+        localStatus.textContent = 'camera on'; localStatus.className = 'pane-status on';
+        statusBox.textContent = 'Connecting to LiveKit...';
+        
+        // Dispatch event for external listeners
+        window.dispatchEvent(new CustomEvent('mirrors-echo-local-ready', {
+            detail: { stream: localStream, timestamp: Date.now() }
+        }));
+        
+        const id = 'echo-' + Math.random().toString(36).substr(2,6);
+        const token = await genToken(id, ROOM_NAME);
+        
+        room = new LivekitClient.Room({adaptiveStream:true, dynacast:true});
+        
+        room.on(LivekitClient.RoomEvent.TrackSubscribed, (track, pub, participant) => {
+            if (track.kind === 'video') {
+                track.attach(remoteV);
+                remoteStatus.textContent = 'receiving';
+                remoteStatus.className = 'pane-status on';
+                statusBox.textContent = '✓ Receiving from ' + participant.identity;
+                
+                // Dispatch event
+                window.dispatchEvent(new CustomEvent('mirrors-echo-remote-track', {
+                    detail: { track, participant: participant.identity, timestamp: Date.now() }
+                }));
+            }
+        });
+        
+        room.on(LivekitClient.RoomEvent.TrackUnsubscribed, track => {
+            track.detach();
+            remoteStatus.textContent = 'waiting';
+            remoteStatus.className = 'pane-status wait';
+        });
+        
+        room.on(LivekitClient.RoomEvent.Disconnected, handleDisconnect);
+        
+        room.on(LivekitClient.RoomEvent.ParticipantConnected, p => {
+            statusBox.textContent = p.identity + ' joined';
+            window.dispatchEvent(new CustomEvent('mirrors-echo-participant', {
+                detail: { identity: p.identity, action: 'joined', timestamp: Date.now() }
+            }));
+        });
+        
+        room.on(LivekitClient.RoomEvent.ParticipantDisconnected, p => {
+            statusBox.textContent = p.identity + ' left';
+            window.dispatchEvent(new CustomEvent('mirrors-echo-participant', {
+                detail: { identity: p.identity, action: 'left', timestamp: Date.now() }
+            }));
+        });
+        
+        await room.connect(LIVEKIT_URL, token);
+        
+        const vt = localStream.getVideoTracks()[0];
+        const at = localStream.getAudioTracks()[0];
+        if (vt) await room.localParticipant.publishTrack(vt, {name:'camera',simulcast:true});
+        if (at) await room.localParticipant.publishTrack(at, {name:'mic'});
+        
+        isConnected = true;
+        connBtn.textContent = 'Disconnect'; connBtn.classList.add('disconnect'); connBtn.disabled = false;
+        localStatus.textContent = 'streaming';
+        statusBox.textContent = '✓ LIVE! Streaming to ' + ROOM_NAME;
+        
+        // Dispatch connected event
+        window.dispatchEvent(new CustomEvent('mirrors-echo-connected', {
+            detail: { room: ROOM_NAME, identity: id, timestamp: Date.now() }
+        }));
+        
+    } catch(e) {
+        console.error(e);
+        statusBox.textContent = '✗ ' + e.message;
+        localStatus.textContent = 'error'; localStatus.className = 'pane-status off';
+        connBtn.textContent = 'Start Streaming'; connBtn.disabled = false;
+        
+        window.dispatchEvent(new CustomEvent('mirrors-echo-error', {
+            detail: { error: e.message, timestamp: Date.now() }
+        }));
+    }
+}
+
+function handleDisconnect() {
+    if (localStream) { localStream.getTracks().forEach(t=>t.stop()); localStream = null; }
+    localV.srcObject = remoteV.srcObject = null;
+    room = null; isConnected = false;
+    connBtn.textContent = 'Start Streaming'; connBtn.classList.remove('disconnect'); connBtn.disabled = false;
+    localStatus.textContent = 'off'; localStatus.className = 'pane-status off';
+    remoteStatus.textContent = 'waiting'; remoteStatus.className = 'pane-status wait';
+    statusBox.textContent = 'Disconnected.';
+    
+    window.dispatchEvent(new CustomEvent('mirrors-echo-disconnected', {
+        detail: { timestamp: Date.now() }
+    }));
+}
+
+async function disconnect() { if (room) await room.disconnect(); handleDisconnect(); }
+connBtn.onclick = () => isConnected ? disconnect() : connect();
+
+// ============================================================
+// RAINDROPS
+// ============================================================
+function spawnDrop() {
+    const d = document.createElement('div'); d.className = 'raindrop';
+    const useHue = Math.random() < 0.35;
+    const h = useHue ? hue + (Math.random()*40-20) : Math.random()*360;
+    const s = size * (0.6 + Math.random()*0.8);
+    const dur = 4 / (speed/10);
+    d.style.cssText = `left:${Math.random()*100}vw;top:${Math.random()*100}vh;width:${s}px;height:${s}px;background:radial-gradient(circle at 30% 30%,hsla(${h},80%,70%,0.9),hsla(${h},70%,50%,0.6),transparent);box-shadow:0 0 ${glow*0.7}px hsl(${h},75%,55%);animation-duration:${dur}s;`;
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), dur*1000);
+}
+
+// ============================================================
+// MAIN LOOP + FRAME-PACED EVENTS
+// ============================================================
+(function loop() {
+    const now = performance.now();
+    
+    // Spawn raindrops
+    if (forcing) { for(let i=0;i<5;i++) spawnDrop(); }
+    else if (intensity > 0 && Math.random() < intensity/400) spawnDrop();
+    
+    // Frame-paced render requests (only when remote is ready)
+    if (now - lastRenderTime >= renderBudgetMs && !remoteBusy) {
+        lastRenderTime = now;
+        
+        // Dispatch state for external renderers (TouchDesigner, etc.)
+        window.dispatchEvent(new CustomEvent('mirrors-echo-state', {
+            detail: { hue, intensity, speed, size, glow, forcing, isConnected, timestamp: Date.now() }
+        }));
+        
+        // Also dispatch render request (external systems can listen)
+        window.dispatchEvent(new CustomEvent('mirrors-echo-render-request', {
+            detail: { hue, intensity, speed, size, glow, timestamp: Date.now() }
+        }));
+    }
+    
+    requestAnimationFrame(loop);
+})();
+
+// ============================================================
+// STARTUP LOG
+// ============================================================
+console.log('[Mirror\'s Echo] Initialized');
+console.log('[Mirror\'s Echo] API available at window.mirrorsEcho');
+console.log('[Mirror\'s Echo] Events: mirrors-echo-state, mirrors-echo-render-request, mirrors-echo-connected, etc.');
+</script>
+</body>
+</html>
