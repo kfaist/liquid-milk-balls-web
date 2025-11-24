@@ -5,6 +5,7 @@ const { WebSocketServer } = require("ws");
 const { AccessToken, RoomServiceClient } = require("livekit-server-sdk");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const paypal = require("@paypal/checkout-server-sdk");
+const { mountTurnEndpoint } = require("./turn-credentials");
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -394,7 +395,108 @@ app.post("/api/create-checkout-session", async (req, res) => {
   }
 });
 
+// Mount TURN credentials endpoint
+mountTurnEndpoint(app);
+
 const server = http.createServer(app);
+
+// WebSocket signaling server for WebRTC (path: /signaling)
+const signalingWss = new WebSocketServer({ server, path: "/signaling" });
+
+// Track rooms: { roomName: Set<WebSocket> }
+const signalingRooms = new Map();
+
+signalingWss.on("connection", (ws) => {
+  console.log("[signaling] Client connected");
+  ws.currentRoom = null;
+  
+  const keepalive = setInterval(() => { 
+    try { 
+      if (ws.readyState === ws.OPEN) {
+        ws.ping(); 
+      }
+    } catch (e) {
+      console.error("[signaling] Ping error:", e);
+    }
+  }, 25000);
+  
+  ws.on("message", (msg) => {
+    try {
+      const data = JSON.parse(msg);
+      
+      // Handle room join
+      if (data.type === 'join' || data.type === 'join-room') {
+        const roomName = data.room || 'mirrors-echo-default';
+        
+        // Leave old room if exists
+        if (ws.currentRoom && signalingRooms.has(ws.currentRoom)) {
+          signalingRooms.get(ws.currentRoom).delete(ws);
+          console.log(`[signaling] Client left room: ${ws.currentRoom}`);
+        }
+        
+        // Join new room
+        if (!signalingRooms.has(roomName)) {
+          signalingRooms.set(roomName, new Set());
+        }
+        signalingRooms.get(roomName).add(ws);
+        ws.currentRoom = roomName;
+        console.log(`[signaling] Client joined room: ${roomName} (${signalingRooms.get(roomName).size} clients)`);
+        
+        // Notify client of successful join
+        ws.send(JSON.stringify({ type: 'joined', room: roomName }));
+        
+        // If there's already another peer, notify initiator to start call
+        if (signalingRooms.get(roomName).size === 2) {
+          ws.send(JSON.stringify({ type: 'ready' }));
+        }
+        
+        return;
+      }
+      
+      // Broadcast to room or everyone
+      const targetRoom = ws.currentRoom;
+      const clients = targetRoom && signalingRooms.has(targetRoom) 
+        ? signalingRooms.get(targetRoom) 
+        : signalingWss.clients;
+      
+      for (const client of clients) {
+        if (client !== ws && client.readyState === client.OPEN) {
+          try { 
+            client.send(msg); 
+          } catch (e) {
+            console.error("[signaling] Send error:", e);
+          }
+        }
+      }
+    } catch (e) {
+      console.error("[signaling] Message parsing error:", e);
+    }
+  });
+  
+  ws.on("close", () => {
+    console.log("[signaling] Client disconnected");
+    
+    // Remove from room
+    if (ws.currentRoom && signalingRooms.has(ws.currentRoom)) {
+      signalingRooms.get(ws.currentRoom).delete(ws);
+      console.log(`[signaling] Client removed from room: ${ws.currentRoom}`);
+      
+      // Clean up empty rooms
+      if (signalingRooms.get(ws.currentRoom).size === 0) {
+        signalingRooms.delete(ws.currentRoom);
+        console.log(`[signaling] Room deleted: ${ws.currentRoom}`);
+      }
+    }
+    
+    clearInterval(keepalive);
+  });
+  
+  ws.on("error", (error) => {
+    console.error("[signaling] WebSocket error:", error);
+  });
+});
+
+// Original WebSocket server for other purposes (path: /ws)
 const wss = new WebSocketServer({ server, path: "/ws" });
 
 // Track rooms: { roomName: Set<WebSocket> }
@@ -486,6 +588,26 @@ server.listen(PORT, "0.0.0.0", () => {
   console.log(`📹 Publisher (remote camera): http://localhost:${PORT}/publisher.html`);
   console.log(`👁️  Return viewer (processed video): http://localhost:${PORT}/return-viewer.html`);
   console.log(`🔌 WebSocket: ws://localhost:${PORT}/ws`);
+  console.log(`🔌 WebRTC Signaling: ws://localhost:${PORT}/signaling`);
+
+  // Check Stripe configuration
+  if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_PUBLISHABLE_KEY) {
+    console.log('\n💳 Stripe Payment: CONFIGURED');
+    console.log('   /api/stripe-config');
+    console.log('   /api/create-checkout-session');
+  } else {
+    console.log('\n⚠️  Stripe Payment: NOT CONFIGURED');
+    console.log('   Set STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY');
+  }
+
+  // Check TURN configuration
+  if (process.env.TURN_SECRET && process.env.TURN_SERVER_URL) {
+    console.log('🔄 TURN Server: CONFIGURED');
+    console.log(`   /api/turn-credentials -> ${process.env.TURN_SERVER_URL}`);
+  } else {
+    console.log('⚠️  TURN Server: NOT CONFIGURED');
+    console.log('   Set TURN_SECRET and TURN_SERVER_URL');
+  }
 
   if (LIVEKIT_API_KEY && LIVEKIT_API_SECRET && LIVEKIT_URL) {
     console.log(`\n🎥 LiveKit configured:`);
