@@ -289,6 +289,20 @@ async function populateCameras() {
     } catch(e) { console.error(e); }
 }
 
+// Request camera permission on dropdown click to get device labels
+document.getElementById('remoteCam').onclick = async function() {
+    if (this.options.length <= 1) {
+        try {
+            const tempStream = await navigator.mediaDevices.getUserMedia({video: true, audio: false});
+            tempStream.getTracks().forEach(t => t.stop());
+            populateCameras();
+        } catch(e) { console.error(e); }
+    }
+};
+
+// Also try on page load
+populateCameras();
+
 // START WEBCAM
 document.getElementById('camBtn').onclick = async function() {
     this.textContent = 'STARTING...';
