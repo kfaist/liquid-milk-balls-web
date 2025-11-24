@@ -455,4 +455,83 @@
         document.getElementById('tempoSlider').addEventListener('input', e => { state.tempo = parseFloat(e.target.value); document.getElementById('tempoValue').textContent = state.tempo.toFixed(2) + 'x'; });
     </script>
 </body>
+</html>Btn.disabled = false;
+            remoteConnectBtn.classList.remove('active');
+            remoteConnectBtn.textContent = 'Connect';
+            remoteDisconnectBtn.disabled = true;
+        });
+
+        // === TEMPO CONTROLS ===
+        document.getElementById('tempoSlider').addEventListener('input', e => {
+            state.tempo = parseFloat(e.target.value);
+            document.getElementById('tempoValue').textContent = state.tempo + 'x';
+        });
+
+        document.getElementById('progressSlider').addEventListener('input', e => {
+            manualProgress = parseInt(e.target.value) / 100;
+            document.getElementById('progressValue').textContent = e.target.value + '%';
+            if (manualProgress >= 1) {
+                watermarkMode = true;
+                document.body.classList.add('watermark-mode');
+            } else {
+                watermarkMode = false;
+                document.body.classList.remove('watermark-mode');
+            }
+        });
+
+        document.getElementById('skipToRain').addEventListener('click', () => {
+            manualProgress = 0.1;
+            document.getElementById('progressSlider').value = 10;
+            document.getElementById('progressValue').textContent = '10%';
+        });
+
+        document.getElementById('skipToPeak').addEventListener('click', () => {
+            manualProgress = 1.0;
+            watermarkMode = true;
+            document.body.classList.add('watermark-mode');
+            document.getElementById('progressSlider').value = 100;
+            document.getElementById('progressValue').textContent = '100%';
+        });
+
+        // === COLOR/SLIDERS ===
+        const paletteBtns = document.querySelectorAll('.palette-btn');
+        
+        function findNearest(hue) {
+            let min = 360, idx = 0;
+            paletteHues.forEach((h, i) => {
+                const d = Math.min(Math.abs(hue - h), 360 - Math.abs(hue - h));
+                if (d < min) { min = d; idx = i; }
+            });
+            return idx;
+        }
+        
+        function updateHue(hue, fromPalette) {
+            state.hue = parseInt(hue);
+            const comp = (state.hue + 180) % 360;
+            document.getElementById('hueValue').textContent = state.hue + '°';
+            document.getElementById('hueSlider').value = state.hue;
+            document.documentElement.style.setProperty('--hue-value', state.hue);
+            document.documentElement.style.setProperty('--hue-complementary', comp);
+            const nearest = findNearest(state.hue);
+            paletteBtns.forEach((btn, i) => {
+                btn.classList.remove('active', 'nearest');
+                if (fromPalette && parseInt(btn.dataset.hue) === state.hue) btn.classList.add('active');
+                else if (!fromPalette && i === nearest) btn.classList.add('nearest');
+            });
+        }
+        
+        document.getElementById('hueSlider').addEventListener('input', e => updateHue(e.target.value, false));
+        paletteBtns.forEach(btn => btn.addEventListener('click', () => updateHue(btn.dataset.hue, true)));
+        updateHue(280, true);
+        
+        document.getElementById('satSlider').addEventListener('input', e => { state.saturation = parseInt(e.target.value); document.getElementById('satValue').textContent = state.saturation + '%'; });
+        document.getElementById('lightSlider').addEventListener('input', e => { state.lightness = parseInt(e.target.value); document.getElementById('lightValue').textContent = state.lightness + '%'; });
+        document.getElementById('intensitySlider').addEventListener('input', e => { state.intensity = parseFloat(e.target.value); document.getElementById('intensityValue').textContent = state.intensity.toFixed(2); });
+        document.getElementById('depthSlider').addEventListener('input', e => { state.depth = parseFloat(e.target.value); document.getElementById('depthValue').textContent = state.depth.toFixed(1); });
+        document.getElementById('glossSlider').addEventListener('input', e => { state.gloss = parseFloat(e.target.value); document.getElementById('glossValue').textContent = state.gloss.toFixed(2); });
+        document.getElementById('speedSlider').addEventListener('input', e => { state.speed = parseFloat(e.target.value); document.getElementById('speedValue').textContent = state.speed.toFixed(1) + 'x'; });
+        document.getElementById('haloSlider').addEventListener('input', e => { state.halo = parseFloat(e.target.value); document.getElementById('haloValue').textContent = state.halo.toFixed(1); });
+        document.getElementById('bumpSlider').addEventListener('input', e => { state.bump = parseFloat(e.target.value); document.getElementById('bumpValue').textContent = state.bump.toFixed(1); });
+    </script>
+</body>
 </html>
