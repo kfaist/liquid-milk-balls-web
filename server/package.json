@@ -1,0 +1,25 @@
+{
+  "name": "mirrors-echo-server",
+  "version": "1.0.0",
+  "description": "Production server for Mirror's Echo with Stripe and TURN credential generation",
+  "main": "stripe-endpoints.js",
+  "scripts": {
+    "start": "node stripe-endpoints.js",
+    "dev": "NODE_ENV=development node stripe-endpoints.js"
+  },
+  "keywords": [
+    "webrtc",
+    "turn",
+    "stripe",
+    "payment"
+  ],
+  "author": "kfaist",
+  "license": "AGPL-3.0-or-later",
+  "dependencies": {
+    "express": "^4.21.2",
+    "stripe": "^14.0.0",
+    "ws": "^8.18.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3"
+  }
+}

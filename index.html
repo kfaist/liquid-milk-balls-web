@@ -122,5 +122,6 @@
     // Stripe purchase hook - expects server to return {checkoutUrl} or {sessionId,publishableKey}
     (function(){ const purchaseBtn=document.getElementById('purchaseLicenseBtn'); if(!purchaseBtn) return; purchaseBtn.addEventListener('click',async ()=>{ purchaseBtn.disabled=true; purchaseBtn.textContent='Loading...'; try{ const res=await fetch('/api/create-checkout-session',{method:'POST',headers:{'Content-Type':'application/json'}}); if(!res.ok) throw new Error('Payment API unavailable'); const data=await res.json(); if(data.checkoutUrl){ window.location=data.checkoutUrl; return; } if(data.sessionId && data.publishableKey && window.Stripe){ const stripe=Stripe(data.publishableKey); const {error}=await stripe.redirectToCheckout({sessionId:data.sessionId}); if(error) throw error; } else { window.location='/thank-you.html'; } }catch(err){ console.error(err); alert('Unable to process purchase. Email kristabluedoor@gmail.com'); purchaseBtn.disabled=false; purchaseBtn.textContent='Purchase Exhibition License - $400'; } }); })();
   </script>
+  <script src="webrtc-client.js"></script>
 </body>
 </html>

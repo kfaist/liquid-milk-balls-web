@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  coturn:
+    image: instrumentisto/coturn:latest
+    container_name: mirrors-echo-turn
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./turnserver.conf:/etc/coturn/turnserver.conf:ro
+      # Uncomment below to mount SSL certificates for TLS support
+      # - ./certs:/etc/coturn/certs:ro
+    environment:
+      # Override static-auth-secret via environment (recommended for production)
+      # TURN_SECRET: ${TURN_SECRET}
+      - DETECT_EXTERNAL_IP=yes
+      - DETECT_RELAY_IP=yes
+    # Ports exposed (when not using host network mode)
+    # ports:
+    #   - "3478:3478/udp"      # STUN/TURN UDP
+    #   - "3478:3478/tcp"      # STUN/TURN TCP
+    #   - "5349:5349/tcp"      # TURN TLS (if using TLS)
+    #   - "5349:5349/udp"      # TURN TLS UDP
+    #   - "49152-65535:49152-65535/udp"  # TURN relay ports (adjust range as needed)
+    command: ["-c", "/etc/coturn/turnserver.conf", "--log-file=stdout"]
+
+# Note: Using network_mode: host is recommended for production TURN servers
+# to avoid NAT issues and simplify configuration. If using bridge networking,
+# uncomment the ports section and ensure firewall rules allow traffic.
