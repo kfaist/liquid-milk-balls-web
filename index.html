@@ -187,6 +187,7 @@
         </div>
 
         <div class="controls">
+            <div><label>Temporal Intensity</label><input type="range" id="temp" min="0" max="100" value="1"><span id="tempV">1%</span></div>
             <div><label>Intensity</label><input type="range" id="int" min="0" max="100" value="0"><span id="intV">0%</span></div>
             <div><label>Speed</label><input type="range" id="spd" min="5" max="30" value="10"><span id="spdV">1.0x</span></div>
         </div>
@@ -246,7 +247,7 @@
     </div>
 
 <script>
-const S = {hue:280, sat:85, int:0, sz:50, spd:10, glw:60};
+const S = {hue:280, sat:85, int:0, sz:50, spd:10, glw:60, temp:1};
 let stream = null;
 let remoteStream = null;
 let micOn = false;
@@ -406,7 +407,11 @@ document.getElementById('colorSlider').oninput = function() {
     updateColors();
 };
 
-// INTENSITY & SPEED
+// TEMPORAL INTENSITY, INTENSITY & SPEED
+document.getElementById('temp').oninput = function() {
+    S.temp = +this.value;
+    document.getElementById('tempV').textContent = S.temp + '%';
+};
 document.getElementById('int').oninput = function() {
     S.int = +this.value;
     document.getElementById('intV').textContent = S.int + '%';
@@ -456,13 +461,15 @@ function spawnDrop() {
 // ANIMATION LOOP
 function loop() {
     const elapsed = Date.now() - startTime;
+    // Manual intensity drops
     if (S.int > 0) {
         const chance = S.int / 500;
         if (Math.random() < chance) spawnDrop();
     }
-    if (elapsed >= rainStartTime) {
+    // Temporal intensity drops (after 8 min, scaled by temp slider)
+    if (elapsed >= rainStartTime && S.temp > 0) {
         const progress = Math.min((elapsed - rainStartTime) / 120000, 1);
-        const autoChance = 0.02 + progress * 0.15;
+        const autoChance = (0.02 + progress * 0.15) * (S.temp / 100);
         if (Math.random() < autoChance) spawnDrop();
     }
     requestAnimationFrame(loop);
