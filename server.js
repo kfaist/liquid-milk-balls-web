@@ -12,7 +12,7 @@ const LIVEKIT_API_SECRET = 'eVYY0UB69XDGLiGzclYuGUhXuVpc8ry3YcazimFryDW';
 app.use(express.static(__dirname));
 
 // Generate LiveKit token
-app.get('/token', (req, res) => {
+app.get('/token', async (req, res) => {
     const roomName = req.query.room || 'claymation-live';
     const identity = req.query.identity || 'publisher-' + Math.random().toString(36).substr(2, 6);
     const isPublisher = req.query.publisher === 'true';
@@ -30,7 +30,9 @@ app.get('/token', (req, res) => {
             canSubscribe: !isPublisher
         });
         
-        const jwt = token.toJwt();
+        const jwt = await token.toJwt();
+        
+        console.log('Generated token for', identity, 'in room', roomName);
         
         res.json({ 
             token: jwt,
@@ -39,6 +41,7 @@ app.get('/token', (req, res) => {
             identity: identity
         });
     } catch (error) {
+        console.error('Token generation error:', error);
         res.status(500).json({ error: error.message });
     }
 });
