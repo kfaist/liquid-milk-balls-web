@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Publisher - The Mirror's Echo</title>
     <script src="https://cdn.jsdelivr.net/npm/livekit-client@1.15.4/dist/livekit-client.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jose@4.15.4/dist/browser/index.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #111; color: #fff; font-family: monospace; padding: 20px; }
@@ -31,9 +30,6 @@
     <div id="status" class="info">Click "Start Camera" to begin</div>
     
     <script>
-        const LIVEKIT_URL = 'wss://claymation-transcription-l6e51sws.livekit.cloud';
-        const API_KEY = 'APITw2Yp2Tv3yfg';
-        const API_SECRET = 'eVYY0UB69XDGLiGzclYuGUhXuVpc8ry3YcazimFryDW';
         const ROOM_NAME = 'claymation-live';
         
         let localStream = null;
@@ -50,21 +46,11 @@
             status.className = type || 'info';
         }
         
-        async function generateToken(roomName, identity) {
-            const now = Math.floor(Date.now() / 1000);
-            const claims = {
-                iss: API_KEY,
-                sub: identity,
-                nbf: now,
-                exp: now + 21600,
-                video: { roomJoin: true, room: roomName, canPublish: true, canSubscribe: false }
-            };
-            const secret = new TextEncoder().encode(API_SECRET);
-            return await new jose.SignJWT(claims)
-                .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
-                .setIssuedAt()
-                .setExpirationTime('6h')
-                .sign(secret);
+        async function getToken(roomName, identity) {
+            const response = await fetch(`/token?room=${roomName}&identity=${identity}&publisher=true`);
+            if (!response.ok) throw new Error('Failed to get token');
+            const data = await response.json();
+            return data;
         }
         
         startBtn.addEventListener('click', async () => {
@@ -90,10 +76,10 @@
             setStatus('Connecting to LiveKit...', 'info');
             try {
                 const identity = 'publisher-' + Math.random().toString(36).substr(2, 6);
-                const token = await generateToken(ROOM_NAME, identity);
+                const tokenData = await getToken(ROOM_NAME, identity);
                 
                 room = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
-                await room.connect(LIVEKIT_URL, token);
+                await room.connect(tokenData.url, tokenData.token);
                 
                 setStatus('Connected! Publishing tracks...', 'info');
                 
