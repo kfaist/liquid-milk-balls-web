@@ -345,6 +345,8 @@
             .video-grid { grid-template-columns: 1fr; }
         }
     </style>
+    <!-- LiveKit Client SDK -->
+    <script src="https://unpkg.com/livekit-client@latest/dist/livekit-client.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -614,12 +616,59 @@
             }
         });
 
-        connectBtn.addEventListener('click', () => {
+        // LiveKit connection for subscribing to processed video
+        let room = null;
+        
+        connectBtn.addEventListener('click', async () => {
             connectBtn.disabled = true;
-            setTimeout(() => { disconnectBtn.disabled = false; fullscreenBtn.disabled = false; }, 1000);
+            try {
+                // Get token for subscriber
+                const response = await fetch('/token?room=claymation-live&identity=viewer-' + Math.random().toString(36).substr(2, 6) + '&publisher=false');
+                const data = await response.json();
+                
+                // Create room and connect
+                room = new LivekitClient.Room({
+                    adaptiveStream: true,
+                    dynacast: true
+                });
+                
+                // Handle track subscriptions
+                room.on(LivekitClient.RoomEvent.TrackSubscribed, (track, publication, participant) => {
+                    console.log('Track subscribed:', track.kind, 'from', participant.identity);
+                    if (track.kind === 'video') {
+                        track.attach(remoteVideo);
+                        console.log('✓ Video attached to remoteVideo element');
+                    }
+                });
+                
+                room.on(LivekitClient.RoomEvent.TrackUnsubscribed, (track) => {
+                    track.detach();
+                });
+                
+                room.on(LivekitClient.RoomEvent.Disconnected, () => {
+                    console.log('Disconnected from room');
+                    connectBtn.disabled = false;
+                    disconnectBtn.disabled = true;
+                    fullscreenBtn.disabled = true;
+                });
+                
+                // Connect to room
+                await room.connect(data.url, data.token);
+                console.log('✓ Connected to room:', data.room);
+                
+                disconnectBtn.disabled = false;
+                fullscreenBtn.disabled = false;
+            } catch (error) {
+                console.error('Connection error:', error);
+                connectBtn.disabled = false;
+            }
         });
 
-        disconnectBtn.addEventListener('click', () => {
+        disconnectBtn.addEventListener('click', async () => {
+            if (room) {
+                await room.disconnect();
+                room = null;
+            }
             disconnectBtn.disabled = true;
             fullscreenBtn.disabled = true;
             connectBtn.disabled = false;
