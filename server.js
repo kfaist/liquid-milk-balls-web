@@ -9,6 +9,14 @@ const LIVEKIT_API_KEY = 'APITw2Yp2Tv3yfg';
 const LIVEKIT_API_SECRET = 'eVYY0UB69XDGLiGzclYuGUhXuVpc8ry3YcazimFryDW';
 const LIVEKIT_URL = 'wss://claymation-transcription-l6e51sws.livekit.cloud';
 
+// Stripe configuration (set these in Railway environment variables)
+const STRIPE_PUBLISHABLE_KEY = process.env.STRIPE_PUBLISHABLE_KEY || '';
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
+const stripe = STRIPE_SECRET_KEY ? require('stripe')(STRIPE_SECRET_KEY) : null;
+
+// Middleware
+app.use(express.json());
+
 // Serve static files
 app.use(express.static(__dirname));
 
@@ -136,6 +144,50 @@ app.get('/api/processed-publisher-token', async (req, res) => {
             whipUrl: `https://claymation-transcription-l6e51sws.livekit.cloud/whip?access_token=${jwt}`
         });
     } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ============================================
+// STRIPE ENDPOINTS
+// ============================================
+
+// Get Stripe publishable key
+app.get('/api/stripe-config', (req, res) => {
+    if (!STRIPE_PUBLISHABLE_KEY) {
+        return res.status(503).json({ error: 'Stripe not configured' });
+    }
+    res.json({ publishableKey: STRIPE_PUBLISHABLE_KEY });
+});
+
+// Create Stripe checkout session for $400 exhibition license
+app.post('/api/create-checkout-session', async (req, res) => {
+    if (!stripe) {
+        return res.status(503).json({ error: 'Payment system not configured. Please contact kristabluedoor@gmail.com' });
+    }
+    
+    try {
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [{
+                price_data: {
+                    currency: 'usd',
+                    product_data: {
+                        name: 'The Mirror\'s Echo - Exhibition License',
+                        description: 'Unlimited sustained experience, commercial exhibition rights, professional use licensing',
+                    },
+                    unit_amount: 40000, // $400.00 in cents
+                },
+                quantity: 1,
+            }],
+            mode: 'payment',
+            success_url: `${req.protocol}://${req.get('host')}/licensing.html?success=true`,
+            cancel_url: `${req.protocol}://${req.get('host')}/licensing.html?canceled=true`,
+        });
+        
+        res.json({ sessionId: session.id });
+    } catch (error) {
+        console.error('Stripe checkout error:', error);
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // Health check

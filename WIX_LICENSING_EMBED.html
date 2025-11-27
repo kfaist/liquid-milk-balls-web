@@ -1,0 +1,182 @@
+<!-- 
+  MIRROR'S ECHO - LICENSING WIDGET FOR WIX
+  =========================================
+  To use in Wix:
+  1. Go to Wix Editor > Add > Embed > Custom HTML
+  2. Paste this entire code block
+  3. Replace YOUR_STRIPE_PAYMENT_LINK_HERE with your actual Stripe Payment Link
+  
+  To create a Stripe Payment Link:
+  1. Go to https://dashboard.stripe.com/payment-links
+  2. Click "New" > Set price to $400 > Name it "Exhibition License"
+  3. Copy the link (looks like: https://buy.stripe.com/xxxxx)
+  4. Paste it below where it says YOUR_STRIPE_PAYMENT_LINK_HERE
+-->
+
+<style>
+.me-licensing {
+    font-family: 'Courier New', monospace;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 50%, #0a0a0a 100%);
+    color: #e0e0e0;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.me-licensing h2 {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    background: linear-gradient(90deg, #a855f7, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.me-tiers {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+    .me-tiers { grid-template-columns: 1fr; }
+}
+
+.me-tier {
+    background: rgba(20, 10, 30, 0.8);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.me-tier-price {
+    font-size: 0.75rem;
+    color: #a855f7;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+}
+
+.me-tier-title {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: #fff;
+}
+
+.me-tier-desc {
+    font-size: 0.85rem;
+    opacity: 0.7;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.me-tier-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+    flex-grow: 1;
+}
+
+.me-tier-features li {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    padding: 0.4rem 0 0.4rem 1.2rem;
+    position: relative;
+}
+
+.me-tier-features li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    opacity: 0.5;
+}
+
+.me-tier-btn {
+    display: block;
+    width: 100%;
+    padding: 0.8rem 1rem;
+    text-align: center;
+    background: transparent;
+    border: 2px solid rgba(255,255,255,0.3);
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.3s;
+    margin-bottom: 0.5rem;
+}
+
+.me-tier-btn:hover {
+    border-color: #a855f7;
+    color: #a855f7;
+    background: rgba(168, 85, 247, 0.1);
+}
+
+.me-tier-btn:last-child {
+    margin-bottom: 0;
+}
+</style>
+
+<div class="me-licensing">
+    <h2>Licensing & Access</h2>
+    
+    <div class="me-tiers">
+        <!-- Open Access Tier -->
+        <div class="me-tier">
+            <div class="me-tier-price">OPEN ACCESS</div>
+            <h3 class="me-tier-title">Unlimited Edition</h3>
+            <p class="me-tier-desc">
+                Available under open-source principles (AGPL-3.0). Experience freely for educational, research, and non-commercial contexts.
+            </p>
+            <ul class="me-tier-features">
+                <li>Full source code access</li>
+                <li>Unlimited non-commercial use</li>
+                <li>Seven-minute sustained experience</li>
+                <li>Progressive temporal markers</li>
+                <li>Community support</li>
+            </ul>
+            <a href="https://github.com/kfaist/liquid-milk-balls-web" target="_blank" class="me-tier-btn">Access Source Code</a>
+        </div>
+        
+        <!-- Exhibition License Tier -->
+        <div class="me-tier">
+            <div class="me-tier-price">STARTING AT $400</div>
+            <h3 class="me-tier-title">Exhibition License & Technical Residency</h3>
+            <p class="me-tier-desc">
+                For professional contexts and exhibitions. Unrestricted access without temporal markers.
+            </p>
+            <ul class="me-tier-features">
+                <li>Unlimited sustained experience</li>
+                <li>Commercial exhibition rights</li>
+                <li>Professional use licensing</li>
+                <li>Technical residency ($150/hour)</li>
+                <li>TouchDesigner/LiveKit consultation</li>
+            </ul>
+            <!-- REPLACE THE LINK BELOW WITH YOUR STRIPE PAYMENT LINK -->
+            <a href="YOUR_STRIPE_PAYMENT_LINK_HERE" target="_blank" class="me-tier-btn">Purchase License - $400</a>
+            <a href="mailto:kristabluedoor@gmail.com?subject=Technical%20Residency%20Inquiry" class="me-tier-btn">Book Technical Residency</a>
+        </div>
+        
+        <!-- Institutional Partnership Tier -->
+        <div class="me-tier">
+            <div class="me-tier-price">CONTACT</div>
+            <h3 class="me-tier-title">Curatorial & Institutional Partnership</h3>
+            <p class="me-tier-desc">
+                For galleries, museums, and biennials. Comprehensive partnership with curatorial consultation.
+            </p>
+            <ul class="me-tier-features">
+                <li>Complete licensing</li>
+                <li>Curatorial consultation</li>
+                <li>On-site residency</li>
+                <li>Custom integration support</li>
+            </ul>
+            <a href="mailto:chaoscontemporarycraft@gmail.com?subject=Institutional%20Partnership%20Inquiry" class="me-tier-btn">Initiate Partnership</a>
+        </div>
+    </div>
+</div>

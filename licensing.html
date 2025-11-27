@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mirror's Echo - Licensing</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --hue-value: 280;
+            --hue-complementary: 100;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 50%, #0a0a0a 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.7;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, 
+                hsl(var(--hue-value), 70%, 60%), 
+                hsl(var(--hue-complementary), 70%, 60%));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: flicker 3s infinite;
+            letter-spacing: 0.1em;
+        }
+        
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 3rem;
+            font-size: 1rem;
+        }
+        
+        /* About Section */
+        .about-section {
+            background: rgba(20, 10, 30, 0.6);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .about-section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: hsl(var(--hue-value), 70%, 70%);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .about-section p {
+            margin-bottom: 1rem;
+            opacity: 0.85;
+            font-size: 0.95rem;
+        }
+        
+        /* Licensing Grid */
+        .licensing-section {
+            margin-top: 3rem;
+        }
+        
+        .licensing-section h2 {
+            text-align: center;
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            color: hsl(var(--hue-value), 70%, 70%);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .tier-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 900px) {
+            .tier-grid { grid-template-columns: 1fr; }
+        }
+        
+        .payment-tier {
+            background: rgba(20, 10, 30, 0.8);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+        
+        .payment-tier:hover {
+            border-color: rgba(168, 85, 247, 0.5);
+            transform: translateY(-4px);
+        }
+        
+        .tier-header {
+            margin-bottom: 1rem;
+        }
+        
+        .tier-price {
+            font-size: 0.75rem;
+            color: hsl(var(--hue-value), 70%, 60%);
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tier-title {
+            font-size: 1.1rem;
+            color: #fff;
+            font-weight: normal;
+        }
+        
+        .tier-description {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .tier-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1.5rem 0;
+            flex-grow: 1;
+        }
+        
+        .tier-features li {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            padding: 0.4rem 0 0.4rem 1.2rem;
+            position: relative;
+        }
+        
+        .tier-features li::before {
+            content: "—";
+            position: absolute;
+            left: 0;
+            opacity: 0.5;
+        }
+        
+        .tier-cta {
+            display: block;
+            width: 100%;
+            padding: 0.9rem 1rem;
+            text-align: center;
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.3);
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tier-cta:hover {
+            border-color: hsl(var(--hue-value), 70%, 60%);
+            color: hsl(var(--hue-value), 70%, 60%);
+            background: rgba(168, 85, 247, 0.1);
+        }
+        
+        .tier-cta:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .tier-cta:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* Contact Links */
+        .contacts {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem;
+            background: rgba(20, 10, 30, 0.4);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .contacts a {
+            color: hsl(var(--hue-value), 70%, 70%);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s;
+        }
+        
+        .contacts a:hover {
+            border-color: hsl(var(--hue-value), 70%, 70%);
+        }
+        
+        /* Pipeline Diagram */
+        .pipeline {
+            font-family: monospace;
+            font-size: 0.75rem;
+            background: #111;
+            border: 1px solid #333;
+            padding: 1rem;
+            overflow-x: auto;
+            line-height: 1.5;
+            opacity: 0.8;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>THE MIRROR'S ECHO</h1>
+        <p class="subtitle">Interactive Video Installation</p>
+        
+        <!-- About Section -->
+        <section class="about-section">
+            <h2>About</h2>
+            <p>The Mirror's Echo is a networked interactive work exploring presence, temporality, and reciprocity through real-time video transmission. The piece positions participants as both observers and subjects, creating a feedback loop where actions generate visual echoes that accumulate and transform over time.</p>
+            <p>Built on open protocols (WebRTC, LiveKit, NDI), the work operates as distributed infrastructure—each interaction exists simultaneously across multiple nodes: browser, server, and processing environments. This architecture enables the piece to function as both a self-contained web experience and as material for live visual manipulation through tools like TouchDesigner.</p>
+            <p>The work implements a temporal access model: seven minutes of unmediated experience, followed by progressive visual markers that reveal the piece's constructed nature. This durational framework questions assumptions about digital permanence and the economics of networked art.</p>
+            
+            <pre class="pipeline">Camera Input → WebRTC/LiveKit → TouchDesigner Processing → NDI → OBS → WebRTC Return → Remote Viewer</pre>
+        </section>
+        
+        <!-- Licensing Section -->
+        <section class="licensing-section">
+            <h2>Licensing & Access</h2>
+            
+            <div class="tier-grid">
+                <!-- Open Access Tier -->
+                <div class="payment-tier">
+                    <div class="tier-header">
+                        <div class="tier-price">OPEN ACCESS</div>
+                        <h3 class="tier-title">Unlimited Edition</h3>
+                    </div>
+                    <p class="tier-description">
+                        Available under open-source principles (AGPL-3.0). Experience freely for educational, research, and non-commercial contexts.
+                    </p>
+                    <ul class="tier-features">
+                        <li>Full source code access</li>
+                        <li>Unlimited non-commercial use</li>
+                        <li>Seven-minute sustained experience</li>
+                        <li>Progressive temporal markers</li>
+                        <li>Community & documentation support</li>
+                    </ul>
+                    <a href="https://github.com/kfaist/liquid-milk-balls-web" target="_blank" class="tier-cta">Access Source Code</a>
+                </div>
+                
+                <!-- Exhibition License Tier -->
+                <div class="payment-tier">
+                    <div class="tier-header">
+                        <div class="tier-price">STARTING AT $400</div>
+                        <h3 class="tier-title">Exhibition License & Technical Residency</h3>
+                    </div>
+                    <p class="tier-description">
+                        For professional contexts, commercial applications, and exhibition settings. Includes unrestricted access without temporal markers.
+                    </p>
+                    <ul class="tier-features">
+                        <li>Unlimited sustained experience (no temporal markers)</li>
+                        <li>Commercial exhibition rights</li>
+                        <li>Professional use licensing</li>
+                        <li>Optional: Technical residency ($150/hour)</li>
+                        <li>TouchDesigner/LiveKit integration consultation</li>
+                    </ul>
+                    <button class="tier-cta" id="purchaseLicenseBtn">Purchase Exhibition License - $400</button>
+                    <a href="mailto:kristabluedoor@gmail.com?subject=Technical%20Residency%20Inquiry" class="tier-cta">Book Technical Residency</a>
+                </div>
+                
+                <!-- Institutional Partnership Tier -->
+                <div class="payment-tier">
+                    <div class="tier-header">
+                        <div class="tier-price">CONTACT</div>
+                        <h3 class="tier-title">Curatorial & Institutional Partnership</h3>
+                    </div>
+                    <p class="tier-description">
+                        For galleries, museums, and biennials. Comprehensive partnership with curatorial consultation and on-site residency.
+                    </p>
+                    <ul class="tier-features">
+                        <li>Complete licensing</li>
+                        <li>Curatorial consultation</li>
+                        <li>On-site residency</li>
+                        <li>Custom integration support</li>
+                    </ul>
+                    <a href="mailto:chaoscontemporarycraft@gmail.com?subject=Institutional%20Partnership%20Inquiry" class="tier-cta">Initiate Partnership</a>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Contact -->
+        <div class="contacts">
+            Artist/Technical: <a href="mailto:kristabluedoor@gmail.com">kristabluedoor@gmail.com</a> · 
+            Curatorial/Institutional: <a href="mailto:chaoscontemporarycraft@gmail.com">chaoscontemporarycraft@gmail.com</a>
+        </div>
+    </div>
+
+    <!-- Stripe Checkout -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        let stripeInstance = null;
+
+        async function initializeStripe() {
+            try {
+                const response = await fetch('/api/stripe-config');
+                if (response.ok) {
+                    const { publishableKey } = await response.json();
+                    stripeInstance = Stripe(publishableKey);
+                    console.log('Stripe initialized');
+                }
+            } catch (error) {
+                console.log('Stripe not configured:', error);
+            }
+        }
+
+        initializeStripe();
+
+        const purchaseBtn = document.getElementById('purchaseLicenseBtn');
+
+        if (purchaseBtn) {
+            purchaseBtn.addEventListener('click', async () => {
+                purchaseBtn.disabled = true;
+                purchaseBtn.textContent = 'Loading...';
+
+                try {
+                    const response = await fetch('/api/create-checkout-session', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Payment system unavailable');
+                    }
+
+                    const { sessionId } = await response.json();
+
+                    if (stripeInstance) {
+                        const { error } = await stripeInstance.redirectToCheckout({ sessionId });
+                        if (error) {
+                            throw new Error(error.message);
+                        }
+                    } else {
+                        throw new Error('Payment system not configured. Please contact kristabluedoor@gmail.com to complete purchase.');
+                    }
+
+                } catch (error) {
+                    console.error('Checkout error:', error);
+                    alert(error.message || 'Unable to start checkout. Please contact kristabluedoor@gmail.com');
+                    purchaseBtn.disabled = false;
+                    purchaseBtn.textContent = 'Purchase Exhibition License - $400';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
