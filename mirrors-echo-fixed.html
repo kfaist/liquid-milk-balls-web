@@ -216,6 +216,19 @@
 
                 await outputRoom.connect(viewData.url, viewData.token);
 
+                // Check for EXISTING participants (OBS might already be publishing)
+                outputRoom.remoteParticipants.forEach((participant) => {
+                    console.log('Found existing participant:', participant.identity);
+                    participant.trackPublications.forEach((pub) => {
+                        if (pub.track && pub.track.kind === LivekitClient.Track.Kind.Video) {
+                            console.log('Attaching existing video track from:', participant.identity);
+                            pub.track.attach(processedVideo);
+                            processedPlaceholder.style.display = 'none';
+                            updateStatus('Connected! Viewing processed output.');
+                        }
+                    });
+                });
+
                 // Start timer
                 startTime = Date.now();
                 timerInterval = setInterval(updateTimer, 1000);
