@@ -1,0 +1,22 @@
+# PASTE THIS INTO TOUCHDESIGNER TEXTPORT (Dialogs > Textport and DATs or Alt+T)
+# This configures the WebRender TOP for LiveKit input
+
+wr = op('/webrender_livekit_input')
+if wr:
+    print('Found WebRender:', wr.path)
+    
+    # Set URL to localhost viewer
+    wr.par.url = 'http://localhost:3000/td-auto-viewer.html'
+    print('URL set to:', wr.par.url.val)
+    
+    # Enable Media Stream (required for camera access)
+    wr.par.enablemediastream = True
+    print('Enable Media Stream:', wr.par.enablemediastream.val)
+    
+    # Reload the page
+    wr.par.reload.pulse()
+    print('Reloaded WebRender')
+    
+    print('SUCCESS - WebRender configured!')
+else:
+    print('ERROR: WebRender not found at /webrender_livekit_input')

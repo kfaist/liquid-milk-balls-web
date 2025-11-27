@@ -1,0 +1,31 @@
+# PASTE TO NEXT SESSION
+
+## Mirror's Echo - Nov 26, 9:34 PM
+
+**What's configured:**
+- ✅ WebRender URL set to production: `https://liquid-milk-balls-web-production-2e8c.up.railway.app/td-input-viewer.html`
+- ✅ Enable Media Stream: On
+- ✅ mirrors-echo-fixed.html deployed (dual room: camera + processed output)
+- ✅ LiveKit has active video publishers in claymation-live room
+- ✅ OBS is streaming to processed-output room
+
+**Current issue:**
+WebRender loads td-input-viewer.html and shows a green status bar, but video area is BLACK despite active publishers. Need to debug why video isn't displaying.
+
+**Key insight from this session:**
+WebRender must load from PRODUCTION Railway URL (not localhost) because remote users publish to LiveKit cloud. The correct URL is td-input-viewer.html which auto-connects and subscribes to video.
+
+**Project:** `C:\Users\krista-showputer\Desktop\TD Projects\Backup\MOSTWORKING.2.toe`
+
+**To test:**
+1. Open in browser: `https://liquid-milk-balls-web-production-2e8c.up.railway.app/td-input-viewer.html`
+   - Should auto-connect and show remote video
+2. If works in browser but not WebRender, issue is with WebRender browser engine
+
+**Quick TD Textport commands:**
+```python
+print(op('/webrender1').par.url.val)  # Check URL
+op('/webrender1').par.reload.pulse()   # Force reload
+```
+
+**Full handover:** `C:\Users\krista-showputer\Desktop\liquid-milk-balls-web\HANDOVER_FINAL.md`

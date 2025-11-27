@@ -1,0 +1,8 @@
+# Paste this in TD Textport to find the media stream parameter name:
+
+wr = op('/webrender_livekit_input')
+print("All parameters containing 'media' or 'stream' or 'audio':")
+for p in wr.pars():
+    name_lower = p.name.lower()
+    if 'media' in name_lower or 'stream' in name_lower or 'audio' in name_lower or 'enable' in name_lower:
+        print(f"  {p.name} = {p.val}")

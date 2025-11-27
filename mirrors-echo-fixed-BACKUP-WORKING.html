@@ -108,40 +108,6 @@
             border-color: #0f0;
             color: #000;
         }
-        
-        /* Raindrop effects */
-        .raindrop {
-            position: fixed;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 1000;
-        }
-        @keyframes drop {
-            0% { opacity: 0; transform: scale(0.5); }
-            15% { opacity: 1; transform: scale(1); }
-            85% { opacity: 1; }
-            100% { opacity: 0; transform: scale(1.1); }
-        }
-        
-        /* Session ended overlay */
-        .session-ended {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.95);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-        .session-ended h2 {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-        .session-ended p {
-            opacity: 0.7;
-            margin-bottom: 2rem;
-        }
     </style>
 </head>
 <body>
@@ -312,71 +278,6 @@
         }
 
         window.addEventListener('beforeunload', disconnect);
-        
-        // === TEMPORAL EFFECTS (7-10 min) ===
-        const RAIN_START = 7 * 60 * 1000;  // 7 minutes
-        const SESSION_END = 10 * 60 * 1000; // 10 minutes
-        let rainInterval = null;
-        
-        function spawnDrop() {
-            const d = document.createElement('div');
-            d.className = 'raindrop';
-            const hue = Math.random() * 360;
-            const size = 30 + Math.random() * 40;
-            const x = Math.random() * 100;
-            const y = Math.random() * 100;
-            const duration = 3 + Math.random() * 2;
-            d.style.cssText = `
-                left: ${x}vw;
-                top: ${y}vh;
-                width: ${size}px;
-                height: ${size}px;
-                background: radial-gradient(circle at 30% 30%, 
-                    hsla(${hue}, 85%, 75%, 0.8), 
-                    hsla(${hue}, 85%, 55%, 0.6), 
-                    transparent);
-                box-shadow: 0 0 ${size/2}px hsl(${hue}, 85%, 60%);
-                animation: drop ${duration}s ease-out forwards;
-            `;
-            document.body.appendChild(d);
-            setTimeout(() => d.remove(), duration * 1000);
-        }
-        
-        function checkTemporalEffects() {
-            if (!startTime) return;
-            const elapsed = Date.now() - startTime;
-            
-            // Start raindrops at 7 minutes
-            if (elapsed >= RAIN_START && !rainInterval) {
-                rainInterval = setInterval(() => {
-                    const progress = Math.min((elapsed - RAIN_START) / (SESSION_END - RAIN_START), 1);
-                    const intensity = 0.05 + progress * 0.2;
-                    if (Math.random() < intensity) spawnDrop();
-                }, 100);
-            }
-            
-            // End session at 10 minutes
-            if (elapsed >= SESSION_END) {
-                endSession();
-            }
-        }
-        
-        function endSession() {
-            disconnect();
-            if (rainInterval) { clearInterval(rainInterval); rainInterval = null; }
-            
-            const overlay = document.createElement('div');
-            overlay.className = 'session-ended';
-            overlay.innerHTML = `
-                <h2>Session Complete</h2>
-                <p>Thank you for experiencing The Mirror's Echo</p>
-                <button class="btn" onclick="location.reload()">Start New Session</button>
-            `;
-            document.body.appendChild(overlay);
-        }
-        
-        // Check temporal effects every second
-        setInterval(checkTemporalEffects, 1000);
     </script>
 </body>
 </html>

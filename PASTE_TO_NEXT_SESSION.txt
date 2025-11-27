@@ -1,0 +1,44 @@
+# PASTE TO NEXT CLAUDE SESSION
+
+## Mirror's Echo Status (Nov 26, 9:27 PM)
+
+**Key Insight Discovered:** WebRender must load from PRODUCTION Railway URL, not localhost, because remote users publish cameras to LiveKit cloud.
+
+**What's Done:**
+- ✅ WebRender URL set to: `https://liquid-milk-balls-web-production-2e8c.up.railway.app/td-input-viewer.html`
+- ✅ Created & deployed `mirrors-echo-fixed.html` - dual room page that:
+  - Publishes camera to `claymation-live` (input room)  
+  - Subscribes to `processed-output` (shows OBS processed video)
+- ✅ OBS is actively streaming to processed-output room (`obs-whip-publisher` confirmed)
+- ✅ LiveKit rooms have active video publishers
+
+**What Needs Work:**
+- ❓ WebRender video display needs verification
+- ❌ `nvbackground1` shows red X (NVIDIA background removal error)
+- ❓ End-to-end test of dual-room page
+
+**Test This:**
+Open: `https://liquid-milk-balls-web-production-2e8c.up.railway.app/mirrors-echo-fixed.html`
+- Left panel = User's camera (publishing)
+- Right panel = Processed video from OBS (subscribing)
+
+**Project:** `C:\Users\krista-showputer\Desktop\TD Projects\Backup\MOSTWORKING.2.toe`
+
+**Full Pipeline:**
+```
+Remote Browser Camera
+    ↓ WebRTC publish
+LiveKit "claymation-live"  
+    ↓ WebRTC subscribe
+TD WebRender (loads td-input-viewer.html from Railway)
+    ↓ Processing
+TD Effects → NDI Out
+    ↓ NDI
+OBS Studio
+    ↓ WHIP
+LiveKit "processed-output"
+    ↓ WebRTC subscribe  
+Browser "Processed" Panel (mirrors-echo-fixed.html)
+```
+
+**Handover docs:** `C:\Users\krista-showputer\Desktop\liquid-milk-balls-web\FINAL_HANDOVER.md`

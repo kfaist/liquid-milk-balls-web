@@ -1,0 +1,31 @@
+# PASTE THIS TO NEXT CLAUDE SESSION
+
+## Current Status - Mirror's Echo (Nov 26, 8:40 PM)
+
+**What's Working:**
+- ✅ TouchDesigner WebRender1 receiving video from `http://localhost:3000/td-input-viewer.html`
+- ✅ Node.js server running on port 3000 with LiveKit endpoints
+- ✅ LiveKit rooms configured (claymation-live for input, processed-output for output)
+- ✅ Created fixed HTML page: `mirrors-echo-fixed.html` that connects to BOTH rooms
+
+**What Needs Verification:**
+- ❓ OBS streaming to LiveKit processed-output room via WHIP
+- ❓ End-to-end test of mirrors-echo-fixed.html
+
+**Two Problems Being Solved:**
+1. WebRender stopped showing live page → FIXED (changed URL to localhost)
+2. Website showing camera in BOTH windows → FIXED (created dual-room page)
+
+**Key Files:**
+- Project: `C:\Users\krista-showputer\Desktop\TD Projects\Backup\MOSTWORKING.toe`
+- Server: `C:\Users\krista-showputer\Desktop\liquid-milk-balls-web\server\server.js`
+- New Page: `C:\Users\krista-showputer\Desktop\liquid-milk-balls-web\mirrors-echo-fixed.html`
+- Full Handover: `C:\Users\krista-showputer\Desktop\liquid-milk-balls-web\HANDOVER_NOV26_SESSION.md`
+
+**Next Steps:**
+1. Verify OBS is WHIP streaming to processed-output room
+2. Test `http://localhost:3000/mirrors-echo-fixed.html`
+3. User should see their camera on left, PROCESSED video on right
+
+**Pipeline:**
+Browser Camera → LiveKit (claymation-live) → TD WebRender → TD Effects → NDI → OBS → WHIP → LiveKit (processed-output) → Browser Processed Panel

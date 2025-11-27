@@ -1,0 +1,26 @@
+# Paste this into TouchDesigner's Textport (Alt+T)
+# Lists all WebRender TOPs and NDI TOPs in the project
+
+print("=== WEBRENDER TOPs ===")
+for n in root.findChildren(type=webRenderTOP):
+    print(f"  {n.path}")
+    if hasattr(n.par, 'url'):
+        print(f"    URL: {n.par.url.val}")
+    if hasattr(n.par, 'enablemediastream'):
+        print(f"    Media Stream: {n.par.enablemediastream.val}")
+
+print("\n=== NDI IN TOPs ===")
+for n in root.findChildren(type=ndIinTOP):
+    print(f"  {n.path}")
+    if hasattr(n.par, 'sourcename'):
+        print(f"    Source: {n.par.sourcename.val}")
+    if hasattr(n.par, 'active'):
+        print(f"    Active: {n.par.active.val}")
+
+print("\n=== NDI OUT TOPs ===")
+for n in root.findChildren(type=ndIoutTOP):
+    print(f"  {n.path}")
+    if hasattr(n.par, 'name'):
+        print(f"    Name: {n.par.name.val}")
+
+print("\n=== Done ===")

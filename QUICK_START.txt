@@ -1,0 +1,20 @@
+# NEXT SESSION QUICK START
+
+## The Mirror's Echo is WORKING! 🎉
+
+**User URL:** `https://adequate-balance-production.up.railway.app/`
+
+**What works:**
+- Phone camera → LiveKit → TouchDesigner → Effects → OBS → LiveKit → Browser
+- Users see camera on left, processed reflection on right
+
+**TD Project:** `C:\Users\krista-showputer\Desktop\TD Projects\Backup\MOSTWORKING.2.toe`
+
+**WebRender URL:** `https://adequate-balance-production.up.railway.app/td-input-viewer.html`
+
+**If WebRender stops working:**
+```python
+op('/webrender1').par.reload.pulse()
+```
+
+**Full docs:** `C:\Users\krista-showputer\Desktop\liquid-milk-balls-web\THE_MIRRORS_ECHO_COMPLETE.md`
