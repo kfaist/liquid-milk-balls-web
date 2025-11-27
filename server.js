@@ -90,6 +90,54 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'mirrors-echo-vibrant.html'));
 });
 
+// API endpoints for mirrors-echo-fixed.html and td-input-viewer.html
+
+// Viewer token (subscribes to claymation-live)
+app.get('/api/viewer-token', async (req, res) => {
+    const identity = 'viewer-' + Date.now();
+    try {
+        const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, { identity, ttl: '6h' });
+        token.addGrant({ room: 'claymation-live', roomJoin: true, canPublish: false, canSubscribe: true });
+        res.json({ token: await token.toJwt(), url: LIVEKIT_URL, room: 'claymation-live' });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Publisher token (publishes to claymation-live)
+app.get('/api/publisher-token', async (req, res) => {
+    const identity = req.query.identity || 'publisher-' + Date.now();
+    try {
+        const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, { identity, ttl: '6h' });
+        token.addGrant({ room: 'claymation-live', roomJoin: true, canPublish: true, canSubscribe: false });
+        res.json({ token: await token.toJwt(), url: LIVEKIT_URL, room: 'claymation-live' });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Processed viewer token (subscribes to processed-output)
+app.get('/api/processed-viewer-token', async (req, res) => {
+    const identity = req.query.identity || 'processed-viewer-' + Date.now();
+    try {
+        const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, { identity, ttl: '6h' });
+        token.addGrant({ room: 'processed-output', roomJoin: true, canPublish: false, canSubscribe: true });
+        res.json({ token: await token.toJwt(), url: LIVEKIT_URL, room: 'processed-output' });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Processed publisher token (for OBS WHIP to processed-output)
+app.get('/api/processed-publisher-token', async (req, res) => {
+    const identity = 'obs-whip-publisher';
+    try {
+        const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, { identity, ttl: '24h' });
+        token.addGrant({ room: 'processed-output', roomJoin: true, canPublish: true, canSubscribe: false });
+        const jwt = await token.toJwt();
+        res.json({ 
+            token: jwt, 
+            url: LIVEKIT_URL, 
+            room: 'processed-output',
+            whipUrl: `https://claymation-transcription-l6e51sws.livekit.cloud/whip?access_token=${jwt}`
+        });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // Health check
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
