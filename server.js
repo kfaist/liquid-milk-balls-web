@@ -85,9 +85,9 @@ app.get('/obs-whip-token', async (req, res) => {
     }
 });
 
-// Main route
+// Main route - serve the dual-room experience
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'mirrors-echo-vibrant.html'));
+    res.sendFile(path.join(__dirname, 'mirrors-echo-fixed.html'));
 });
 
 // API endpoints for mirrors-echo-fixed.html and td-input-viewer.html
