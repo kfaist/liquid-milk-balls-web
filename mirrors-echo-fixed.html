@@ -115,12 +115,14 @@
             border-radius: 50%;
             pointer-events: none;
             z-index: 1000;
+            animation: raindrop-fade 8s ease-out forwards;
+            will-change: transform, opacity;
         }
-        @keyframes drop {
-            0% { opacity: 0; transform: scale(0.5); }
-            15% { opacity: 1; transform: scale(1); }
-            85% { opacity: 1; }
-            100% { opacity: 0; transform: scale(1.1); }
+        @keyframes raindrop-fade {
+            0% { opacity: 0; transform: scale(0.3); }
+            10% { opacity: 1; transform: scale(1); }
+            90% { opacity: 0.8; }
+            100% { opacity: 0; transform: scale(1.2); }
         }
         
         /* Session ended overlay */
@@ -266,6 +268,9 @@
                 // Start timer
                 startTime = Date.now();
                 timerInterval = setInterval(updateTimer, 1000);
+                
+                // Start temporal animation
+                checkAndStartAnimation();
 
                 connectBtn.style.display = 'none';
                 disconnectBtn.style.display = 'inline-block';
@@ -316,54 +321,119 @@
         // === TEMPORAL EFFECTS (7-10 min) ===
         const RAIN_START = 7 * 60 * 1000;  // 7 minutes
         const SESSION_END = 10 * 60 * 1000; // 10 minutes
-        let rainInterval = null;
+        let animationRunning = false;
         
-        function spawnDrop() {
-            const d = document.createElement('div');
-            d.className = 'raindrop';
-            const hue = Math.random() * 360;
-            const size = 30 + Math.random() * 40;
-            const x = Math.random() * 100;
-            const y = Math.random() * 100;
-            const duration = 3 + Math.random() * 2;
-            d.style.cssText = `
-                left: ${x}vw;
-                top: ${y}vh;
-                width: ${size}px;
-                height: ${size}px;
-                background: radial-gradient(circle at 30% 30%, 
-                    hsla(${hue}, 85%, 75%, 0.8), 
-                    hsla(${hue}, 85%, 55%, 0.6), 
-                    transparent);
-                box-shadow: 0 0 ${size/2}px hsl(${hue}, 85%, 60%);
-                animation: drop ${duration}s ease-out forwards;
-            `;
-            document.body.appendChild(d);
-            setTimeout(() => d.remove(), duration * 1000);
+        const colors = [
+            'rgba(255, 105, 180, 0.9)', // Hot pink
+            'rgba(138, 43, 226, 0.9)', // Blue violet
+            'rgba(75, 0, 130, 0.9)',   // Indigo
+            'rgba(0, 191, 255, 0.9)',  // Deep sky blue
+            'rgba(127, 255, 212, 0.9)', // Aquamarine
+            'rgba(50, 205, 50, 0.9)',  // Lime green
+            'rgba(255, 215, 0, 0.9)',  // Gold
+            'rgba(255, 140, 0, 0.9)',  // Dark orange
+            'rgba(255, 20, 147, 0.9)'  // Deep pink
+        ];
+        
+        function createRaindrop(progress) {
+            const drop = document.createElement('div');
+            drop.className = 'raindrop';
+            
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight;
+            drop.style.left = x + 'px';
+            drop.style.top = y + 'px';
+            
+            const color1 = colors[Math.floor(Math.random() * colors.length)];
+            const color2 = colors[Math.floor(Math.random() * colors.length)];
+            const color3 = colors[Math.floor(Math.random() * colors.length)];
+            
+            let baseOpacity = 0.17 + (progress * 0.4);
+            baseOpacity = Math.min(baseOpacity, 0.9);
+            
+            // Size varies: small, medium, large
+            let baseSize;
+            const sizeRoll = Math.random();
+            if (sizeRoll < 0.3) {
+                baseSize = 20 + Math.random() * 10;
+            } else if (sizeRoll < 0.7) {
+                baseSize = 40 + Math.random() * 20;
+            } else {
+                baseSize = 40 + Math.random() * 50;
+            }
+            
+            const duration = 6 + Math.random() * 4;
+            const glowIntensity = 15 + (progress * 50);
+            
+            drop.style.width = baseSize + 'px';
+            drop.style.height = baseSize + 'px';
+            
+            drop.style.background = `radial-gradient(circle at 40% 40%,
+                ${color1.replace('0.9', String(baseOpacity))} 0%,
+                ${color2.replace('0.9', String(baseOpacity * 0.7))} 30%,
+                ${color3.replace('0.9', String(baseOpacity * 0.4))} 60%,
+                transparent 100%)`;
+            
+            drop.style.boxShadow = `
+                ${color1} 0px 0px ${glowIntensity}px,
+                ${color2} 0px 0px ${glowIntensity * 2}px,
+                ${color1.replace('0.9', '0.3')} 0px 0px ${glowIntensity * 3}px`;
+            
+            drop.style.animationDuration = duration + 's';
+            
+            document.body.appendChild(drop);
+            
+            setTimeout(() => {
+                if (drop.parentNode) drop.parentNode.removeChild(drop);
+            }, duration * 1000);
         }
         
-        function checkTemporalEffects() {
-            if (!startTime) return;
-            const elapsed = Date.now() - startTime;
+        function runTemporalAnimation() {
+            if (!startTime || animationRunning) return;
+            animationRunning = true;
             
-            // Start raindrops at 7 minutes
-            if (elapsed >= RAIN_START && !rainInterval) {
-                rainInterval = setInterval(() => {
-                    const progress = Math.min((elapsed - RAIN_START) / (SESSION_END - RAIN_START), 1);
-                    const intensity = 0.05 + progress * 0.2;
-                    if (Math.random() < intensity) spawnDrop();
-                }, 100);
+            function animate() {
+                if (!startTime) { animationRunning = false; return; }
+                
+                const elapsed = Date.now() - startTime;
+                
+                // End session at 10 minutes
+                if (elapsed >= SESSION_END) {
+                    endSession();
+                    return;
+                }
+                
+                // Only spawn drops after 7 minutes
+                if (elapsed >= RAIN_START) {
+                    const rainProgress = (elapsed - RAIN_START) / (SESSION_END - RAIN_START);
+                    const progress = Math.min(rainProgress, 1.0);
+                    
+                    // Exponential growth - starts slow, gets overwhelming
+                    const baseRate = 0.03;
+                    const exponentialGrowth = Math.pow(progress, 2.5);
+                    let dropProbability = baseRate * (1 + exponentialGrowth * 30);
+                    
+                    // Final surge in last third
+                    if (progress > 0.66) {
+                        const overtakeProgress = (progress - 0.66) / 0.34;
+                        const overtakeMultiplier = 1 + (overtakeProgress * 6);
+                        dropProbability *= overtakeMultiplier;
+                    }
+                    
+                    if (Math.random() < dropProbability) {
+                        createRaindrop(progress);
+                    }
+                }
+                
+                requestAnimationFrame(animate);
             }
             
-            // End session at 10 minutes
-            if (elapsed >= SESSION_END) {
-                endSession();
-            }
+            animate();
         }
         
         function endSession() {
+            animationRunning = false;
             disconnect();
-            if (rainInterval) { clearInterval(rainInterval); rainInterval = null; }
             
             const overlay = document.createElement('div');
             overlay.className = 'session-ended';
@@ -375,8 +445,12 @@
             document.body.appendChild(overlay);
         }
         
-        // Check temporal effects every second
-        setInterval(checkTemporalEffects, 1000);
+        // Start animation when connected
+        function checkAndStartAnimation() {
+            if (startTime && !animationRunning) {
+                runTemporalAnimation();
+            }
+        }
     </script>
 </body>
 </html>
