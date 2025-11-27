@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mirror's Echo - Dual Room Experience</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            font-size: 2rem;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+        .header p { opacity: 0.7; }
+        .status-bar {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        .status-bar .time {
+            font-size: 1.5rem;
+            color: #0f0;
+        }
+        .video-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        @media (max-width: 900px) {
+            .video-grid { grid-template-columns: 1fr; }
+        }
+        .video-panel {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid #333;
+        }
+        .video-panel h3 {
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        .video-box {
+            position: relative;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .video-box video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .video-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+        }
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        .btn {
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border: 2px solid #fff;
+            background: transparent;
+            color: #fff;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .btn:hover:not(:disabled) {
+            background: #fff;
+            color: #000;
+        }
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .btn.active {
+            background: #0f0;
+            border-color: #0f0;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>THE MIRROR'S ECHO</h1>
+            <p>Your camera → Processing → Your reflection transformed</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="time" id="timer">00:00</div>
+            <div id="status">Click Connect to begin</div>
+        </div>
+
+        <div class="video-grid">
+            <div class="video-panel">
+                <h3>📹 YOUR CAMERA (Input)</h3>
+                <div class="video-box">
+                    <video id="localVideo" autoplay muted playsinline></video>
+                    <div class="video-placeholder" id="localPlaceholder">Camera will appear here</div>
+                </div>
+            </div>
+
+            <div class="video-panel">
+                <h3>✨ PROCESSED OUTPUT (Your Reflection)</h3>
+                <div class="video-box">
+                    <video id="processedVideo" autoplay playsinline></video>
+                    <div class="video-placeholder" id="processedPlaceholder">Processed feed will appear here</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="connectBtn" onclick="connect()">Connect</button>
+            <button class="btn" id="disconnectBtn" onclick="disconnect()" style="display:none;">Disconnect</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+    <script>
+        // TWO ROOMS: Input (publish camera) and Output (receive processed)
+        let inputRoom = null;   // claymation-live - we PUBLISH here
+        let outputRoom = null;  // processed-output - we SUBSCRIBE here
+        let localStream = null;
+        let startTime = null;
+        let timerInterval = null;
+
+        const localVideo = document.getElementById('localVideo');
+        const processedVideo = document.getElementById('processedVideo');
+        const localPlaceholder = document.getElementById('localPlaceholder');
+        const processedPlaceholder = document.getElementById('processedPlaceholder');
+        const statusDiv = document.getElementById('status');
+        const timerDiv = document.getElementById('timer');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+
+        async function connect() {
+            connectBtn.disabled = true;
+            updateStatus('Getting camera...');
+
+            try {
+                // 1. Get local camera
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: 1280, height: 720 },
+                    audio: true
+                });
+                localVideo.srcObject = localStream;
+                localPlaceholder.style.display = 'none';
+                updateStatus('Camera ready. Connecting to rooms...');
+
+                // 2. Connect to INPUT room (publish camera)
+                const pubResponse = await fetch('/api/publisher-token?identity=mirror-user-' + Date.now());
+                const pubData = await pubResponse.json();
+
+                inputRoom = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
+                await inputRoom.connect(pubData.url, pubData.token);
+
+                // Publish camera to input room
+                for (const track of localStream.getTracks()) {
+                    await inputRoom.localParticipant.publishTrack(track);
+                }
+                updateStatus('Publishing camera. Connecting to output...');
+
+                // 3. Connect to OUTPUT room (receive processed video)
+                const viewResponse = await fetch('/api/processed-viewer-token?identity=mirror-viewer-' + Date.now());
+                const viewData = await viewResponse.json();
+
+                outputRoom = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
+
+                outputRoom.on(LivekitClient.RoomEvent.TrackSubscribed, (track, pub, participant) => {
+                    console.log('Received processed track from:', participant.identity);
+                    if (track.kind === LivekitClient.Track.Kind.Video) {
+                        track.attach(processedVideo);
+                        processedPlaceholder.style.display = 'none';
+                        updateStatus('Connected! Viewing processed output.');
+                    }
+                });
+
+                outputRoom.on(LivekitClient.RoomEvent.TrackUnsubscribed, (track) => {
+                    if (track.kind === LivekitClient.Track.Kind.Video) {
+                        track.detach(processedVideo);
+                        processedPlaceholder.style.display = 'flex';
+                        processedPlaceholder.textContent = 'Waiting for processed feed...';
+                    }
+                });
+
+                await outputRoom.connect(viewData.url, viewData.token);
+
+                // Start timer
+                startTime = Date.now();
+                timerInterval = setInterval(updateTimer, 1000);
+
+                connectBtn.style.display = 'none';
+                disconnectBtn.style.display = 'inline-block';
+                updateStatus('Connected! Waiting for processed video from OBS...');
+
+            } catch (error) {
+                console.error('Connection error:', error);
+                updateStatus('Error: ' + error.message);
+                connectBtn.disabled = false;
+            }
+        }
+
+        async function disconnect() {
+            if (inputRoom) { await inputRoom.disconnect(); inputRoom = null; }
+            if (outputRoom) { await outputRoom.disconnect(); outputRoom = null; }
+            if (localStream) {
+                localStream.getTracks().forEach(t => t.stop());
+                localStream = null;
+            }
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+
+            localVideo.srcObject = null;
+            processedVideo.srcObject = null;
+            localPlaceholder.style.display = 'flex';
+            processedPlaceholder.style.display = 'flex';
+
+            connectBtn.style.display = 'inline-block';
+            connectBtn.disabled = false;
+            disconnectBtn.style.display = 'none';
+            updateStatus('Disconnected');
+        }
+
+        function updateStatus(msg) {
+            statusDiv.textContent = msg;
+            console.log('[Mirror] ' + msg);
+        }
+
+        function updateTimer() {
+            if (!startTime) return;
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const min = Math.floor(elapsed / 60);
+            const sec = elapsed % 60;
+            timerDiv.textContent = `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+        }
+
+        window.addEventListener('beforeunload', disconnect);
+    </script>
+</body>
+</html>
