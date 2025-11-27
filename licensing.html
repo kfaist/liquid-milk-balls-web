@@ -7,287 +7,739 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        :root {
-            --hue-value: 280;
-            --hue-complementary: 100;
-        }
-        
         body {
-            font-family: 'Courier New', monospace;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 50%, #0a0a0a 100%);
-            color: #e0e0e0;
-            min-height: 100vh;
+            font-family: 'JetBrains Mono', monospace;
+            background: #000;
+            color: rgba(255, 255, 255, 0.9);
             padding: 2rem;
-            line-height: 1.7;
+            line-height: 1.6;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
+            width: 100%;
             margin: 0 auto;
         }
         
-        h1 {
+        /* Flickering Title */
+        h1.flicker {
+            font-size: 1.5rem;
+            font-weight: 400;
             text-align: center;
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(90deg, 
-                hsl(var(--hue-value), 70%, 60%), 
-                hsl(var(--hue-complementary), 70%, 60%));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: flicker 3s infinite;
+            margin-bottom: 3rem;
             letter-spacing: 0.1em;
+            opacity: 0.8;
+            animation: flicker 3s infinite;
         }
         
         @keyframes flicker {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.85; }
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                opacity: 0.8;
+            }
+            20%, 24%, 55% {
+                opacity: 0.3;
+            }
+            22% {
+                opacity: 0.5;
+                transform: translate(-1px, 0);
+            }
         }
         
-        .subtitle {
+        .intro-text {
             text-align: center;
-            color: #888;
+            font-size: 0.65rem;
+            opacity: 0.7;
+            letter-spacing: 0.02em;
+            line-height: 1.6;
             margin-bottom: 3rem;
-            font-size: 1rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: 'JetBrains Mono', monospace;
         }
         
-        /* About Section */
-        .about-section {
-            background: rgba(20, 10, 30, 0.6);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px;
+        .intro-text a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            transition: border-color 0.2s;
+        }
+        
+        .intro-text a:hover {
+            border-color: #fff;
+        }
+        
+        /* Video Panel */
+        .panel {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             padding: 2rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .video-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
             margin-bottom: 2rem;
+        }
+        
+        .video-grid.collapsed {
+            grid-template-columns: 1fr;
+        }
+        
+        .video-box {
+            position: relative;
+        }
+        
+        .video-box.hidden {
+            display: none;
+        }
+        
+        .video-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            opacity: 0.6;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+        
+        .video-container {
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .video-status {
+            font-size: 0.85rem;
+            opacity: 0.6;
+            letter-spacing: 0.05em;
+        }
+        
+        .expand-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.7rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+            z-index: 10;
+            line-height: 1;
+        }
+        
+        .expand-btn:hover {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.7rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: transparent;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+        }
+        
+        #startBtn {
+            display: block;
+            margin: 0.5rem auto 0 auto;
+            width: fit-content;
+        }
+        
+        .remote-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            justify-content: flex-start;
+        }
+        
+        .btn:hover:not(:disabled) {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            opacity: 0.6;
+            letter-spacing: 0.05em;
+        }
+        
+        .status.connected {
+            opacity: 1;
+        }
+        
+        /* Content Sections */
+        section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        h2 {
+            font-size: 1.2rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
+        }
+        
+        h3 {
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            margin: 1.5rem 0 1rem 0;
+            opacity: 0.8;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        pre {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-size: 0.8rem;
+            line-height: 1.8;
+            margin: 1.5rem 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        ul {
+            list-style: none;
+            margin: 1rem 0;
+        }
+        
+        ul li {
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        
+        ul li:before {
+            content: "—";
+            position: absolute;
+            left: 0;
+        }
+        
+        a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            transition: border-color 0.2s;
+        }
+        
+        a:hover {
+            border-color: #fff;
+        }
+        
+        strong {
+            font-weight: 600;
+            opacity: 1;
+        }
+        
+        /* About Section Styling */
+        .about-section {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 2rem;
+            margin: 2rem 0;
         }
         
         .about-section h2 {
-            font-size: 1.2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
             margin-bottom: 1.5rem;
-            color: hsl(var(--hue-value), 70%, 70%);
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            opacity: 0.8;
+        }
+        
+        .about-section h3 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            margin: 1.5rem 0 1rem 0;
+            opacity: 0.8;
         }
         
         .about-section p {
-            margin-bottom: 1rem;
-            opacity: 0.85;
-            font-size: 0.95rem;
-        }
-        
-        /* Licensing Grid */
-        .licensing-section {
-            margin-top: 3rem;
-        }
-        
-        .licensing-section h2 {
-            text-align: center;
-            font-size: 1.3rem;
-            margin-bottom: 2rem;
-            color: hsl(var(--hue-value), 70%, 70%);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        
-        .tier-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
-        }
-        
-        @media (max-width: 900px) {
-            .tier-grid { grid-template-columns: 1fr; }
-        }
-        
-        .payment-tier {
-            background: rgba(20, 10, 30, 0.8);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 12px;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            transition: border-color 0.3s, transform 0.3s;
-        }
-        
-        .payment-tier:hover {
-            border-color: rgba(168, 85, 247, 0.5);
-            transform: translateY(-4px);
-        }
-        
-        .tier-header {
-            margin-bottom: 1rem;
-        }
-        
-        .tier-price {
-            font-size: 0.75rem;
-            color: hsl(var(--hue-value), 70%, 60%);
-            letter-spacing: 2px;
-            margin-bottom: 0.5rem;
-        }
-        
-        .tier-title {
-            font-size: 1.1rem;
-            color: #fff;
-            font-weight: normal;
-        }
-        
-        .tier-description {
-            font-size: 0.85rem;
-            opacity: 0.7;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
             line-height: 1.6;
             margin-bottom: 1rem;
+            opacity: 0.7;
+        }
+        
+        .about-section em {
+            font-style: italic;
+        }
+        
+        .about-section ol {
+            list-style: decimal;
+            margin-left: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.8;
+            opacity: 0.7;
+        }
+        
+        .about-section ol li {
+            padding: 0.5rem 0;
+            padding-left: 0;
+        }
+        
+        .about-section ol li:before {
+            content: none;
+        }
+        
+        .about-section ul {
+            list-style: none;
+            margin: 1rem 0;
+        }
+        
+        .about-section ul li {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            padding: 0.5rem 0;
+            opacity: 0.7;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .about-section ul li:before {
+            content: "—";
+            position: absolute;
+            left: 0;
+        }
+        
+        .about-section a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            transition: border-color 0.2s;
+        }
+        
+        .about-section a:hover {
+            border-color: #fff;
+        }
+        
+        /* Payment Section Styling */
+        .payment-section {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .payment-section h2 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
         }
         
         .tier-features {
             list-style: none;
-            padding: 0;
-            margin: 0 0 1.5rem 0;
-            flex-grow: 1;
+            margin: 1rem 0;
         }
         
         .tier-features li {
+            font-family: 'JetBrains Mono', monospace;
             font-size: 0.8rem;
-            opacity: 0.8;
-            padding: 0.4rem 0 0.4rem 1.2rem;
+            padding: 0.5rem 0;
+            opacity: 0.7;
+            padding-left: 1.5rem;
             position: relative;
         }
         
-        .tier-features li::before {
+        .tier-features li:before {
             content: "—";
             position: absolute;
             left: 0;
-            opacity: 0.5;
         }
         
         .tier-cta {
-            display: block;
-            width: 100%;
-            padding: 0.9rem 1rem;
-            text-align: center;
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            font-size: 0.9rem;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+            border: 1px solid rgba(255, 255, 255, 0.3);
             background: transparent;
-            border: 2px solid rgba(255,255,255,0.3);
-            color: #fff;
-            font-family: inherit;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
+            color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
-            border-radius: 4px;
-            transition: all 0.3s;
-            margin-bottom: 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0.5rem;
         }
         
         .tier-cta:hover {
-            border-color: hsl(var(--hue-value), 70%, 60%);
-            color: hsl(var(--hue-value), 70%, 60%);
-            background: rgba(168, 85, 247, 0.1);
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.05);
         }
         
-        .tier-cta:disabled {
-            opacity: 0.5;
+        .tier-cta.featured {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        button.tier-cta:disabled {
+            opacity: 0.3;
             cursor: not-allowed;
         }
         
-        .tier-cta:last-child {
-            margin-bottom: 0;
+        /* Rainbow Raindrop Effects - appearing and rippling in place */
+        .raindrop {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            animation: dropAppear 3s ease-out forwards;
+            filter: blur(0.5px);
         }
         
-        /* Contact Links */
-        .contacts {
-            text-align: center;
-            margin-top: 3rem;
+        /* Ripple effect - VERY subtle with rainbow gradient halo */
+        .raindrop::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 0.5px solid;
+            border-image: linear-gradient(45deg, 
+                rgba(127, 255, 212, 0.4), 
+                rgba(138, 43, 226, 0.4), 
+                rgba(255, 105, 180, 0.4)) 1;
+            opacity: 0;
+            animation: rippleSubtle 3s ease-out;
+        }
+        
+        .raindrop::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 0.5px solid;
+            border-image: linear-gradient(135deg, 
+                rgba(255, 215, 0, 0.3), 
+                rgba(75, 0, 130, 0.3), 
+                rgba(0, 191, 255, 0.3)) 1;
+            opacity: 0;
+            animation: rippleSubtle 3s ease-out 0.8s;
+        }
+        
+        @keyframes dropAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            /* Water hits - quick arrival */
+            8% {
+                opacity: 0.8;
+                transform: scale(1.0);
+            }
+            /* IMPACT - sharp compression like water splashing */
+            10% {
+                opacity: 0.9;
+                transform: scale(1.3) scaleY(0.5);
+            }
+            /* Flattens and spreads */
+            12% {
+                opacity: 0.7;
+                transform: scale(1.4) scaleY(0.3);
+            }
+            /* Settle into impact crater */
+            20% {
+                opacity: 0.6;
+                transform: scale(1.1);
+            }
+            /* Hold visible */
+            85% {
+                opacity: 0.6;
+                transform: scale(1.0);
+            }
+            /* Dissolve naturally */
+            100% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+        }
+        
+        @keyframes splashDroplet {
+            0% {
+                opacity: 0.8;
+                transform: translate(0, 0) scale(1);
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx), var(--ty)) scale(0);
+            }
+        }
+        
+        /* Splash droplets that spray from impact */
+        .splash-droplet {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: splashDroplet 0.6s ease-out forwards;
+        }
+        
+        @keyframes rippleSubtle {
+            0% {
+                opacity: 0.3;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            30% {
+                opacity: 0.15;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(2.5);
+            }
+        }
+        
+        @keyframes raindropFall {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.5);
+            }
+            10% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) scale(1.5);
+            }
+        }
+        
+        /* Shimmer overlay on videos - SIMPLE rainbow shimmer, no oil slick */
+        .video-shimmer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255, 105, 180, 0.08) 15%,
+                rgba(138, 43, 226, 0.08) 25%,
+                rgba(0, 191, 255, 0.08) 35%,
+                rgba(127, 255, 212, 0.08) 50%,
+                rgba(255, 215, 0, 0.08) 65%,
+                rgba(255, 140, 0, 0.08) 75%,
+                transparent 100%
+            );
+            background-size: 200% 100%;
+            animation: shimmerMove 8s ease-in-out infinite;
+            mix-blend-mode: screen;
+        }
+        
+        @keyframes shimmerMove {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+        
+        /* Payment Tiers Grid */
+        .payment-tiers {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+            max-width: 1400px;
+        }
+        
+        .payment-tier {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             padding: 1.5rem;
-            background: rgba(20, 10, 30, 0.4);
-            border-radius: 8px;
-            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
         }
         
-        .contacts a {
-            color: hsl(var(--hue-value), 70%, 70%);
-            text-decoration: none;
-            border-bottom: 1px solid transparent;
-            transition: border-color 0.3s;
+        .tier-header {
+            margin-bottom: 1.5rem;
         }
         
-        .contacts a:hover {
-            border-color: hsl(var(--hue-value), 70%, 70%);
-        }
-        
-        /* Pipeline Diagram */
-        .pipeline {
-            font-family: monospace;
+        .tier-price {
+            font-family: 'JetBrains Mono', monospace;
             font-size: 0.75rem;
-            background: #111;
-            border: 1px solid #333;
-            padding: 1rem;
-            overflow-x: auto;
-            line-height: 1.5;
-            opacity: 0.8;
-            border-radius: 4px;
-            margin-top: 1rem;
+            letter-spacing: 0.1em;
+            opacity: 0.5;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tier-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        .tier-description {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            opacity: 0.7;
+            flex-grow: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .payment-tiers {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>THE MIRROR'S ECHO</h1>
-        <p class="subtitle">Interactive Video Installation</p>
+        <h1 class="flicker">THE MIRROR'S ECHO</h1>
         
+        <div class="intro-text">
+            The Mirror's Echo operates as an unlimited edition under open-source principles (AGPL-3.0), ensuring accessibility while sustaining ongoing development. Exhibition licenses and institutional partnerships support the continued evolution of networked digital art practices.<br><br>
+            Artist/Technical: <a href="mailto:kristabluedoor@gmail.com">kristabluedoor@gmail.com</a><br>
+            Curatorial/Institutional: <a href="mailto:chaoscontemporarycraft@gmail.com">chaoscontemporarycraft@gmail.com</a>
+        </div>
+
         <!-- About Section -->
         <section class="about-section">
             <h2>About</h2>
-            <p>The Mirror's Echo is a networked interactive work exploring presence, temporality, and reciprocity through real-time video transmission. The piece positions participants as both observers and subjects, creating a feedback loop where actions generate visual echoes that accumulate and transform over time.</p>
+            <p><em>The Mirror's Echo</em> is a networked interactive work exploring presence, temporality, and reciprocity through real-time video transmission. The piece positions participants as both observers and subjects, creating a feedback loop where actions generate visual echoes that accumulate and transform over time.</p>
+
             <p>Built on open protocols (WebRTC, LiveKit, NDI), the work operates as distributed infrastructure—each interaction exists simultaneously across multiple nodes: browser, server, and processing environments. This architecture enables the piece to function as both a self-contained web experience and as material for live visual manipulation through tools like TouchDesigner.</p>
+
             <p>The work implements a temporal access model: seven minutes of unmediated experience, followed by progressive visual markers that reveal the piece's constructed nature. This durational framework questions assumptions about digital permanence and the economics of networked art.</p>
-            
-            <pre class="pipeline">Camera Input → WebRTC/LiveKit → TouchDesigner Processing → NDI → OBS → WebRTC Return → Remote Viewer</pre>
+
+            <p>Technical implementation merges web-native technologies with broadcast/VJ workflows, positioning the work within lineages of video feedback art (Steina & Woody Vasulka), telepresence projects (Kit Galloway & Sherrie Rabinowitz's <em>Satellite Arts</em>), and contemporary networked performance practices.</p>
+
+            <div style="margin: 2rem 0; padding: 2rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">
+                <p style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 2; color: rgba(255,255,255,0.6); letter-spacing: 0.05em;">
+                    <strong style="color: rgba(255,255,255,0.9);">PROCESSING PIPELINE</strong><br><br>
+                    Camera Input → WebRTC/LiveKit → NVIDIA GPU Processing<br>
+                    ↓<br>
+                    Audio Stream → Whisper (Speech-to-Text)<br>
+                    ↓<br>
+                    Text → spaCy NLP (Entity Recognition, Semantic Analysis)<br>
+                    ↓<br>
+                    Video → TouchDesigner (Visual Processing, Effects, Generative Response)<br>
+                    ↓<br>
+                    Composite Output → NDI → OBS → WebRTC Return Path<br>
+                    ↓<br>
+                    Remote Viewer (Browser/Display)
+                </p>
+            </div>
         </section>
-        
-        <!-- Licensing Section -->
-        <section class="licensing-section">
-            <h2>Licensing & Access</h2>
-            
-            <div class="tier-grid">
-                <!-- Open Access Tier -->
+
+        <!-- Licensing & Access -->
+        <section class="about-section">
+            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 3rem;">Licensing & Access</h2>
+
+            <div class="payment-tiers">
+                <!-- Unlimited Edition Tier -->
                 <div class="payment-tier">
                     <div class="tier-header">
                         <div class="tier-price">OPEN ACCESS</div>
                         <h3 class="tier-title">Unlimited Edition</h3>
                     </div>
                     <p class="tier-description">
-                        Available under open-source principles (AGPL-3.0). Experience freely for educational, research, and non-commercial contexts.
+                        An unlimited edition available under open-source principles. Experience the work freely for educational, research, and non-commercial contexts. The piece presents itself fully for seven minutes before revealing its temporal nature through progressive visual markers.
                     </p>
                     <ul class="tier-features">
-                        <li>Full source code access</li>
+                        <li>Full source code access (AGPL-3.0)</li>
                         <li>Unlimited non-commercial use</li>
                         <li>Seven-minute sustained experience</li>
                         <li>Progressive temporal markers</li>
                         <li>Community & documentation support</li>
                     </ul>
-                    <a href="https://github.com/kfaist/liquid-milk-balls-web" target="_blank" class="tier-cta">Access Source Code</a>
+                    <a href="https://github.com/kfaist/liquid-milk-balls-web" class="tier-cta" target="_blank">Access Source Code</a>
                 </div>
-                
-                <!-- Exhibition License Tier -->
+
+                <!-- Exhibition License & Technical Residency Tier -->
                 <div class="payment-tier">
                     <div class="tier-header">
                         <div class="tier-price">STARTING AT $400</div>
                         <h3 class="tier-title">Exhibition License & Technical Residency</h3>
                     </div>
                     <p class="tier-description">
-                        For professional contexts, commercial applications, and exhibition settings. Includes unrestricted access without temporal markers.
+                        For professional contexts, commercial applications, and exhibition settings. Includes unrestricted access to the work without temporal markers, plus optional technical residency support for complex integrations.
                     </p>
                     <ul class="tier-features">
                         <li>Unlimited sustained experience (no temporal markers)</li>
                         <li>Commercial exhibition rights</li>
                         <li>Professional use licensing</li>
-                        <li>Optional: Technical residency ($150/hour)</li>
+                        <li>Optional: Technical residency support ($150/hour)</li>
                         <li>TouchDesigner/LiveKit integration consultation</li>
+                        <li>Custom configuration assistance</li>
                     </ul>
-                    <button class="tier-cta" id="purchaseLicenseBtn">Purchase Exhibition License - $400</button>
-                    <a href="mailto:kristabluedoor@gmail.com?subject=Technical%20Residency%20Inquiry" class="tier-cta">Book Technical Residency</a>
+                    <button class="tier-cta" id="purchaseLicenseBtn" style="width: 100%; margin-bottom: 0.5rem;">Purchase Exhibition License - $400</button>
+                    <a href="mailto:kristabluedoor@gmail.com?subject=Technical%20Residency%20Inquiry%20-%20The%20Mirror's%20Echo" class="tier-cta" style="width: 100%; display: block; box-sizing: border-box;">Book Technical Residency</a>
                 </div>
-                
+
                 <!-- Institutional Partnership Tier -->
                 <div class="payment-tier">
                     <div class="tier-header">
@@ -295,38 +747,36 @@
                         <h3 class="tier-title">Curatorial & Institutional Partnership</h3>
                     </div>
                     <p class="tier-description">
-                        For galleries, museums, and biennials. Comprehensive partnership with curatorial consultation and on-site residency.
+                        For galleries, museums, and biennials. Comprehensive partnership with curatorial consultation and on-site residency throughout the exhibition period.
                     </p>
                     <ul class="tier-features">
                         <li>Complete licensing</li>
                         <li>Curatorial consultation</li>
                         <li>On-site residency</li>
-                        <li>Custom integration support</li>
                     </ul>
-                    <a href="mailto:chaoscontemporarycraft@gmail.com?subject=Institutional%20Partnership%20Inquiry" class="tier-cta">Initiate Partnership</a>
+                    <a href="mailto:chaoscontemporarycraft@gmail.com?subject=Institutional%20Partnership%20Inquiry%20-%20The%20Mirror's%20Echo" class="tier-cta" style="width: 100%; display: block; box-sizing: border-box;">Initiate Partnership</a>
                 </div>
             </div>
         </section>
         
-        <!-- Contact -->
-        <div class="contacts">
-            Artist/Technical: <a href="mailto:kristabluedoor@gmail.com">kristabluedoor@gmail.com</a> · 
-            Curatorial/Institutional: <a href="mailto:chaoscontemporarycraft@gmail.com">chaoscontemporarycraft@gmail.com</a>
-        </div>
+        <footer style="text-align: center; padding: 3rem 0 2rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; opacity: 0.5; letter-spacing: 0.05em;">
+            © 2025 The Mirror's Echo
+        </footer>
     </div>
 
     <!-- Stripe Checkout -->
     <script src="https://js.stripe.com/v3/"></script>
     <script>
+        // Initialize Stripe with publishable key from server
         let stripeInstance = null;
 
+        // Fetch Stripe configuration on page load
         async function initializeStripe() {
             try {
                 const response = await fetch('/api/stripe-config');
                 if (response.ok) {
                     const { publishableKey } = await response.json();
                     stripeInstance = Stripe(publishableKey);
-                    console.log('Stripe initialized');
                 }
             } catch (error) {
                 console.log('Stripe not configured:', error);
@@ -343,6 +793,7 @@
                 purchaseBtn.textContent = 'Loading...';
 
                 try {
+                    // Create checkout session
                     const response = await fetch('/api/create-checkout-session', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -355,12 +806,14 @@
 
                     const { sessionId } = await response.json();
 
+                    // Redirect to Stripe Checkout if configured
                     if (stripeInstance) {
                         const { error } = await stripeInstance.redirectToCheckout({ sessionId });
                         if (error) {
                             throw new Error(error.message);
                         }
                     } else {
+                        // Fallback if Stripe not configured
                         throw new Error('Payment system not configured. Please contact kristabluedoor@gmail.com to complete purchase.');
                     }
 

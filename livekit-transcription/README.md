@@ -22,8 +22,8 @@ Web User's Browser (mic)
     → This script subscribes to audio tracks
     → Whisper transcribes speech
     → UDP packets to TouchDesigner
-        P6:Hello this is what the person said
-        P5:person
+        P6:Hello this is a test
+        P5:test
 ```
 
 ## Custom Settings
