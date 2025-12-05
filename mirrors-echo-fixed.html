@@ -477,27 +477,21 @@
             const color3 = colors[Math.floor(Math.random() * colors.length)];
             
             // === CROSSFADE: FULL (progress=0) → OPTIMIZED (progress=1) ===
+            // At 7min (progress=0): subtle, large, extra glow, long-lived
+            // At 10min (progress=1): saturated, normal size, simpler, faster
             
-            // FULL starts subtle/translucent, OPTIMIZED ends saturated/bold
-            // Opacity: 0.15 → 0.7
+            // Opacity: starts subtle (0.15), ends bold (0.7)
             const baseOpacity = 0.15 + (progress * 0.55);
             
-            // SIZE: FULL = larger (1.5x multiplier), OPTIMIZED = normal (1.0x)
-            // Crossfade: 1.5 → 1.0
+            // Size multiplier: FULL=1.5x larger → OPTIMIZED=1.0x normal
             const sizeMultiplier = 1.5 - (progress * 0.5);
             
-            // LIFESPAN: FULL = longer (10-14s), OPTIMIZED = shorter (6-9s)
-            // Crossfade: 10 → 6 base
+            // Duration: FULL=longer (10-14s) → OPTIMIZED=shorter (6-10s)
             const baseDuration = 10 - (progress * 4);
             const duration = baseDuration + Math.random() * 4;
             
-            // GLOW/HALO: FULL = intense (2.0x), OPTIMIZED = subtle (0.8x)
-            // Crossfade: 2.0 → 0.8
+            // Glow intensity: FULL=intense → OPTIMIZED=subtle
             const haloMultiplier = 2.0 - (progress * 1.2);
-            
-            // TEMPORAL BOOST: FULL = boosted (1.5x), OPTIMIZED = normal (1.0x)
-            // Crossfade: 1.5 → 1.0
-            const temporalBoost = 1.5 - (progress * 0.5);
             
             // Size varies: small, medium, large
             let baseSize;
@@ -512,39 +506,20 @@
             
             const finalSize = baseSize * sizeMultiplier;
             const glowIntensity = (15 + (progress * 50)) * haloMultiplier;
-            const finalOpacity = Math.min(baseOpacity * temporalBoost, 0.9);
             
             drop.style.width = finalSize + 'px';
             drop.style.height = finalSize + 'px';
             
-            // Gradient - FULL has more color layers, OPTIMIZED simpler
-            if (progress < 0.5) {
-                // FULL style: 4-color gradient with inset glow
-                drop.style.background = `radial-gradient(circle at 40% 40%,
-                    ${color1.replace('0.9', String(finalOpacity))} 0%,
-                    ${color2.replace('0.9', String(finalOpacity * 0.8))} 25%,
-                    ${color3.replace('0.9', String(finalOpacity * 0.5))} 50%,
-                    ${color1.replace('0.9', String(finalOpacity * 0.2))} 75%,
-                    transparent 100%)`;
-                
-                drop.style.boxShadow = `
-                    ${color1} 0px 0px ${glowIntensity}px,
-                    ${color2} 0px 0px ${glowIntensity * 2}px,
-                    ${color3} 0px 0px ${glowIntensity * 3}px,
-                    ${color1.replace('0.9', '0.5')} 0px 0px ${glowIntensity * 0.7}px inset`;
-            } else {
-                // OPTIMIZED style: simpler 3-color gradient
-                drop.style.background = `radial-gradient(circle at 40% 40%,
-                    ${color1.replace('0.9', String(finalOpacity))} 0%,
-                    ${color2.replace('0.9', String(finalOpacity * 0.7))} 30%,
-                    ${color3.replace('0.9', String(finalOpacity * 0.4))} 60%,
-                    transparent 100%)`;
-                
-                drop.style.boxShadow = `
-                    ${color1} 0px 0px ${glowIntensity}px,
-                    ${color2} 0px 0px ${glowIntensity * 2}px,
-                    ${color1.replace('0.9', '0.3')} 0px 0px ${glowIntensity * 3}px`;
-            }
+            drop.style.background = `radial-gradient(circle at 40% 40%,
+                ${color1.replace('0.9', String(baseOpacity))} 0%,
+                ${color2.replace('0.9', String(baseOpacity * 0.7))} 30%,
+                ${color3.replace('0.9', String(baseOpacity * 0.4))} 60%,
+                transparent 100%)`;
+            
+            drop.style.boxShadow = `
+                ${color1} 0px 0px ${glowIntensity}px,
+                ${color2} 0px 0px ${glowIntensity * 2}px,
+                ${color1.replace('0.9', '0.3')} 0px 0px ${glowIntensity * 3}px`;
             
             drop.style.animationDuration = duration + 's';
             
