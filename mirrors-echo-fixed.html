@@ -142,6 +142,32 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             overflow: hidden;
         }
+        
+        /* Fullscreen/popout button */
+        .fullscreen-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.7rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.7);
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 10;
+        }
+        .video-box:hover .fullscreen-btn {
+            opacity: 1;
+            animation: btnFlicker 3s infinite;
+        }
+        .fullscreen-btn:hover {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
         .video-box video {
             width: 100%;
             height: 100%;
@@ -228,7 +254,8 @@
 
             <div class="video-panel">
                 <h3>Processed Output (Your Reflection)</h3>
-                <div class="video-box">
+                <div class="video-box" id="processedBox">
+                    <button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()">&#x26F6;</button>
                     <video id="processedVideo" autoplay playsinline></video>
                     <div class="video-placeholder" id="processedPlaceholder">Processed feed will appear here</div>
                 </div>
@@ -374,6 +401,31 @@
         }
 
         window.addEventListener('beforeunload', disconnect);
+        
+        // Fullscreen toggle for processed output
+        function toggleFullscreen() {
+            const videoBox = document.getElementById('processedBox');
+            const video = document.getElementById('processedVideo');
+            
+            if (!document.fullscreenElement) {
+                // Try fullscreen on the video box first, fallback to video
+                if (videoBox.requestFullscreen) {
+                    videoBox.requestFullscreen();
+                } else if (videoBox.webkitRequestFullscreen) {
+                    videoBox.webkitRequestFullscreen();
+                } else if (video.requestFullscreen) {
+                    video.requestFullscreen();
+                } else if (video.webkitRequestFullscreen) {
+                    video.webkitRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+        }
         
         // === TEMPORAL EFFECTS (7-10 min) ===
         const RAIN_START = 7 * 60 * 1000;  // 7 minutes
