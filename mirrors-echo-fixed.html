@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Mirror's Echo - Dual Room Experience</title>
+    <title>The Mirror's Echo</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'JetBrains Mono', monospace;
             background: #000;
-            color: #fff;
+            color: rgba(255, 255, 255, 0.9);
             min-height: 100vh;
         }
         .container {
@@ -17,27 +17,102 @@
             margin: 0 auto;
             padding: 2rem;
         }
+        
+        /* Flickering Title */
         .header {
             text-align: center;
             margin-bottom: 2rem;
         }
         .header h1 {
-            font-size: 2rem;
+            font-size: 1.5rem;
+            font-weight: 400;
             letter-spacing: 0.1em;
             margin-bottom: 0.5rem;
+            opacity: 0.8;
+            animation: flicker 3s infinite;
         }
-        .header p { opacity: 0.7; }
+        .header p { 
+            opacity: 0.5;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                opacity: 0.8;
+            }
+            20%, 24%, 55% {
+                opacity: 0.3;
+            }
+            22% {
+                opacity: 0.5;
+                transform: translate(-1px, 0);
+            }
+        }
+        
+        /* Connect button at top - flickering */
+        .top-controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn {
+            padding: 0.6rem 2rem;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: transparent;
+            color: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
+        .btn:hover:not(:disabled) {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .btn.flicker-btn {
+            animation: btnFlicker 3s infinite;
+        }
+        
+        @keyframes btnFlicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                opacity: 1;
+                border-color: rgba(255, 255, 255, 0.5);
+            }
+            20%, 24%, 55% {
+                opacity: 0.5;
+                border-color: rgba(255, 255, 255, 0.2);
+            }
+            22% {
+                opacity: 0.7;
+            }
+        }
+        
         .status-bar {
             text-align: center;
             padding: 1rem;
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             margin-bottom: 1.5rem;
         }
         .status-bar .time {
-            font-size: 1.5rem;
-            color: #0f0;
+            font-size: 1.2rem;
+            opacity: 0.8;
+            letter-spacing: 0.1em;
         }
+        .status-bar #status {
+            font-size: 0.75rem;
+            opacity: 0.5;
+            margin-top: 0.5rem;
+            letter-spacing: 0.02em;
+        }
+        
         .video-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -46,22 +121,25 @@
         @media (max-width: 900px) {
             .video-grid { grid-template-columns: 1fr; }
         }
+        
         .video-panel {
-            background: #1a1a1a;
-            border-radius: 12px;
-            padding: 1rem;
-            border: 1px solid #333;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 1.5rem;
         }
         .video-panel h3 {
-            margin-bottom: 0.75rem;
-            font-size: 1rem;
-            opacity: 0.8;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            font-weight: 400;
+            opacity: 0.6;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
         .video-box {
             position: relative;
             aspect-ratio: 16/9;
             background: #000;
-            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             overflow: hidden;
         }
         .video-box video {
@@ -75,38 +153,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: rgba(255,255,255,0.5);
-            font-size: 0.9rem;
-        }
-        .controls {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 2rem;
-        }
-        .btn {
-            padding: 0.8rem 2rem;
-            font-size: 1rem;
-            border: 2px solid #fff;
-            background: transparent;
-            color: #fff;
-            border-radius: 50px;
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.2s;
-        }
-        .btn:hover:not(:disabled) {
-            background: #fff;
-            color: #000;
-        }
-        .btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-        .btn.active {
-            background: #0f0;
-            border-color: #0f0;
-            color: #000;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.75rem;
+            letter-spacing: 0.02em;
         }
         
         /* Raindrop effects */
@@ -137,12 +186,16 @@
             z-index: 2000;
         }
         .session-ended h2 {
-            font-size: 2rem;
+            font-size: 1.5rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
             margin-bottom: 1rem;
+            opacity: 0.8;
         }
         .session-ended p {
-            opacity: 0.7;
+            opacity: 0.5;
             margin-bottom: 2rem;
+            font-size: 0.8rem;
         }
     </style>
 </head>
@@ -150,7 +203,13 @@
     <div class="container">
         <div class="header">
             <h1>THE MIRROR'S ECHO</h1>
-            <p>Your camera → Processing → Your reflection transformed</p>
+            <p>Your camera - Processing - Your reflection transformed</p>
+        </div>
+
+        <!-- Connect button at top -->
+        <div class="top-controls">
+            <button class="btn flicker-btn" id="connectBtn" onclick="connect()">Connect</button>
+            <button class="btn" id="disconnectBtn" onclick="disconnect()" style="display:none;">Disconnect</button>
         </div>
 
         <div class="status-bar">
@@ -160,7 +219,7 @@
 
         <div class="video-grid">
             <div class="video-panel">
-                <h3>📹 YOUR CAMERA (Input)</h3>
+                <h3>Your Camera (Input)</h3>
                 <div class="video-box">
                     <video id="localVideo" autoplay muted playsinline></video>
                     <div class="video-placeholder" id="localPlaceholder">Camera will appear here</div>
@@ -168,17 +227,12 @@
             </div>
 
             <div class="video-panel">
-                <h3>✨ PROCESSED OUTPUT (Your Reflection)</h3>
+                <h3>Processed Output (Your Reflection)</h3>
                 <div class="video-box">
                     <video id="processedVideo" autoplay playsinline></video>
                     <div class="video-placeholder" id="processedPlaceholder">Processed feed will appear here</div>
                 </div>
             </div>
-        </div>
-
-        <div class="controls">
-            <button class="btn" id="connectBtn" onclick="connect()">Connect</button>
-            <button class="btn" id="disconnectBtn" onclick="disconnect()" style="display:none;">Disconnect</button>
         </div>
     </div>
 
@@ -202,6 +256,7 @@
 
         async function connect() {
             connectBtn.disabled = true;
+            connectBtn.classList.remove('flicker-btn');
             updateStatus('Getting camera...');
 
             try {
@@ -238,7 +293,7 @@
                     if (track.kind === LivekitClient.Track.Kind.Video) {
                         track.attach(processedVideo);
                         processedPlaceholder.style.display = 'none';
-                        updateStatus('Connected! Viewing processed output.');
+                        updateStatus('Connected - Viewing processed output');
                     }
                 });
 
@@ -260,7 +315,7 @@
                             console.log('Attaching existing video track from:', participant.identity);
                             pub.track.attach(processedVideo);
                             processedPlaceholder.style.display = 'none';
-                            updateStatus('Connected! Viewing processed output.');
+                            updateStatus('Connected - Viewing processed output');
                         }
                     });
                 });
@@ -274,12 +329,13 @@
 
                 connectBtn.style.display = 'none';
                 disconnectBtn.style.display = 'inline-block';
-                updateStatus('Connected! Waiting for processed video from OBS...');
+                updateStatus('Connected - Waiting for processed video from OBS...');
 
             } catch (error) {
                 console.error('Connection error:', error);
                 updateStatus('Error: ' + error.message);
                 connectBtn.disabled = false;
+                connectBtn.classList.add('flicker-btn');
             }
         }
 
@@ -299,6 +355,7 @@
 
             connectBtn.style.display = 'inline-block';
             connectBtn.disabled = false;
+            connectBtn.classList.add('flicker-btn');
             disconnectBtn.style.display = 'none';
             updateStatus('Disconnected');
         }
@@ -323,16 +380,17 @@
         const SESSION_END = 10 * 60 * 1000; // 10 minutes
         let animationRunning = false;
         
+        // Colors without neon green
         const colors = [
             'rgba(255, 105, 180, 0.9)', // Hot pink
             'rgba(138, 43, 226, 0.9)', // Blue violet
             'rgba(75, 0, 130, 0.9)',   // Indigo
             'rgba(0, 191, 255, 0.9)',  // Deep sky blue
             'rgba(127, 255, 212, 0.9)', // Aquamarine
-            'rgba(50, 205, 50, 0.9)',  // Lime green
             'rgba(255, 215, 0, 0.9)',  // Gold
             'rgba(255, 140, 0, 0.9)',  // Dark orange
-            'rgba(255, 20, 147, 0.9)'  // Deep pink
+            'rgba(255, 20, 147, 0.9)', // Deep pink
+            'rgba(147, 112, 219, 0.9)' // Medium purple
         ];
         
         function createRaindrop(progress) {
