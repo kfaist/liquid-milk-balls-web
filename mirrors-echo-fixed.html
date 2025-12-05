@@ -274,7 +274,7 @@
                 <h3>Processed Output (Your Reflection)</h3>
                 <div class="video-box" id="processedBox">
                     <button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()">&#x26F6;</button>
-                    <video id="processedVideo" autoplay playsinline></video>
+                    <video id="processedVideo" autoplay playsinline webkit-playsinline></video>
                     <div class="video-placeholder" id="processedPlaceholder">Processed feed will appear here</div>
                 </div>
             </div>
@@ -420,27 +420,45 @@
 
         window.addEventListener('beforeunload', disconnect);
         
-        // Fullscreen toggle for processed output
+        // Fullscreen toggle for processed output (desktop + mobile)
         function toggleFullscreen() {
             const videoBox = document.getElementById('processedBox');
             const video = document.getElementById('processedVideo');
             
-            if (!document.fullscreenElement) {
-                // Try fullscreen on the video box first, fallback to video
-                if (videoBox.requestFullscreen) {
-                    videoBox.requestFullscreen();
-                } else if (videoBox.webkitRequestFullscreen) {
-                    videoBox.webkitRequestFullscreen();
-                } else if (video.requestFullscreen) {
-                    video.requestFullscreen();
-                } else if (video.webkitRequestFullscreen) {
-                    video.webkitRequestFullscreen();
+            // Check if already fullscreen
+            const isFullscreen = document.fullscreenElement || 
+                                 document.webkitFullscreenElement || 
+                                 document.mozFullScreenElement ||
+                                 document.msFullscreenElement;
+            
+            if (!isFullscreen) {
+                // Try video element first (works better on mobile)
+                const element = video.srcObject ? video : videoBox;
+                
+                if (element.requestFullscreen) {
+                    element.requestFullscreen();
+                } else if (element.webkitRequestFullscreen) {
+                    element.webkitRequestFullscreen();
+                } else if (element.webkitEnterFullscreen) {
+                    // iOS Safari video fullscreen
+                    element.webkitEnterFullscreen();
+                } else if (element.mozRequestFullScreen) {
+                    element.mozRequestFullScreen();
+                } else if (element.msRequestFullscreen) {
+                    element.msRequestFullscreen();
+                } else if (video.webkitEnterFullscreen) {
+                    // Fallback: iOS video fullscreen
+                    video.webkitEnterFullscreen();
                 }
             } else {
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
                 } else if (document.webkitExitFullscreen) {
                     document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
                 }
             }
         }
@@ -477,38 +495,75 @@
             const color3 = colors[Math.floor(Math.random() * colors.length)];
             
             // === CROSSFADE: FULL (progress=0) → OPTIMIZED (progress=1) ===
-            // At 7min (progress=0): subtle, large, extra glow, long-lived
-            // At 10min (progress=1): saturated, normal size, simpler, faster
+            // 7-9 min: gentle crossfade
+            // 9-10 min: TAKEOVER - massive increase
             
-            // Opacity: starts subtle (0.15), ends bold (0.7)
-            const baseOpacity = 0.15 + (progress * 0.55);
+            const isTakeover = progress > 0.66; // Last minute (9-10)
             
-            // Size multiplier: FULL=1.5x larger → OPTIMIZED=1.0x normal
-            const sizeMultiplier = 1.5 - (progress * 0.5);
+            // Opacity
+            let baseOpacity;
+            if (isTakeover) {
+                const takeoverProgress = (progress - 0.66) / 0.34;
+                baseOpacity = 0.4 + (takeoverProgress * 0.5);
+            } else {
+                baseOpacity = 0.15 + (progress * 0.35);
+            }
             
-            // Duration: FULL=longer (10-14s) → OPTIMIZED=shorter (6-10s)
-            const baseDuration = 10 - (progress * 4);
-            const duration = baseDuration + Math.random() * 4;
+            // Size multiplier
+            let sizeMultiplier;
+            if (isTakeover) {
+                const takeoverProgress = (progress - 0.66) / 0.34;
+                sizeMultiplier = 1.0 + (takeoverProgress * 0.8);
+            } else {
+                sizeMultiplier = 1.5 - (progress * 0.5);
+            }
             
-            // Glow intensity: FULL=intense → OPTIMIZED=subtle
-            const haloMultiplier = 2.0 - (progress * 1.2);
+            // Duration
+            let duration;
+            if (isTakeover) {
+                const takeoverProgress = (progress - 0.66) / 0.34;
+                duration = 6 - (takeoverProgress * 2) + Math.random() * 3;
+            } else {
+                const baseDuration = 10 - (progress * 4);
+                duration = baseDuration + Math.random() * 4;
+            }
             
-            // Size varies: small, medium, large
+            // Glow intensity
+            let glowIntensity;
+            if (isTakeover) {
+                const takeoverProgress = (progress - 0.66) / 0.34;
+                glowIntensity = 30 + (Math.pow(takeoverProgress, 1.5) * 120);
+            } else {
+                const haloMultiplier = 2.0 - (progress * 1.2);
+                glowIntensity = (15 + (progress * 50)) * haloMultiplier;
+            }
+            
+            // Size varies - weighted toward larger during takeover
             let baseSize;
             const sizeRoll = Math.random();
-            if (sizeRoll < 0.3) {
-                baseSize = 20 + Math.random() * 10;
-            } else if (sizeRoll < 0.7) {
-                baseSize = 40 + Math.random() * 20;
+            if (isTakeover) {
+                if (sizeRoll < 0.2) {
+                    baseSize = 30 + Math.random() * 15;
+                } else if (sizeRoll < 0.5) {
+                    baseSize = 50 + Math.random() * 30;
+                } else {
+                    baseSize = 60 + Math.random() * 70;
+                }
             } else {
-                baseSize = 40 + Math.random() * 50;
+                if (sizeRoll < 0.3) {
+                    baseSize = 20 + Math.random() * 10;
+                } else if (sizeRoll < 0.7) {
+                    baseSize = 40 + Math.random() * 20;
+                } else {
+                    baseSize = 40 + Math.random() * 50;
+                }
             }
             
             const finalSize = baseSize * sizeMultiplier;
-            const glowIntensity = (15 + (progress * 50)) * haloMultiplier;
             
             drop.style.width = finalSize + 'px';
             drop.style.height = finalSize + 'px';
+            drop.style.borderRadius = '50%';
             
             drop.style.background = `radial-gradient(circle at 40% 40%,
                 ${color1.replace('0.9', String(baseOpacity))} 0%,
@@ -516,10 +571,19 @@
                 ${color3.replace('0.9', String(baseOpacity * 0.4))} 60%,
                 transparent 100%)`;
             
-            drop.style.boxShadow = `
-                ${color1} 0px 0px ${glowIntensity}px,
-                ${color2} 0px 0px ${glowIntensity * 2}px,
-                ${color1.replace('0.9', '0.3')} 0px 0px ${glowIntensity * 3}px`;
+            // Circular glow using radial filter
+            if (isTakeover) {
+                drop.style.boxShadow = `
+                    0 0 ${glowIntensity}px ${glowIntensity * 0.5}px ${color1},
+                    0 0 ${glowIntensity * 2}px ${glowIntensity}px ${color2},
+                    0 0 ${glowIntensity * 3}px ${glowIntensity * 1.5}px ${color3.replace('0.9', '0.4')}`;
+                drop.style.filter = `blur(0.5px)`;
+            } else {
+                drop.style.boxShadow = `
+                    0 0 ${glowIntensity}px ${glowIntensity * 0.4}px ${color1},
+                    0 0 ${glowIntensity * 2}px ${glowIntensity * 0.8}px ${color2},
+                    0 0 ${glowIntensity * 3}px ${glowIntensity * 1.2}px ${color1.replace('0.9', '0.3')}`;
+            }
             
             drop.style.animationDuration = duration + 's';
             
