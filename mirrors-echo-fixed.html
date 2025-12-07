@@ -502,14 +502,10 @@
         // DISCONNECT FUNCTIONS
         // ============================================
         
-        // Manual disconnect (user clicked button)
+        // Manual disconnect (user clicked button) - redirect to licensing
         async function manualDisconnect() {
             await forceDisconnect('manual');
-            updateStatus('Disconnected');
-            connectBtn.style.display = 'inline-block';
-            connectBtn.disabled = false;
-            connectBtn.classList.add('flicker-btn');
-            disconnectBtn.style.display = 'none';
+            window.location.href = '/licensing.html';
         }
 
         // Force disconnect (timeout, page close, etc)
@@ -594,14 +590,13 @@
             }
         });
         
-        // Mobile: disconnect after 30s hidden
+        // Mobile: disconnect after 30s hidden (no redirect - browser may be closed)
         let hiddenTimeout = null;
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden' && isConnected) {
                 hiddenTimeout = setTimeout(() => {
                     console.log('Tab hidden 30s, disconnecting');
                     forceDisconnect('hidden');
-                    window.location.href = '/licensing.html?session=hidden';
                 }, 30000);
             } else if (hiddenTimeout) {
                 clearTimeout(hiddenTimeout);
