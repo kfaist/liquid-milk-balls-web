@@ -295,12 +295,14 @@
         const SESSION_DURATION = 11 * 60 * 1000;
         const RAIN_START = 7 * 60 * 1000;
 
-        // Progressive loading stages
+        // Progressive loading stages (~6 sec each to cover ~45 sec load time)
         const loadingStages = [
             "Negotiating with pixels. Please be patient",
             "Killing zombie scripts",
             "Loading Whisper (the slow part)",
+            "Still loading Whisper",
             "Loading spaCy NLP",
+            "Warming up the language model",
             "Connecting to LiveKit",
             "Almost there"
         ];
@@ -317,10 +319,11 @@
                     loadingStatus.innerHTML = msg + '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
                     loadingStageIndex++;
                 }
+                // Last message stays visible until video loads
             }
 
             showStage();
-            loadingInterval = setInterval(showStage, 4000);
+            loadingInterval = setInterval(showStage, 6000);
         }
 
         function stopLoadingMessages() {
