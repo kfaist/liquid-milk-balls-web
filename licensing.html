@@ -380,15 +380,18 @@
         
         .tier-features {
             list-style: none;
-            margin: 0.75rem 0;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin: 1rem 0;
             padding-left: 1.25rem;
         }
 
         .tier-features li {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.8rem;
-            margin-bottom: 0.4rem;
-            padding-bottom: 0;
+            margin-bottom: 0.5rem;
             line-height: 1.4;
             opacity: 0.7;
             padding-left: 1.5rem;
@@ -645,7 +648,6 @@
             line-height: 1.6;
             margin-bottom: 1.5rem;
             opacity: 0.7;
-            flex-grow: 1;
         }
         
         @media (max-width: 768px) {
