@@ -150,6 +150,9 @@
             opacity: 1;
         }
         .video-box video {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -265,8 +268,8 @@
         let myIdentity = null;
         let waitingInterval = null;
 
-        // Session duration: 10 minutes
-        const SESSION_DURATION = 10 * 60 * 1000;
+        // Session duration: 11 minutes (full animation range)
+        const SESSION_DURATION = 11 * 60 * 1000;
         const RAIN_START = 7 * 60 * 1000;
 
         const localVideo = document.getElementById('localVideo');
