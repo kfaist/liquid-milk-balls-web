@@ -505,7 +505,7 @@
         // Manual disconnect (user clicked button) - redirect to licensing
         async function manualDisconnect() {
             await forceDisconnect('manual');
-            window.location.href = '/licensing.html';
+            window.location.href = '/licensing.html?session=complete';
         }
 
         // Force disconnect (timeout, page close, etc)

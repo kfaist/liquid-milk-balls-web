@@ -660,6 +660,12 @@
     <div class="container">
         <h1 class="flicker">THE MIRROR'S ECHO</h1>
         
+        <!-- Session Complete Message (shown when redirected from experience) -->
+        <div id="sessionCompleteMsg" style="display:none; text-align:center; margin-bottom:3rem; padding:2rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.15);">
+            <h2 style="font-size:1.3rem; font-weight:400; letter-spacing:0.1em; margin-bottom:1rem; opacity:0.9;">Session Complete</h2>
+            <p style="font-size:0.85rem; opacity:0.6; letter-spacing:0.03em;">Thank you for experiencing The Mirror's Echo</p>
+        </div>
+        
         <div class="intro-text">
             The Mirror's Echo operates as an unlimited edition under open-source principles (AGPL-3.0), ensuring accessibility while sustaining ongoing development. Exhibition licenses and institutional partnerships support the continued evolution of networked digital art practices.<br><br>
             Artist/Technical: <a href="mailto:kristabluedoor@gmail.com">kristabluedoor@gmail.com</a><br>
@@ -784,6 +790,12 @@
         }
 
         initializeStripe();
+
+        // Show session complete message if redirected from experience
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('session') === 'complete') {
+            document.getElementById('sessionCompleteMsg').style.display = 'block';
+        }
 
         const purchaseBtn = document.getElementById('purchaseLicenseBtn');
 
