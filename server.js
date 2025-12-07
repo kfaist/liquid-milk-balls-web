@@ -74,9 +74,9 @@ app.get('/api/publisher-token', async (req, res) => {
         // Generate unique identity for this session
         const identity = 'mirror-user-' + Date.now();
         
-        const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, { 
-            identity, 
-            ttl: '12m'  // Slightly longer than 10min session to allow cleanup
+        const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
+            identity,
+            ttl: '14m'  // Slightly longer than 11min session to allow cleanup
         });
         token.addGrant({ 
             room: 'claymation-live', 
@@ -135,7 +135,7 @@ app.get('/api/viewer-token', async (req, res) => {
 app.get('/api/processed-viewer-token', async (req, res) => {
     const identity = 'mirror-viewer-' + Date.now();
     try {
-        const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, { identity, ttl: '12m' });
+        const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, { identity, ttl: '14m' });
         token.addGrant({ room: 'processed-output', roomJoin: true, canPublish: false, canSubscribe: true });
         res.json({ token: await token.toJwt(), url: LIVEKIT_URL, room: 'processed-output', identity });
     } catch (e) { res.status(500).json({ error: e.message }); }
