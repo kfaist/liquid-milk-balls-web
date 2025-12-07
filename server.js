@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const { AccessToken, RoomServiceClient } = require('livekit-server-sdk');
+// Stripe payment integration enabled - Dec 7, 2025
 
 const app = express();
 const PORT = process.env.PORT || 3000;
