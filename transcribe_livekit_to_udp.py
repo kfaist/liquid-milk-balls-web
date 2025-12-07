@@ -240,9 +240,13 @@ async def main(args):
     def on_participant_connected(participant: rtc.RemoteParticipant):
         print(f"[JOIN] {participant.identity}")
 
-    @room.on("participant_disconnected") 
+    @room.on("participant_disconnected")
     def on_participant_disconnected(participant: rtc.RemoteParticipant):
         print(f"[LEAVE] {participant.identity}")
+        # Exit when mirror-user leaves to allow fresh restart
+        if participant.identity.startswith("mirror-user"):
+            print("[EXIT] Mirror user disconnected - exiting for fresh restart")
+            sys.exit(0)
 
     print(f"\nConnecting to LiveKit room '{args.room}'...")
     await room.connect(LIVEKIT_URL, token.to_jwt())
