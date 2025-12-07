@@ -295,36 +295,32 @@
         const SESSION_DURATION = 11 * 60 * 1000;
         const RAIN_START = 7 * 60 * 1000;
 
-        // Quirky loading messages
-        const loadingMessages = [
-            "Waking up the clay",
+        // Progressive loading stages
+        const loadingStages = [
+            "Negotiating with pixels. Please be patient",
             "Killing zombie scripts",
-            "Summoning your reflection",
-            "Negotiating with pixels",
-            "Calibrating mirrors",
-            "Warming up the render farm",
-            "Convincing electrons to cooperate",
-            "Feeding the algorithm",
-            "Untangling the network",
-            "Polishing virtual surfaces",
-            "Establishing quantum entanglement",
-            "Bribing the bandwidth gods"
+            "Loading Whisper (the slow part)",
+            "Loading spaCy NLP",
+            "Connecting to LiveKit",
+            "Almost there"
         ];
         let loadingInterval = null;
-        let loadingMessageIndex = 0;
+        let loadingStageIndex = 0;
 
         function startLoadingMessages() {
             const loadingStatus = document.getElementById('loadingStatus');
-            loadingMessageIndex = Math.floor(Math.random() * loadingMessages.length);
+            loadingStageIndex = 0;
 
-            function showMessage() {
-                const msg = loadingMessages[loadingMessageIndex];
-                loadingStatus.innerHTML = msg + '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
-                loadingMessageIndex = (loadingMessageIndex + 1) % loadingMessages.length;
+            function showStage() {
+                if (loadingStageIndex < loadingStages.length) {
+                    const msg = loadingStages[loadingStageIndex];
+                    loadingStatus.innerHTML = msg + '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
+                    loadingStageIndex++;
+                }
             }
 
-            showMessage();
-            loadingInterval = setInterval(showMessage, 3000);
+            showStage();
+            loadingInterval = setInterval(showStage, 4000);
         }
 
         function stopLoadingMessages() {
