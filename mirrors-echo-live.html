@@ -413,7 +413,94 @@
             margin-top: 0.5rem;
         }
         
-        /* Raindrops */
+        /* OPTIMIZED_1 DROPS - Gentle start */
+        .raindrop-opt {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            animation: opt-fade 8s ease-out forwards;
+            will-change: transform, opacity;
+        }
+        @keyframes opt-fade {
+            0% { opacity: 0; transform: scale(0.3); }
+            10% { opacity: 1; transform: scale(1); }
+            90% { opacity: 0.8; }
+            100% { opacity: 0; transform: scale(1.2); }
+        }
+
+        /* SOFT GRADIENT ORBS - BOTTOM LAYER */
+        .raindrop-soft {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 50;
+            animation: soft-fade 9s ease-out forwards;
+            will-change: transform, opacity;
+        }
+        @keyframes soft-fade {
+            0% { opacity: 0; transform: scale(0.2); }
+            12% { opacity: 1; transform: scale(1); }
+            85% { opacity: 0.85; }
+            100% { opacity: 0; transform: scale(1.05); }
+        }
+
+        /* ORIGINAL CSS DROPS - MIDDLE LAYER */
+        .raindrop-orig {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(0.5px);
+            animation: orig-fade 7s ease-out forwards;
+        }
+        @keyframes orig-fade {
+            0% { opacity: 0; transform: scale(0.5); }
+            15% { opacity: 1; transform: scale(1); }
+            85% { opacity: 0.9; }
+            100% { opacity: 0; transform: scale(1.1); }
+        }
+
+        /* SUPER VIBRANT DROPS - TOP LAYER */
+        .raindrop-super {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            animation: super-fade 5s ease-out forwards;
+        }
+        @keyframes super-fade {
+            0% { opacity: 0; transform: scale(0.4); }
+            8% { opacity: 1; transform: scale(1); }
+            85% { opacity: 0.95; }
+            100% { opacity: 0; transform: scale(1.15); }
+        }
+
+        /* SHIMMER OVERLAY */
+        .shimmer-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(115deg,
+                rgba(255, 255, 255, 0),
+                rgba(255, 105, 180, 0.15) 10%,
+                rgba(138, 43, 226, 0.15) 20%,
+                rgba(75, 0, 130, 0.15) 30%,
+                rgba(0, 191, 255, 0.15) 40%,
+                rgba(0, 255, 255, 0.15) 50%,
+                rgba(255, 215, 0, 0.15) 60%,
+                rgba(255, 165, 0, 0.15) 70%,
+                rgba(255, 20, 147, 0.15) 80%,
+                rgba(255, 255, 255, 0)
+            );
+            background-size: 300% 100%;
+            mix-blend-mode: screen;
+            pointer-events: none;
+            opacity: 0;
+            animation: shimmerMove 8s linear infinite;
+            z-index: 50000;
+        }
+
+        /* Legacy raindrop for backwards compatibility */
         .raindrop {
             position: fixed;
             border-radius: 50%;
@@ -421,7 +508,7 @@
             animation: dropAppear 5s ease-out forwards;
             filter: blur(0.5px);
         }
-        
+
         .raindrop::before {
             content: '';
             position: absolute;
@@ -432,15 +519,15 @@
             height: 100%;
             border-radius: 50%;
             border: 1px solid;
-            border-image: linear-gradient(45deg, 
-                rgba(255, 105, 180, 0.7), 
-                rgba(138, 43, 226, 0.7), 
+            border-image: linear-gradient(45deg,
+                rgba(255, 105, 180, 0.7),
+                rgba(138, 43, 226, 0.7),
                 rgba(0, 191, 255, 0.7)) 1;
             opacity: 0;
             animation: rippleSubtle 3s ease-out;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
-        
+
         .raindrop::after {
             content: '';
             position: absolute;
@@ -451,15 +538,15 @@
             height: 100%;
             border-radius: 50%;
             border: 1px solid;
-            border-image: linear-gradient(135deg, 
-                rgba(127, 255, 212, 0.6), 
-                rgba(255, 215, 0, 0.6), 
+            border-image: linear-gradient(135deg,
+                rgba(127, 255, 212, 0.6),
+                rgba(255, 215, 0, 0.6),
                 rgba(255, 140, 0, 0.6)) 1;
             opacity: 0;
             animation: rippleSubtle 3s ease-out 0.8s;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
         }
-        
+
         @keyframes dropAppear {
             0% {
                 opacity: 0;
@@ -478,7 +565,7 @@
                 transform: scale(1.05);
             }
         }
-        
+
         @keyframes rippleSubtle {
             0% {
                 opacity: 0.3;
@@ -800,29 +887,69 @@
         <footer>© 2025 The Mirror's Echo</footer>
     </div>
 
+    <!-- Shimmer Overlay for temporal effects -->
+    <div id="shimmer" class="shimmer-overlay"></div>
+
     <script>
         // Temporal Intensity Slider (read-only, updates automatically)
         const temporalIntensitySlider = document.getElementById('temporalIntensitySlider');
 
-        // Vibrant colors
-        const colors = [
-            'rgba(255, 105, 180, 0.9)',  // Hot pink
-            'rgba(138, 43, 226, 0.9)',   // Blue violet
-            'rgba(75, 0, 130, 0.9)',     // Indigo
-            'rgba(0, 191, 255, 0.9)',    // Deep sky blue
-            'rgba(127, 255, 212, 0.9)',  // Aquamarine
-            'rgba(50, 205, 50, 0.9)',    // Lime green
-            'rgba(255, 215, 0, 0.9)',    // Gold
-            'rgba(255, 140, 0, 0.9)',    // Dark orange
-            'rgba(255, 20, 147, 0.9)'    // Deep pink
+        // ==========================================
+        // MULTI-LAYER TEMPORAL EFFECTS (7:00 - 11:00)
+        // ==========================================
+
+        // Timeline: 7-11 min (4 min = 240000 ms)
+        const startTime = Date.now();
+        const EFFECTS_START = 420000;  // 7:00 - when effects begin
+        const EFFECTS_END = 660000;    // 11:00 - when effects end
+        const EFFECTS_DURATION = EFFECTS_END - EFFECTS_START; // 4 minutes
+
+        // Phase markers (relative to effects window: 0 = 7:00, 1 = 11:00)
+        const OPT_END = 0.125;      // 7:30 - end of gentle opt drops
+        const CROSS_END = 0.375;    // 8:30 - end of crossfade
+        const SUPER_START = 0.625;  // 9:30 - super drops begin
+
+        let effectsStarted = false;
+
+        // Color palettes
+        const colorsOpt = [
+            'rgba(255, 105, 180, 1.0)',
+            'rgba(138, 43, 226, 1.0)',
+            'rgba(75, 0, 130, 1.0)',
+            'rgba(0, 191, 255, 1.0)',
+            'rgba(127, 255, 212, 1.0)',
+            'rgba(50, 205, 50, 1.0)',
+            'rgba(255, 215, 0, 1.0)',
+            'rgba(255, 140, 0, 1.0)',
+            'rgba(255, 20, 147, 1.0)'
         ];
 
-        const startTime = Date.now();
-        const duration = 600000; // 10 minutes total
-        const rainStartTime = 0; // Start immediately
-        const rainEndTime = 600000; // 10 minutes
-        let rainInterval = null;
-        let effectsStarted = false;
+        const colorsOrig = [
+            'rgba(255, 105, 180, 0.9)',
+            'rgba(138, 43, 226, 0.9)',
+            'rgba(75, 0, 130, 0.9)',
+            'rgba(0, 191, 255, 0.9)',
+            'rgba(0, 255, 255, 0.9)',
+            'rgba(50, 205, 50, 0.9)',
+            'rgba(255, 215, 0, 0.9)',
+            'rgba(255, 165, 0, 0.9)',
+            'rgba(199, 21, 133, 0.9)'
+        ];
+
+        // Soft orb colors - RGB for easy manipulation
+        const softColors = [
+            { r: 255, g: 105, b: 180 },
+            { r: 138, g: 43, b: 226 },
+            { r: 75, g: 0, b: 130 },
+            { r: 0, g: 191, b: 255 },
+            { r: 0, g: 255, b: 255 },
+            { r: 50, g: 205, b: 50 },
+            { r: 255, g: 215, b: 0 },
+            { r: 255, g: 140, b: 0 },
+            { r: 255, g: 20, b: 147 },
+            { r: 199, g: 21, b: 133 },
+            { r: 127, g: 255, b: 212 }
+        ];
 
         // Shimmer fade in
         setTimeout(() => {
@@ -832,80 +959,224 @@
             document.getElementById('remoteShimmer').style.opacity = '1';
         }, 100);
 
-        function createRaindrop(progress, rainProgress) {
+        // Get halo value from slider
+        function getHaloValue() {
+            const slider = document.getElementById('haloSlider');
+            return slider ? parseFloat(slider.value) : 1.0;
+        }
+
+        // ==========================================
+        // OPTIMIZED_1 DROP - Gentle start (7:00-7:30)
+        // ==========================================
+        function createOptDrop(progress) {
             const drop = document.createElement('div');
-            drop.className = 'raindrop';
-            
-            const x = Math.random() * window.innerWidth;
-            const y = Math.random() * window.innerHeight;
-            drop.style.left = x + 'px';
-            drop.style.top = y + 'px';
-            
-            const color1 = colors[Math.floor(Math.random() * colors.length)];
-            const color2 = colors[Math.floor(Math.random() * colors.length)];
-            const color3 = colors[Math.floor(Math.random() * colors.length)];
-            
-            let baseOpacity;
-            if (progress < 0.33) {
-                baseOpacity = 0.17 + (progress * 0.09);
-            } else if (progress < 0.66) {
-                baseOpacity = 0.26 + (progress * 0.09);
-            } else {
-                baseOpacity = 0.37 + (progress * 0.11);
-            }
-            
-            // Get halo value from slider
-            const haloValue = parseFloat(document.getElementById('haloSlider').value);
-            const glowIntensity = (15 + (progress * 65)) * haloValue;
-            const glowBoost = (1 + (progress * 1.5)) * haloValue;
-            
-            if (progress < 0.66) {
-                drop.style.background = `radial-gradient(circle at 40% 40%, 
-                    ${color1.replace('0.9', String(baseOpacity * 1.3))} 0%, 
-                    ${color2.replace('0.9', String(baseOpacity))} 30%,
-                    ${color1.replace('0.9', String(baseOpacity * 0.6))} 60%,
-                    transparent 100%)`;
-            } else {
-                drop.style.background = `radial-gradient(circle at 40% 40%, 
-                    ${color1.replace('0.9', String(baseOpacity * 1.3))} 0%, 
-                    ${color2.replace('0.9', String(baseOpacity * 1.1))} 25%,
-                    ${color3.replace('0.9', String(baseOpacity))} 50%,
-                    ${color1.replace('0.9', String(baseOpacity * 0.6))} 75%,
-                    transparent 100%)`;
-            }
-            
-            drop.style.boxShadow = `
-                0 0 ${glowIntensity * 0.6 * glowBoost}px ${color1},
-                0 0 ${glowIntensity * 1.2 * glowBoost}px ${color2},
-                0 0 ${glowIntensity * 2 * glowBoost}px ${color1.replace('0.9', String(baseOpacity * 0.4))},
-                inset 0 0 ${glowIntensity * 0.5}px ${color1.replace('0.9', String(baseOpacity * 0.8))}
-            `;
-            
-            const sizeCategory = Math.random();
+            drop.className = 'raindrop-opt';
+
+            drop.style.left = Math.random() * window.innerWidth + 'px';
+            drop.style.top = Math.random() * window.innerHeight + 'px';
+
+            const c1 = colorsOpt[Math.floor(Math.random() * colorsOpt.length)];
+            const c2 = colorsOpt[Math.floor(Math.random() * colorsOpt.length)];
+            const c3 = colorsOpt[Math.floor(Math.random() * colorsOpt.length)];
+
+            let baseOpacity = 0.25 + (progress * 0.25);
+            baseOpacity = Math.min(baseOpacity, 0.9);
+
             let baseSize;
-            if (sizeCategory < 0.3) {
-                baseSize = 20 + (progress * 10);
-            } else if (sizeCategory < 0.7) {
-                baseSize = 40 + (progress * 20);
-            } else {
-                baseSize = 40 + (progress * 50);
-            }
-            
-            const size = baseSize + (Math.random() * 25);
+            const roll = Math.random();
+            if (roll < 0.3) baseSize = 20 + Math.random() * 10;
+            else if (roll < 0.7) baseSize = 40 + Math.random() * 20;
+            else baseSize = 40 + Math.random() * 50;
+
+            const haloValue = getHaloValue();
+            const glowIntensity = (20 + (progress * 60)) * haloValue;
+
+            drop.style.width = baseSize + 'px';
+            drop.style.height = baseSize + 'px';
+
+            drop.style.background = `radial-gradient(circle at 40% 40%,
+                ${c1.replace('1.0', String(baseOpacity))} 0%,
+                ${c2.replace('1.0', String(baseOpacity * 0.7))} 30%,
+                ${c3.replace('1.0', String(baseOpacity * 0.4))} 60%,
+                transparent 100%)`;
+
+            drop.style.boxShadow = `
+                ${c1.replace('1.0', String(baseOpacity * 0.8))} 0px 0px ${glowIntensity}px,
+                ${c2.replace('1.0', String(baseOpacity * 0.6))} 0px 0px ${glowIntensity * 2}px,
+                ${c1.replace('1.0', '0.3')} 0px 0px ${glowIntensity * 3}px,
+                ${c1.replace('1.0', '0.5')} 0px 0px ${glowIntensity * 0.7}px inset`;
+
+            const dur = 8 + Math.random() * 3;
+            drop.style.animationDuration = dur + 's';
+
+            document.body.appendChild(drop);
+            setTimeout(() => drop.remove(), dur * 1000);
+        }
+
+        // ==========================================
+        // SOFT GRADIENT ORB - BOTTOM LAYER (8:30→11:00)
+        // ==========================================
+        function createSoftOrb(progress) {
+            const drop = document.createElement('div');
+            drop.className = 'raindrop-soft';
+
+            drop.style.left = Math.random() * window.innerWidth + 'px';
+            drop.style.top = Math.random() * window.innerHeight + 'px';
+
+            const c1 = softColors[Math.floor(Math.random() * softColors.length)];
+            const c2 = softColors[Math.floor(Math.random() * softColors.length)];
+
+            let size;
+            const sizeRoll = Math.random();
+            if (sizeRoll < 0.2) size = 40 + Math.random() * 40;
+            else if (sizeRoll < 0.5) size = 80 + Math.random() * 80;
+            else if (sizeRoll < 0.8) size = 150 + Math.random() * 100;
+            else size = 220 + Math.random() * 130;
+
+            size *= (1 + progress * 0.5);
+
             drop.style.width = size + 'px';
             drop.style.height = size + 'px';
-            
-            // Z-INDEX PROGRESSION: 0-7 min = background, 7-10 min = gradually to overlay
-            // rainProgress = 0 at 7 min, 1 at 10 min
-            const minZIndex = 100; // background
-            const maxZIndex = 9998; // just below water mark overlay
-            drop.style.zIndex = Math.floor(minZIndex + (rainProgress * (maxZIndex - minZIndex)));
-            
-            const duration = 5 + Math.random() * 3;
-            drop.style.animationDuration = duration + 's';
-            
+            drop.style.border = 'none';
+
+            const centerOpacity = 0.45 + (progress * 0.4);
+            const midOpacity = centerOpacity * 0.6;
+            const outerOpacity = centerOpacity * 0.25;
+
+            drop.style.background = `radial-gradient(circle at 40% 40%,
+                rgba(${c1.r}, ${c1.g}, ${c1.b}, ${centerOpacity}) 0%,
+                rgba(${c1.r}, ${c1.g}, ${c1.b}, ${midOpacity}) 25%,
+                rgba(${c2.r}, ${c2.g}, ${c2.b}, ${midOpacity * 0.7}) 50%,
+                rgba(${c2.r}, ${c2.g}, ${c2.b}, ${outerOpacity}) 75%,
+                transparent 100%)`;
+
+            const haloValue = getHaloValue();
+            const glowSize = (5 + (progress * 20)) * haloValue;
+            drop.style.boxShadow = `
+                0 0 ${glowSize}px rgba(${c1.r}, ${c1.g}, ${c1.b}, ${centerOpacity * 0.3}),
+                0 0 ${glowSize * 2.5}px rgba(${c2.r}, ${c2.g}, ${c2.b}, ${centerOpacity * 0.15})`;
+
+            drop.style.zIndex = 50 + Math.floor(progress * 49);
+
+            const dur = 7 + Math.random() * 4;
+            drop.style.animationDuration = dur + 's';
+
             document.body.appendChild(drop);
-            setTimeout(() => drop.remove(), duration * 1000);
+            setTimeout(() => drop.remove(), dur * 1000);
+        }
+
+        // ==========================================
+        // ORIGINAL CSS DROP - MIDDLE LAYER (8:30→11:00)
+        // ==========================================
+        function createOrigDrop(progress, rainProgress) {
+            const drop = document.createElement('div');
+            drop.className = 'raindrop-orig';
+
+            drop.style.left = Math.random() * window.innerWidth + 'px';
+            drop.style.top = Math.random() * window.innerHeight + 'px';
+
+            const c1 = colorsOrig[Math.floor(Math.random() * colorsOrig.length)];
+            const c2 = colorsOrig[Math.floor(Math.random() * colorsOrig.length)];
+            const c3 = colorsOrig[Math.floor(Math.random() * colorsOrig.length)];
+
+            let baseOpacity;
+            if (progress < 0.33) baseOpacity = 0.17 + (progress * 0.09);
+            else if (progress < 0.66) baseOpacity = 0.26 + (progress * 0.09);
+            else baseOpacity = 0.37 + (progress * 0.11);
+
+            const haloValue = getHaloValue();
+            const glowIntensity = (15 + (progress * 65)) * haloValue;
+            const glowBoost = (1 + (progress * 1.5)) * haloValue;
+
+            if (progress < 0.66) {
+                drop.style.background = `radial-gradient(circle at 40% 40%,
+                    ${c1.replace('0.9', String(baseOpacity * 1.3))} 0%,
+                    ${c2.replace('0.9', String(baseOpacity))} 30%,
+                    ${c1.replace('0.9', String(baseOpacity * 0.6))} 60%,
+                    transparent 100%)`;
+            } else {
+                drop.style.background = `radial-gradient(circle at 40% 40%,
+                    ${c1.replace('0.9', String(baseOpacity * 1.3))} 0%,
+                    ${c2.replace('0.9', String(baseOpacity * 1.1))} 25%,
+                    ${c3.replace('0.9', String(baseOpacity))} 50%,
+                    ${c1.replace('0.9', String(baseOpacity * 0.6))} 75%,
+                    transparent 100%)`;
+            }
+
+            drop.style.boxShadow = `
+                0 0 ${glowIntensity * 0.6 * glowBoost}px ${c1},
+                0 0 ${glowIntensity * 1.2 * glowBoost}px ${c2},
+                0 0 ${glowIntensity * 2 * glowBoost}px ${c1.replace('0.9', String(baseOpacity * 0.4))},
+                inset 0 0 ${glowIntensity * 0.5}px ${c1.replace('0.9', String(baseOpacity * 0.8))}`;
+
+            const cat = Math.random();
+            let baseSize;
+            if (cat < 0.3) baseSize = 20 + (progress * 10);
+            else if (cat < 0.7) baseSize = 40 + (progress * 20);
+            else baseSize = 40 + (progress * 50);
+            const size = baseSize + (Math.random() * 25);
+
+            drop.style.width = size + 'px';
+            drop.style.height = size + 'px';
+            drop.style.zIndex = Math.floor(100 + (rainProgress * 9898));
+
+            const dur = 5 + Math.random() * 3;
+            drop.style.animationDuration = dur + 's';
+
+            document.body.appendChild(drop);
+            setTimeout(() => drop.remove(), dur * 1000);
+        }
+
+        // ==========================================
+        // SUPER VIBRANT DROP - TOP LAYER (9:30→11:00)
+        // ==========================================
+        function createSuperDrop(progress) {
+            const drop = document.createElement('div');
+            drop.className = 'raindrop-super';
+
+            drop.style.left = Math.random() * window.innerWidth + 'px';
+            drop.style.top = Math.random() * window.innerHeight + 'px';
+
+            const c1 = colorsOpt[Math.floor(Math.random() * colorsOpt.length)];
+            const c2 = colorsOpt[Math.floor(Math.random() * colorsOpt.length)];
+            const c3 = colorsOpt[Math.floor(Math.random() * colorsOpt.length)];
+
+            let baseOpacity = 0.7 + (progress * 0.25);
+            baseOpacity = Math.min(baseOpacity, 0.95);
+
+            let baseSize;
+            const roll = Math.random();
+            if (roll < 0.2) baseSize = 45 + Math.random() * 25;
+            else if (roll < 0.6) baseSize = 70 + Math.random() * 45;
+            else baseSize = 100 + Math.random() * 80;
+
+            const haloValue = getHaloValue();
+            const glow = (80 + (progress * 150)) * haloValue;
+
+            drop.style.width = baseSize + 'px';
+            drop.style.height = baseSize + 'px';
+
+            drop.style.background = `radial-gradient(circle at 35% 35%,
+                ${c1.replace('1.0', String(baseOpacity * 1.1))} 0%,
+                ${c2.replace('1.0', String(baseOpacity))} 20%,
+                ${c3.replace('1.0', String(baseOpacity * 0.8))} 45%,
+                ${c1.replace('1.0', String(baseOpacity * 0.4))} 70%,
+                transparent 100%)`;
+
+            drop.style.boxShadow = `
+                0 0 ${glow}px ${c1},
+                0 0 ${glow * 2}px ${c2},
+                0 0 ${glow * 3.5}px ${c3},
+                0 0 ${glow * 5}px ${c1.replace('1.0', '0.3')},
+                inset 0 0 ${glow * 0.6}px ${c1.replace('1.0', '0.7')}`;
+
+            drop.style.zIndex = 10000 + Math.floor(progress * 5000);
+
+            const dur = 4 + Math.random() * 2;
+            drop.style.animationDuration = dur + 's';
+
+            document.body.appendChild(drop);
+            setTimeout(() => drop.remove(), dur * 1000);
         }
 
         function updateTemporalIntensity(rainProgress) {
@@ -914,50 +1185,136 @@
             document.getElementById('temporalIntensityValue').textContent = percentage + '%';
         }
 
+        // ==========================================
+        // MAIN ANIMATION LOOP
+        // ==========================================
         function animate() {
             const elapsed = Date.now() - startTime;
-            
-            // Only spawn raindrops after 7 minutes (420000 ms)
-            if (elapsed >= rainStartTime) {
-                const rainProgress = Math.min((elapsed - rainStartTime) / (rainEndTime - rainStartTime), 1.0);
-                const progress = rainProgress; // 0-1 over the 7-10 min window
-                
-                // Update squares
-                updateTemporalIntensity(rainProgress);
-                
-                // Spawn raindrops
-                const baseRate = 0.05; // Start very light
-                const exponentialGrowth = Math.pow(progress, 2.5);
-                let dropProbability = baseRate * (1 + exponentialGrowth * 40);
-                
-                if (progress > 0.66) {
-                    const overtakeProgress = (progress - 0.66) / 0.34;
-                    const overtakeMultiplier = 1 + (overtakeProgress * 8);
-                    dropProbability *= overtakeMultiplier;
-                }
-                
-                if (Math.random() < dropProbability) {
-                    createRaindrop(progress, rainProgress);
-                }
-                
-                if (progress > 0.85) {
-                    const extraChance = (progress - 0.85) / 0.15;
-                    const extraDrops = Math.floor(Math.random() * (extraChance * 12));
-                    for (let i = 0; i < extraDrops; i++) {
-                        setTimeout(() => createRaindrop(progress, rainProgress), Math.random() * 1000);
+
+            // Only start effects after 7 minutes (420000 ms)
+            if (elapsed >= EFFECTS_START) {
+                const effectsElapsed = elapsed - EFFECTS_START;
+                const p = Math.min(effectsElapsed / EFFECTS_DURATION, 1.0);
+
+                // Update temporal intensity display
+                updateTemporalIntensity(p);
+
+                // ========== PHASE 1: OPTIMIZED_1 ONLY (7:00-7:30) ==========
+                if (p < OPT_END) {
+                    const optProgress = (p / OPT_END) * 0.15;
+                    const baseRate = 0.03;
+                    const exp = Math.pow(optProgress, 2.5);
+                    const prob = baseRate * (1 + exp * 30);
+
+                    if (Math.random() < prob) {
+                        createOptDrop(optProgress);
                     }
                 }
-                
+
+                // ========== PHASE 2: CROSSFADE (7:30-8:30) ==========
+                if (p >= OPT_END && p < CROSS_END) {
+                    const crossProgress = (p - OPT_END) / (CROSS_END - OPT_END);
+                    const optWeight = 1 - crossProgress;
+                    const origWeight = crossProgress;
+
+                    if (optWeight > 0.1 && Math.random() < 0.02 * optWeight) {
+                        createOptDrop(0.15 + (crossProgress * 0.1));
+                    }
+
+                    if (Math.random() < 0.015 * origWeight * (1 + crossProgress)) {
+                        const origProgress = 0.1 + (crossProgress * 0.2);
+                        createOrigDrop(origProgress, origProgress * 0.5);
+                    }
+                }
+
+                // ========== SOFT ORBS - BOTTOM LAYER (8:30 → 11:00) ==========
+                if (p >= CROSS_END) {
+                    const softProgress = (p - CROSS_END) / (1 - CROSS_END);
+                    const baseRate = 0.04;
+                    const exp = Math.pow(softProgress, 2);
+                    let prob = baseRate * (1 + exp * 30);
+
+                    if (p >= SUPER_START) prob *= 1.5;
+                    if (p >= 0.75) prob *= 1.8;
+
+                    if (Math.random() < prob) {
+                        createSoftOrb(softProgress);
+                    }
+
+                    // Burst of extra orbs in final stretch (10:00-11:00)
+                    if (p >= 0.75) {
+                        const finalProgress = (p - 0.75) / 0.25;
+                        const burstChance = finalProgress;
+                        const extra = Math.floor(Math.random() * (burstChance * 8));
+                        for (let i = 0; i < extra; i++) {
+                            setTimeout(() => createSoftOrb(softProgress), Math.random() * 500);
+                        }
+                    }
+                }
+
+                // ========== ORIGINAL CSS - MIDDLE LAYER (8:30 → 11:00) ==========
+                if (p >= CROSS_END) {
+                    let origProgress = (p <= 0.75)
+                        ? (p - CROSS_END) / (0.75 - CROSS_END)
+                        : 1.0;
+
+                    const baseRate = 0.05;
+                    const exp = Math.pow(origProgress, 2.5);
+                    let prob = baseRate * (1 + exp * 40);
+
+                    if (origProgress > 0.66) {
+                        const overtakeProgress = (origProgress - 0.66) / 0.34;
+                        const overtakeMultiplier = 1 + (overtakeProgress * 8);
+                        prob *= overtakeMultiplier;
+                    }
+
+                    if (Math.random() < prob) {
+                        createOrigDrop(origProgress, origProgress);
+                    }
+
+                    if (origProgress > 0.85) {
+                        const extraChance = (origProgress - 0.85) / 0.15;
+                        const extraDrops = Math.floor(Math.random() * (extraChance * 12));
+                        for (let i = 0; i < extraDrops; i++) {
+                            setTimeout(() => createOrigDrop(origProgress, origProgress), Math.random() * 1000);
+                        }
+                    }
+                }
+
+                // ========== SUPER VIBRANT - TOP LAYER (9:30 → 11:00) ==========
+                if (p >= SUPER_START) {
+                    const superProgress = (p - SUPER_START) / (1 - SUPER_START);
+                    const exp = Math.pow(superProgress, 2);
+                    let prob = 0.03 * (1 + exp * 25);
+
+                    if (Math.random() < prob) {
+                        createSuperDrop(superProgress);
+                    }
+
+                    if (superProgress > 0.5) {
+                        const burst = (superProgress - 0.5) / 0.5;
+                        const extra = Math.floor(Math.random() * (burst * 10));
+                        for (let i = 0; i < extra; i++) {
+                            setTimeout(() => createSuperDrop(superProgress), Math.random() * 400);
+                        }
+                    }
+
+                    // Global shimmer overlay
+                    const shimmerOpacity = 0.1 + (superProgress * 0.8);
+                    document.getElementById('shimmer').style.opacity = shimmerOpacity;
+                }
+
                 if (!effectsStarted) {
                     effectsStarted = true;
                 }
             }
-            
-            if (elapsed < duration + 60000) {
+
+            // Continue animation until 12 minutes (to allow effects to fade out)
+            if (elapsed < EFFECTS_END + 60000) {
                 requestAnimationFrame(animate);
             }
         }
-        
+
         animate();
 
         // WebRTC
