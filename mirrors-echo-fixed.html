@@ -166,7 +166,29 @@
             color: rgba(255, 255, 255, 0.3);
             font-size: 0.75rem;
         }
-        
+
+        .loading-status {
+            font-size: 0.7rem;
+            color: rgba(255, 105, 180, 0.8);
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            min-height: 1.2rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .loading-status:empty {
+            display: none;
+        }
+        .loading-status .dot {
+            animation: blink 1.4s infinite;
+        }
+        .loading-status .dot:nth-child(2) { animation-delay: 0.2s; }
+        .loading-status .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes blink {
+            0%, 20% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
         /* Waiting Room Overlay */
         .waiting-overlay {
             position: fixed;
@@ -246,6 +268,7 @@
 
             <div class="video-panel">
                 <h3>Processed Output (Your Reflection)</h3>
+                <div class="loading-status" id="loadingStatus"></div>
                 <div class="video-box" id="processedBox">
                     <button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()">&#x26F6;</button>
                     <video id="processedVideo" autoplay playsinline webkit-playsinline></video>
@@ -271,6 +294,46 @@
         // Session duration: 11 minutes (full animation range)
         const SESSION_DURATION = 11 * 60 * 1000;
         const RAIN_START = 7 * 60 * 1000;
+
+        // Quirky loading messages
+        const loadingMessages = [
+            "Waking up the clay",
+            "Killing zombie scripts",
+            "Summoning your reflection",
+            "Negotiating with pixels",
+            "Calibrating mirrors",
+            "Warming up the render farm",
+            "Convincing electrons to cooperate",
+            "Feeding the algorithm",
+            "Untangling the network",
+            "Polishing virtual surfaces",
+            "Establishing quantum entanglement",
+            "Bribing the bandwidth gods"
+        ];
+        let loadingInterval = null;
+        let loadingMessageIndex = 0;
+
+        function startLoadingMessages() {
+            const loadingStatus = document.getElementById('loadingStatus');
+            loadingMessageIndex = Math.floor(Math.random() * loadingMessages.length);
+
+            function showMessage() {
+                const msg = loadingMessages[loadingMessageIndex];
+                loadingStatus.innerHTML = msg + '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
+                loadingMessageIndex = (loadingMessageIndex + 1) % loadingMessages.length;
+            }
+
+            showMessage();
+            loadingInterval = setInterval(showMessage, 3000);
+        }
+
+        function stopLoadingMessages() {
+            if (loadingInterval) {
+                clearInterval(loadingInterval);
+                loadingInterval = null;
+            }
+            document.getElementById('loadingStatus').innerHTML = '';
+        }
 
         const localVideo = document.getElementById('localVideo');
         const processedVideo = document.getElementById('processedVideo');
@@ -332,6 +395,7 @@
                 }
 
                 // Connect to OUTPUT room
+                startLoadingMessages();
                 const viewResponse = await fetch('/api/processed-viewer-token');
                 const viewData = await viewResponse.json();
 
@@ -339,6 +403,7 @@
 
                 outputRoom.on(LivekitClient.RoomEvent.TrackSubscribed, (track, pub, participant) => {
                     if (track.kind === LivekitClient.Track.Kind.Video) {
+                        stopLoadingMessages();
                         track.attach(processedVideo);
                         processedPlaceholder.style.display = 'none';
                         updateStatus('Connected - Viewing processed output');
@@ -359,6 +424,7 @@
                 outputRoom.remoteParticipants.forEach((participant) => {
                     participant.trackPublications.forEach((pub) => {
                         if (pub.track && pub.track.kind === LivekitClient.Track.Kind.Video) {
+                            stopLoadingMessages();
                             pub.track.attach(processedVideo);
                             processedPlaceholder.style.display = 'none';
                         }
@@ -551,6 +617,7 @@
 
         // Cleanup local resources
         function cleanupLocal() {
+            stopLoadingMessages();
             if (localStream) {
                 localStream.getTracks().forEach(t => t.stop());
                 localStream = null;
