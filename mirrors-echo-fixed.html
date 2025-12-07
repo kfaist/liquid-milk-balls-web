@@ -18,7 +18,6 @@
             padding: 2rem;
         }
         
-        /* Flickering Title */
         .header {
             text-align: center;
             margin-bottom: 2rem;
@@ -38,19 +37,11 @@
         }
         
         @keyframes flicker {
-            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-                opacity: 0.8;
-            }
-            20%, 24%, 55% {
-                opacity: 0.3;
-            }
-            22% {
-                opacity: 0.5;
-                transform: translate(-1px, 0);
-            }
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 0.8; }
+            20%, 24%, 55% { opacity: 0.3; }
+            22% { opacity: 0.5; transform: translate(-1px, 0); }
         }
         
-        /* Connect button at top - flickering */
         .top-controls {
             display: flex;
             justify-content: center;
@@ -88,9 +79,6 @@
             20%, 24%, 55% {
                 opacity: 0.5;
                 border-color: rgba(255, 255, 255, 0.2);
-            }
-            22% {
-                opacity: 0.7;
             }
         }
         
@@ -143,7 +131,6 @@
             overflow: hidden;
         }
         
-        /* Fullscreen/popout button */
         .fullscreen-btn {
             position: absolute;
             top: 0.75rem;
@@ -155,18 +142,12 @@
             color: rgba(255, 255, 255, 0.8);
             cursor: pointer;
             font-family: 'JetBrains Mono', monospace;
-            letter-spacing: 0.05em;
             opacity: 0;
             transition: opacity 0.3s;
             z-index: 10;
         }
         .video-box:hover .fullscreen-btn {
             opacity: 1;
-            animation: btnFlicker 3s infinite;
-        }
-        .fullscreen-btn:hover {
-            border-color: #fff;
-            background: rgba(255, 255, 255, 0.1);
         }
         .video-box video {
             width: 100%;
@@ -181,10 +162,40 @@
             justify-content: center;
             color: rgba(255, 255, 255, 0.3);
             font-size: 0.75rem;
-            letter-spacing: 0.02em;
         }
         
-        /* Raindrop effects - smooth crossfade */
+        /* Waiting Room Overlay */
+        .waiting-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .waiting-overlay h2 {
+            font-size: 1.2rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+        .waiting-overlay p {
+            opacity: 0.5;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            text-align: center;
+            max-width: 400px;
+        }
+        .waiting-overlay .wait-status {
+            font-size: 0.75rem;
+            opacity: 0.4;
+            margin-top: 1rem;
+        }
+        
+        /* Raindrop Effects */
         .raindrop {
             position: fixed;
             border-radius: 50%;
@@ -195,52 +206,12 @@
             animation: raindrop-crossfade 8s ease-in-out forwards;
         }
         
-        /* Smooth crossfade animation - long fade in, hold, long fade out */
         @keyframes raindrop-crossfade {
-            0% { 
-                opacity: 0; 
-                transform: scale(0.5); 
-            }
-            15% { 
-                opacity: var(--target-opacity, 0.6); 
-                transform: scale(0.9); 
-            }
-            25% { 
-                opacity: var(--target-opacity, 0.6); 
-                transform: scale(1); 
-            }
-            75% { 
-                opacity: var(--target-opacity, 0.6); 
-                transform: scale(1.05); 
-            }
-            100% { 
-                opacity: 0; 
-                transform: scale(1.15); 
-            }
-        }
-        
-        /* Session ended overlay */
-        .session-ended {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.95);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-        .session-ended h2 {
-            font-size: 1.5rem;
-            font-weight: 400;
-            letter-spacing: 0.1em;
-            margin-bottom: 1rem;
-            opacity: 0.8;
-        }
-        .session-ended p {
-            opacity: 0.5;
-            margin-bottom: 2rem;
-            font-size: 0.8rem;
+            0% { opacity: 0; transform: scale(0.5); }
+            15% { opacity: var(--target-opacity, 0.6); transform: scale(0.9); }
+            25% { opacity: var(--target-opacity, 0.6); transform: scale(1); }
+            75% { opacity: var(--target-opacity, 0.6); transform: scale(1.05); }
+            100% { opacity: 0; transform: scale(1.15); }
         }
     </style>
 </head>
@@ -251,10 +222,9 @@
             <p>Your camera - Processing - Your reflection transformed</p>
         </div>
 
-        <!-- Connect button at top -->
         <div class="top-controls">
             <button class="btn flicker-btn" id="connectBtn" onclick="connect()">Connect</button>
-            <button class="btn" id="disconnectBtn" onclick="disconnect()" style="display:none;">Disconnect</button>
+            <button class="btn" id="disconnectBtn" onclick="manualDisconnect()" style="display:none;">Disconnect</button>
         </div>
 
         <div class="status-bar">
@@ -284,12 +254,20 @@
 
     <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
     <script>
-        // TWO ROOMS: Input (publish camera) and Output (receive processed)
-        let inputRoom = null;   // claymation-live - we PUBLISH here
-        let outputRoom = null;  // processed-output - we SUBSCRIBE here
+        // State
+        let inputRoom = null;
+        let outputRoom = null;
         let localStream = null;
         let startTime = null;
         let timerInterval = null;
+        let sessionTimeout = null;
+        let isConnected = false;
+        let myIdentity = null;
+        let waitingInterval = null;
+
+        // Session duration: 10 minutes
+        const SESSION_DURATION = 10 * 60 * 1000;
+        const RAIN_START = 7 * 60 * 1000;
 
         const localVideo = document.getElementById('localVideo');
         const processedVideo = document.getElementById('processedVideo');
@@ -300,42 +278,63 @@
         const connectBtn = document.getElementById('connectBtn');
         const disconnectBtn = document.getElementById('disconnectBtn');
 
+        // ============================================
+        // CONNECT
+        // ============================================
         async function connect() {
             connectBtn.disabled = true;
             connectBtn.classList.remove('flicker-btn');
-            updateStatus('Getting camera...');
+            updateStatus('Checking availability...');
 
             try {
-                // 1. Get local camera
+                // Get camera first (so user sees themselves)
+                updateStatus('Getting camera...');
                 localStream = await navigator.mediaDevices.getUserMedia({
                     video: { width: 1280, height: 720 },
                     audio: true
                 });
                 localVideo.srcObject = localStream;
                 localPlaceholder.style.display = 'none';
-                updateStatus('Camera ready. Connecting to rooms...');
 
-                // 2. Connect to INPUT room (publish camera)
-                const pubResponse = await fetch('/api/publisher-token?identity=mirror-user-' + Date.now());
+                // Try to get publisher token
+                updateStatus('Connecting...');
+                const pubResponse = await fetch('/api/publisher-token');
+                
+                if (pubResponse.status === 409) {
+                    // Room is occupied - show waiting room
+                    showWaitingRoom();
+                    return;
+                }
+                
+                if (!pubResponse.ok) {
+                    throw new Error('Failed to get connection token');
+                }
+
                 const pubData = await pubResponse.json();
+                myIdentity = pubData.identity;
 
+                // Connect to INPUT room
                 inputRoom = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
+                
+                inputRoom.on(LivekitClient.RoomEvent.Disconnected, () => {
+                    console.log('Input room disconnected');
+                    if (isConnected) forceDisconnect('disconnected');
+                });
+
                 await inputRoom.connect(pubData.url, pubData.token);
 
-                // Publish camera to input room
+                // Publish camera
                 for (const track of localStream.getTracks()) {
                     await inputRoom.localParticipant.publishTrack(track);
                 }
-                updateStatus('Publishing camera. Connecting to output...');
 
-                // 3. Connect to OUTPUT room (receive processed video)
-                const viewResponse = await fetch('/api/processed-viewer-token?identity=mirror-viewer-' + Date.now());
+                // Connect to OUTPUT room
+                const viewResponse = await fetch('/api/processed-viewer-token');
                 const viewData = await viewResponse.json();
 
                 outputRoom = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
 
                 outputRoom.on(LivekitClient.RoomEvent.TrackSubscribed, (track, pub, participant) => {
-                    console.log('Received processed track from:', participant.identity);
                     if (track.kind === LivekitClient.Track.Kind.Video) {
                         track.attach(processedVideo);
                         processedPlaceholder.style.display = 'none';
@@ -353,59 +352,266 @@
 
                 await outputRoom.connect(viewData.url, viewData.token);
 
-                // Check for EXISTING participants (OBS might already be publishing)
+                // Check for existing video
                 outputRoom.remoteParticipants.forEach((participant) => {
-                    console.log('Found existing participant:', participant.identity);
                     participant.trackPublications.forEach((pub) => {
                         if (pub.track && pub.track.kind === LivekitClient.Track.Kind.Video) {
-                            console.log('Attaching existing video track from:', participant.identity);
                             pub.track.attach(processedVideo);
                             processedPlaceholder.style.display = 'none';
-                            updateStatus('Connected - Viewing processed output');
                         }
                     });
                 });
 
-                // Start timer
+                // SUCCESS - Start session
+                isConnected = true;
                 startTime = Date.now();
                 timerInterval = setInterval(updateTimer, 1000);
                 
-                // Start temporal animation
-                checkAndStartAnimation();
+                // Set hard 10-minute timeout
+                sessionTimeout = setTimeout(() => {
+                    endSession();
+                }, SESSION_DURATION);
+
+                // Start temporal effects
+                runTemporalAnimation();
 
                 connectBtn.style.display = 'none';
                 disconnectBtn.style.display = 'inline-block';
-                updateStatus('Connected - Waiting for processed video from OBS...');
+                updateStatus('Connected - Waiting for processed video...');
 
             } catch (error) {
                 console.error('Connection error:', error);
                 updateStatus('Error: ' + error.message);
+                cleanupLocal();
                 connectBtn.disabled = false;
                 connectBtn.classList.add('flicker-btn');
             }
         }
 
-        async function disconnect() {
-            if (inputRoom) { await inputRoom.disconnect(); inputRoom = null; }
-            if (outputRoom) { await outputRoom.disconnect(); outputRoom = null; }
-            if (localStream) {
-                localStream.getTracks().forEach(t => t.stop());
-                localStream = null;
+        // ============================================
+        // WAITING ROOM
+        // ============================================
+        function showWaitingRoom() {
+            const overlay = document.createElement('div');
+            overlay.className = 'waiting-overlay';
+            overlay.id = 'waitingOverlay';
+            overlay.innerHTML = `
+                <h2>The Mirror's Echo is Currently in Use</h2>
+                <p>Another viewer is experiencing the installation. You'll be connected automatically when the room becomes available.</p>
+                <div class="wait-status" id="waitStatus">Checking availability...</div>
+                <button class="btn" style="margin-top: 2rem;" onclick="cancelWaiting()">Cancel</button>
+            `;
+            document.body.appendChild(overlay);
+            
+            // Poll every 5 seconds
+            waitingInterval = setInterval(checkAndConnect, 5000);
+        }
+
+        async function checkAndConnect() {
+            const waitStatus = document.getElementById('waitStatus');
+            if (waitStatus) waitStatus.textContent = 'Checking availability...';
+            
+            try {
+                const pubResponse = await fetch('/api/publisher-token');
+                
+                if (pubResponse.status === 409) {
+                    if (waitStatus) waitStatus.textContent = 'Still waiting... another session is active.';
+                    return;
+                }
+                
+                if (pubResponse.ok) {
+                    // Room is available! Remove waiting overlay and connect
+                    clearInterval(waitingInterval);
+                    waitingInterval = null;
+                    
+                    const overlay = document.getElementById('waitingOverlay');
+                    if (overlay) overlay.remove();
+                    
+                    const pubData = await pubResponse.json();
+                    myIdentity = pubData.identity;
+                    
+                    // Connect to room
+                    inputRoom = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
+                    
+                    inputRoom.on(LivekitClient.RoomEvent.Disconnected, () => {
+                        if (isConnected) forceDisconnect('disconnected');
+                    });
+
+                    await inputRoom.connect(pubData.url, pubData.token);
+
+                    for (const track of localStream.getTracks()) {
+                        await inputRoom.localParticipant.publishTrack(track);
+                    }
+
+                    // Output room
+                    const viewResponse = await fetch('/api/processed-viewer-token');
+                    const viewData = await viewResponse.json();
+
+                    outputRoom = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
+
+                    outputRoom.on(LivekitClient.RoomEvent.TrackSubscribed, (track, pub, participant) => {
+                        if (track.kind === LivekitClient.Track.Kind.Video) {
+                            track.attach(processedVideo);
+                            processedPlaceholder.style.display = 'none';
+                            updateStatus('Connected - Viewing processed output');
+                        }
+                    });
+
+                    await outputRoom.connect(viewData.url, viewData.token);
+
+                    outputRoom.remoteParticipants.forEach((participant) => {
+                        participant.trackPublications.forEach((pub) => {
+                            if (pub.track && pub.track.kind === LivekitClient.Track.Kind.Video) {
+                                pub.track.attach(processedVideo);
+                                processedPlaceholder.style.display = 'none';
+                            }
+                        });
+                    });
+
+                    isConnected = true;
+                    startTime = Date.now();
+                    timerInterval = setInterval(updateTimer, 1000);
+                    sessionTimeout = setTimeout(() => endSession(), SESSION_DURATION);
+                    runTemporalAnimation();
+
+                    connectBtn.style.display = 'none';
+                    disconnectBtn.style.display = 'inline-block';
+                    updateStatus('Connected!');
+                }
+            } catch (error) {
+                console.error('Check error:', error);
+                if (waitStatus) waitStatus.textContent = 'Error checking... will retry.';
             }
-            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+        }
 
-            localVideo.srcObject = null;
-            processedVideo.srcObject = null;
-            localPlaceholder.style.display = 'flex';
-            processedPlaceholder.style.display = 'flex';
+        function cancelWaiting() {
+            if (waitingInterval) {
+                clearInterval(waitingInterval);
+                waitingInterval = null;
+            }
+            const overlay = document.getElementById('waitingOverlay');
+            if (overlay) overlay.remove();
+            
+            cleanupLocal();
+            connectBtn.disabled = false;
+            connectBtn.classList.add('flicker-btn');
+            updateStatus('Cancelled');
+        }
 
+        // ============================================
+        // DISCONNECT FUNCTIONS
+        // ============================================
+        
+        // Manual disconnect (user clicked button)
+        async function manualDisconnect() {
+            await forceDisconnect('manual');
+            updateStatus('Disconnected');
             connectBtn.style.display = 'inline-block';
             connectBtn.disabled = false;
             connectBtn.classList.add('flicker-btn');
             disconnectBtn.style.display = 'none';
-            updateStatus('Disconnected');
         }
 
+        // Force disconnect (timeout, page close, etc)
+        async function forceDisconnect(reason) {
+            console.log('Force disconnect, reason:', reason);
+            isConnected = false;
+            
+            // Clear timers
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+            if (sessionTimeout) { clearTimeout(sessionTimeout); sessionTimeout = null; }
+
+            // Tell server to kick us (ensures cleanup even if WebSocket dies)
+            if (myIdentity) {
+                try {
+                    navigator.sendBeacon('/api/disconnect', JSON.stringify({ identity: myIdentity }));
+                } catch (e) {
+                    // Fallback
+                    fetch('/api/disconnect', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ identity: myIdentity }),
+                        keepalive: true
+                    }).catch(() => {});
+                }
+            }
+
+            // Disconnect rooms
+            if (inputRoom) { 
+                try { await inputRoom.disconnect(); } catch(e) {}
+                inputRoom = null; 
+            }
+            if (outputRoom) { 
+                try { await outputRoom.disconnect(); } catch(e) {}
+                outputRoom = null; 
+            }
+            
+            cleanupLocal();
+            myIdentity = null;
+        }
+
+        // Cleanup local resources
+        function cleanupLocal() {
+            if (localStream) {
+                localStream.getTracks().forEach(t => t.stop());
+                localStream = null;
+            }
+            localVideo.srcObject = null;
+            processedVideo.srcObject = null;
+            localPlaceholder.style.display = 'flex';
+            processedPlaceholder.style.display = 'flex';
+            processedPlaceholder.textContent = 'Processed feed will appear here';
+            startTime = null;
+        }
+
+        // End session (10 min timeout)
+        function endSession() {
+            console.log('Session ended - 10 minutes');
+            forceDisconnect('timeout');
+            
+            // Redirect to licensing page
+            window.location.href = '/licensing.html?session=complete';
+        }
+
+        // ============================================
+        // PAGE CLOSE/HIDE HANDLERS
+        // ============================================
+        window.addEventListener('beforeunload', (e) => {
+            if (isConnected) {
+                forceDisconnect('beforeunload');
+            }
+        });
+        
+        window.addEventListener('pagehide', () => {
+            if (isConnected) {
+                forceDisconnect('pagehide');
+            }
+        });
+        
+        window.addEventListener('unload', () => {
+            if (isConnected) {
+                forceDisconnect('unload');
+            }
+        });
+        
+        // Mobile: disconnect after 30s hidden
+        let hiddenTimeout = null;
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden' && isConnected) {
+                hiddenTimeout = setTimeout(() => {
+                    console.log('Tab hidden 30s, disconnecting');
+                    forceDisconnect('hidden');
+                    window.location.href = '/licensing.html?session=hidden';
+                }, 30000);
+            } else if (hiddenTimeout) {
+                clearTimeout(hiddenTimeout);
+                hiddenTimeout = null;
+            }
+        });
+
+        // ============================================
+        // UTILITIES
+        // ============================================
         function updateStatus(msg) {
             statusDiv.textContent = msg;
             console.log('[Mirror] ' + msg);
@@ -418,153 +624,81 @@
             const sec = elapsed % 60;
             timerDiv.textContent = `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
         }
-
-        window.addEventListener('beforeunload', disconnect);
         
-        // Fullscreen toggle for processed output (desktop + mobile)
         function toggleFullscreen() {
             const videoBox = document.getElementById('processedBox');
             const video = document.getElementById('processedVideo');
             
-            // Check if already fullscreen
-            const isFullscreen = document.fullscreenElement || 
-                                 document.webkitFullscreenElement || 
-                                 document.mozFullScreenElement ||
-                                 document.msFullscreenElement;
+            const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
             
             if (!isFullscreen) {
-                // Try video element first (works better on mobile)
                 const element = video.srcObject ? video : videoBox;
-                
-                if (element.requestFullscreen) {
-                    element.requestFullscreen();
-                } else if (element.webkitRequestFullscreen) {
-                    element.webkitRequestFullscreen();
-                } else if (element.webkitEnterFullscreen) {
-                    // iOS Safari video fullscreen
-                    element.webkitEnterFullscreen();
-                } else if (element.mozRequestFullScreen) {
-                    element.mozRequestFullScreen();
-                } else if (element.msRequestFullscreen) {
-                    element.msRequestFullscreen();
-                } else if (video.webkitEnterFullscreen) {
-                    // Fallback: iOS video fullscreen
-                    video.webkitEnterFullscreen();
-                }
+                if (element.requestFullscreen) element.requestFullscreen();
+                else if (element.webkitRequestFullscreen) element.webkitRequestFullscreen();
+                else if (element.webkitEnterFullscreen) element.webkitEnterFullscreen();
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                } else if (document.mozCancelFullScreen) {
-                    document.mozCancelFullScreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                }
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
             }
         }
         
-        // === TEMPORAL EFFECTS (7-10 min) ===
-        const RAIN_START = 7 * 60 * 1000;  // 7 minutes
-        const SESSION_END = 10 * 60 * 1000; // 10 minutes
+        // ============================================
+        // TEMPORAL EFFECTS (Rainbow raindrops)
+        // ============================================
         let animationRunning = false;
         
-        // Colors without neon green
         const colors = [
-            'rgba(255, 105, 180, 0.9)', // Hot pink
-            'rgba(138, 43, 226, 0.9)', // Blue violet
-            'rgba(75, 0, 130, 0.9)',   // Indigo
-            'rgba(0, 191, 255, 0.9)',  // Deep sky blue
-            'rgba(127, 255, 212, 0.9)', // Aquamarine
-            'rgba(255, 215, 0, 0.9)',  // Gold
-            'rgba(255, 140, 0, 0.9)',  // Dark orange
-            'rgba(255, 20, 147, 0.9)', // Deep pink
-            'rgba(147, 112, 219, 0.9)' // Medium purple
+            'rgba(255, 105, 180, 0.9)', 'rgba(138, 43, 226, 0.9)',
+            'rgba(75, 0, 130, 0.9)', 'rgba(0, 191, 255, 0.9)',
+            'rgba(127, 255, 212, 0.9)', 'rgba(255, 215, 0, 0.9)',
+            'rgba(255, 140, 0, 0.9)', 'rgba(255, 20, 147, 0.9)',
+            'rgba(147, 112, 219, 0.9)'
         ];
         
         function createRaindrop(progress) {
             const drop = document.createElement('div');
             drop.className = 'raindrop';
             
-            const x = Math.random() * window.innerWidth;
-            const y = Math.random() * window.innerHeight;
-            drop.style.left = x + 'px';
-            drop.style.top = y + 'px';
+            drop.style.left = Math.random() * window.innerWidth + 'px';
+            drop.style.top = Math.random() * window.innerHeight + 'px';
             
             const color1 = colors[Math.floor(Math.random() * colors.length)];
             const color2 = colors[Math.floor(Math.random() * colors.length)];
             const color3 = colors[Math.floor(Math.random() * colors.length)];
             
-            // === CROSSFADE: FULL (progress=0) → OPTIMIZED (progress=1) ===
-            // 7-9 min: gentle crossfade
-            // 9-10 min: TAKEOVER - massive increase
+            const isTakeover = progress > 0.66;
             
-            const isTakeover = progress > 0.66; // Last minute (9-10)
+            let baseOpacity = isTakeover 
+                ? 0.4 + ((progress - 0.66) / 0.34 * 0.5)
+                : 0.15 + (progress * 0.35);
             
-            // Opacity
-            let baseOpacity;
-            if (isTakeover) {
-                const takeoverProgress = (progress - 0.66) / 0.34;
-                baseOpacity = 0.4 + (takeoverProgress * 0.5);
-            } else {
-                baseOpacity = 0.15 + (progress * 0.35);
-            }
+            let sizeMultiplier = isTakeover
+                ? 1.0 + ((progress - 0.66) / 0.34 * 0.8)
+                : 1.5 - (progress * 0.5);
             
-            // Size multiplier
-            let sizeMultiplier;
-            if (isTakeover) {
-                const takeoverProgress = (progress - 0.66) / 0.34;
-                sizeMultiplier = 1.0 + (takeoverProgress * 0.8);
-            } else {
-                sizeMultiplier = 1.5 - (progress * 0.5);
-            }
+            let duration = isTakeover
+                ? 6 - ((progress - 0.66) / 0.34 * 2) + Math.random() * 3
+                : 10 - (progress * 4) + Math.random() * 4;
             
-            // Duration
-            let duration;
-            if (isTakeover) {
-                const takeoverProgress = (progress - 0.66) / 0.34;
-                duration = 6 - (takeoverProgress * 2) + Math.random() * 3;
-            } else {
-                const baseDuration = 10 - (progress * 4);
-                duration = baseDuration + Math.random() * 4;
-            }
+            let glowIntensity = isTakeover
+                ? 30 + (Math.pow((progress - 0.66) / 0.34, 1.5) * 120)
+                : (15 + (progress * 50)) * (2.0 - (progress * 1.2));
             
-            // Glow intensity
-            let glowIntensity;
-            if (isTakeover) {
-                const takeoverProgress = (progress - 0.66) / 0.34;
-                glowIntensity = 30 + (Math.pow(takeoverProgress, 1.5) * 120);
-            } else {
-                const haloMultiplier = 2.0 - (progress * 1.2);
-                glowIntensity = (15 + (progress * 50)) * haloMultiplier;
-            }
-            
-            // Size varies - weighted toward larger during takeover
             let baseSize;
             const sizeRoll = Math.random();
             if (isTakeover) {
-                if (sizeRoll < 0.2) {
-                    baseSize = 30 + Math.random() * 15;
-                } else if (sizeRoll < 0.5) {
-                    baseSize = 50 + Math.random() * 30;
-                } else {
-                    baseSize = 60 + Math.random() * 70;
-                }
+                baseSize = sizeRoll < 0.2 ? 30 + Math.random() * 15
+                         : sizeRoll < 0.5 ? 50 + Math.random() * 30
+                         : 60 + Math.random() * 70;
             } else {
-                if (sizeRoll < 0.3) {
-                    baseSize = 20 + Math.random() * 10;
-                } else if (sizeRoll < 0.7) {
-                    baseSize = 40 + Math.random() * 20;
-                } else {
-                    baseSize = 40 + Math.random() * 50;
-                }
+                baseSize = sizeRoll < 0.3 ? 20 + Math.random() * 10
+                         : sizeRoll < 0.7 ? 40 + Math.random() * 20
+                         : 40 + Math.random() * 50;
             }
             
             const finalSize = baseSize * sizeMultiplier;
-            
             drop.style.width = finalSize + 'px';
             drop.style.height = finalSize + 'px';
-            drop.style.borderRadius = '50%';
             
             drop.style.background = `radial-gradient(circle at 40% 40%,
                 ${color1.replace('0.9', String(baseOpacity))} 0%,
@@ -572,22 +706,11 @@
                 ${color3.replace('0.9', String(baseOpacity * 0.4))} 60%,
                 transparent 100%)`;
             
-            // Circular glow using radial filter
-            if (isTakeover) {
-                drop.style.boxShadow = `
-                    0 0 ${glowIntensity}px ${glowIntensity * 0.5}px ${color1},
-                    0 0 ${glowIntensity * 2}px ${glowIntensity}px ${color2},
-                    0 0 ${glowIntensity * 3}px ${glowIntensity * 1.5}px ${color3.replace('0.9', '0.4')}`;
-                drop.style.filter = `blur(0.5px)`;
-            } else {
-                drop.style.boxShadow = `
-                    0 0 ${glowIntensity}px ${glowIntensity * 0.4}px ${color1},
-                    0 0 ${glowIntensity * 2}px ${glowIntensity * 0.8}px ${color2},
-                    0 0 ${glowIntensity * 3}px ${glowIntensity * 1.2}px ${color1.replace('0.9', '0.3')}`;
-            }
+            drop.style.boxShadow = `
+                0 0 ${glowIntensity}px ${glowIntensity * 0.4}px ${color1},
+                0 0 ${glowIntensity * 2}px ${glowIntensity * 0.8}px ${color2}`;
             
             drop.style.animationDuration = duration + 's';
-            
             document.body.appendChild(drop);
             
             setTimeout(() => {
@@ -600,31 +723,20 @@
             animationRunning = true;
             
             function animate() {
-                if (!startTime) { animationRunning = false; return; }
+                if (!startTime || !isConnected) { 
+                    animationRunning = false; 
+                    return; 
+                }
                 
                 const elapsed = Date.now() - startTime;
                 
-                // End session at 10 minutes
-                if (elapsed >= SESSION_END) {
-                    endSession();
-                    return;
-                }
-                
-                // Only spawn drops after 7 minutes
                 if (elapsed >= RAIN_START) {
-                    const rainProgress = (elapsed - RAIN_START) / (SESSION_END - RAIN_START);
-                    const progress = Math.min(rainProgress, 1.0);
-                    
-                    // Exponential growth - starts slow, gets overwhelming
-                    const baseRate = 0.03;
+                    const progress = Math.min((elapsed - RAIN_START) / (SESSION_DURATION - RAIN_START), 1.0);
                     const exponentialGrowth = Math.pow(progress, 2.5);
-                    let dropProbability = baseRate * (1 + exponentialGrowth * 30);
+                    let dropProbability = 0.03 * (1 + exponentialGrowth * 30);
                     
-                    // Final surge in last third
                     if (progress > 0.66) {
-                        const overtakeProgress = (progress - 0.66) / 0.34;
-                        const overtakeMultiplier = 1 + (overtakeProgress * 6);
-                        dropProbability *= overtakeMultiplier;
+                        dropProbability *= 1 + ((progress - 0.66) / 0.34 * 6);
                     }
                     
                     if (Math.random() < dropProbability) {
@@ -636,27 +748,6 @@
             }
             
             animate();
-        }
-        
-        function endSession() {
-            animationRunning = false;
-            disconnect();
-            
-            const overlay = document.createElement('div');
-            overlay.className = 'session-ended';
-            overlay.innerHTML = `
-                <h2>Session Complete</h2>
-                <p>Thank you for experiencing The Mirror's Echo</p>
-                <button class="btn" onclick="location.reload()">Start New Session</button>
-            `;
-            document.body.appendChild(overlay);
-        }
-        
-        // Start animation when connected
-        function checkAndStartAnimation() {
-            if (startTime && !animationRunning) {
-                runTemporalAnimation();
-            }
         }
     </script>
 </body>

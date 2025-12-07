@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const { AccessToken } = require('livekit-server-sdk');
+const { AccessToken, RoomServiceClient } = require('livekit-server-sdk');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -8,19 +8,155 @@ const PORT = process.env.PORT || 3000;
 const LIVEKIT_API_KEY = 'APITw2Yp2Tv3yfg';
 const LIVEKIT_API_SECRET = 'eVYY0UB69XDGLiGzclYuGUhXuVpc8ry3YcazimFryDW';
 const LIVEKIT_URL = 'wss://claymation-transcription-l6e51sws.livekit.cloud';
+const LIVEKIT_API_URL = 'https://claymation-transcription-l6e51sws.livekit.cloud';
 
-// Stripe configuration (set these in Railway environment variables)
+const roomService = new RoomServiceClient(LIVEKIT_API_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
+
+// Stripe configuration
 const STRIPE_PUBLISHABLE_KEY = process.env.STRIPE_PUBLISHABLE_KEY || '';
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
 const stripe = STRIPE_SECRET_KEY ? require('stripe')(STRIPE_SECRET_KEY) : null;
 
-// Middleware
 app.use(express.json());
-
-// Serve static files
 app.use(express.static(__dirname));
 
-// Generate LiveKit token for publisher/subscriber
+// ============================================
+// ROOM STATUS - Check if room is available
+// ============================================
+app.get('/api/room-status', async (req, res) => {
+    const room = req.query.room || 'claymation-live';
+    try {
+        const participants = await roomService.listParticipants(room);
+        // Count mirror-users (the actual participants, not transcriber/viewer/obs)
+        const mirrorUsers = participants.filter(p => 
+            p.identity.startsWith('mirror-user')
+        );
+        res.json({
+            room,
+            mirrorUserCount: mirrorUsers.length,
+            available: mirrorUsers.length === 0,
+            allParticipants: participants.map(p => p.identity)
+        });
+    } catch (error) {
+        // Room doesn't exist = available
+        if (error.message && error.message.includes('not found')) {
+            res.json({ room, mirrorUserCount: 0, available: true, allParticipants: [] });
+        } else {
+            console.error('Room status error:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+});
+
+// ============================================
+// PUBLISHER TOKEN - ONE USER LIMIT ENFORCED
+// ============================================
+app.get('/api/publisher-token', async (req, res) => {
+    try {
+        // CHECK if someone is already connected - BLOCK if so
+        try {
+            const participants = await roomService.listParticipants('claymation-live');
+            const mirrorUsers = participants.filter(p => p.identity.startsWith('mirror-user'));
+            
+            if (mirrorUsers.length > 0) {
+                console.log('BLOCKED: Room occupied by', mirrorUsers.map(p => p.identity));
+                return res.status(409).json({ 
+                    error: 'Room occupied',
+                    message: 'Another viewer is experiencing the installation.',
+                    occupants: mirrorUsers.map(p => p.identity)
+                });
+            }
+        } catch (e) {
+            // Room doesn't exist = available, continue
+        }
+
+        // Generate unique identity for this session
+        const identity = 'mirror-user-' + Date.now();
+        
+        const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, { 
+            identity, 
+            ttl: '12m'  // Slightly longer than 10min session to allow cleanup
+        });
+        token.addGrant({ 
+            room: 'claymation-live', 
+            roomJoin: true, 
+            canPublish: true, 
+            canSubscribe: false 
+        });
+        
+        console.log('Issued publisher token for', identity);
+        res.json({ 
+            token: await token.toJwt(), 
+            url: LIVEKIT_URL, 
+            room: 'claymation-live', 
+            identity 
+        });
+    } catch (e) { 
+        console.error('Publisher token error:', e);
+        res.status(500).json({ error: e.message }); 
+    }
+});
+
+// ============================================
+// FORCE DISCONNECT - Server-side kick
+// ============================================
+app.post('/api/disconnect', async (req, res) => {
+    const { identity } = req.body;
+    if (!identity) {
+        return res.status(400).json({ error: 'identity required' });
+    }
+    try {
+        await roomService.removeParticipant('claymation-live', identity);
+        console.log('Force disconnected:', identity);
+        res.json({ success: true, disconnected: identity });
+    } catch (error) {
+        // Already disconnected is fine
+        console.log('Disconnect (may already be gone):', identity, error.message);
+        res.json({ success: true, disconnected: identity, note: 'may have already left' });
+    }
+});
+
+// ============================================
+// VIEWER TOKENS
+// ============================================
+
+// Viewer token for TD (subscribes to claymation-live)
+app.get('/api/viewer-token', async (req, res) => {
+    const identity = 'viewer-td';
+    try {
+        const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, { identity, ttl: '24h' });
+        token.addGrant({ room: 'claymation-live', roomJoin: true, canPublish: false, canSubscribe: true });
+        res.json({ token: await token.toJwt(), url: LIVEKIT_URL, room: 'claymation-live' });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Processed viewer token (subscribes to processed-output)
+app.get('/api/processed-viewer-token', async (req, res) => {
+    const identity = 'mirror-viewer-' + Date.now();
+    try {
+        const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, { identity, ttl: '12m' });
+        token.addGrant({ room: 'processed-output', roomJoin: true, canPublish: false, canSubscribe: true });
+        res.json({ token: await token.toJwt(), url: LIVEKIT_URL, room: 'processed-output', identity });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Processed publisher token (for OBS WHIP)
+app.get('/api/processed-publisher-token', async (req, res) => {
+    const identity = 'obs-whip-publisher';
+    try {
+        const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, { identity, ttl: '24h' });
+        token.addGrant({ room: 'processed-output', roomJoin: true, canPublish: true, canSubscribe: false });
+        const jwt = await token.toJwt();
+        res.json({ 
+            token: jwt, 
+            url: LIVEKIT_URL, 
+            room: 'processed-output',
+            whipUrl: `https://claymation-transcription-l6e51sws.livekit.cloud/whip?access_token=${jwt}`
+        });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Legacy /token endpoint
 app.get('/token', async (req, res) => {
     const roomName = req.query.room || 'claymation-live';
     const identity = req.query.identity || 'user-' + Math.random().toString(36).substr(2, 6);
@@ -40,22 +176,13 @@ app.get('/token', async (req, res) => {
         });
         
         const jwt = await token.toJwt();
-        
-        console.log('Generated token for', identity, 'in room', roomName, 'publisher:', isPublisher);
-        
-        res.json({ 
-            token: jwt,
-            url: LIVEKIT_URL,
-            room: roomName,
-            identity: identity
-        });
+        res.json({ token: jwt, url: LIVEKIT_URL, room: roomName, identity: identity });
     } catch (error) {
-        console.error('Token generation error:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// Generate OBS WHIP token for ingress (processed video return)
+// OBS WHIP token
 app.get('/obs-whip-token', async (req, res) => {
     const roomName = req.query.room || 'claymation-live';
     const streamName = req.query.stream || 'obs-processed';
@@ -74,83 +201,25 @@ app.get('/obs-whip-token', async (req, res) => {
         });
         
         const jwt = await token.toJwt();
-        
-        // LiveKit WHIP endpoint format
         const whipUrl = 'https://claymation-transcription-l6e51sws.livekit.cloud/w';
-        
-        console.log('Generated OBS WHIP token for', streamName, 'in room', roomName);
         
         res.json({
             whip_url: whipUrl,
             bearer_token: jwt,
             room: roomName,
-            stream_name: streamName,
-            instructions: 'In OBS: Settings → Stream → Service: WHIP, Server: ' + whipUrl + ', Bearer Token: (use bearer_token above)'
+            stream_name: streamName
         });
     } catch (error) {
-        console.error('WHIP token generation error:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// Main route - serve the dual-room experience
+// Routes
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'mirrors-echo-fixed.html'));
 });
 
-// API endpoints for mirrors-echo-fixed.html and td-input-viewer.html
-
-// Viewer token (subscribes to claymation-live)
-app.get('/api/viewer-token', async (req, res) => {
-    const identity = 'viewer-' + Date.now();
-    try {
-        const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, { identity, ttl: '6h' });
-        token.addGrant({ room: 'claymation-live', roomJoin: true, canPublish: false, canSubscribe: true });
-        res.json({ token: await token.toJwt(), url: LIVEKIT_URL, room: 'claymation-live' });
-    } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-// Publisher token (publishes to claymation-live)
-app.get('/api/publisher-token', async (req, res) => {
-    const identity = req.query.identity || 'publisher-' + Date.now();
-    try {
-        const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, { identity, ttl: '6h' });
-        token.addGrant({ room: 'claymation-live', roomJoin: true, canPublish: true, canSubscribe: false });
-        res.json({ token: await token.toJwt(), url: LIVEKIT_URL, room: 'claymation-live' });
-    } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-// Processed viewer token (subscribes to processed-output)
-app.get('/api/processed-viewer-token', async (req, res) => {
-    const identity = req.query.identity || 'processed-viewer-' + Date.now();
-    try {
-        const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, { identity, ttl: '6h' });
-        token.addGrant({ room: 'processed-output', roomJoin: true, canPublish: false, canSubscribe: true });
-        res.json({ token: await token.toJwt(), url: LIVEKIT_URL, room: 'processed-output' });
-    } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-// Processed publisher token (for OBS WHIP to processed-output)
-app.get('/api/processed-publisher-token', async (req, res) => {
-    const identity = 'obs-whip-publisher';
-    try {
-        const token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, { identity, ttl: '24h' });
-        token.addGrant({ room: 'processed-output', roomJoin: true, canPublish: true, canSubscribe: false });
-        const jwt = await token.toJwt();
-        res.json({ 
-            token: jwt, 
-            url: LIVEKIT_URL, 
-            room: 'processed-output',
-            whipUrl: `https://claymation-transcription-l6e51sws.livekit.cloud/whip?access_token=${jwt}`
-        });
-    } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-// ============================================
-// STRIPE ENDPOINTS
-// ============================================
-
-// Get Stripe publishable key
+// Stripe endpoints
 app.get('/api/stripe-config', (req, res) => {
     if (!STRIPE_PUBLISHABLE_KEY) {
         return res.status(503).json({ error: 'Stripe not configured' });
@@ -158,7 +227,6 @@ app.get('/api/stripe-config', (req, res) => {
     res.json({ publishableKey: STRIPE_PUBLISHABLE_KEY });
 });
 
-// Create Stripe checkout session for $400 exhibition license
 app.post('/api/create-checkout-session', async (req, res) => {
     if (!stripe) {
         return res.status(503).json({ error: 'Payment system not configured. Please contact kristabluedoor@gmail.com' });
@@ -172,9 +240,9 @@ app.post('/api/create-checkout-session', async (req, res) => {
                     currency: 'usd',
                     product_data: {
                         name: 'The Mirror\'s Echo - Exhibition License',
-                        description: 'Unlimited sustained experience, commercial exhibition rights, professional use licensing',
+                        description: 'Unlimited sustained experience, commercial exhibition rights',
                     },
-                    unit_amount: 40000, // $400.00 in cents
+                    unit_amount: 40000,
                 },
                 quantity: 1,
             }],
@@ -185,7 +253,6 @@ app.post('/api/create-checkout-session', async (req, res) => {
         
         res.json({ sessionId: session.id });
     } catch (error) {
-        console.error('Stripe checkout error:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -197,5 +264,5 @@ app.get('/health', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`The Mirror's Echo running on port ${PORT}`);
-    console.log(`WHIP token endpoint: http://localhost:${PORT}/obs-whip-token?room=claymation-live`);
+    console.log('One-user limit ENFORCED - server will block if room occupied');
 });
