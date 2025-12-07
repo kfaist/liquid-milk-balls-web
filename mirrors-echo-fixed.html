@@ -590,13 +590,14 @@
             }
         });
         
-        // Mobile: disconnect after 30s hidden (no redirect - browser may be closed)
+        // Mobile: disconnect after 30s hidden - redirect to licensing
         let hiddenTimeout = null;
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden' && isConnected) {
                 hiddenTimeout = setTimeout(() => {
                     console.log('Tab hidden 30s, disconnecting');
                     forceDisconnect('hidden');
+                    window.location.href = '/licensing.html?session=complete';
                 }, 30000);
             } else if (hiddenTimeout) {
                 clearTimeout(hiddenTimeout);
