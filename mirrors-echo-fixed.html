@@ -435,7 +435,7 @@
                 startTime = Date.now();
                 timerInterval = setInterval(updateTimer, 1000);
                 
-                // Set hard 10-minute timeout
+                // Set hard 11-minute timeout
                 sessionTimeout = setTimeout(() => {
                     endSession();
                 }, SESSION_DURATION);
@@ -512,6 +512,7 @@
                     }
 
                     // Output room
+                    startLoadingMessages();
                     const viewResponse = await fetch('/api/processed-viewer-token');
                     const viewData = await viewResponse.json();
 
@@ -519,6 +520,7 @@
 
                     outputRoom.on(LivekitClient.RoomEvent.TrackSubscribed, (track, pub, participant) => {
                         if (track.kind === LivekitClient.Track.Kind.Video) {
+                            stopLoadingMessages();
                             track.attach(processedVideo);
                             processedPlaceholder.style.display = 'none';
                             updateStatus('Connected - Viewing processed output');
@@ -530,6 +532,7 @@
                     outputRoom.remoteParticipants.forEach((participant) => {
                         participant.trackPublications.forEach((pub) => {
                             if (pub.track && pub.track.kind === LivekitClient.Track.Kind.Video) {
+                                stopLoadingMessages();
                                 pub.track.attach(processedVideo);
                                 processedPlaceholder.style.display = 'none';
                             }
@@ -629,9 +632,9 @@
             startTime = null;
         }
 
-        // End session (10 min timeout)
+        // End session (11 min timeout)
         function endSession() {
-            console.log('Session ended - 10 minutes');
+            console.log('Session ended - 11 minutes');
             forceDisconnect('timeout');
             
             // Redirect to licensing page
@@ -659,7 +662,7 @@
             }
         });
         
-        // Tab visibility disconnect REMOVED - users stay for full 10-min experience
+        // Tab visibility disconnect REMOVED - users stay for full experience
 
         // ============================================
         // UTILITIES
