@@ -557,7 +557,6 @@
         <div class="top-controls">
             <button class="btn flicker-btn" id="connectBtn" onclick="connect()">Connect</button>
             <button class="btn" id="disconnectBtn" onclick="manualDisconnect()" style="display:none;">Disconnect</button>
-            <button class="btn" id="testBtn" onclick="toggleTestMode()" style="border-color: rgba(255,105,180,0.5);">Test Drops</button>
         </div>
 
         <!-- Mic Level Meter -->
@@ -570,7 +569,7 @@
 
         <div class="status-bar">
             <div class="time" id="timer">00:00</div>
-            <div id="status">Click Connect to begin or Test Drops to preview</div>
+            <div id="status">Click Connect to begin</div>
         </div>
 
         <div class="video-grid">
@@ -662,7 +661,6 @@
         let isConnected = false;
         let myIdentity = null;
         let waitingInterval = null;
-        let testMode = false;
 
         // Session duration: 11 minutes (full animation range)
         const SESSION_DURATION = 11 * 60 * 1000;
@@ -730,34 +728,6 @@
         const timerDiv = document.getElementById('timer');
         const connectBtn = document.getElementById('connectBtn');
         const disconnectBtn = document.getElementById('disconnectBtn');
-
-        // ============================================
-        // TEST MODE
-        // ============================================
-        function toggleTestMode() {
-            const btn = document.getElementById('testBtn');
-            testMode = !testMode;
-            if (testMode) {
-                btn.textContent = 'Stop Test';
-                btn.style.borderColor = 'rgba(255,50,100,0.8)';
-                btn.style.background = 'rgba(255,50,100,0.15)';
-                startTime = Date.now();
-                isConnected = true;
-                timerInterval = setInterval(updateTimer, 1000);
-                runTemporalAnimation();
-                updateStatus('Test mode - drops appear at 7min or with Temporal Intensity > 20%');
-            } else {
-                btn.textContent = 'Test Drops';
-                btn.style.borderColor = 'rgba(255,105,180,0.5)';
-                btn.style.background = 'transparent';
-                startTime = null;
-                isConnected = false;
-                if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-                document.querySelectorAll('.raindrop').forEach(d => d.remove());
-                timerDiv.textContent = '00:00';
-                updateStatus('Click Connect to begin or Test Drops to preview');
-            }
-        }
 
         // ============================================
         // MIC LEVEL MONITORING
@@ -1154,9 +1124,9 @@
         // ============================================
         // PAGE CLOSE/HIDE HANDLERS
         // ============================================
-        window.addEventListener('beforeunload', (e) => { if (isConnected && !testMode) forceDisconnect('beforeunload'); });
-        window.addEventListener('pagehide', () => { if (isConnected && !testMode) forceDisconnect('pagehide'); });
-        window.addEventListener('unload', () => { if (isConnected && !testMode) forceDisconnect('unload'); });
+        window.addEventListener('beforeunload', (e) => { if (isConnected) forceDisconnect('beforeunload'); });
+        window.addEventListener('pagehide', () => { if (isConnected) forceDisconnect('pagehide'); });
+        window.addEventListener('unload', () => { if (isConnected) forceDisconnect('unload'); });
 
         // ============================================
         // DISCONNECT MESSAGING
