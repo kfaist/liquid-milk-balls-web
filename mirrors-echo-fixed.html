@@ -367,21 +367,16 @@
         /* Mic Level Meter */
         .mic-meter {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 1rem;
-            padding: 0.75rem 1.5rem;
-            margin: 1rem auto 0 auto;
-            max-width: 500px;
-        }
-        .mic-label {
-            font-size: 1rem;
-            opacity: 0.6;
-            letter-spacing: 0.1em;
-            white-space: nowrap;
+            gap: 0.5rem;
+            padding: 0.5rem 1.5rem;
+            margin: 0.5rem auto 0 auto;
+            max-width: 400px;
         }
         .mic-bar-container {
-            flex: 1;
+            width: 100%;
             height: 12px;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -392,21 +387,21 @@
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, 
-                hsl(280, 85%, 55%), 
-                hsl(200, 85%, 55%), 
-                hsl(320, 85%, 65%));
+                hsl(320, 100%, 50%), 
+                hsl(300, 100%, 60%), 
+                hsl(180, 100%, 50%));
             border-radius: 6px;
             transition: width 0.05s ease-out;
-            box-shadow: 0 0 8px hsl(280, 85%, 55%);
+            box-shadow: 0 0 10px hsl(320, 100%, 50%), 0 0 20px hsl(180, 100%, 50%);
         }
         .mic-status {
             font-size: 0.9rem;
             letter-spacing: 0.05em;
-            min-width: 140px;
+            text-align: center;
         }
-        .mic-status.good { color: hsl(180, 85%, 65%); text-shadow: 0 0 8px hsl(180, 85%, 55%); }
+        .mic-status.good { color: hsl(180, 100%, 50%); text-shadow: 0 0 10px hsl(180, 100%, 50%); }
         .mic-status.low { color: hsl(45, 85%, 65%); }
-        .mic-status.none { color: hsl(0, 70%, 60%); }
+        .mic-status.none { color: hsl(320, 100%, 60%); text-shadow: 0 0 8px hsl(320, 100%, 50%); }
     </style>
 </head>
 <body>
@@ -423,7 +418,6 @@
 
         <!-- Mic Level Meter -->
         <div class="mic-meter" id="micMeter" style="display: none;">
-            <div class="mic-label">MIC</div>
             <div class="mic-bar-container">
                 <div class="mic-bar" id="micBar"></div>
             </div>
