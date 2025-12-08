@@ -14,6 +14,7 @@ import asyncio
 import socket
 import time
 import sys
+import datetime
 from typing import List
 
 import numpy as np
@@ -217,6 +218,7 @@ async def main(args):
     sys.stdout.flush()
     token = api.AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET)
     token.with_identity(f"transcriber-{int(time.time())}")
+    token.with_ttl(datetime.timedelta(hours=24))  # FIX: Prevent 5-min timeout
     token.with_grants(api.VideoGrants(
         room_join=True,
         room=args.room,
@@ -252,6 +254,12 @@ async def main(args):
         if participant.identity.startswith("mirror-user"):
             print("[EXIT] Mirror user disconnected - exiting for fresh restart")
             sys.exit(0)
+
+    @room.on("disconnected")
+    def on_room_disconnected():
+        print("[ROOM DISCONNECTED] Lost connection to LiveKit room!")
+        print("[ROOM DISCONNECTED] This usually means token expired or network issue")
+        sys.stdout.flush()
 
     print(f"\nConnecting to LiveKit room '{args.room}'...")
     await room.connect(LIVEKIT_URL, token.to_jwt())
