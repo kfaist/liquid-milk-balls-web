@@ -432,7 +432,7 @@
             <div><label>Depth</label><input type="range" id="depth" min="0" max="100" value="50"><span id="depthV">50</span></div>
             <div><label>Gloss</label><input type="range" id="gloss" min="0" max="100" value="50"><span id="glossV">50</span></div>
             <div><label>Emboss</label><input type="range" id="emboss" min="0" max="100" value="50"><span id="embossV">50</span></div>
-            <div><label>Ripple</label><input type="range" id="ripple" min="0" max="100" value="50"><span id="rippleV">50</span></div>
+            <div><label>Halo</label><input type="range" id="halo" min="0" max="100" value="50"><span id="haloV">50</span></div>
             <div><label>Shimmer</label><input type="range" id="shimmer" min="0" max="100" value="50"><span id="shimmerV">50</span></div>
             <div><label>Opacity</label><input type="range" id="opacity" min="0" max="100" value="50"><span id="opacityV">50</span></div>
             <div><label>Velocity</label><input type="range" id="velocity" min="0" max="100" value="50"><span id="velocityV">50</span></div>
@@ -450,7 +450,7 @@
     <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
     <script>
         // Slider State
-        const S = {hue:280, sat:85, val:50, sz:50, spd:10, glw:60, temp:1, bump:50, depth:50, gloss:50, emboss:50, ripple:50, shimmer:50, opacity:50, velocity:50};
+        const S = {hue:280, sat:85, val:50, sz:50, spd:10, glw:60, temp:1, bump:50, depth:50, gloss:50, emboss:50, halo:50, shimmer:50, opacity:50, velocity:50};
         
         function updateColors() {
             document.documentElement.style.setProperty('--hue', S.hue);
@@ -509,6 +509,12 @@
                     loadingStatus.innerHTML = '<span style="color:' + color + '">' + msg + 
                         '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
                     loadingStageIndex++;
+                } else {
+                    // All stages complete - clear messages
+                    clearInterval(loadingInterval);
+                    loadingInterval = null;
+                    loadingIntro.textContent = '';
+                    loadingStatus.innerHTML = '';
                 }
             }
             showStage();
@@ -583,7 +589,6 @@
 
                 outputRoom.on(LivekitClient.RoomEvent.TrackSubscribed, (track, pub, participant) => {
                     if (track.kind === LivekitClient.Track.Kind.Video) {
-                        stopLoadingMessages();
                         track.attach(processedVideo);
                         processedPlaceholder.style.display = 'none';
                         updateStatus('Connected - Viewing processed output');
@@ -603,7 +608,6 @@
                 outputRoom.remoteParticipants.forEach((participant) => {
                     participant.trackPublications.forEach((pub) => {
                         if (pub.track && pub.track.kind === LivekitClient.Track.Kind.Video) {
-                            stopLoadingMessages();
                             pub.track.attach(processedVideo);
                             processedPlaceholder.style.display = 'none';
                         }
@@ -692,7 +696,6 @@
 
                     outputRoom.on(LivekitClient.RoomEvent.TrackSubscribed, (track, pub, participant) => {
                         if (track.kind === LivekitClient.Track.Kind.Video) {
-                            stopLoadingMessages();
                             track.attach(processedVideo);
                             processedPlaceholder.style.display = 'none';
                             updateStatus('Connected - Viewing processed output');
@@ -704,7 +707,6 @@
                     outputRoom.remoteParticipants.forEach((participant) => {
                         participant.trackPublications.forEach((pub) => {
                             if (pub.track && pub.track.kind === LivekitClient.Track.Kind.Video) {
-                                stopLoadingMessages();
                                 pub.track.attach(processedVideo);
                                 processedPlaceholder.style.display = 'none';
                             }
@@ -860,7 +862,7 @@
         document.getElementById('depth').oninput = function() { S.depth = +this.value; document.getElementById('depthV').textContent = S.depth; };
         document.getElementById('gloss').oninput = function() { S.gloss = +this.value; document.getElementById('glossV').textContent = S.gloss; };
         document.getElementById('emboss').oninput = function() { S.emboss = +this.value; document.getElementById('embossV').textContent = S.emboss; };
-        document.getElementById('ripple').oninput = function() { S.ripple = +this.value; document.getElementById('rippleV').textContent = S.ripple; };
+        document.getElementById('halo').oninput = function() { S.halo = +this.value; document.getElementById('haloV').textContent = S.halo; };
         document.getElementById('shimmer').oninput = function() { S.shimmer = +this.value; document.getElementById('shimmerV').textContent = S.shimmer; };
         document.getElementById('opacity').oninput = function() { S.opacity = +this.value; document.getElementById('opacityV').textContent = S.opacity; };
         document.getElementById('velocity').oninput = function() { S.velocity = +this.value; document.getElementById('velocityV').textContent = S.velocity; };
@@ -953,9 +955,16 @@
             
             // Apply glow from slider
             const glowFinal = glowIntensity * (S.glw / 60);
+            
+            // Apply halo - soft outer ethereal ring
+            const haloSize = (S.halo / 50) * finalSize * 0.8;
+            const haloOpacity = baseOpacity * 0.3 * (S.halo / 50);
+            const haloColor = color3.replace('0.9', String(haloOpacity));
+            
             drop.style.boxShadow = `
                 0 0 ${glowFinal}px ${glowFinal * 0.4}px ${color1},
-                0 0 ${glowFinal * 2}px ${glowFinal * 0.8}px ${color2}`;
+                0 0 ${glowFinal * 2}px ${glowFinal * 0.8}px ${color2},
+                0 0 ${haloSize}px ${haloSize * 0.6}px ${haloColor}`;
             
             // Apply value (brightness) from slider
             const brightness = 0.5 + (S.val / 100);
