@@ -730,8 +730,9 @@
                 
                 inputRoom.on(LivekitClient.RoomEvent.Disconnected, (reason) => {
                     debugLog(`INPUT ROOM DISCONNECTED: ${reason || 'unknown'}`, 'error');
-                    updateStatus(`Disconnected: ${reason || 'unknown'}`, 'error');
-                    if (isConnected) forceDisconnect('disconnected');
+                    updateStatus(`Connection lost: ${getDisconnectReason(reason)}`, 'error');
+                    showDisconnectOverlay(reason);
+                    if (isConnected) forceDisconnect('input-room-disconnected: ' + (reason || 'unknown'));
                 });
                 
                 inputRoom.on(LivekitClient.RoomEvent.Reconnecting, () => {
@@ -870,7 +871,8 @@
                     
                     inputRoom.on(LivekitClient.RoomEvent.Disconnected, (reason) => {
                         debugLog(`INPUT ROOM DISCONNECTED: ${reason || 'unknown'}`, 'error');
-                        updateStatus(`Disconnected: ${reason || 'unknown'}`, 'error');
+                        updateStatus(`Connection lost: ${getDisconnectReason(reason)}`, 'error');
+                        showDisconnectOverlay(reason);
                         if (isConnected) forceDisconnect('disconnected');
                     });
                     
@@ -1021,6 +1023,41 @@
         window.addEventListener('beforeunload', (e) => { if (isConnected) forceDisconnect('beforeunload'); });
         window.addEventListener('pagehide', () => { if (isConnected) forceDisconnect('pagehide'); });
         window.addEventListener('unload', () => { if (isConnected) forceDisconnect('unload'); });
+
+        // ============================================
+        // DISCONNECT MESSAGING
+        // ============================================
+        function getDisconnectReason(reason) {
+            const reasons = {
+                'DUPLICATE_IDENTITY': 'Another session opened',
+                'PARTICIPANT_REMOVED': 'Session ended by server',
+                'ROOM_DELETED': 'Room closed',
+                'STATE_MISMATCH': 'Connection sync error',
+                'JOIN_FAILURE': 'Failed to join room',
+                'SIGNAL_CLOSE': 'Server connection lost',
+                'unknown': 'Connection interrupted'
+            };
+            return reasons[reason] || reasons['unknown'];
+        }
+
+        function showDisconnectOverlay(reason) {
+            // Remove existing overlay if any
+            const existing = document.getElementById('disconnectOverlay');
+            if (existing) existing.remove();
+
+            const friendlyReason = getDisconnectReason(reason);
+            const overlay = document.createElement('div');
+            overlay.className = 'waiting-overlay';
+            overlay.id = 'disconnectOverlay';
+            overlay.innerHTML = `
+                <h2 style="color: #ff6b6b;">Connection Lost</h2>
+                <p style="color: rgba(255,255,255,0.7); margin-bottom: 0.5rem;">${friendlyReason}</p>
+                <p style="opacity: 0.5; font-size: 0.7rem;">This can happen due to network issues or session timeout.</p>
+                <button class="btn" style="margin-top: 2rem;" onclick="location.reload()">Reconnect</button>
+                <p style="opacity: 0.3; font-size: 0.65rem; margin-top: 1rem;">Or wait a moment and try again</p>
+            `;
+            document.body.appendChild(overlay);
+        }
 
         // ============================================
         // DEBUG LOGGING

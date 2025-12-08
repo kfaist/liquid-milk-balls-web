@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 """
-LiveKit Audio Transcription to UDP (v11 - Remote User Mic)
+LiveKit Audio Transcription to UDP (v12 - FIFO Noun Queue)
 -----------------------------------------------------------
 Connects to LiveKit, captures remote user's audio, transcribes with Whisper,
-sends P5 (noun phrase) and P6 (full transcript) to TouchDesigner via UDP.
+extracts concrete/compound nouns with FIFO queue: new→P6, old P6→P5
+
+Features:
+- 1.3 sec recording window, 0.4 sec cooldown
+- FIFO noun queue (first in, first out)
+- Filters silences, "you" hallucinations, Whisper garbage
+- Auto-restarts daily at midnight
 
 Usage:
     python transcribe_livekit_to_udp.py --room claymation-live --port 8020
@@ -15,7 +21,8 @@ import socket
 import time
 import sys
 import datetime
-from typing import List
+import gc
+from typing import List, Optional
 
 import numpy as np
 import soundfile as sf
@@ -48,6 +55,43 @@ LIVEKIT_URL = "wss://claymation-transcription-l6e51sws.livekit.cloud"
 LIVEKIT_API_KEY = "APITw2Yp2Tv3yfg"
 LIVEKIT_API_SECRET = "eVYY0UB69XDGLiGzclYuGUhXuVpc8ry3YcazimFryDW"
 
+# ============================================
+# TIMING CONFIG
+# ============================================
+WINDOW_SEC = 1.3      # Recording window
+COOLDOWN_SEC = 0.4    # Minimum gap between transcriptions
+DAILY_RESTART_HOUR = 4  # Restart at 4 AM daily
+
+# ============================================
+# WHISPER HALLUCINATION FILTER
+# ============================================
+GARBAGE_PHRASES = {
+    "you", "thank you", "thanks", "bye", "goodbye", "okay", "ok",
+    "um", "uh", "hmm", "hm", "ah", "oh", "eh",
+    "thanks for watching", "subscribe", "like and subscribe",
+    "see you next time", "bye bye", "hello", "hi",
+    "music", "applause", "laughter", "silence",
+    "the", "a", "an", "i", "it", "is", "are", "was", "were",
+    "this", "that", "these", "those", "what", "who", "where",
+    "yeah", "yes", "no", "nope", "yep", "sure",
+    "so", "and", "but", "or", "if", "then",
+    "", " ", "  "
+}
+
+def is_garbage(text: str) -> bool:
+    """Check if text is Whisper hallucination or garbage"""
+    if not text:
+        return True
+    cleaned = text.lower().strip().rstrip('.!?,')
+    if cleaned in GARBAGE_PHRASES:
+        return True
+    if len(cleaned) < 2:
+        return True
+    # Single repeated character
+    if len(set(cleaned.replace(" ", ""))) <= 1:
+        return True
+    return False
+
 
 # ============================================
 # NLP SETUP
@@ -66,13 +110,14 @@ def download_resources():
 
 
 LEX_WEIGHTS = {
-    "noun.artifact": 1.4, "noun.object": 1.4, "noun.natural_object": 1.2,
-    "noun.food": 1.2, "noun.animal": 1.2, "noun.plant": 1.0, "noun.body": 1.0,
-    "noun.substance": 1.0, "noun.location": 0.9, "noun.person": 0.6,
+    "noun.artifact": 1.5, "noun.object": 1.5, "noun.natural_object": 1.3,
+    "noun.food": 1.3, "noun.animal": 1.3, "noun.plant": 1.2, "noun.body": 1.1,
+    "noun.substance": 1.1, "noun.location": 1.0, "noun.person": 0.7,
 }
 
 
 def wn_concreteness(lemma: str) -> float:
+    """Score how concrete a noun is using WordNet"""
     best = 0.0
     for syn in wn.synsets(lemma, pos=wn.NOUN):
         w = LEX_WEIGHTS.get(syn.lexname(), 0.0)
@@ -81,32 +126,76 @@ def wn_concreteness(lemma: str) -> float:
     return best
 
 
-def choose_concrete_phrase(text: str, stop_words: set, nlp) -> str:
+def is_compound_noun(phrase: str) -> bool:
+    """Check if phrase is a compound noun (2+ words)"""
+    words = phrase.split()
+    return len(words) >= 2
+
+
+def extract_best_noun(text: str, nlp) -> Optional[str]:
+    """Extract the best concrete or compound noun from text"""
     doc = nlp(text)
     candidates = []
+    
     for chunk in doc.noun_chunks:
-        head = chunk.root
         tokens = [t for t in chunk if t.pos_ in {"NOUN", "PROPN", "ADJ"}]
         if not tokens:
             continue
-        phrase = " ".join(t.text for t in tokens).strip()
-        if not phrase:
+        
+        phrase = " ".join(t.text for t in tokens).strip().lower()
+        if not phrase or is_garbage(phrase):
             continue
+        
+        # Score: compound nouns get bonus, then concreteness
         nouns = [t for t in tokens if t.pos_ in {"NOUN", "PROPN"}]
-        score = sum(wn_concreteness(t.lemma_.lower()) for t in nouns)
-        candidates.append((score, phrase))
+        concrete_score = sum(wn_concreteness(t.lemma_.lower()) for t in nouns)
+        compound_bonus = 1.5 if is_compound_noun(phrase) else 1.0
+        
+        final_score = concrete_score * compound_bonus
+        if final_score > 0:
+            candidates.append((final_score, phrase))
+    
     if not candidates:
-        return ""
+        return None
+    
     candidates.sort(key=lambda x: x[0], reverse=True)
     return candidates[0][1]
+
+
+# ============================================
+# FIFO NOUN QUEUE
+# ============================================
+class NounQueue:
+    """FIFO queue: new noun → P6, old P6 → P5"""
+    def __init__(self):
+        self.p5: Optional[str] = None  # Older noun
+        self.p6: Optional[str] = None  # Newer noun
+    
+    def push(self, noun: str) -> tuple:
+        """Push new noun, return (p5, p6) to send"""
+        if noun == self.p6:
+            # Same as current, no change
+            return (self.p5, self.p6)
+        
+        # Shift: P6 → P5, new → P6
+        self.p5 = self.p6
+        self.p6 = noun
+        return (self.p5, self.p6)
+    
+    def clear(self):
+        self.p5 = None
+        self.p6 = None
 
 
 # ============================================
 # MAIN
 # ============================================
 async def main(args):
+    start_time = datetime.datetime.now()
+    print(f"[START] {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
     print("Step 1: Loading Whisper model...")
     sys.stdout.flush()
+    
     model = whisper.load_model(args.model)
     if not torch.cuda.is_available():
         model = model.to("cpu")
@@ -119,106 +208,121 @@ async def main(args):
     print("Step 4: Loading spaCy...")
     sys.stdout.flush()
     nlp = spacy.load("en_core_web_sm")
-    stop_words = set(stopwords.words("english"))
     print("Step 5: NLP ready!")
     sys.stdout.flush()
 
     udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sticky_phrase = ""
-    ignore_phrases = {"thank you", "thanks", "bye", "goodbye"}
+    noun_queue = NounQueue()
 
     # Audio buffer
     audio_buffer: List[np.ndarray] = []
     buffer_sample_rate = 48000
     last_transcribe = time.time()
+    last_send = 0.0  # For cooldown
 
     async def process_audio_frames(stream: rtc.AudioStream, participant_id: str):
-        nonlocal audio_buffer, buffer_sample_rate, last_transcribe, sticky_phrase
+        nonlocal audio_buffer, buffer_sample_rate, last_transcribe, last_send
         
         print(f"[AUDIO] Processing audio from: {participant_id}")
         sys.stdout.flush()
         
         async for event in stream:
             frame = event.frame
-            # Convert bytes to numpy int16
             samples = np.frombuffer(frame.data, dtype=np.int16)
             buffer_sample_rate = frame.sample_rate
             audio_buffer.append(samples)
             
-            # Transcribe every N seconds
             now = time.time()
-            if now - last_transcribe >= args.window:
-                last_transcribe = now
+            
+            # Check recording window
+            if now - last_transcribe < WINDOW_SEC:
+                continue
+            
+            # Check cooldown
+            if now - last_send < COOLDOWN_SEC:
+                continue
                 
-                if not audio_buffer:
-                    continue
-                
-                # Combine buffer
-                audio_data = np.concatenate(audio_buffer)
-                audio_buffer = []
-                
-                # Resample to 16kHz for Whisper
-                if buffer_sample_rate != 16000:
-                    ratio = 16000 / buffer_sample_rate
-                    new_len = int(len(audio_data) * ratio)
-                    indices = np.linspace(0, len(audio_data) - 1, new_len).astype(int)
-                    audio_data = audio_data[indices]
-                
-                # Normalize
-                audio_float = audio_data.astype(np.float32) / 32768.0
-                
-                # Silence detection - skip if audio too quiet
-                rms = np.sqrt(np.mean(audio_float ** 2))
-                if rms < 0.005:  # Skip near-silence
-                    continue
-                
-                # Write temp file
-                tmp = "temp_livekit.wav"
-                try:
-                    with sf.SoundFile(tmp, mode="w", samplerate=16000, channels=1, subtype="PCM_16") as f:
-                        f.write(audio_float)
-                except Exception as e:
-                    print(f"Write error: {e}")
-                    continue
-                
-                # Transcribe
-                try:
-                    result = model.transcribe(tmp, fp16=False, language="en")
-                    text = (result.get("text") or "").strip()
-                except Exception as e:
-                    print(f"Whisper error: {e}")
-                    continue
-                
-                if not text or text.lower() in ignore_phrases:
-                    continue
-                
-                print(f"[P6] {text}")
+            last_transcribe = now
+            
+            if not audio_buffer:
+                continue
+            
+            # Combine and clear buffer
+            audio_data = np.concatenate(audio_buffer)
+            audio_buffer = []
+            
+            # Resample to 16kHz for Whisper
+            if buffer_sample_rate != 16000:
+                ratio = 16000 / buffer_sample_rate
+                new_len = int(len(audio_data) * ratio)
+                indices = np.linspace(0, len(audio_data) - 1, new_len).astype(int)
+                audio_data = audio_data[indices]
+            
+            # Normalize
+            audio_float = audio_data.astype(np.float32) / 32768.0
+            
+            # Silence detection
+            rms = np.sqrt(np.mean(audio_float ** 2))
+            if rms < 0.008:
+                continue
+            
+            # Write temp file
+            tmp = "temp_livekit.wav"
+            try:
+                with sf.SoundFile(tmp, mode="w", samplerate=16000, channels=1, subtype="PCM_16") as f:
+                    f.write(audio_float)
+            except Exception as e:
+                print(f"[ERROR] Write: {e}")
+                continue
+            
+            # Transcribe
+            try:
+                result = model.transcribe(tmp, fp16=False, language="en")
+                text = (result.get("text") or "").strip()
+            except Exception as e:
+                print(f"[ERROR] Whisper: {e}")
+                continue
+            
+            # Filter garbage
+            if is_garbage(text):
+                continue
+            
+            # Extract best noun
+            noun = extract_best_noun(text, nlp)
+            if not noun or is_garbage(noun):
+                continue
+            
+            # Push to FIFO queue
+            p5, p6 = noun_queue.push(noun)
+            last_send = time.time()
+            
+            # Send P6 (current/newer noun)
+            if p6:
+                print(f"[P6] {p6}")
                 sys.stdout.flush()
-                
-                # Send P6
                 try:
-                    udp_sock.sendto(f"P6:{text}".encode(), (args.addr, args.port))
+                    udp_sock.sendto(f"P6:{p6}".encode(), (args.addr, args.port))
                 except Exception as e:
-                    print(f"UDP P6 error: {e}")
-                
-                # Send P5
-                phrase = choose_concrete_phrase(text, stop_words, nlp)
-                if phrase:
-                    sticky_phrase = phrase
-                if sticky_phrase:
-                    print(f"[P5] {sticky_phrase}")
-                    sys.stdout.flush()
-                    try:
-                        udp_sock.sendto(f"P5:{sticky_phrase}".encode(), (args.addr, args.port))
-                    except Exception as e:
-                        print(f"UDP P5 error: {e}")
+                    print(f"[ERROR] UDP P6: {e}")
+            
+            # Send P5 (previous/older noun)
+            if p5:
+                print(f"[P5] {p5}")
+                sys.stdout.flush()
+                try:
+                    udp_sock.sendto(f"P5:{p5}".encode(), (args.addr, args.port))
+                except Exception as e:
+                    print(f"[ERROR] UDP P5: {e}")
+            
+            # Periodic garbage collection to prevent memory leak
+            gc.collect()
 
-    # Generate token
+    # Generate token with 24h TTL
     print("Step 6: Generating token...")
     sys.stdout.flush()
     token = api.AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET)
     token.with_identity(f"transcriber-{int(time.time())}")
-    token.with_ttl(datetime.timedelta(hours=24))  # FIX: Prevent 5-min timeout
+    token.with_ttl(datetime.timedelta(hours=24))
     token.with_grants(api.VideoGrants(
         room_join=True,
         room=args.room,
@@ -250,7 +354,6 @@ async def main(args):
     @room.on("participant_disconnected")
     def on_participant_disconnected(participant: rtc.RemoteParticipant):
         print(f"[LEAVE] {participant.identity}")
-        # Exit when mirror-user leaves to allow fresh restart
         if participant.identity.startswith("mirror-user"):
             print("[EXIT] Mirror user disconnected - exiting for fresh restart")
             sys.exit(0)
@@ -258,16 +361,18 @@ async def main(args):
     @room.on("disconnected")
     def on_room_disconnected():
         print("[ROOM DISCONNECTED] Lost connection to LiveKit room!")
-        print("[ROOM DISCONNECTED] This usually means token expired or network issue")
+        print("[ROOM DISCONNECTED] Token expired or network issue - restarting...")
         sys.stdout.flush()
+        sys.exit(1)
 
     print(f"\nConnecting to LiveKit room '{args.room}'...")
+    print(f"Window: {WINDOW_SEC}s | Cooldown: {COOLDOWN_SEC}s")
     await room.connect(LIVEKIT_URL, token.to_jwt())
     print(f"Connected! Waiting for audio from remote users...")
     print(f"UDP -> {args.addr}:{args.port}")
     print("Press Ctrl+C to stop.\n")
 
-    # Check existing participants for audio tracks
+    # Check existing participants
     for participant in room.remote_participants.values():
         print(f"[EXISTING] {participant.identity}")
         for pub in participant.track_publications.values():
@@ -279,7 +384,17 @@ async def main(args):
 
     try:
         while True:
-            await asyncio.sleep(1)
+            await asyncio.sleep(60)
+            
+            # Check for daily restart
+            now = datetime.datetime.now()
+            if now.hour == DAILY_RESTART_HOUR and now.minute == 0:
+                print(f"[DAILY RESTART] {now.strftime('%Y-%m-%d %H:%M:%S')}")
+                sys.exit(0)
+            
+            # Periodic memory cleanup
+            gc.collect()
+            
     except KeyboardInterrupt:
         print("\nStopping...")
     finally:
@@ -295,7 +410,6 @@ if __name__ == "__main__":
     parser.add_argument("--addr", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8020)
     parser.add_argument("--model", default="small.en")
-    parser.add_argument("--window", type=float, default=2.0)
     args = parser.parse_args()
     
     asyncio.run(main(args))
