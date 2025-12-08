@@ -651,6 +651,35 @@
         }
         updateColors();
 
+        // ============================================
+        // SLIDER UDP FORWARDING TO TOUCHDESIGNER
+        // ============================================
+        let sliderSendTimeout = null;
+        
+        function sendSliders() {
+            // Debounce: wait 50ms after last change before sending
+            if (sliderSendTimeout) clearTimeout(sliderSendTimeout);
+            sliderSendTimeout = setTimeout(() => {
+                fetch('/api/sliders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(S)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log('Sliders sent to TouchDesigner:', S);
+                })
+                .catch(err => {
+                    // Silent fail - TD might not be running
+                    console.warn('Slider send failed:', err.message);
+                });
+            }, 50);
+        }
+        
+        // Send initial slider values on page load
+        sendSliders();
+        console.log('Initial slider values sent to TouchDesigner');
+
         // Connection State
         let inputRoom = null;
         let outputRoom = null;
@@ -1227,6 +1256,7 @@
                 document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 updateColors();
+                sendSliders();
             };
         });
 
@@ -1237,18 +1267,19 @@
             document.getElementById('colorVal').textContent = S.hue + '°';
             document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
             updateColors();
+            sendSliders();
         };
 
-        document.getElementById('temp').oninput = function() { S.temp = +this.value; document.getElementById('tempV').textContent = S.temp + '%'; };
-        document.getElementById('spd').oninput = function() { S.spd = +this.value; document.getElementById('spdV').textContent = (S.spd / 10).toFixed(1) + 'x'; };
-        document.getElementById('bump').oninput = function() { S.bump = +this.value; document.getElementById('bumpV').textContent = S.bump; };
-        document.getElementById('depth').oninput = function() { S.depth = +this.value; document.getElementById('depthV').textContent = S.depth; };
-        document.getElementById('gloss').oninput = function() { S.gloss = +this.value; document.getElementById('glossV').textContent = S.gloss; };
-        document.getElementById('emboss').oninput = function() { S.emboss = +this.value; document.getElementById('embossV').textContent = S.emboss; };
-        document.getElementById('halo').oninput = function() { S.halo = +this.value; document.getElementById('haloV').textContent = S.halo; };
-        document.getElementById('shimmer').oninput = function() { S.shimmer = +this.value; document.getElementById('shimmerV').textContent = S.shimmer; };
-        document.getElementById('opacity').oninput = function() { S.opacity = +this.value; document.getElementById('opacityV').textContent = S.opacity; };
-        document.getElementById('velocity').oninput = function() { S.velocity = +this.value; document.getElementById('velocityV').textContent = S.velocity; };
+        document.getElementById('temp').oninput = function() { S.temp = +this.value; document.getElementById('tempV').textContent = S.temp + '%'; sendSliders(); };
+        document.getElementById('spd').oninput = function() { S.spd = +this.value; document.getElementById('spdV').textContent = (S.spd / 10).toFixed(1) + 'x'; sendSliders(); };
+        document.getElementById('bump').oninput = function() { S.bump = +this.value; document.getElementById('bumpV').textContent = S.bump; sendSliders(); };
+        document.getElementById('depth').oninput = function() { S.depth = +this.value; document.getElementById('depthV').textContent = S.depth; sendSliders(); };
+        document.getElementById('gloss').oninput = function() { S.gloss = +this.value; document.getElementById('glossV').textContent = S.gloss; sendSliders(); };
+        document.getElementById('emboss').oninput = function() { S.emboss = +this.value; document.getElementById('embossV').textContent = S.emboss; sendSliders(); };
+        document.getElementById('halo').oninput = function() { S.halo = +this.value; document.getElementById('haloV').textContent = S.halo; sendSliders(); };
+        document.getElementById('shimmer').oninput = function() { S.shimmer = +this.value; document.getElementById('shimmerV').textContent = S.shimmer; sendSliders(); };
+        document.getElementById('opacity').oninput = function() { S.opacity = +this.value; document.getElementById('opacityV').textContent = S.opacity; sendSliders(); };
+        document.getElementById('velocity').oninput = function() { S.velocity = +this.value; document.getElementById('velocityV').textContent = S.velocity; sendSliders(); };
 
         document.getElementById('chroma').oninput = function() {
             S.hue = +this.value;
@@ -1257,11 +1288,12 @@
             document.getElementById('colorVal').textContent = S.hue + '°';
             document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
             updateColors();
+            sendSliders();
         };
-        document.getElementById('sat').oninput = function() { S.sat = +this.value; document.getElementById('satV').textContent = S.sat + '%'; };
-        document.getElementById('val').oninput = function() { S.val = +this.value; document.getElementById('valV').textContent = S.val + '%'; };
-        document.getElementById('sz').oninput = function() { S.sz = +this.value; document.getElementById('szV').textContent = S.sz; };
-        document.getElementById('glw').oninput = function() { S.glw = +this.value; document.getElementById('glwV').textContent = S.glw; };
+        document.getElementById('sat').oninput = function() { S.sat = +this.value; document.getElementById('satV').textContent = S.sat + '%'; sendSliders(); };
+        document.getElementById('val').oninput = function() { S.val = +this.value; document.getElementById('valV').textContent = S.val + '%'; sendSliders(); };
+        document.getElementById('sz').oninput = function() { S.sz = +this.value; document.getElementById('szV').textContent = S.sz; sendSliders(); };
+        document.getElementById('glw').oninput = function() { S.glw = +this.value; document.getElementById('glwV').textContent = S.glw; sendSliders(); };
 
         // ============================================
         // TEMPORAL EFFECTS (Rainbow raindrops)

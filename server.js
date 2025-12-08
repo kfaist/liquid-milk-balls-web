@@ -1,6 +1,12 @@
 const express = require('express');
 const path = require('path');
+const dgram = require('dgram');
 const { AccessToken, RoomServiceClient } = require('livekit-server-sdk');
+
+// UDP client for TouchDesigner slider forwarding
+const udpClient = dgram.createSocket('udp4');
+const TD_SLIDER_PORT = 8021;
+const TD_SLIDER_HOST = '127.0.0.1';
 // Stripe payment integration enabled - Dec 7, 2025
 
 const app = express();
@@ -213,6 +219,27 @@ app.get('/obs-whip-token', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+});
+
+// ============================================
+// SLIDER UDP FORWARDING TO TOUCHDESIGNER
+// ============================================
+app.post('/api/sliders', (req, res) => {
+    const sliderData = req.body;
+    
+    // Format as JSON string for TouchDesigner
+    const message = JSON.stringify(sliderData);
+    const buffer = Buffer.from(message);
+    
+    udpClient.send(buffer, 0, buffer.length, TD_SLIDER_PORT, TD_SLIDER_HOST, (err) => {
+        if (err) {
+            console.error('UDP send error:', err);
+            // Don't fail the request - TD might not be running
+        }
+    });
+    
+    // Always respond success (fire-and-forget to TD)
+    res.json({ success: true, forwarded: sliderData });
 });
 
 // Routes
