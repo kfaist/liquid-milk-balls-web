@@ -222,24 +222,25 @@ app.get('/obs-whip-token', async (req, res) => {
 });
 
 // ============================================
-// SLIDER UDP FORWARDING TO TOUCHDESIGNER
+// SLIDER STATE & FORWARDING TO TOUCHDESIGNER
 // ============================================
+let currentSliders = {hue:280, sat:85, val:50, sz:50, spd:10, glw:60, temp:1, bump:50, depth:50, gloss:50, emboss:50, halo:50, shimmer:50, opacity:50, velocity:50};
+
+// POST - browser sends slider updates
 app.post('/api/sliders', (req, res) => {
-    const sliderData = req.body;
+    currentSliders = {...currentSliders, ...req.body};
     
-    // Format as JSON string for TouchDesigner
-    const message = JSON.stringify(sliderData);
+    // Also try UDP for local development
+    const message = JSON.stringify(currentSliders);
     const buffer = Buffer.from(message);
+    udpClient.send(buffer, 0, buffer.length, TD_SLIDER_PORT, TD_SLIDER_HOST, () => {});
     
-    udpClient.send(buffer, 0, buffer.length, TD_SLIDER_PORT, TD_SLIDER_HOST, (err) => {
-        if (err) {
-            console.error('UDP send error:', err);
-            // Don't fail the request - TD might not be running
-        }
-    });
-    
-    // Always respond success (fire-and-forget to TD)
-    res.json({ success: true, forwarded: sliderData });
+    res.json({ success: true, sliders: currentSliders });
+});
+
+// GET - TouchDesigner polls for current state
+app.get('/api/sliders', (req, res) => {
+    res.json(currentSliders);
 });
 
 // Routes
