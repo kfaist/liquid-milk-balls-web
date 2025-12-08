@@ -295,9 +295,10 @@
         const SESSION_DURATION = 11 * 60 * 1000;
         const RAIN_START = 7 * 60 * 1000;
 
-        // Progressive loading stages (~6 sec each to cover ~45 sec load time)
+        // Progressive loading: constant intro + cycling status messages
+        // 7 messages × 5.5 seconds = 38.5 seconds total
+        const loadingIntro = "Negotiating with pixels. Please be patient: ";
         const loadingStages = [
-            "Negotiating with pixels. Please be patient",
             "Killing zombie scripts",
             "Loading Whisper (the slow part)",
             "Still loading Whisper",
@@ -316,14 +317,17 @@
             function showStage() {
                 if (loadingStageIndex < loadingStages.length) {
                     const msg = loadingStages[loadingStageIndex];
-                    loadingStatus.innerHTML = msg + '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
+                    loadingStatus.innerHTML = loadingIntro + msg + '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
                     loadingStageIndex++;
+                } else {
+                    // After all messages, keep showing last one
+                    const msg = loadingStages[loadingStages.length - 1];
+                    loadingStatus.innerHTML = loadingIntro + msg + '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
                 }
-                // Last message stays visible until video loads
             }
 
             showStage();
-            loadingInterval = setInterval(showStage, 6000);
+            loadingInterval = setInterval(showStage, 5500);
         }
 
         function stopLoadingMessages() {
