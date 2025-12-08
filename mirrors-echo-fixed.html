@@ -1245,18 +1245,53 @@
         // ============================================
         // SLIDER CONTROLS
         // ============================================
+        // DRAMATIC COLOR FILTER PRESETS
+        const colorPresets = {
+            280: { name: 'Purple Dream', sat: 100, val: 80, glw: 90, depth: 70, opacity: 100 },
+            320: { name: 'Hot Pink', sat: 100, val: 90, glw: 100, depth: 60, opacity: 100 },
+            15:  { name: 'Fire', sat: 100, val: 100, glw: 100, depth: 80, opacity: 100 },
+            45:  { name: 'Gold', sat: 90, val: 100, glw: 80, depth: 50, opacity: 100 },
+            120: { name: 'Matrix', sat: 100, val: 60, glw: 100, depth: 90, opacity: 100 },
+            180: { name: 'Ice', sat: 80, val: 90, glw: 70, depth: 40, opacity: 100 },
+            220: { name: 'Deep Blue', sat: 100, val: 70, glw: 80, depth: 80, opacity: 100 },
+            0:   { name: 'Blood', sat: 100, val: 70, glw: 100, depth: 100, opacity: 100 }
+        };
+
         document.querySelectorAll('.palette-btn').forEach(btn => {
             btn.onclick = function() {
                 const hue = +this.dataset.hue;
+                const preset = colorPresets[hue] || { sat: 85, val: 50, glw: 60, depth: 50, opacity: 100 };
+                
+                // Apply DRAMATIC preset values
                 S.hue = hue;
+                S.sat = preset.sat;
+                S.val = preset.val;
+                S.glw = preset.glw;
+                S.depth = preset.depth;
+                S.opacity = preset.opacity;
+                
+                // Update all UI elements
                 document.getElementById('chroma').value = hue;
                 document.getElementById('chromaV').textContent = hue + '°';
                 document.getElementById('colorSlider').value = hue;
                 document.getElementById('colorVal').textContent = hue + '°';
+                document.getElementById('sat').value = S.sat;
+                document.getElementById('satV').textContent = S.sat + '%';
+                document.getElementById('val').value = S.val;
+                document.getElementById('valV').textContent = S.val + '%';
+                document.getElementById('glw').value = S.glw;
+                document.getElementById('glwV').textContent = S.glw;
+                document.getElementById('depth').value = S.depth;
+                document.getElementById('depthV').textContent = S.depth;
+                document.getElementById('opacity').value = S.opacity;
+                document.getElementById('opacityV').textContent = S.opacity;
+                
                 document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 updateColors();
                 sendSliders();
+                
+                console.log('Applied preset:', preset.name, S);
             };
         });
 
