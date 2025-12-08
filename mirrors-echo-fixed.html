@@ -6,6 +6,7 @@
     <title>The Mirror's Echo</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --hue: 280; --comp: 100; }
         body {
             font-family: 'JetBrains Mono', monospace;
             background: #000;
@@ -123,6 +124,55 @@
             letter-spacing: 0.05em;
             text-transform: uppercase;
         }
+        
+        /* Panel header with loading intro inline */
+        .panel-header {
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .panel-header h3 {
+            margin-bottom: 0;
+        }
+        .panel-header .loading-intro {
+            color: rgb(80, 220, 220);
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            text-shadow: 0 0 15px rgb(80, 220, 220), 0 0 30px rgb(80, 220, 220);
+            animation: introFlicker 3s infinite;
+        }
+        .panel-header .loading-intro:empty { display: none; }
+        
+        .loading-status {
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            min-height: 1.2rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .loading-status:empty { display: none; }
+        .loading-status .dot { animation: blink 1.4s infinite; }
+        .loading-status .dot:nth-child(2) { animation-delay: 0.2s; }
+        .loading-status .dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes blink {
+            0%, 20% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        
+        @keyframes introFlicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { 
+                opacity: 1; 
+                text-shadow: 0 0 15px rgb(80, 220, 220), 0 0 30px rgb(80, 220, 220);
+            }
+            20%, 24%, 55% { opacity: 0.4; text-shadow: 0 0 5px rgb(80, 220, 220); }
+            22% { opacity: 0.6; text-shadow: 0 0 10px rgb(80, 220, 220); }
+        }
+        
         .video-box {
             position: relative;
             aspect-ratio: 16/9;
@@ -146,15 +196,11 @@
             transition: opacity 0.3s;
             z-index: 10;
         }
-        .video-box:hover .fullscreen-btn {
-            opacity: 1;
-        }
+        .video-box:hover .fullscreen-btn { opacity: 1; }
         .video-box video {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             object-fit: cover;
         }
         .video-placeholder {
@@ -165,28 +211,6 @@
             justify-content: center;
             color: rgba(255, 255, 255, 0.3);
             font-size: 0.75rem;
-        }
-
-        .loading-status {
-            font-size: 0.7rem;
-            color: rgba(255, 105, 180, 0.8);
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-            min-height: 1.2rem;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .loading-status:empty {
-            display: none;
-        }
-        .loading-status .dot {
-            animation: blink 1.4s infinite;
-        }
-        .loading-status .dot:nth-child(2) { animation-delay: 0.2s; }
-        .loading-status .dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes blink {
-            0%, 20% { opacity: 0; }
-            50% { opacity: 1; }
-            100% { opacity: 0; }
         }
 
         /* Waiting Room Overlay */
@@ -220,6 +244,101 @@
             margin-top: 1rem;
         }
         
+        /* Color Palette */
+        .palette-section { 
+            background: #0a0a0a; 
+            border: 1px solid #222; 
+            padding: 1rem; 
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem; 
+        }
+        .palette-label { 
+            font-size: 0.65rem; 
+            text-transform: uppercase; 
+            letter-spacing: 0.1em; 
+            opacity: 0.5; 
+            margin-bottom: 0.75rem; 
+        }
+        .palette { 
+            display: grid; 
+            grid-template-columns: repeat(8, 1fr); 
+            gap: 0.5rem; 
+            margin-bottom: 1rem; 
+        }
+        .palette-btn { 
+            aspect-ratio: 1; 
+            border: 2px solid rgba(255,255,255,0.2); 
+            border-radius: 4px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            opacity: 0.6; 
+            min-height: 40px; 
+        }
+        .palette-btn:hover { 
+            opacity: 0.85; 
+            transform: scale(1.05); 
+            border-color: rgba(255,255,255,0.5); 
+        }
+        .palette-btn.active { 
+            opacity: 1; 
+            border-color: #fff; 
+            box-shadow: 0 0 12px currentColor; 
+        }
+        
+        .color-slider { display: flex; align-items: center; gap: 1rem; }
+        .color-slider label { font-size: 0.65rem; text-transform: uppercase; opacity: 0.5; }
+        .color-slider input { flex: 1; }
+        .color-slider span { font-size: 0.8rem; color: hsl(var(--hue), 85%, 65%); min-width: 45px; text-align: right; }
+        
+        #colorSlider, #chroma {
+            background: linear-gradient(to right, 
+                hsl(0, 85%, 55%), hsl(60, 85%, 55%), hsl(120, 85%, 55%), 
+                hsl(180, 85%, 55%), hsl(240, 85%, 55%), hsl(300, 85%, 55%), hsl(360, 85%, 55%)) !important;
+            height: 6px !important;
+        }
+        
+        .controls { 
+            background: #111; 
+            border: 1px solid #333; 
+            padding: 1rem; 
+            margin-bottom: 1.5rem; 
+            display: flex; 
+            gap: 1.5rem; 
+            justify-content: center; 
+            align-items: center; 
+            flex-wrap: wrap; 
+        }
+        .controls label { font-size: 0.75rem; opacity: 0.7; margin-right: 0.3rem; }
+        .controls input[type="range"] { width: 100px; vertical-align: middle; }
+        .controls span, .sl span { font-size: 0.8rem; color: hsl(var(--comp), 85%, 65%); min-width: 40px; display: inline-block; }
+        .color-slider span { color: hsl(var(--hue), 85%, 65%) !important; }
+        
+        .sliders { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 1rem; 
+            background: #0a0a0a; 
+            border: 1px solid #222; 
+            padding: 1rem; 
+            margin-bottom: 2rem; 
+        }
+        .sl label { display: block; font-size: 0.65rem; opacity: 0.6; margin-bottom: 0.25rem; }
+        .sl input { width: 100%; }
+        
+        input[type="range"] { -webkit-appearance: none; background: rgba(255,255,255,0.15); height: 4px; border-radius: 2px; }
+        
+        #chroma::-webkit-slider-thumb, #colorSlider::-webkit-slider-thumb { 
+            -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; 
+            background: hsl(var(--hue), 85%, 55%); border: 3px solid #fff; cursor: pointer; 
+            box-shadow: 0 0 8px hsl(var(--hue), 85%, 55%);
+        }
+        
+        input[type="range"]:not(#chroma):not(#colorSlider)::-webkit-slider-thumb { 
+            -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; 
+            background: hsl(var(--comp), 85%, 55%); border: 2px solid rgba(255,255,255,0.7); cursor: pointer; 
+            box-shadow: 0 0 6px hsl(var(--comp), 85%, 55%);
+        }
+        
         /* Raindrop Effects */
         .raindrop {
             position: fixed;
@@ -237,6 +356,12 @@
             25% { opacity: var(--target-opacity, 0.6); transform: scale(1); }
             75% { opacity: var(--target-opacity, 0.6); transform: scale(1.05); }
             100% { opacity: 0; transform: scale(1.15); }
+        }
+        
+        @media (max-width: 700px) { 
+            .sliders { grid-template-columns: 1fr 1fr; } 
+            .palette { grid-template-columns: repeat(4, 1fr); } 
+            .panel-header { flex-direction: column; gap: 0.3rem; }
         }
     </style>
 </head>
@@ -267,7 +392,10 @@
             </div>
 
             <div class="video-panel">
-                <h3>Processed Output (Your Reflection)</h3>
+                <div class="panel-header">
+                    <h3>Processed Output (Your Reflection)</h3>
+                    <span class="loading-intro" id="loadingIntro"></span>
+                </div>
                 <div class="loading-status" id="loadingStatus"></div>
                 <div class="video-box" id="processedBox">
                     <button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()">&#x26F6;</button>
@@ -276,11 +404,61 @@
                 </div>
             </div>
         </div>
+
+        <!-- Color Palette -->
+        <div class="palette-section">
+            <div class="palette-label">Color Palette</div>
+            <div class="palette">
+                <button class="palette-btn active" data-hue="280" style="background: hsl(280, 85%, 55%);" title="Purple"></button>
+                <button class="palette-btn" data-hue="320" style="background: hsl(320, 90%, 55%);" title="Pink"></button>
+                <button class="palette-btn" data-hue="15" style="background: hsl(15, 90%, 55%);" title="Coral"></button>
+                <button class="palette-btn" data-hue="45" style="background: hsl(45, 90%, 55%);" title="Gold"></button>
+                <button class="palette-btn" data-hue="120" style="background: hsl(120, 85%, 45%);" title="Green"></button>
+                <button class="palette-btn" data-hue="180" style="background: hsl(180, 85%, 45%);" title="Cyan"></button>
+                <button class="palette-btn" data-hue="220" style="background: hsl(220, 85%, 55%);" title="Blue"></button>
+                <button class="palette-btn" data-hue="0" style="background: hsl(0, 85%, 55%);" title="Red"></button>
+            </div>
+            <div class="color-slider">
+                <label>Color</label>
+                <input type="range" id="colorSlider" min="0" max="360" value="280">
+                <span id="colorVal">280°</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div><label>Temporal Intensity</label><input type="range" id="temp" min="0" max="100" value="1"><span id="tempV">1%</span></div>
+            <div><label>Speed</label><input type="range" id="spd" min="5" max="30" value="10"><span id="spdV">1.0x</span></div>
+            <div><label>Bump</label><input type="range" id="bump" min="0" max="100" value="50"><span id="bumpV">50</span></div>
+            <div><label>Depth</label><input type="range" id="depth" min="0" max="100" value="50"><span id="depthV">50</span></div>
+            <div><label>Gloss</label><input type="range" id="gloss" min="0" max="100" value="50"><span id="glossV">50</span></div>
+            <div><label>Emboss</label><input type="range" id="emboss" min="0" max="100" value="50"><span id="embossV">50</span></div>
+            <div><label>Ripple</label><input type="range" id="ripple" min="0" max="100" value="50"><span id="rippleV">50</span></div>
+            <div><label>Shimmer</label><input type="range" id="shimmer" min="0" max="100" value="50"><span id="shimmerV">50</span></div>
+            <div><label>Opacity</label><input type="range" id="opacity" min="0" max="100" value="50"><span id="opacityV">50</span></div>
+            <div><label>Velocity</label><input type="range" id="velocity" min="0" max="100" value="50"><span id="velocityV">50</span></div>
+        </div>
+
+        <div class="sliders">
+            <div class="sl"><label>Chroma <span id="chromaV">280°</span></label><input type="range" id="chroma" min="0" max="360" value="280"></div>
+            <div class="sl"><label>Saturation <span id="satV">85%</span></label><input type="range" id="sat" min="0" max="100" value="85"></div>
+            <div class="sl"><label>Value <span id="valV">50%</span></label><input type="range" id="val" min="0" max="100" value="50"></div>
+            <div class="sl"><label>Size <span id="szV">50</span></label><input type="range" id="sz" min="10" max="120" value="50"></div>
+            <div class="sl"><label>Glow <span id="glwV">60</span></label><input type="range" id="glw" min="0" max="100" value="60"></div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
     <script>
-        // State
+        // Slider State
+        const S = {hue:280, sat:85, val:50, sz:50, spd:10, glw:60, temp:1, bump:50, depth:50, gloss:50, emboss:50, ripple:50, shimmer:50, opacity:50, velocity:50};
+        
+        function updateColors() {
+            document.documentElement.style.setProperty('--hue', S.hue);
+            document.documentElement.style.setProperty('--comp', (S.hue + 180) % 360);
+        }
+        updateColors();
+
+        // Connection State
         let inputRoom = null;
         let outputRoom = null;
         let localStream = null;
@@ -293,48 +471,53 @@
 
         // Session duration: 11 minutes (full animation range)
         const SESSION_DURATION = 11 * 60 * 1000;
-        const RAIN_START = 7 * 60 * 1000;
+        const BASE_RAIN_START = 7 * 60 * 1000;
 
-        // Progressive loading: constant intro + cycling status messages
-        // 7 messages × 5.5 seconds = 38.5 seconds total
-        const loadingIntro = "Negotiating with pixels. Please be patient: ";
+        // Loading messages - 6.3 seconds per stage
+        const loadingIntroText = "Negotiating with pixels. Please be patient";
         const loadingStages = [
             "Killing zombie scripts",
             "Loading Whisper (the slow part)",
             "Still loading Whisper",
-            "Loading spaCy NLP",
+            "Still loading Whisper",
             "Warming up the language model",
             "Connecting to LiveKit",
             "Almost there"
+        ];
+        const stageColors = [
+            "rgb(200, 100, 255)",
+            "rgb(255, 50, 150)",
+            "rgb(220, 130, 50)",
+            "rgb(220, 200, 50)",
+            "rgb(50, 220, 100)",
+            "rgb(220, 70, 100)",
+            "rgb(100, 150, 255)"
         ];
         let loadingInterval = null;
         let loadingStageIndex = 0;
 
         function startLoadingMessages() {
+            const loadingIntro = document.getElementById('loadingIntro');
             const loadingStatus = document.getElementById('loadingStatus');
             loadingStageIndex = 0;
+            loadingIntro.textContent = loadingIntroText;
 
             function showStage() {
                 if (loadingStageIndex < loadingStages.length) {
                     const msg = loadingStages[loadingStageIndex];
-                    loadingStatus.innerHTML = loadingIntro + msg + '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
+                    const color = stageColors[loadingStageIndex];
+                    loadingStatus.innerHTML = '<span style="color:' + color + '">' + msg + 
+                        '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
                     loadingStageIndex++;
-                } else {
-                    // After all messages, keep showing last one
-                    const msg = loadingStages[loadingStages.length - 1];
-                    loadingStatus.innerHTML = loadingIntro + msg + '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
                 }
             }
-
             showStage();
-            loadingInterval = setInterval(showStage, 5500);
+            loadingInterval = setInterval(showStage, 6300);
         }
 
         function stopLoadingMessages() {
-            if (loadingInterval) {
-                clearInterval(loadingInterval);
-                loadingInterval = null;
-            }
+            if (loadingInterval) { clearInterval(loadingInterval); loadingInterval = null; }
+            document.getElementById('loadingIntro').textContent = '';
             document.getElementById('loadingStatus').innerHTML = '';
         }
 
@@ -356,7 +539,6 @@
             updateStatus('Checking availability...');
 
             try {
-                // Get camera first (so user sees themselves)
                 updateStatus('Getting camera...');
                 localStream = await navigator.mediaDevices.getUserMedia({
                     video: { width: 1280, height: 720 },
@@ -365,12 +547,10 @@
                 localVideo.srcObject = localStream;
                 localPlaceholder.style.display = 'none';
 
-                // Try to get publisher token
                 updateStatus('Connecting...');
                 const pubResponse = await fetch('/api/publisher-token');
                 
                 if (pubResponse.status === 409) {
-                    // Room is occupied - show waiting room
                     showWaitingRoom();
                     return;
                 }
@@ -382,7 +562,6 @@
                 const pubData = await pubResponse.json();
                 myIdentity = pubData.identity;
 
-                // Connect to INPUT room
                 inputRoom = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
                 
                 inputRoom.on(LivekitClient.RoomEvent.Disconnected, () => {
@@ -392,12 +571,10 @@
 
                 await inputRoom.connect(pubData.url, pubData.token);
 
-                // Publish camera
                 for (const track of localStream.getTracks()) {
                     await inputRoom.localParticipant.publishTrack(track);
                 }
 
-                // Connect to OUTPUT room
                 startLoadingMessages();
                 const viewResponse = await fetch('/api/processed-viewer-token');
                 const viewData = await viewResponse.json();
@@ -423,7 +600,6 @@
 
                 await outputRoom.connect(viewData.url, viewData.token);
 
-                // Check for existing video
                 outputRoom.remoteParticipants.forEach((participant) => {
                     participant.trackPublications.forEach((pub) => {
                         if (pub.track && pub.track.kind === LivekitClient.Track.Kind.Video) {
@@ -434,17 +610,14 @@
                     });
                 });
 
-                // SUCCESS - Start session
                 isConnected = true;
                 startTime = Date.now();
                 timerInterval = setInterval(updateTimer, 1000);
                 
-                // Set hard 11-minute timeout
                 sessionTimeout = setTimeout(() => {
                     endSession();
                 }, SESSION_DURATION);
 
-                // Start temporal effects
                 runTemporalAnimation();
 
                 connectBtn.style.display = 'none';
@@ -474,8 +647,6 @@
                 <button class="btn" style="margin-top: 2rem;" onclick="cancelWaiting()">Cancel</button>
             `;
             document.body.appendChild(overlay);
-            
-            // Poll every 5 seconds
             waitingInterval = setInterval(checkAndConnect, 5000);
         }
 
@@ -492,7 +663,6 @@
                 }
                 
                 if (pubResponse.ok) {
-                    // Room is available! Remove waiting overlay and connect
                     clearInterval(waitingInterval);
                     waitingInterval = null;
                     
@@ -502,7 +672,6 @@
                     const pubData = await pubResponse.json();
                     myIdentity = pubData.identity;
                     
-                    // Connect to room
                     inputRoom = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
                     
                     inputRoom.on(LivekitClient.RoomEvent.Disconnected, () => {
@@ -515,7 +684,6 @@
                         await inputRoom.localParticipant.publishTrack(track);
                     }
 
-                    // Output room
                     startLoadingMessages();
                     const viewResponse = await fetch('/api/processed-viewer-token');
                     const viewData = await viewResponse.json();
@@ -560,13 +728,9 @@
         }
 
         function cancelWaiting() {
-            if (waitingInterval) {
-                clearInterval(waitingInterval);
-                waitingInterval = null;
-            }
+            if (waitingInterval) { clearInterval(waitingInterval); waitingInterval = null; }
             const overlay = document.getElementById('waitingOverlay');
             if (overlay) overlay.remove();
-            
             cleanupLocal();
             connectBtn.disabled = false;
             connectBtn.classList.add('flicker-btn');
@@ -576,28 +740,22 @@
         // ============================================
         // DISCONNECT FUNCTIONS
         // ============================================
-        
-        // Manual disconnect (user clicked button) - redirect to licensing
         async function manualDisconnect() {
             await forceDisconnect('manual');
             window.location.href = '/licensing.html?session=complete';
         }
 
-        // Force disconnect (timeout, page close, etc)
         async function forceDisconnect(reason) {
             console.log('Force disconnect, reason:', reason);
             isConnected = false;
             
-            // Clear timers
             if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
             if (sessionTimeout) { clearTimeout(sessionTimeout); sessionTimeout = null; }
 
-            // Tell server to kick us (ensures cleanup even if WebSocket dies)
             if (myIdentity) {
                 try {
                     navigator.sendBeacon('/api/disconnect', JSON.stringify({ identity: myIdentity }));
                 } catch (e) {
-                    // Fallback
                     fetch('/api/disconnect', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -607,27 +765,16 @@
                 }
             }
 
-            // Disconnect rooms
-            if (inputRoom) { 
-                try { await inputRoom.disconnect(); } catch(e) {}
-                inputRoom = null; 
-            }
-            if (outputRoom) { 
-                try { await outputRoom.disconnect(); } catch(e) {}
-                outputRoom = null; 
-            }
+            if (inputRoom) { try { await inputRoom.disconnect(); } catch(e) {} inputRoom = null; }
+            if (outputRoom) { try { await outputRoom.disconnect(); } catch(e) {} outputRoom = null; }
             
             cleanupLocal();
             myIdentity = null;
         }
 
-        // Cleanup local resources
         function cleanupLocal() {
             stopLoadingMessages();
-            if (localStream) {
-                localStream.getTracks().forEach(t => t.stop());
-                localStream = null;
-            }
+            if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
             localVideo.srcObject = null;
             processedVideo.srcObject = null;
             localPlaceholder.style.display = 'flex';
@@ -636,37 +783,18 @@
             startTime = null;
         }
 
-        // End session (11 min timeout)
         function endSession() {
             console.log('Session ended - 11 minutes');
             forceDisconnect('timeout');
-            
-            // Redirect to licensing page
             window.location.href = '/licensing.html?session=complete';
         }
 
         // ============================================
         // PAGE CLOSE/HIDE HANDLERS
         // ============================================
-        window.addEventListener('beforeunload', (e) => {
-            if (isConnected) {
-                forceDisconnect('beforeunload');
-            }
-        });
-        
-        window.addEventListener('pagehide', () => {
-            if (isConnected) {
-                forceDisconnect('pagehide');
-            }
-        });
-        
-        window.addEventListener('unload', () => {
-            if (isConnected) {
-                forceDisconnect('unload');
-            }
-        });
-        
-        // Tab visibility disconnect REMOVED - users stay for full experience
+        window.addEventListener('beforeunload', (e) => { if (isConnected) forceDisconnect('beforeunload'); });
+        window.addEventListener('pagehide', () => { if (isConnected) forceDisconnect('pagehide'); });
+        window.addEventListener('unload', () => { if (isConnected) forceDisconnect('unload'); });
 
         // ============================================
         // UTILITIES
@@ -687,7 +815,6 @@
         function toggleFullscreen() {
             const videoBox = document.getElementById('processedBox');
             const video = document.getElementById('processedVideo');
-            
             const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
             
             if (!isFullscreen) {
@@ -700,6 +827,56 @@
                 else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
             }
         }
+
+        // ============================================
+        // SLIDER CONTROLS
+        // ============================================
+        document.querySelectorAll('.palette-btn').forEach(btn => {
+            btn.onclick = function() {
+                const hue = +this.dataset.hue;
+                S.hue = hue;
+                document.getElementById('chroma').value = hue;
+                document.getElementById('chromaV').textContent = hue + '°';
+                document.getElementById('colorSlider').value = hue;
+                document.getElementById('colorVal').textContent = hue + '°';
+                document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                updateColors();
+            };
+        });
+
+        document.getElementById('colorSlider').oninput = function() {
+            S.hue = +this.value;
+            document.getElementById('chroma').value = S.hue;
+            document.getElementById('chromaV').textContent = S.hue + '°';
+            document.getElementById('colorVal').textContent = S.hue + '°';
+            document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
+            updateColors();
+        };
+
+        document.getElementById('temp').oninput = function() { S.temp = +this.value; document.getElementById('tempV').textContent = S.temp + '%'; };
+        document.getElementById('spd').oninput = function() { S.spd = +this.value; document.getElementById('spdV').textContent = (S.spd / 10).toFixed(1) + 'x'; };
+        document.getElementById('bump').oninput = function() { S.bump = +this.value; document.getElementById('bumpV').textContent = S.bump; };
+        document.getElementById('depth').oninput = function() { S.depth = +this.value; document.getElementById('depthV').textContent = S.depth; };
+        document.getElementById('gloss').oninput = function() { S.gloss = +this.value; document.getElementById('glossV').textContent = S.gloss; };
+        document.getElementById('emboss').oninput = function() { S.emboss = +this.value; document.getElementById('embossV').textContent = S.emboss; };
+        document.getElementById('ripple').oninput = function() { S.ripple = +this.value; document.getElementById('rippleV').textContent = S.ripple; };
+        document.getElementById('shimmer').oninput = function() { S.shimmer = +this.value; document.getElementById('shimmerV').textContent = S.shimmer; };
+        document.getElementById('opacity').oninput = function() { S.opacity = +this.value; document.getElementById('opacityV').textContent = S.opacity; };
+        document.getElementById('velocity').oninput = function() { S.velocity = +this.value; document.getElementById('velocityV').textContent = S.velocity; };
+
+        document.getElementById('chroma').oninput = function() {
+            S.hue = +this.value;
+            document.getElementById('chromaV').textContent = S.hue + '°';
+            document.getElementById('colorSlider').value = S.hue;
+            document.getElementById('colorVal').textContent = S.hue + '°';
+            document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
+            updateColors();
+        };
+        document.getElementById('sat').oninput = function() { S.sat = +this.value; document.getElementById('satV').textContent = S.sat + '%'; };
+        document.getElementById('val').oninput = function() { S.val = +this.value; document.getElementById('valV').textContent = S.val + '%'; };
+        document.getElementById('sz').oninput = function() { S.sz = +this.value; document.getElementById('szV').textContent = S.sz; };
+        document.getElementById('glw').oninput = function() { S.glw = +this.value; document.getElementById('glwV').textContent = S.glw; };
         
         // ============================================
         // TEMPORAL EFFECTS (Rainbow raindrops)
@@ -731,6 +908,9 @@
                 ? 0.4 + ((progress - 0.66) / 0.34 * 0.5)
                 : 0.15 + (progress * 0.35);
             
+            // Apply opacity slider
+            baseOpacity = baseOpacity * (S.opacity / 50);
+            
             let sizeMultiplier = isTakeover
                 ? 1.0 + ((progress - 0.66) / 0.34 * 0.8)
                 : 1.5 - (progress * 0.5);
@@ -738,6 +918,9 @@
             let duration = isTakeover
                 ? 6 - ((progress - 0.66) / 0.34 * 2) + Math.random() * 3
                 : 10 - (progress * 4) + Math.random() * 4;
+            
+            // Apply speed + velocity
+            duration = duration / (S.spd / 10) / (1 + S.velocity / 100);
             
             let glowIntensity = isTakeover
                 ? 30 + (Math.pow((progress - 0.66) / 0.34, 1.5) * 120)
@@ -755,6 +938,9 @@
                          : 40 + Math.random() * 50;
             }
             
+            // Apply size from slider
+            baseSize = baseSize * (S.sz / 50);
+            
             const finalSize = baseSize * sizeMultiplier;
             drop.style.width = finalSize + 'px';
             drop.style.height = finalSize + 'px';
@@ -765,9 +951,15 @@
                 ${color3.replace('0.9', String(baseOpacity * 0.4))} 60%,
                 transparent 100%)`;
             
+            // Apply glow from slider
+            const glowFinal = glowIntensity * (S.glw / 60);
             drop.style.boxShadow = `
-                0 0 ${glowIntensity}px ${glowIntensity * 0.4}px ${color1},
-                0 0 ${glowIntensity * 2}px ${glowIntensity * 0.8}px ${color2}`;
+                0 0 ${glowFinal}px ${glowFinal * 0.4}px ${color1},
+                0 0 ${glowFinal * 2}px ${glowFinal * 0.8}px ${color2}`;
+            
+            // Apply value (brightness) from slider
+            const brightness = 0.5 + (S.val / 100);
+            drop.style.filter = `brightness(${brightness})`;
             
             drop.style.animationDuration = duration + 's';
             document.body.appendChild(drop);
@@ -789,10 +981,26 @@
                 
                 const elapsed = Date.now() - startTime;
                 
-                if (elapsed >= RAIN_START) {
-                    const progress = Math.min((elapsed - RAIN_START) / (SESSION_DURATION - RAIN_START), 1.0);
+                // Rain start time decreases based on temporal intensity
+                const RAIN_START = BASE_RAIN_START * (1 - S.temp / 100);
+                
+                // Check if we should spawn drops
+                if (elapsed >= RAIN_START || S.temp > 20) {
+                    let progress;
+                    if (elapsed >= RAIN_START) {
+                        progress = Math.min((elapsed - RAIN_START) / (SESSION_DURATION - RAIN_START), 1.0);
+                    } else {
+                        progress = 0.1 * (S.temp / 100);
+                    }
+                    
                     const exponentialGrowth = Math.pow(progress, 2.5);
                     let dropProbability = 0.03 * (1 + exponentialGrowth * 30);
+                    
+                    // Increase probability based on temporal intensity
+                    dropProbability *= (1 + S.temp / 25);
+                    
+                    // Increase probability based on speed + velocity
+                    dropProbability *= (S.spd / 10) * (1 + S.velocity / 100);
                     
                     if (progress > 0.66) {
                         dropProbability *= 1 + ((progress - 0.66) / 0.34 * 6);
