@@ -166,6 +166,13 @@ async def main(args):
                 # Normalize
                 audio_float = audio_data.astype(np.float32) / 32768.0
                 
+                # Silence detection - skip if audio too quiet
+                rms = np.sqrt(np.mean(audio_float ** 2))
+                print(f"[RMS] {rms:.6f}")
+                sys.stdout.flush()
+                if rms < 0.001:  # Even lower threshold
+                    continue
+                
                 # Write temp file
                 tmp = "temp_livekit.wav"
                 try:

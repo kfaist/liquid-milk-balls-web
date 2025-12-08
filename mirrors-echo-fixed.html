@@ -363,6 +363,46 @@
             .palette { grid-template-columns: repeat(4, 1fr); } 
             .panel-header { flex-direction: column; gap: 0.3rem; }
         }
+        
+        /* Mic Level Meter */
+        .mic-meter {
+            text-align: center;
+            padding: 0.75rem 1rem;
+            background: rgba(0, 50, 0, 0.3);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            margin-bottom: 1.5rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .mic-label {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+        .mic-bar-container {
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        .mic-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00ff00, #ffff00, #ff0000);
+            border-radius: 10px;
+            transition: width 0.05s ease-out;
+        }
+        .mic-status {
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+        }
+        .mic-status.good { color: #00ff00; }
+        .mic-status.low { color: #ffaa00; }
+        .mic-status.none { color: #ff4444; }
     </style>
 </head>
 <body>
@@ -380,6 +420,15 @@
         <div class="status-bar">
             <div class="time" id="timer">00:00</div>
             <div id="status">Click Connect to begin</div>
+        </div>
+
+        <!-- Mic Level Meter -->
+        <div class="mic-meter" id="micMeter" style="display: none;">
+            <div class="mic-label">🎤 MIC LEVEL</div>
+            <div class="mic-bar-container">
+                <div class="mic-bar" id="micBar"></div>
+            </div>
+            <div class="mic-status" id="micStatus">Checking...</div>
         </div>
 
         <div class="video-grid">
@@ -537,6 +586,72 @@
         const disconnectBtn = document.getElementById('disconnectBtn');
 
         // ============================================
+        // MIC LEVEL MONITORING
+        // ============================================
+        let audioContext = null;
+        let analyser = null;
+        let micMonitorInterval = null;
+
+        function startMicMonitor(stream) {
+            const micMeter = document.getElementById('micMeter');
+            const micBar = document.getElementById('micBar');
+            const micStatus = document.getElementById('micStatus');
+            
+            micMeter.style.display = 'block';
+            
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioContext.createMediaStreamSource(stream);
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                source.connect(analyser);
+                
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                
+                micMonitorInterval = setInterval(() => {
+                    analyser.getByteFrequencyData(dataArray);
+                    
+                    // Calculate RMS-like level
+                    let sum = 0;
+                    for (let i = 0; i < dataArray.length; i++) {
+                        sum += dataArray[i];
+                    }
+                    const avg = sum / dataArray.length;
+                    const level = Math.min(100, (avg / 128) * 100);
+                    
+                    micBar.style.width = level + '%';
+                    
+                    if (level > 15) {
+                        micStatus.textContent = '✓ Mic working!';
+                        micStatus.className = 'mic-status good';
+                    } else if (level > 2) {
+                        micStatus.textContent = 'Low - speak louder';
+                        micStatus.className = 'mic-status low';
+                    } else {
+                        micStatus.textContent = '✗ No audio detected - check mic!';
+                        micStatus.className = 'mic-status none';
+                    }
+                }, 50);
+                
+            } catch (e) {
+                console.error('Mic monitor error:', e);
+                micStatus.textContent = 'Mic monitor unavailable';
+            }
+        }
+
+        function stopMicMonitor() {
+            if (micMonitorInterval) {
+                clearInterval(micMonitorInterval);
+                micMonitorInterval = null;
+            }
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+            document.getElementById('micMeter').style.display = 'none';
+        }
+
+        // ============================================
         // CONNECT
         // ============================================
         async function connect() {
@@ -552,6 +667,9 @@
                 });
                 localVideo.srcObject = localStream;
                 localPlaceholder.style.display = 'none';
+
+                // Start mic level monitoring
+                startMicMonitor(localStream);
 
                 updateStatus('Connecting...');
                 const pubResponse = await fetch('/api/publisher-token');
@@ -776,6 +894,7 @@
 
         function cleanupLocal() {
             stopLoadingMessages();
+            stopMicMonitor();
             if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
             localVideo.srcObject = null;
             processedVideo.srcObject = null;
