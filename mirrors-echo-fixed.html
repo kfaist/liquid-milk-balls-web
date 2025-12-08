@@ -18,7 +18,25 @@
             margin: 0 auto;
             padding: 2rem;
         }
-        
+
+        /* Shimmer Background */
+        .shimmer-bg {
+            position: fixed; inset: 0; width: 100%; height: 100%;
+            background: transparent; overflow: hidden; z-index: -1; pointer-events: none;
+        }
+        .shimmer-bg::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(115deg,
+                rgba(255, 255, 255, 0) 0%, rgba(255, 105, 180, 0.22) 10%,
+                rgba(138, 43, 226, 0.22) 20%, rgba(75, 0, 130, 0.22) 30%,
+                rgba(0, 191, 255, 0.22) 40%, rgba(0, 255, 255, 0.22) 50%,
+                rgba(255, 215, 0, 0.22) 60%, rgba(255, 165, 0, 0.22) 70%,
+                rgba(255, 20, 147, 0.22) 80%, rgba(255, 255, 255, 0) 100%);
+            background-size: 300% 100%; mix-blend-mode: screen;
+            animation: shimmer 8s linear infinite; opacity: 0.76;
+        }
+        @keyframes shimmer { 0% { background-position: -300% 0; } 100% { background-position: 300% 0; } }
+
         .header {
             text-align: center;
             margin-bottom: 2rem;
@@ -31,24 +49,25 @@
             opacity: 0.8;
             animation: flicker 3s infinite;
         }
-        .header p { 
+        .header p {
             opacity: 0.5;
             font-size: 0.75rem;
             letter-spacing: 0.05em;
         }
-        
+
         @keyframes flicker {
             0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 0.8; }
             20%, 24%, 55% { opacity: 0.3; }
             22% { opacity: 0.5; transform: translate(-1px, 0); }
         }
-        
+
         .top-controls {
             display: flex;
             justify-content: center;
+            gap: 0.5rem;
             margin-bottom: 1.5rem;
         }
-        
+
         .btn {
             padding: 0.6rem 2rem;
             font-size: 0.85rem;
@@ -71,7 +90,7 @@
         .btn.flicker-btn {
             animation: btnFlicker 3s infinite;
         }
-        
+
         @keyframes btnFlicker {
             0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
                 opacity: 1;
@@ -82,7 +101,7 @@
                 border-color: rgba(255, 255, 255, 0.2);
             }
         }
-        
+
         .status-bar {
             text-align: center;
             padding: 1rem;
@@ -101,7 +120,7 @@
             margin-top: 0.5rem;
             letter-spacing: 0.02em;
         }
-        
+
         .video-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -110,7 +129,7 @@
         @media (max-width: 900px) {
             .video-grid { grid-template-columns: 1fr; }
         }
-        
+
         .video-panel {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -124,7 +143,7 @@
             letter-spacing: 0.05em;
             text-transform: uppercase;
         }
-        
+
         /* Panel header with loading intro inline */
         .panel-header {
             display: flex;
@@ -145,7 +164,7 @@
             animation: introFlicker 3s infinite;
         }
         .panel-header .loading-intro:empty { display: none; }
-        
+
         .loading-status {
             font-size: 0.7rem;
             letter-spacing: 0.05em;
@@ -157,22 +176,22 @@
         .loading-status .dot { animation: blink 1.4s infinite; }
         .loading-status .dot:nth-child(2) { animation-delay: 0.2s; }
         .loading-status .dot:nth-child(3) { animation-delay: 0.4s; }
-        
+
         @keyframes blink {
             0%, 20% { opacity: 0; }
             50% { opacity: 1; }
             100% { opacity: 0; }
         }
-        
+
         @keyframes introFlicker {
-            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { 
-                opacity: 1; 
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                opacity: 1;
                 text-shadow: 0 0 15px rgb(80, 220, 220), 0 0 30px rgb(80, 220, 220);
             }
             20%, 24%, 55% { opacity: 0.4; text-shadow: 0 0 5px rgb(80, 220, 220); }
             22% { opacity: 0.6; text-shadow: 0 0 10px rgb(80, 220, 220); }
         }
-        
+
         .video-box {
             position: relative;
             aspect-ratio: 16/9;
@@ -180,7 +199,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             overflow: hidden;
         }
-        
+
         .fullscreen-btn {
             position: absolute;
             top: 0.75rem;
@@ -243,102 +262,186 @@
             opacity: 0.4;
             margin-top: 1rem;
         }
-        
-        /* Color Palette */
-        .palette-section { 
-            background: #0a0a0a; 
-            border: 1px solid #222; 
-            padding: 1rem; 
+
+        /* Color Palette - Pudding Keycap Style */
+        .palette-section {
+            background: rgba(8, 8, 12, 0.25);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 16px;
+            padding: 1.25rem;
             margin-top: 1.5rem;
-            margin-bottom: 1.5rem; 
+            margin-bottom: 1.5rem;
+            box-shadow:
+                0 0 80px rgba(138, 43, 226, 0.08),
+                0 0 160px rgba(0, 191, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.03);
+            animation: paletteBreathe 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
-        .palette-label { 
-            font-size: 0.65rem; 
-            text-transform: uppercase; 
-            letter-spacing: 0.1em; 
-            opacity: 0.5; 
-            margin-bottom: 0.75rem; 
+        @keyframes paletteBreathe {
+            0%, 100% { opacity: 0.85; filter: brightness(0.95); }
+            50% { opacity: 1; filter: brightness(1.02); }
         }
-        .palette { 
-            display: grid; 
-            grid-template-columns: repeat(8, 1fr); 
-            gap: 0.5rem; 
-            margin-bottom: 1rem; 
+        .palette-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.5;
+            margin-bottom: 0.75rem;
         }
-        .palette-btn { 
-            aspect-ratio: 1; 
-            border: 2px solid rgba(255,255,255,0.2); 
-            border-radius: 4px; 
-            cursor: pointer; 
-            transition: all 0.2s; 
-            opacity: 0.6; 
-            min-height: 40px; 
+        .palette {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
-        .palette-btn:hover { 
-            opacity: 0.85; 
-            transform: scale(1.05); 
-            border-color: rgba(255,255,255,0.5); 
+        .palette-btn {
+            aspect-ratio: 1;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 48px;
+            position: relative;
+            background: transparent !important;
+            overflow: visible;
+            animation: btnBreathe 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            animation-delay: calc(var(--btn-index, 0) * 0.1s);
         }
-        .palette-btn.active { 
-            opacity: 1; 
-            border-color: #fff; 
-            box-shadow: 0 0 12px currentColor; 
+
+        /* RGB backlight glow */
+        .palette-btn::before {
+            content: '';
+            position: absolute;
+            inset: 20%;
+            border-radius: 6px;
+            background: currentColor;
+            filter: blur(14px);
+            opacity: 0.85;
+            z-index: 1;
+            animation: glowPulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            animation-delay: calc(var(--btn-index, 0) * 0.1s);
         }
-        
+
+        /* Frosted translucent keycap shell */
+        .palette-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 8px;
+            background: linear-gradient(170deg,
+                rgba(255,255,255,0.45) 0%,
+                rgba(255,255,255,0.22) 25%,
+                rgba(255,255,255,0.10) 50%,
+                rgba(255,255,255,0.04) 75%,
+                rgba(255,255,255,0.01) 100%);
+            box-shadow:
+                inset 0 3px 6px rgba(255,255,255,0.35),
+                inset 0 -2px 4px rgba(0,0,0,0.15),
+                inset 3px 0 6px rgba(255,255,255,0.12),
+                inset -3px 0 6px rgba(255,255,255,0.12),
+                0 6px 12px rgba(0,0,0,0.4),
+                0 2px 4px rgba(0,0,0,0.3);
+            z-index: 2;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-top-color: rgba(255,255,255,0.25);
+            border-bottom-color: rgba(0,0,0,0.1);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { filter: blur(12px); opacity: 0.7; inset: 22%; }
+            50% { filter: blur(18px); opacity: 1; inset: 15%; }
+        }
+        @keyframes btnBreathe {
+            0%, 100% { filter: brightness(0.9) saturate(1.0); transform: translateY(0); }
+            50% { filter: brightness(1.1) saturate(1.2); transform: translateY(-1px); }
+        }
+
+        .palette-btn:hover {
+            transform: translateY(-4px) scale(1.06);
+            filter: brightness(1.15) saturate(1.3);
+        }
+        .palette-btn:hover::before { filter: blur(20px); opacity: 1; inset: 10%; }
+        .palette-btn:hover::after {
+            background: linear-gradient(170deg,
+                rgba(255,255,255,0.55) 0%,
+                rgba(255,255,255,0.28) 25%,
+                rgba(255,255,255,0.14) 50%,
+                rgba(255,255,255,0.06) 75%,
+                rgba(255,255,255,0.02) 100%);
+            box-shadow:
+                inset 0 3px 8px rgba(255,255,255,0.45),
+                inset 0 -2px 4px rgba(0,0,0,0.1),
+                0 8px 20px rgba(0,0,0,0.5),
+                0 4px 8px rgba(0,0,0,0.3);
+        }
+        .palette-btn.active::before { filter: blur(20px); opacity: 1; inset: 12%; }
+        .palette-btn.active::after {
+            border-color: rgba(255,255,255,0.3);
+            box-shadow:
+                inset 0 3px 8px rgba(255,255,255,0.5),
+                inset 0 -2px 4px rgba(0,0,0,0.1),
+                0 8px 25px rgba(0,0,0,0.5),
+                0 4px 8px rgba(0,0,0,0.3),
+                0 0 30px currentColor;
+        }
+
         .color-slider { display: flex; align-items: center; gap: 1rem; }
         .color-slider label { font-size: 0.65rem; text-transform: uppercase; opacity: 0.5; }
         .color-slider input { flex: 1; }
         .color-slider span { font-size: 0.8rem; color: hsl(var(--hue), 85%, 65%); min-width: 45px; text-align: right; }
-        
+
         #colorSlider, #chroma {
-            background: linear-gradient(to right, 
-                hsl(0, 85%, 55%), hsl(60, 85%, 55%), hsl(120, 85%, 55%), 
+            background: linear-gradient(to right,
+                hsl(0, 85%, 55%), hsl(60, 85%, 55%), hsl(120, 85%, 55%),
                 hsl(180, 85%, 55%), hsl(240, 85%, 55%), hsl(300, 85%, 55%), hsl(360, 85%, 55%)) !important;
             height: 6px !important;
         }
-        
-        .controls { 
-            background: #111; 
-            border: 1px solid #333; 
-            padding: 1rem; 
-            margin-bottom: 1.5rem; 
-            display: flex; 
-            gap: 1.5rem; 
-            justify-content: center; 
-            align-items: center; 
-            flex-wrap: wrap; 
+
+        .controls {
+            background: #111;
+            border: 1px solid #333;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
         }
         .controls label { font-size: 0.75rem; opacity: 0.7; margin-right: 0.3rem; }
         .controls input[type="range"] { width: 100px; vertical-align: middle; }
         .controls span, .sl span { font-size: 0.8rem; color: hsl(var(--comp), 85%, 65%); min-width: 40px; display: inline-block; }
         .color-slider span { color: hsl(var(--hue), 85%, 65%) !important; }
-        
-        .sliders { 
-            display: grid; 
-            grid-template-columns: repeat(5, 1fr); 
-            gap: 1rem; 
-            background: #0a0a0a; 
-            border: 1px solid #222; 
-            padding: 1rem; 
-            margin-bottom: 2rem; 
+
+        .sliders {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+            background: #0a0a0a;
+            border: 1px solid #222;
+            padding: 1rem;
+            margin-bottom: 2rem;
         }
         .sl label { display: block; font-size: 0.65rem; opacity: 0.6; margin-bottom: 0.25rem; }
         .sl input { width: 100%; }
-        
+
         input[type="range"] { -webkit-appearance: none; background: rgba(255,255,255,0.15); height: 4px; border-radius: 2px; }
-        
-        #chroma::-webkit-slider-thumb, #colorSlider::-webkit-slider-thumb { 
-            -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; 
-            background: hsl(var(--hue), 85%, 55%); border: 3px solid #fff; cursor: pointer; 
+
+        #chroma::-webkit-slider-thumb, #colorSlider::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+            background: hsl(var(--hue), 85%, 55%); border: 3px solid #fff; cursor: pointer;
             box-shadow: 0 0 8px hsl(var(--hue), 85%, 55%);
         }
-        
-        input[type="range"]:not(#chroma):not(#colorSlider)::-webkit-slider-thumb { 
-            -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; 
-            background: hsl(var(--comp), 85%, 55%); border: 2px solid rgba(255,255,255,0.7); cursor: pointer; 
+
+        input[type="range"]:not(#chroma):not(#colorSlider)::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+            background: hsl(var(--comp), 85%, 55%); border: 2px solid rgba(255,255,255,0.7); cursor: pointer;
             box-shadow: 0 0 6px hsl(var(--comp), 85%, 55%);
         }
-        
+
         /* Raindrop Effects */
         .raindrop {
             position: fixed;
@@ -349,7 +452,7 @@
             will-change: transform, opacity;
             animation: raindrop-crossfade 8s ease-in-out forwards;
         }
-        
+
         @keyframes raindrop-crossfade {
             0% { opacity: 0; transform: scale(0.5); }
             15% { opacity: var(--target-opacity, 0.6); transform: scale(0.9); }
@@ -357,13 +460,13 @@
             75% { opacity: var(--target-opacity, 0.6); transform: scale(1.05); }
             100% { opacity: 0; transform: scale(1.15); }
         }
-        
-        @media (max-width: 700px) { 
-            .sliders { grid-template-columns: 1fr 1fr; } 
-            .palette { grid-template-columns: repeat(4, 1fr); } 
+
+        @media (max-width: 700px) {
+            .sliders { grid-template-columns: 1fr 1fr; }
+            .palette { grid-template-columns: repeat(4, 1fr); }
             .panel-header { flex-direction: column; gap: 0.3rem; }
         }
-        
+
         /* Mic Level Meter */
         .mic-meter {
             display: flex;
@@ -386,9 +489,9 @@
         .mic-bar {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, 
-                hsl(320, 100%, 50%), 
-                hsl(300, 100%, 60%), 
+            background: linear-gradient(90deg,
+                hsl(320, 100%, 50%),
+                hsl(300, 100%, 60%),
                 hsl(180, 100%, 50%));
             border-radius: 6px;
             transition: width 0.05s ease-out;
@@ -403,7 +506,7 @@
         .mic-status.good { color: hsl(180, 100%, 50%); text-shadow: 0 0 10px hsl(180, 100%, 50%); }
         .mic-status.low { color: hsl(45, 85%, 65%); }
         .mic-status.none { color: hsl(320, 100%, 60%); text-shadow: 0 0 8px hsl(320, 100%, 50%); }
-        
+
         /* Connection Debug Log */
         .debug-log {
             position: fixed;
@@ -444,6 +547,7 @@
     </style>
 </head>
 <body>
+    <div class="shimmer-bg"></div>
     <div class="container">
         <div class="header">
             <h1>THE MIRROR'S ECHO</h1>
@@ -453,6 +557,7 @@
         <div class="top-controls">
             <button class="btn flicker-btn" id="connectBtn" onclick="connect()">Connect</button>
             <button class="btn" id="disconnectBtn" onclick="manualDisconnect()" style="display:none;">Disconnect</button>
+            <button class="btn" id="testBtn" onclick="toggleTestMode()" style="border-color: rgba(255,105,180,0.5);">Test Drops</button>
         </div>
 
         <!-- Mic Level Meter -->
@@ -465,7 +570,7 @@
 
         <div class="status-bar">
             <div class="time" id="timer">00:00</div>
-            <div id="status">Click Connect to begin</div>
+            <div id="status">Click Connect to begin or Test Drops to preview</div>
         </div>
 
         <div class="video-grid">
@@ -491,18 +596,18 @@
             </div>
         </div>
 
-        <!-- Color Palette -->
+        <!-- Color Palette - Pudding Keycap Style -->
         <div class="palette-section">
             <div class="palette-label">Color Palette</div>
             <div class="palette">
-                <button class="palette-btn active" data-hue="280" style="background: hsl(280, 85%, 55%);" title="Purple"></button>
-                <button class="palette-btn" data-hue="320" style="background: hsl(320, 90%, 55%);" title="Pink"></button>
-                <button class="palette-btn" data-hue="15" style="background: hsl(15, 90%, 55%);" title="Coral"></button>
-                <button class="palette-btn" data-hue="45" style="background: hsl(45, 90%, 55%);" title="Gold"></button>
-                <button class="palette-btn" data-hue="120" style="background: hsl(120, 85%, 45%);" title="Green"></button>
-                <button class="palette-btn" data-hue="180" style="background: hsl(180, 85%, 45%);" title="Cyan"></button>
-                <button class="palette-btn" data-hue="220" style="background: hsl(220, 85%, 55%);" title="Blue"></button>
-                <button class="palette-btn" data-hue="0" style="background: hsl(0, 85%, 55%);" title="Red"></button>
+                <button class="palette-btn active" data-hue="280" style="color: hsl(280, 85%, 55%); --btn-index: 0;" title="Purple"></button>
+                <button class="palette-btn" data-hue="320" style="color: hsl(320, 90%, 55%); --btn-index: 1;" title="Pink"></button>
+                <button class="palette-btn" data-hue="15" style="color: hsl(15, 90%, 55%); --btn-index: 2;" title="Coral"></button>
+                <button class="palette-btn" data-hue="45" style="color: hsl(45, 90%, 55%); --btn-index: 3;" title="Gold"></button>
+                <button class="palette-btn" data-hue="120" style="color: hsl(120, 85%, 45%); --btn-index: 4;" title="Green"></button>
+                <button class="palette-btn" data-hue="180" style="color: hsl(180, 85%, 45%); --btn-index: 5;" title="Cyan"></button>
+                <button class="palette-btn" data-hue="220" style="color: hsl(220, 85%, 55%); --btn-index: 6;" title="Blue"></button>
+                <button class="palette-btn" data-hue="0" style="color: hsl(0, 85%, 55%); --btn-index: 7;" title="Red"></button>
             </div>
             <div class="color-slider">
                 <label>Color</label>
@@ -540,7 +645,7 @@
     <script>
         // Slider State
         const S = {hue:280, sat:85, val:50, sz:50, spd:10, glw:60, temp:1, bump:50, depth:50, gloss:50, emboss:50, halo:50, shimmer:50, opacity:50, velocity:50};
-        
+
         function updateColors() {
             document.documentElement.style.setProperty('--hue', S.hue);
             document.documentElement.style.setProperty('--comp', (S.hue + 180) % 360);
@@ -557,6 +662,7 @@
         let isConnected = false;
         let myIdentity = null;
         let waitingInterval = null;
+        let testMode = false;
 
         // Session duration: 11 minutes (full animation range)
         const SESSION_DURATION = 11 * 60 * 1000;
@@ -595,7 +701,7 @@
                 if (loadingStageIndex < loadingStages.length) {
                     const msg = loadingStages[loadingStageIndex];
                     const color = stageColors[loadingStageIndex];
-                    loadingStatus.innerHTML = '<span style="color:' + color + '">' + msg + 
+                    loadingStatus.innerHTML = '<span style="color:' + color + '">' + msg +
                         '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
                     loadingStageIndex++;
                 } else {
@@ -626,6 +732,34 @@
         const disconnectBtn = document.getElementById('disconnectBtn');
 
         // ============================================
+        // TEST MODE
+        // ============================================
+        function toggleTestMode() {
+            const btn = document.getElementById('testBtn');
+            testMode = !testMode;
+            if (testMode) {
+                btn.textContent = 'Stop Test';
+                btn.style.borderColor = 'rgba(255,50,100,0.8)';
+                btn.style.background = 'rgba(255,50,100,0.15)';
+                startTime = Date.now();
+                isConnected = true;
+                timerInterval = setInterval(updateTimer, 1000);
+                runTemporalAnimation();
+                updateStatus('Test mode - drops appear at 7min or with Temporal Intensity > 20%');
+            } else {
+                btn.textContent = 'Test Drops';
+                btn.style.borderColor = 'rgba(255,105,180,0.5)';
+                btn.style.background = 'transparent';
+                startTime = null;
+                isConnected = false;
+                if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+                document.querySelectorAll('.raindrop').forEach(d => d.remove());
+                timerDiv.textContent = '00:00';
+                updateStatus('Click Connect to begin or Test Drops to preview');
+            }
+        }
+
+        // ============================================
         // MIC LEVEL MONITORING
         // ============================================
         let audioContext = null;
@@ -636,21 +770,21 @@
             const micMeter = document.getElementById('micMeter');
             const micBar = document.getElementById('micBar');
             const micStatus = document.getElementById('micStatus');
-            
+
             micMeter.style.display = 'block';
-            
+
             try {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const source = audioContext.createMediaStreamSource(stream);
                 analyser = audioContext.createAnalyser();
                 analyser.fftSize = 256;
                 source.connect(analyser);
-                
+
                 const dataArray = new Uint8Array(analyser.frequencyBinCount);
-                
+
                 micMonitorInterval = setInterval(() => {
                     analyser.getByteFrequencyData(dataArray);
-                    
+
                     // Calculate RMS-like level
                     let sum = 0;
                     for (let i = 0; i < dataArray.length; i++) {
@@ -658,9 +792,9 @@
                     }
                     const avg = sum / dataArray.length;
                     const level = Math.min(100, (avg / 128) * 100);
-                    
+
                     micBar.style.width = level + '%';
-                    
+
                     if (level > 15) {
                         micStatus.textContent = 'Mic working';
                         micStatus.className = 'mic-status good';
@@ -672,7 +806,7 @@
                         micStatus.className = 'mic-status none';
                     }
                 }, 50);
-                
+
             } catch (e) {
                 console.error('Mic monitor error:', e);
                 micStatus.textContent = 'Mic monitor unavailable';
@@ -713,12 +847,12 @@
 
                 updateStatus('Connecting...');
                 const pubResponse = await fetch('/api/publisher-token');
-                
+
                 if (pubResponse.status === 409) {
                     showWaitingRoom();
                     return;
                 }
-                
+
                 if (!pubResponse.ok) {
                     throw new Error('Failed to get connection token');
                 }
@@ -727,24 +861,24 @@
                 myIdentity = pubData.identity;
 
                 inputRoom = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
-                
+
                 inputRoom.on(LivekitClient.RoomEvent.Disconnected, (reason) => {
                     debugLog(`INPUT ROOM DISCONNECTED: ${reason || 'unknown'}`, 'error');
                     updateStatus(`Connection lost: ${getDisconnectReason(reason)}`, 'error');
                     showDisconnectOverlay(reason);
                     if (isConnected) forceDisconnect('input-room-disconnected: ' + (reason || 'unknown'));
                 });
-                
+
                 inputRoom.on(LivekitClient.RoomEvent.Reconnecting, () => {
                     debugLog('Reconnecting...', 'warn');
                     updateStatus('Reconnecting...', 'warn');
                 });
-                
+
                 inputRoom.on(LivekitClient.RoomEvent.Reconnected, () => {
                     debugLog('Reconnected!', 'success');
                     updateStatus('Reconnected!', 'success');
                 });
-                
+
                 inputRoom.on(LivekitClient.RoomEvent.SignalReconnecting, () => {
                     debugLog('Signal reconnecting (token may be expiring)', 'warn');
                 });
@@ -765,15 +899,15 @@
                     debugLog(`OUTPUT ROOM DISCONNECTED: ${reason || 'unknown'}`, 'error');
                     updateStatus(`Output disconnected: ${reason || 'unknown'}`, 'error');
                 });
-                
+
                 outputRoom.on(LivekitClient.RoomEvent.Reconnecting, () => {
                     debugLog('Output reconnecting...', 'warn');
                 });
-                
+
                 outputRoom.on(LivekitClient.RoomEvent.Reconnected, () => {
                     debugLog('Output reconnected!', 'success');
                 });
-                
+
                 outputRoom.on(LivekitClient.RoomEvent.SignalReconnecting, () => {
                     debugLog('Output signal reconnecting (token may be expiring)', 'warn');
                 });
@@ -808,7 +942,7 @@
                 isConnected = true;
                 startTime = Date.now();
                 timerInterval = setInterval(updateTimer, 1000);
-                
+
                 sessionTimeout = setTimeout(() => {
                     endSession();
                 }, SESSION_DURATION);
@@ -848,44 +982,44 @@
         async function checkAndConnect() {
             const waitStatus = document.getElementById('waitStatus');
             if (waitStatus) waitStatus.textContent = 'Checking availability...';
-            
+
             try {
                 const pubResponse = await fetch('/api/publisher-token');
-                
+
                 if (pubResponse.status === 409) {
                     if (waitStatus) waitStatus.textContent = 'Still waiting... another session is active.';
                     return;
                 }
-                
+
                 if (pubResponse.ok) {
                     clearInterval(waitingInterval);
                     waitingInterval = null;
-                    
+
                     const overlay = document.getElementById('waitingOverlay');
                     if (overlay) overlay.remove();
-                    
+
                     const pubData = await pubResponse.json();
                     myIdentity = pubData.identity;
-                    
+
                     inputRoom = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
-                    
+
                     inputRoom.on(LivekitClient.RoomEvent.Disconnected, (reason) => {
                         debugLog(`INPUT ROOM DISCONNECTED: ${reason || 'unknown'}`, 'error');
                         updateStatus(`Connection lost: ${getDisconnectReason(reason)}`, 'error');
                         showDisconnectOverlay(reason);
                         if (isConnected) forceDisconnect('disconnected');
                     });
-                    
+
                     inputRoom.on(LivekitClient.RoomEvent.Reconnecting, () => {
                         debugLog('Reconnecting...', 'warn');
                         updateStatus('Reconnecting...', 'warn');
                     });
-                    
+
                     inputRoom.on(LivekitClient.RoomEvent.Reconnected, () => {
                         debugLog('Reconnected!', 'success');
                         updateStatus('Reconnected!', 'success');
                     });
-                    
+
                     inputRoom.on(LivekitClient.RoomEvent.SignalReconnecting, () => {
                         debugLog('Signal reconnecting (token may be expiring)', 'warn');
                     });
@@ -906,15 +1040,15 @@
                         debugLog(`OUTPUT ROOM DISCONNECTED: ${reason || 'unknown'}`, 'error');
                         updateStatus(`Output disconnected: ${reason || 'unknown'}`, 'error');
                     });
-                    
+
                     outputRoom.on(LivekitClient.RoomEvent.Reconnecting, () => {
                         debugLog('Output reconnecting...', 'warn');
                     });
-                    
+
                     outputRoom.on(LivekitClient.RoomEvent.Reconnected, () => {
                         debugLog('Output reconnected!', 'success');
                     });
-                    
+
                     outputRoom.on(LivekitClient.RoomEvent.SignalReconnecting, () => {
                         debugLog('Output signal reconnecting (token may be expiring)', 'warn');
                     });
@@ -975,7 +1109,7 @@
         async function forceDisconnect(reason) {
             console.log('Force disconnect, reason:', reason);
             isConnected = false;
-            
+
             if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
             if (sessionTimeout) { clearTimeout(sessionTimeout); sessionTimeout = null; }
 
@@ -994,7 +1128,7 @@
 
             if (inputRoom) { try { await inputRoom.disconnect(); } catch(e) {} inputRoom = null; }
             if (outputRoom) { try { await outputRoom.disconnect(); } catch(e) {} outputRoom = null; }
-            
+
             cleanupLocal();
             myIdentity = null;
         }
@@ -1020,9 +1154,9 @@
         // ============================================
         // PAGE CLOSE/HIDE HANDLERS
         // ============================================
-        window.addEventListener('beforeunload', (e) => { if (isConnected) forceDisconnect('beforeunload'); });
-        window.addEventListener('pagehide', () => { if (isConnected) forceDisconnect('pagehide'); });
-        window.addEventListener('unload', () => { if (isConnected) forceDisconnect('unload'); });
+        window.addEventListener('beforeunload', (e) => { if (isConnected && !testMode) forceDisconnect('beforeunload'); });
+        window.addEventListener('pagehide', () => { if (isConnected && !testMode) forceDisconnect('pagehide'); });
+        window.addEventListener('unload', () => { if (isConnected && !testMode) forceDisconnect('unload'); });
 
         // ============================================
         // DISCONNECT MESSAGING
@@ -1065,7 +1199,7 @@
         function toggleDebugLog() {
             document.getElementById('debugLog').classList.toggle('visible');
         }
-        
+
         function debugLog(msg, type = 'info') {
             const log = document.getElementById('debugLog');
             const entry = document.createElement('div');
@@ -1092,12 +1226,12 @@
             const sec = elapsed % 60;
             timerDiv.textContent = `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
         }
-        
+
         function toggleFullscreen() {
             const videoBox = document.getElementById('processedBox');
             const video = document.getElementById('processedVideo');
             const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
-            
+
             if (!isFullscreen) {
                 const element = video.srcObject ? video : videoBox;
                 if (element.requestFullscreen) element.requestFullscreen();
@@ -1158,12 +1292,12 @@
         document.getElementById('val').oninput = function() { S.val = +this.value; document.getElementById('valV').textContent = S.val + '%'; };
         document.getElementById('sz').oninput = function() { S.sz = +this.value; document.getElementById('szV').textContent = S.sz; };
         document.getElementById('glw').oninput = function() { S.glw = +this.value; document.getElementById('glwV').textContent = S.glw; };
-        
+
         // ============================================
         // TEMPORAL EFFECTS (Rainbow raindrops)
         // ============================================
         let animationRunning = false;
-        
+
         const colors = [
             'rgba(255, 105, 180, 0.9)', 'rgba(138, 43, 226, 0.9)',
             'rgba(75, 0, 130, 0.9)', 'rgba(0, 191, 255, 0.9)',
@@ -1171,42 +1305,42 @@
             'rgba(255, 140, 0, 0.9)', 'rgba(255, 20, 147, 0.9)',
             'rgba(147, 112, 219, 0.9)'
         ];
-        
+
         function createRaindrop(progress) {
             const drop = document.createElement('div');
             drop.className = 'raindrop';
-            
+
             drop.style.left = Math.random() * window.innerWidth + 'px';
             drop.style.top = Math.random() * window.innerHeight + 'px';
-            
+
             const color1 = colors[Math.floor(Math.random() * colors.length)];
             const color2 = colors[Math.floor(Math.random() * colors.length)];
             const color3 = colors[Math.floor(Math.random() * colors.length)];
-            
+
             const isTakeover = progress > 0.66;
-            
-            let baseOpacity = isTakeover 
+
+            let baseOpacity = isTakeover
                 ? 0.4 + ((progress - 0.66) / 0.34 * 0.5)
                 : 0.15 + (progress * 0.35);
-            
+
             // Apply opacity slider
             baseOpacity = baseOpacity * (S.opacity / 50);
-            
+
             let sizeMultiplier = isTakeover
                 ? 1.0 + ((progress - 0.66) / 0.34 * 0.8)
                 : 1.5 - (progress * 0.5);
-            
+
             let duration = isTakeover
                 ? 6 - ((progress - 0.66) / 0.34 * 2) + Math.random() * 3
                 : 10 - (progress * 4) + Math.random() * 4;
-            
+
             // Apply speed + velocity
             duration = duration / (S.spd / 10) / (1 + S.velocity / 100);
-            
+
             let glowIntensity = isTakeover
                 ? 30 + (Math.pow((progress - 0.66) / 0.34, 1.5) * 120)
                 : (15 + (progress * 50)) * (2.0 - (progress * 1.2));
-            
+
             let baseSize;
             const sizeRoll = Math.random();
             if (isTakeover) {
@@ -1218,60 +1352,60 @@
                          : sizeRoll < 0.7 ? 40 + Math.random() * 20
                          : 40 + Math.random() * 50;
             }
-            
+
             // Apply size from slider
             baseSize = baseSize * (S.sz / 50);
-            
+
             const finalSize = baseSize * sizeMultiplier;
             drop.style.width = finalSize + 'px';
             drop.style.height = finalSize + 'px';
-            
+
             drop.style.background = `radial-gradient(circle at 40% 40%,
                 ${color1.replace('0.9', String(baseOpacity))} 0%,
                 ${color2.replace('0.9', String(baseOpacity * 0.7))} 30%,
                 ${color3.replace('0.9', String(baseOpacity * 0.4))} 60%,
                 transparent 100%)`;
-            
+
             // Apply glow from slider
             const glowFinal = glowIntensity * (S.glw / 60);
-            
+
             // Apply halo - soft outer ethereal ring
             const haloSize = (S.halo / 50) * finalSize * 0.8;
             const haloOpacity = baseOpacity * 0.3 * (S.halo / 50);
             const haloColor = color3.replace('0.9', String(haloOpacity));
-            
+
             drop.style.boxShadow = `
                 0 0 ${glowFinal}px ${glowFinal * 0.4}px ${color1},
                 0 0 ${glowFinal * 2}px ${glowFinal * 0.8}px ${color2},
                 0 0 ${haloSize}px ${haloSize * 0.6}px ${haloColor}`;
-            
+
             // Apply value (brightness) from slider
             const brightness = 0.5 + (S.val / 100);
             drop.style.filter = `brightness(${brightness})`;
-            
+
             drop.style.animationDuration = duration + 's';
             document.body.appendChild(drop);
-            
+
             setTimeout(() => {
                 if (drop.parentNode) drop.parentNode.removeChild(drop);
             }, duration * 1000);
         }
-        
+
         function runTemporalAnimation() {
             if (!startTime || animationRunning) return;
             animationRunning = true;
-            
+
             function animate() {
-                if (!startTime || !isConnected) { 
-                    animationRunning = false; 
-                    return; 
+                if (!startTime || !isConnected) {
+                    animationRunning = false;
+                    return;
                 }
-                
+
                 const elapsed = Date.now() - startTime;
-                
+
                 // Rain start time decreases based on temporal intensity
                 const RAIN_START = BASE_RAIN_START * (1 - S.temp / 100);
-                
+
                 // Check if we should spawn drops
                 if (elapsed >= RAIN_START || S.temp > 20) {
                     let progress;
@@ -1280,28 +1414,28 @@
                     } else {
                         progress = 0.1 * (S.temp / 100);
                     }
-                    
+
                     const exponentialGrowth = Math.pow(progress, 2.5);
                     let dropProbability = 0.03 * (1 + exponentialGrowth * 30);
-                    
+
                     // Increase probability based on temporal intensity
                     dropProbability *= (1 + S.temp / 25);
-                    
+
                     // Increase probability based on speed + velocity
                     dropProbability *= (S.spd / 10) * (1 + S.velocity / 100);
-                    
+
                     if (progress > 0.66) {
                         dropProbability *= 1 + ((progress - 0.66) / 0.34 * 6);
                     }
-                    
+
                     if (Math.random() < dropProbability) {
                         createRaindrop(progress);
                     }
                 }
-                
+
                 requestAnimationFrame(animate);
             }
-            
+
             animate();
         }
     </script>
