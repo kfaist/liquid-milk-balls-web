@@ -168,9 +168,7 @@ async def main(args):
                 
                 # Silence detection - skip if audio too quiet
                 rms = np.sqrt(np.mean(audio_float ** 2))
-                print(f"[RMS] {rms:.6f}")
-                sys.stdout.flush()
-                if rms < 0.001:  # Even lower threshold
+                if rms < 0.005:  # Skip near-silence
                     continue
                 
                 # Write temp file
