@@ -58,23 +58,19 @@ LIVEKIT_API_SECRET = "eVYY0UB69XDGLiGzclYuGUhXuVpc8ry3YcazimFryDW"
 # ============================================
 # TIMING CONFIG
 # ============================================
-WINDOW_SEC = 1.3      # Recording window
-COOLDOWN_SEC = 0.4    # Minimum gap between transcriptions
+WINDOW_SEC = 2.5      # Recording window - longer for better speech capture
+COOLDOWN_SEC = 0.3    # Minimum gap between transcriptions
 DAILY_RESTART_HOUR = 4  # Restart at 4 AM daily
 
 # ============================================
 # WHISPER HALLUCINATION FILTER
 # ============================================
 GARBAGE_PHRASES = {
-    "you", "thank you", "thanks", "bye", "goodbye", "okay", "ok",
-    "um", "uh", "hmm", "hm", "ah", "oh", "eh",
+    "you", "thank you", "thanks", "bye", "goodbye",
+    "um", "uh", "hmm", "hm", "ah", "oh",
     "thanks for watching", "subscribe", "like and subscribe",
-    "see you next time", "bye bye", "hello", "hi",
     "music", "applause", "laughter", "silence",
-    "the", "a", "an", "i", "it", "is", "are", "was", "were",
-    "this", "that", "these", "those", "what", "who", "where",
-    "yeah", "yes", "no", "nope", "yep", "sure",
-    "so", "and", "but", "or", "if", "then",
+    "photorealistic", "depth-of-field", "depth of field",
     "", " ", "  "
 }
 
@@ -148,12 +144,15 @@ def extract_best_noun(text: str, nlp) -> Optional[str]:
         
         # Score: compound nouns get bonus, then concreteness
         nouns = [t for t in tokens if t.pos_ in {"NOUN", "PROPN"}]
+        if not nouns:
+            continue
+            
         concrete_score = sum(wn_concreteness(t.lemma_.lower()) for t in nouns)
         compound_bonus = 1.5 if is_compound_noun(phrase) else 1.0
         
-        final_score = concrete_score * compound_bonus
-        if final_score > 0:
-            candidates.append((final_score, phrase))
+        # Base score of 1.0 for any valid noun phrase (so WordNet unknowns still work)
+        final_score = max(1.0, concrete_score) * compound_bonus
+        candidates.append((final_score, phrase))
     
     if not candidates:
         return None
@@ -230,7 +229,12 @@ async def main(args):
             frame = event.frame
             samples = np.frombuffer(frame.data, dtype=np.int16)
             buffer_sample_rate = frame.sample_rate
+            
+            # Accumulate audio up to window size, then throw away oldest
             audio_buffer.append(samples)
+            # Keep only last ~2.5 seconds of audio (roughly 120 frames at 48kHz)
+            if len(audio_buffer) > 120:
+                audio_buffer = audio_buffer[-120:]
             
             now = time.time()
             
@@ -261,10 +265,12 @@ async def main(args):
             # Normalize
             audio_float = audio_data.astype(np.float32) / 32768.0
             
-            # Silence detection
-            rms = np.sqrt(np.mean(audio_float ** 2))
-            if rms < 0.008:
+            # Skip if audio too short
+            if len(audio_float) < 16000:  # Less than 1 second
                 continue
+            
+            # Show RMS but don't filter
+            rms = np.sqrt(np.mean(audio_float ** 2))
             
             # Write temp file
             tmp = "temp_livekit.wav"
@@ -279,24 +285,35 @@ async def main(args):
             try:
                 result = model.transcribe(tmp, fp16=False, language="en")
                 text = (result.get("text") or "").strip()
+                print(f"[WHISPER] rms={rms:.4f} -> '{text}'")
+                sys.stdout.flush()
             except Exception as e:
                 print(f"[ERROR] Whisper: {e}")
                 continue
             
-            # Filter garbage
-            if is_garbage(text):
+            # Skip empty
+            if not text:
                 continue
             
-            # Extract best noun
+            # Extract concrete/compound noun ONLY
             noun = extract_best_noun(text, nlp)
-            if not noun or is_garbage(noun):
+            print(f"[NOUN] '{text}' -> '{noun}'")
+            sys.stdout.flush()
+            
+            if not noun:
                 continue
+            
+            # Accept compound nouns (2+ words) OR any noun spaCy found
+            # (removed strict WordNet check - too many valid nouns missing from WordNet)
+            
+            print(f"[ACCEPT] {noun}")
+            sys.stdout.flush()
             
             # Push to FIFO queue
             p5, p6 = noun_queue.push(noun)
             last_send = time.time()
             
-            # Send P6 (current/newer noun)
+            # Send P6 (current/newer noun) - raw noun only
             if p6:
                 print(f"[P6] {p6}")
                 sys.stdout.flush()
@@ -305,7 +322,7 @@ async def main(args):
                 except Exception as e:
                     print(f"[ERROR] UDP P6: {e}")
             
-            # Send P5 (previous/older noun)
+            # Send P5 (previous/older noun) - raw noun only
             if p5:
                 print(f"[P5] {p5}")
                 sys.stdout.flush()
