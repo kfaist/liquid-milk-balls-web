@@ -224,7 +224,7 @@ app.get('/obs-whip-token', async (req, res) => {
 // ============================================
 // SLIDER STATE & FORWARDING TO TOUCHDESIGNER
 // ============================================
-let currentSliders = {hue:280, sat:85, val:50, sz:50, spd:10, glw:60, temp:1, bump:50, depth:50, gloss:50, emboss:50, halo:50, shimmer:50, opacity:50, velocity:50};
+let currentSliders = {hue:280, sat:85, val:50, sz:50, spd:10, glw:60, temp:1, bump:50, depth:50, gloss:50, emboss:50, halo:50, shimmer:50, opacity:50, velocity:50, photorealism:50};
 
 // POST - browser sends slider updates
 app.post('/api/sliders', (req, res) => {

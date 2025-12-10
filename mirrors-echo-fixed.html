@@ -619,13 +619,14 @@
             <div><label>Temporal Intensity</label><input type="range" id="temp" min="0" max="100" value="1"><span id="tempV">1%</span></div>
             <div><label>Speed</label><input type="range" id="spd" min="5" max="30" value="10"><span id="spdV">1.0x</span></div>
             <div><label>Bump</label><input type="range" id="bump" min="0" max="100" value="50"><span id="bumpV">50</span></div>
-            <div><label>Depth</label><input type="range" id="depth" min="0" max="100" value="50"><span id="depthV">50</span></div>
+            <div><label>Depth of Field</label><input type="range" id="depth" min="0" max="100" value="50"><span id="depthV">50</span></div>
             <div><label>Gloss</label><input type="range" id="gloss" min="0" max="100" value="50"><span id="glossV">50</span></div>
             <div><label>Emboss</label><input type="range" id="emboss" min="0" max="100" value="50"><span id="embossV">50</span></div>
             <div><label>Halo</label><input type="range" id="halo" min="0" max="100" value="50"><span id="haloV">50</span></div>
             <div><label>Shimmer</label><input type="range" id="shimmer" min="0" max="100" value="50"><span id="shimmerV">50</span></div>
             <div><label>Opacity</label><input type="range" id="opacity" min="0" max="100" value="50"><span id="opacityV">50</span></div>
             <div><label>Velocity</label><input type="range" id="velocity" min="0" max="100" value="50"><span id="velocityV">50</span></div>
+            <div><label>Photorealism</label><input type="range" id="photorealism" min="0" max="100" value="50"><span id="photorealismV">50</span></div>
         </div>
 
         <div class="sliders">
@@ -643,7 +644,7 @@
     <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
     <script>
         // Slider State
-        const S = {hue:280, sat:85, val:50, sz:50, spd:10, glw:60, temp:1, bump:50, depth:50, gloss:50, emboss:50, halo:50, shimmer:50, opacity:50, velocity:50};
+        const S = {hue:280, sat:85, val:50, sz:50, spd:10, glw:60, temp:1, bump:50, depth:50, gloss:50, emboss:50, halo:50, shimmer:50, opacity:50, velocity:50, photorealism:50};
 
         function updateColors() {
             document.documentElement.style.setProperty('--hue', S.hue);
@@ -1315,6 +1316,7 @@
         document.getElementById('shimmer').oninput = function() { S.shimmer = +this.value; document.getElementById('shimmerV').textContent = S.shimmer; sendSliders(); };
         document.getElementById('opacity').oninput = function() { S.opacity = +this.value; document.getElementById('opacityV').textContent = S.opacity; sendSliders(); };
         document.getElementById('velocity').oninput = function() { S.velocity = +this.value; document.getElementById('velocityV').textContent = S.velocity; sendSliders(); };
+        document.getElementById('photorealism').oninput = function() { S.photorealism = +this.value; document.getElementById('photorealismV').textContent = S.photorealism; sendSliders(); };
 
         document.getElementById('chroma').oninput = function() {
             S.hue = +this.value;
