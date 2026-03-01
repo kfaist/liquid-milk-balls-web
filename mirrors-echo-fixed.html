@@ -735,13 +735,13 @@
                 }
                 document.getElementById('interimText').textContent = interim;
 
-                // Send INTERIM results immediately with 300ms debounce
+                // Send INTERIM results immediately with 100ms debounce
                 if (interim.trim() && interim.trim() !== _lastInterim) {
                     _lastInterim = interim.trim();
                     clearTimeout(_interimTimer);
                     _interimTimer = setTimeout(() => {
                         submitTranscript(_lastInterim);
-                    }, 300);
+                    }, 100);
                 }
 
                 // Send final results instantly (cancels any pending interim)
