@@ -739,6 +739,8 @@
                 logEvent('MIC', 'speech recognition started');
             };
 
+            let _stableTimer = null;
+            let _lastSent = '';
             recognition.onresult = (e) => {
                 let interim = '', final = '';
                 for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -748,12 +750,28 @@
                 }
                 // Show interim on screen for visual feedback
                 document.getElementById('interimText').textContent = interim;
-                if (interim) logEvent('HEAR', interim.substring(0,60));
 
-                // Send FINAL results for NLP parsing
+                // Send FINAL results immediately
                 if (final.trim()) {
-                    logEvent('SEND', final.trim().substring(0,60));
-                    submitTranscript(final.trim());
+                    clearTimeout(_stableTimer);
+                    if (final.trim() !== _lastSent) {
+                        _lastSent = final.trim();
+                        logEvent('SEND', _lastSent.substring(0,60));
+                        submitTranscript(_lastSent);
+                    }
+                }
+
+                // Send INTERIM when text stabilizes for 500ms
+                // (Chrome sometimes never fires isFinal during continuous speech)
+                if (interim.trim() && interim.trim() !== _lastSent) {
+                    clearTimeout(_stableTimer);
+                    _stableTimer = setTimeout(() => {
+                        if (interim.trim() !== _lastSent) {
+                            _lastSent = interim.trim();
+                            logEvent('SEND*', _lastSent.substring(0,60));
+                            submitTranscript(_lastSent);
+                        }
+                    }, 500);
                 }
             };
 
