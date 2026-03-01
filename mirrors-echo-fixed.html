@@ -591,12 +591,15 @@
         </div>
 
         <div class="video-grid">
-            <div class="video-panel">
-                <h3>Your Camera (Input)</h3>
-                <div class="video-box">
-                    <video id="localVideo" autoplay muted playsinline></video>
-                    <div class="video-placeholder" id="localPlaceholder">Camera will appear here</div>
+            <div class="video-panel" style="display:flex;flex-direction:column;gap:1rem;">
+                <div>
+                    <h3>Your Camera (Input)</h3>
+                    <div class="video-box" style="aspect-ratio:16/9;max-height:180px;">
+                        <video id="localVideo" autoplay muted playsinline></video>
+                        <div class="video-placeholder" id="localPlaceholder">Camera will appear here</div>
+                    </div>
                 </div>
+                <div id="eventLog" style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;line-height:1.5;color:rgba(110,231,212,0.7);background:rgba(0,0,0,0.4);border:1px solid rgba(110,231,212,0.15);padding:0.75rem;min-height:160px;max-height:280px;overflow-y:auto;white-space:pre;border-radius:4px;">event log...</div>
             </div>
 
             <div class="video-panel">
@@ -707,6 +710,17 @@
             connectMaestra();
         }
 
+        let _reqSeq = 0;
+        const _eventLog = [];
+        function logEvent(type, msg) {
+            const ts = new Date().toLocaleTimeString('en-US', {hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit', fractionalSecondDigits:3});
+            const entry = ts + ' [' + type + '] ' + msg;
+            _eventLog.unshift(entry);
+            if (_eventLog.length > 40) _eventLog.pop();
+            const el = document.getElementById('eventLog');
+            if (el) el.textContent = _eventLog.slice(0,15).join('\n');
+        }
+
         function startSpeechRecognition() {
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SR) {
@@ -722,9 +736,9 @@
             recognition.onstart = () => {
                 speechActive = true;
                 document.getElementById('dotSpeech').style.background = '#6bcb77';
+                logEvent('MIC', 'speech recognition started');
             };
 
-            let _reqSeq = 0;
             recognition.onresult = (e) => {
                 let interim = '', final = '';
                 for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -732,18 +746,20 @@
                     if (e.results[i].isFinal) { final += t; }
                     else { interim += t; }
                 }
-                // Show interim on screen for visual feedback only
+                // Show interim on screen for visual feedback
                 document.getElementById('interimText').textContent = interim;
+                if (interim) logEvent('HEAR', interim.substring(0,60));
 
-                // Only send FINAL results for NLP parsing
+                // Send FINAL results for NLP parsing
                 if (final.trim()) {
+                    logEvent('SEND', final.trim().substring(0,60));
                     submitTranscript(final.trim());
                 }
             };
 
             recognition.onerror = (e) => {
                 if (e.error === 'no-speech') return;
-                console.log('Speech error:', e.error);
+                logEvent('ERR', 'speech: ' + e.error);
                 if (e.error === 'not-allowed') {
                     document.getElementById('interimText').textContent = 'Mic permission denied';
                 }
@@ -751,10 +767,12 @@
 
             recognition.onend = () => {
                 if ((isConnected || micTestActive) && speechActive) {
+                    logEvent('MIC', 'restarting...');
                     try { recognition.start(); } catch(e) {}
                 } else {
                     speechActive = false;
                     document.getElementById('dotSpeech').style.background = '#444';
+                    logEvent('MIC', 'stopped');
                 }
             };
 
@@ -771,7 +789,8 @@
         }
 
         async function submitTranscript(text) {
-            const mySeq = ++_reqSeq;  // grab sequence number
+            const mySeq = ++_reqSeq;
+            const t0 = performance.now();
             try {
                 const resp = await fetch(MAESTRA_URL + '/transcript', {
                     method: 'POST',
@@ -779,14 +798,21 @@
                     body: JSON.stringify({ text: text, source: 'browser-speech' })
                 });
                 const data = await resp.json();
-                // Only update display if this is still the latest request
+                const ms = Math.round(performance.now() - t0);
                 if (data.status === 'ok' && mySeq === _reqSeq) {
-                    if (data.p5) document.getElementById('p5Word').textContent = data.p5;
+                    if (data.p5) {
+                        document.getElementById('p5Word').textContent = data.p5;
+                        logEvent('P5', data.p5 + ' (' + ms + 'ms)');
+                    }
                     if (data.p6) document.getElementById('p6Display').textContent = data.p6;
                     document.getElementById('interimText').textContent = '';
+                } else if (mySeq !== _reqSeq) {
+                    logEvent('DROP', 'stale response #' + mySeq + ' (current #' + _reqSeq + ')');
+                } else {
+                    logEvent('NLP', (data.reason || 'no nouns') + ' (' + ms + 'ms)');
                 }
             } catch(e) {
-                console.log('Transcript submit error:', e);
+                logEvent('ERR', 'submit failed: ' + e.message);
             }
         }
 
