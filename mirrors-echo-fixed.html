@@ -726,6 +726,7 @@
 
             let _interimTimer = null;
             let _lastInterim = '';
+            let _reqSeq = 0;  // sequence counter to drop stale responses
             recognition.onresult = (e) => {
                 let interim = '', final = '';
                 for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -735,13 +736,13 @@
                 }
                 document.getElementById('interimText').textContent = interim;
 
-                // Send INTERIM results with 20ms debounce
+                // Send INTERIM results with 100ms debounce
                 if (interim.trim() && interim.trim() !== _lastInterim) {
                     _lastInterim = interim.trim();
                     clearTimeout(_interimTimer);
                     _interimTimer = setTimeout(() => {
                         submitTranscript(_lastInterim);
-                    }, 20);
+                    }, 100);
                 }
 
                 // Send final results instantly (cancels any pending interim)
@@ -782,6 +783,7 @@
         }
 
         async function submitTranscript(text) {
+            const mySeq = ++_reqSeq;  // grab sequence number
             try {
                 const resp = await fetch(MAESTRA_URL + '/transcript', {
                     method: 'POST',
@@ -789,7 +791,8 @@
                     body: JSON.stringify({ text: text, source: 'browser-speech' })
                 });
                 const data = await resp.json();
-                if (data.status === 'ok') {
+                // Only update display if this is still the latest request
+                if (data.status === 'ok' && mySeq === _reqSeq) {
                     if (data.p5) document.getElementById('p5Word').textContent = data.p5;
                     if (data.p6) document.getElementById('p6Display').textContent = data.p6;
                     document.getElementById('interimText').textContent = '';
