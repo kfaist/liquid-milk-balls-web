@@ -591,15 +591,12 @@
         </div>
 
         <div class="video-grid">
-            <div class="video-panel" style="display:flex;flex-direction:column;gap:1rem;">
-                <div>
-                    <h3>Your Camera (Input)</h3>
-                    <div class="video-box" style="aspect-ratio:16/9;max-height:180px;">
-                        <video id="localVideo" autoplay muted playsinline></video>
-                        <div class="video-placeholder" id="localPlaceholder">Camera will appear here</div>
-                    </div>
+            <div class="video-panel">
+                <h3>Your Camera (Input)</h3>
+                <div class="video-box">
+                    <video id="localVideo" autoplay muted playsinline></video>
+                    <div class="video-placeholder" id="localPlaceholder">Camera will appear here</div>
                 </div>
-                <div id="eventLog" style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;line-height:1.5;color:rgba(110,231,212,0.7);background:rgba(0,0,0,0.4);border:1px solid rgba(110,231,212,0.15);padding:0.75rem;min-height:160px;max-height:280px;overflow-y:auto;white-space:pre;border-radius:4px;">event log...</div>
             </div>
 
             <div class="video-panel">
@@ -710,27 +707,6 @@
             connectMaestra();
         }
 
-        let _reqSeq = 0;
-        const _eventLog = [];
-        const _logColors = {
-            'SEND': '#6ee7d4',
-            'P5': '#c9a0ff',
-            'TD': '#f0a0c0',
-            'DROP': '#555',
-            'MIC': '#6bcb77',
-            'ERR': '#f87171',
-            'NLP': '#8b8aa0'
-        };
-        function logEvent(type, msg) {
-            const ts = new Date().toLocaleTimeString('en-US', {hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit', fractionalSecondDigits:3});
-            const color = _logColors[type] || '#6ee7d4';
-            const entry = '<span style="color:' + color + '">' + ts + ' [' + type + '] ' + msg + '</span>';
-            _eventLog.unshift(entry);
-            if (_eventLog.length > 40) _eventLog.pop();
-            const el = document.getElementById('eventLog');
-            if (el) el.innerHTML = _eventLog.slice(0,15).join('\n');
-        }
-
         function startSpeechRecognition() {
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SR) {
@@ -746,30 +722,39 @@
             recognition.onstart = () => {
                 speechActive = true;
                 document.getElementById('dotSpeech').style.background = '#6bcb77';
-                logEvent('MIC', 'speech recognition started');
             };
 
-            let _sendTimer = null;
+            let _interimTimer = null;
+            let _lastInterim = '';
             recognition.onresult = (e) => {
-                let text = '';
+                let interim = '', final = '';
                 for (let i = e.resultIndex; i < e.results.length; i++) {
-                    text += e.results[i][0].transcript;
+                    const t = e.results[i][0].transcript;
+                    if (e.results[i].isFinal) { final += t; }
+                    else { interim += t; }
                 }
-                text = text.trim();
-                if (text) {
-                    document.getElementById('interimText').textContent = text;
-                    // 30ms debounce - kills old request, only latest survives
-                    clearTimeout(_sendTimer);
-                    _sendTimer = setTimeout(() => {
-                        logEvent('SEND', text.substring(0,60));
-                        submitTranscript(text);
-                    }, 30);
+                document.getElementById('interimText').textContent = interim;
+
+                // Send INTERIM results immediately with 300ms debounce
+                if (interim.trim() && interim.trim() !== _lastInterim) {
+                    _lastInterim = interim.trim();
+                    clearTimeout(_interimTimer);
+                    _interimTimer = setTimeout(() => {
+                        submitTranscript(_lastInterim);
+                    }, 300);
+                }
+
+                // Send final results instantly (cancels any pending interim)
+                if (final.trim()) {
+                    clearTimeout(_interimTimer);
+                    _lastInterim = '';
+                    submitTranscript(final.trim());
                 }
             };
 
             recognition.onerror = (e) => {
                 if (e.error === 'no-speech') return;
-                logEvent('ERR', 'speech: ' + e.error);
+                console.log('Speech error:', e.error);
                 if (e.error === 'not-allowed') {
                     document.getElementById('interimText').textContent = 'Mic permission denied';
                 }
@@ -777,12 +762,10 @@
 
             recognition.onend = () => {
                 if ((isConnected || micTestActive) && speechActive) {
-                    logEvent('MIC', 'restarting...');
                     try { recognition.start(); } catch(e) {}
                 } else {
                     speechActive = false;
                     document.getElementById('dotSpeech').style.background = '#444';
-                    logEvent('MIC', 'stopped');
                 }
             };
 
@@ -799,8 +782,6 @@
         }
 
         async function submitTranscript(text) {
-            const mySeq = ++_reqSeq;
-            const t0 = performance.now();
             try {
                 const resp = await fetch(MAESTRA_URL + '/transcript', {
                     method: 'POST',
@@ -808,22 +789,13 @@
                     body: JSON.stringify({ text: text, source: 'browser-speech' })
                 });
                 const data = await resp.json();
-                const ms = Math.round(performance.now() - t0);
-                if (data.status === 'ok' && mySeq === _reqSeq) {
-                    if (data.p5) {
-                        document.getElementById('p5Word').textContent = data.p5;
-                        logEvent('P5', data.p5 + ' (' + ms + 'ms)');
-                        logEvent('TD', '-> TouchDesigner: ' + data.p5);
-                    }
+                if (data.status === 'ok') {
+                    if (data.p5) document.getElementById('p5Word').textContent = data.p5;
                     if (data.p6) document.getElementById('p6Display').textContent = data.p6;
                     document.getElementById('interimText').textContent = '';
-                } else if (mySeq !== _reqSeq) {
-                    logEvent('DROP', 'stale response #' + mySeq + ' (current #' + _reqSeq + ')');
-                } else {
-                    logEvent('NLP', (data.reason || 'no nouns') + ' (' + ms + 'ms)');
                 }
             } catch(e) {
-                logEvent('ERR', 'submit failed: ' + e.message);
+                console.log('Transcript submit error:', e);
             }
         }
 
@@ -832,6 +804,9 @@
 
         // Standalone mic toggle for testing
         let micTestActive = false;
+        let _autoReconnectAttempts = 0;
+        const MAX_RECONNECT_ATTEMPTS = 5;
+        let _reconnectTimer = null;
         function toggleMaestraMic() {
             if (!micTestActive) {
                 startSpeechRecognition();
@@ -1068,9 +1043,15 @@
 
                 inputRoom.on(LivekitClient.RoomEvent.Disconnected, (reason) => {
                     debugLog(`INPUT ROOM DISCONNECTED: ${reason || 'unknown'}`, 'error');
-                    updateStatus(`Connection lost: ${getDisconnectReason(reason)}`, 'error');
-                    showDisconnectOverlay(reason);
-                    if (isConnected) forceDisconnect('input-room-disconnected: ' + (reason || 'unknown'));
+                    // Auto-reconnect instead of dying
+                    if (reason === 'DUPLICATE_IDENTITY' || reason === 'PARTICIPANT_REMOVED') {
+                        // These are intentional kicks, don't retry
+                        updateStatus(`Connection lost: ${getDisconnectReason(reason)}`, 'error');
+                        showDisconnectOverlay(reason);
+                        if (isConnected) forceDisconnect('input-room-disconnected: ' + (reason || 'unknown'));
+                    } else {
+                        attemptAutoReconnect('input-disconnect: ' + (reason || 'unknown'));
+                    }
                 });
 
                 inputRoom.on(LivekitClient.RoomEvent.Reconnecting, () => {
@@ -1101,11 +1082,7 @@
 
                 outputRoom.on(LivekitClient.RoomEvent.Disconnected, (reason) => {
                     debugLog(`OUTPUT ROOM DISCONNECTED: ${reason || 'unknown'}`, 'error');
-                    updateStatus(`Output disconnected: ${reason || 'unknown'}`, 'error');
-                });
-
-                outputRoom.on(LivekitClient.RoomEvent.Reconnecting, () => {
-                    debugLog('Output reconnecting...', 'warn');
+                    attemptAutoReconnect('output-disconnect: ' + (reason || 'unknown'));
                 });
 
                 outputRoom.on(LivekitClient.RoomEvent.Reconnected, () => {
@@ -1144,6 +1121,7 @@
                 });
 
                 isConnected = true;
+                _autoReconnectAttempts = 0;
                 startTime = Date.now();
                 timerInterval = setInterval(updateTimer, 1000);
 
@@ -1213,9 +1191,13 @@
 
                     inputRoom.on(LivekitClient.RoomEvent.Disconnected, (reason) => {
                         debugLog(`INPUT ROOM DISCONNECTED: ${reason || 'unknown'}`, 'error');
-                        updateStatus(`Connection lost: ${getDisconnectReason(reason)}`, 'error');
-                        showDisconnectOverlay(reason);
-                        if (isConnected) forceDisconnect('disconnected');
+                        if (reason === 'DUPLICATE_IDENTITY' || reason === 'PARTICIPANT_REMOVED') {
+                            updateStatus(`Connection lost: ${getDisconnectReason(reason)}`, 'error');
+                            showDisconnectOverlay(reason);
+                            if (isConnected) forceDisconnect('disconnected');
+                        } else {
+                            attemptAutoReconnect('input-disconnect: ' + (reason || 'unknown'));
+                        }
                     });
 
                     inputRoom.on(LivekitClient.RoomEvent.Reconnecting, () => {
@@ -1246,11 +1228,7 @@
 
                     outputRoom.on(LivekitClient.RoomEvent.Disconnected, (reason) => {
                         debugLog(`OUTPUT ROOM DISCONNECTED: ${reason || 'unknown'}`, 'error');
-                        updateStatus(`Output disconnected: ${reason || 'unknown'}`, 'error');
-                    });
-
-                    outputRoom.on(LivekitClient.RoomEvent.Reconnecting, () => {
-                        debugLog('Output reconnecting...', 'warn');
+                        attemptAutoReconnect('output-disconnect: ' + (reason || 'unknown'));
                     });
 
                     outputRoom.on(LivekitClient.RoomEvent.Reconnected, () => {
@@ -1319,12 +1297,105 @@
             window.location.href = '/licensing.html?session=complete';
         }
 
+        // ============================================
+        // SELF-HEALING: AUTO-RECONNECT
+        // ============================================
+        async function attemptAutoReconnect(reason) {
+            if (_reconnectTimer) return; // already trying
+            _autoReconnectAttempts++;
+
+            if (_autoReconnectAttempts > MAX_RECONNECT_ATTEMPTS) {
+                debugLog(`Auto-reconnect failed after ${MAX_RECONNECT_ATTEMPTS} attempts`, 'error');
+                updateStatus('Connection lost. Click Connect Webcam to retry.', 'error');
+                showDisconnectOverlay('MAX_RETRIES');
+                forceDisconnect('max-retries');
+                return;
+            }
+
+            const delay = Math.min(1000 * Math.pow(1.5, _autoReconnectAttempts - 1), 8000);
+            debugLog(`Self-healing: retry ${_autoReconnectAttempts}/${MAX_RECONNECT_ATTEMPTS} in ${(delay/1000).toFixed(1)}s (${reason})`, 'warn');
+            updateStatus(`Reconnecting (${_autoReconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`, 'warn');
+
+            // Tear down old rooms silently
+            if (inputRoom) { try { await inputRoom.disconnect(); } catch(e) {} inputRoom = null; }
+            if (outputRoom) { try { await outputRoom.disconnect(); } catch(e) {} outputRoom = null; }
+
+            _reconnectTimer = setTimeout(async () => {
+                _reconnectTimer = null;
+                try {
+                    // Re-use existing local stream if still alive
+                    if (!localStream || localStream.getTracks().every(t => t.readyState === 'ended')) {
+                        debugLog('Camera track died, re-acquiring...', 'warn');
+                        localStream = await navigator.mediaDevices.getUserMedia({
+                            video: { width: 1280, height: 720 },
+                            audio: true
+                        });
+                        localVideo.srcObject = localStream;
+                        localPlaceholder.style.display = 'none';
+                    }
+
+                    // Get fresh tokens
+                    const pubResponse = await fetch('/api/publisher-token');
+                    if (!pubResponse.ok) throw new Error('Token fetch failed: ' + pubResponse.status);
+                    const pubData = await pubResponse.json();
+                    myIdentity = pubData.identity;
+
+                    // Reconnect input room
+                    inputRoom = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
+                    inputRoom.on(LivekitClient.RoomEvent.Disconnected, (reason) => {
+                        debugLog(`INPUT ROOM DISCONNECTED: ${reason || 'unknown'}`, 'error');
+                        if (reason === 'DUPLICATE_IDENTITY' || reason === 'PARTICIPANT_REMOVED') {
+                            showDisconnectOverlay(reason);
+                            forceDisconnect('input-room-disconnected: ' + (reason || 'unknown'));
+                        } else {
+                            attemptAutoReconnect('input-disconnect: ' + (reason || 'unknown'));
+                        }
+                    });
+                    inputRoom.on(LivekitClient.RoomEvent.Reconnecting, () => { updateStatus('Reconnecting...', 'warn'); });
+                    inputRoom.on(LivekitClient.RoomEvent.Reconnected, () => { updateStatus('Reconnected!', 'success'); });
+
+                    await inputRoom.connect(pubData.url, pubData.token);
+                    for (const track of localStream.getTracks()) {
+                        await inputRoom.localParticipant.publishTrack(track);
+                    }
+
+                    // Reconnect output room
+                    const viewResponse = await fetch('/api/processed-viewer-token');
+                    const viewData = await viewResponse.json();
+                    outputRoom = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
+                    outputRoom.on(LivekitClient.RoomEvent.Disconnected, (reason) => {
+                        debugLog(`OUTPUT ROOM DISCONNECTED: ${reason || 'unknown'}`, 'error');
+                        attemptAutoReconnect('output-disconnect: ' + (reason || 'unknown'));
+                    });
+                    outputRoom.on(LivekitClient.RoomEvent.TrackSubscribed, (track, pub, participant) => {
+                        if (track.kind === LivekitClient.Track.Kind.Video) {
+                            track.attach(processedVideo);
+                            processedPlaceholder.style.display = 'none';
+                            updateStatus('Connected - Viewing processed output');
+                        }
+                    });
+                    await outputRoom.connect(viewData.url, viewData.token);
+
+                    isConnected = true;
+                    _autoReconnectAttempts = 0; // Reset on success
+                    debugLog('Self-healed! Connection restored.', 'success');
+                    updateStatus('Reconnected!', 'success');
+
+                } catch(e) {
+                    debugLog(`Reconnect attempt ${_autoReconnectAttempts} failed: ${e.message}`, 'error');
+                    attemptAutoReconnect('retry-failed: ' + e.message);
+                }
+            }, delay);
+        }
+
         async function forceDisconnect(reason) {
             console.log('Force disconnect, reason:', reason);
             isConnected = false;
 
             if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
             if (sessionTimeout) { clearTimeout(sessionTimeout); sessionTimeout = null; }
+            if (_reconnectTimer) { clearTimeout(_reconnectTimer); _reconnectTimer = null; }
+            _autoReconnectAttempts = 0;
 
             if (myIdentity) {
                 try {
