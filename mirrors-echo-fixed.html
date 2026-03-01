@@ -36,6 +36,7 @@
             animation: shimmer 8s linear infinite; opacity: 0.76;
         }
         @keyframes shimmer { 0% { background-position: -300% 0; } 100% { background-position: 300% 0; } }
+        @keyframes textglow { 0%,100%{text-shadow:0 0 15px rgb(80,220,220),0 0 30px rgb(80,220,220);} 50%{text-shadow:0 0 5px rgb(80,220,220);} }
 
         .header {
             text-align: center;
@@ -555,7 +556,8 @@
         </div>
 
         <div class="top-controls">
-            <button class="btn flicker-btn" id="connectBtn" onclick="connect()">Connect</button>
+            <button class="btn flicker-btn" id="micToggleBtn" onclick="toggleMaestraMic()">Start Mic</button>
+            <button class="btn" id="connectBtn" onclick="connect()">Connect Webcam</button>
             <button class="btn" id="disconnectBtn" onclick="manualDisconnect()" style="display:none;">Disconnect</button>
         </div>
 
@@ -567,9 +569,25 @@
             <div class="mic-status" id="micStatus">Checking...</div>
         </div>
 
+        <!-- Maestra Speech → Prompt Display -->
+        <div id="maestraPanel" style="display:block; margin-bottom:1rem; padding:1rem; background:rgba(8,8,12,0.4); border:1px solid rgba(106,220,220,0.15); border-radius:10px;">
+            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
+                <div id="dotSpeech" style="width:8px;height:8px;border-radius:50%;background:#444;"></div>
+                <span style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.5;">Speech → Prompt</span>
+                <div id="dotMaestra" style="width:8px;height:8px;border-radius:50%;background:#444;margin-left:auto;"></div>
+                <span style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.5;">Maestra</span>
+            </div>
+            <div style="text-align:center; padding:0.75rem; background:linear-gradient(135deg,#1a1040,#0d2030); border:1px solid #2a3a60; border-radius:8px;">
+                <div style="font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:4px;">P5 — Noun Phrase → StreamDiffusion</div>
+                <div id="p5Word" style="font-size:1.5rem;font-weight:300;letter-spacing:0.08em;color:rgb(80,220,220);min-height:2rem;animation:textglow 3s ease-in-out infinite;">—</div>
+            </div>
+            <div id="interimText" style="font-size:0.7rem;opacity:0.4;margin-top:0.5rem;min-height:1rem;text-align:center;"></div>
+            <div id="p6Display" style="font-size:0.65rem;opacity:0.3;margin-top:0.25rem;text-align:center;">waiting for speech...</div>
+        </div>
+
         <div class="status-bar">
             <div class="time" id="timer">00:00</div>
-            <div id="status">Click Connect to begin</div>
+            <div id="status">Start Mic to begin speaking · Connect Webcam for video</div>
         </div>
 
         <div class="video-grid">
@@ -642,6 +660,147 @@
     <div class="debug-log" id="debugLog"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+    <script>
+        // ============================================
+        // MAESTRA INTEGRATION — Speech → NLP → TD Prompt
+        // ============================================
+        const MAESTRA_URL = 'https://maestra-dashboard-production.up.railway.app';
+        const MAESTRA_WS = MAESTRA_URL.replace('http','ws');
+        let maestraWs = null;
+        let recognition = null;
+        let speechActive = false;
+        let maestraEntityId = null;
+
+        function connectMaestra() {
+            maestraWs = new WebSocket(MAESTRA_WS + '/ws');
+            maestraWs.onopen = () => {
+                console.log('Maestra WS connected');
+                document.getElementById('dotMaestra').style.background = '#6ee7d4';
+            };
+            maestraWs.onmessage = (e) => {
+                try {
+                    const msg = JSON.parse(e.data);
+                    if (msg.type === 'state_changed' && msg.entity_slug === 'td-audio-reactive') {
+                        const st = msg.current_state || {};
+                        if (st.p5) document.getElementById('p5Word').textContent = st.p5;
+                        if (st.p6) document.getElementById('p6Display').textContent = st.p6;
+                    }
+                } catch(err) {}
+            };
+            maestraWs.onclose = () => {
+                document.getElementById('dotMaestra').style.background = '#444';
+                setTimeout(connectMaestra, 3000);
+            };
+            maestraWs.onerror = () => { maestraWs.close(); };
+        }
+
+        async function initMaestra() {
+            try {
+                const r = await fetch(MAESTRA_URL + '/entities/by-slug/td-audio-reactive');
+                const d = await r.json();
+                maestraEntityId = d.id;
+                if (d.state && d.state.p5) document.getElementById('p5Word').textContent = d.state.p5;
+                if (d.state && d.state.p6) document.getElementById('p6Display').textContent = d.state.p6;
+            } catch(e) {
+                console.log('Maestra entity fetch failed:', e);
+            }
+            connectMaestra();
+        }
+
+        function startSpeechRecognition() {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) {
+                document.getElementById('interimText').textContent = 'Speech API not supported';
+                return;
+            }
+            recognition = new SR();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => {
+                speechActive = true;
+                document.getElementById('dotSpeech').style.background = '#6bcb77';
+            };
+
+            recognition.onresult = (e) => {
+                let interim = '', final = '';
+                for (let i = e.resultIndex; i < e.results.length; i++) {
+                    const t = e.results[i][0].transcript;
+                    if (e.results[i].isFinal) { final += t; }
+                    else { interim += t; }
+                }
+                document.getElementById('interimText').textContent = interim;
+                if (final.trim()) { submitTranscript(final.trim()); }
+            };
+
+            recognition.onerror = (e) => {
+                if (e.error === 'no-speech') return;
+                console.log('Speech error:', e.error);
+                if (e.error === 'not-allowed') {
+                    document.getElementById('interimText').textContent = 'Mic permission denied';
+                }
+            };
+
+            recognition.onend = () => {
+                if ((isConnected || micTestActive) && speechActive) {
+                    try { recognition.start(); } catch(e) {}
+                } else {
+                    speechActive = false;
+                    document.getElementById('dotSpeech').style.background = '#444';
+                }
+            };
+
+            try { recognition.start(); } catch(e) { console.log('Speech start error:', e); }
+        }
+
+        function stopSpeechRecognition() {
+            speechActive = false;
+            if (recognition) {
+                try { recognition.stop(); } catch(e) {}
+                recognition = null;
+            }
+            document.getElementById('dotSpeech').style.background = '#444';
+        }
+
+        async function submitTranscript(text) {
+            try {
+                const resp = await fetch(MAESTRA_URL + '/transcript', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text, source: 'browser-speech' })
+                });
+                const data = await resp.json();
+                if (data.status === 'ok') {
+                    if (data.p5) document.getElementById('p5Word').textContent = data.p5;
+                    if (data.p6) document.getElementById('p6Display').textContent = data.p6;
+                    document.getElementById('interimText').textContent = '';
+                }
+            } catch(e) {
+                console.log('Transcript submit error:', e);
+            }
+        }
+
+        // Init Maestra on page load
+        initMaestra();
+
+        // Standalone mic toggle for testing
+        let micTestActive = false;
+        function toggleMaestraMic() {
+            if (!micTestActive) {
+                startSpeechRecognition();
+                micTestActive = true;
+                document.getElementById('micToggleBtn').textContent = 'Stop Mic';
+                document.getElementById('micToggleBtn').style.borderColor = '#6bcb77';
+            } else {
+                stopSpeechRecognition();
+                micTestActive = false;
+                document.getElementById('micToggleBtn').textContent = 'Start Mic';
+                document.getElementById('micToggleBtn').style.borderColor = 'rgba(255,255,255,0.3)';
+            }
+        }
+    </script>
     <script>
         // Slider State
         const S = {hue:280, sat:85, val:50, sz:50, spd:10, glw:60, temp:1, bump:50, depth:50, gloss:50, emboss:50, halo:50, shimmer:50, opacity:50, velocity:50, photorealism:50};
@@ -943,6 +1102,10 @@
                 startTime = Date.now();
                 timerInterval = setInterval(updateTimer, 1000);
 
+                // Start Maestra speech recognition
+                document.getElementById('maestraPanel').style.display = 'block';
+                startSpeechRecognition();
+
                 sessionTimeout = setTimeout(() => {
                     endSession();
                 }, SESSION_DURATION);
@@ -1075,6 +1238,11 @@
                     isConnected = true;
                     startTime = Date.now();
                     timerInterval = setInterval(updateTimer, 1000);
+
+                    // Start Maestra speech recognition
+                    document.getElementById('maestraPanel').style.display = 'block';
+                    startSpeechRecognition();
+
                     sessionTimeout = setTimeout(() => endSession(), SESSION_DURATION);
                     runTemporalAnimation();
 
@@ -1136,6 +1304,8 @@
         function cleanupLocal() {
             stopLoadingMessages();
             stopMicMonitor();
+            stopSpeechRecognition();
+            document.getElementById('maestraPanel').style.display = 'none';
             if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
             localVideo.srcObject = null;
             processedVideo.srcObject = null;
