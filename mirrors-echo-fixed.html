@@ -724,9 +724,7 @@
                 document.getElementById('dotSpeech').style.background = '#6bcb77';
             };
 
-            let _interimTimer = null;
-            let _lastInterim = '';
-            let _reqSeq = 0;  // sequence counter to drop stale responses
+            let _reqSeq = 0;
             recognition.onresult = (e) => {
                 let interim = '', final = '';
                 for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -734,21 +732,11 @@
                     if (e.results[i].isFinal) { final += t; }
                     else { interim += t; }
                 }
+                // Show interim on screen for visual feedback only
                 document.getElementById('interimText').textContent = interim;
 
-                // Send INTERIM results with 100ms debounce
-                if (interim.trim() && interim.trim() !== _lastInterim) {
-                    _lastInterim = interim.trim();
-                    clearTimeout(_interimTimer);
-                    _interimTimer = setTimeout(() => {
-                        submitTranscript(_lastInterim);
-                    }, 100);
-                }
-
-                // Send final results instantly (cancels any pending interim)
+                // Only send FINAL results for NLP parsing
                 if (final.trim()) {
-                    clearTimeout(_interimTimer);
-                    _lastInterim = '';
                     submitTranscript(final.trim());
                 }
             };
