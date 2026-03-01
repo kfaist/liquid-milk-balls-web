@@ -724,6 +724,8 @@
                 document.getElementById('dotSpeech').style.background = '#6bcb77';
             };
 
+            let _interimTimer = null;
+            let _lastInterim = '';
             recognition.onresult = (e) => {
                 let interim = '', final = '';
                 for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -732,7 +734,22 @@
                     else { interim += t; }
                 }
                 document.getElementById('interimText').textContent = interim;
-                if (final.trim()) { submitTranscript(final.trim()); }
+
+                // Send INTERIM results immediately with 300ms debounce
+                if (interim.trim() && interim.trim() !== _lastInterim) {
+                    _lastInterim = interim.trim();
+                    clearTimeout(_interimTimer);
+                    _interimTimer = setTimeout(() => {
+                        submitTranscript(_lastInterim);
+                    }, 300);
+                }
+
+                // Send final results instantly (cancels any pending interim)
+                if (final.trim()) {
+                    clearTimeout(_interimTimer);
+                    _lastInterim = '';
+                    submitTranscript(final.trim());
+                }
             };
 
             recognition.onerror = (e) => {
