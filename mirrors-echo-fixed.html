@@ -712,13 +712,23 @@
 
         let _reqSeq = 0;
         const _eventLog = [];
+        const _logColors = {
+            'SEND': '#6ee7d4',
+            'P5': '#c9a0ff',
+            'TD': '#f0a0c0',
+            'DROP': '#555',
+            'MIC': '#6bcb77',
+            'ERR': '#f87171',
+            'NLP': '#8b8aa0'
+        };
         function logEvent(type, msg) {
             const ts = new Date().toLocaleTimeString('en-US', {hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit', fractionalSecondDigits:3});
-            const entry = ts + ' [' + type + '] ' + msg;
+            const color = _logColors[type] || '#6ee7d4';
+            const entry = '<span style="color:' + color + '">' + ts + ' [' + type + '] ' + msg + '</span>';
             _eventLog.unshift(entry);
             if (_eventLog.length > 40) _eventLog.pop();
             const el = document.getElementById('eventLog');
-            if (el) el.textContent = _eventLog.slice(0,15).join('\n');
+            if (el) el.innerHTML = _eventLog.slice(0,15).join('\n');
         }
 
         function startSpeechRecognition() {
@@ -739,6 +749,7 @@
                 logEvent('MIC', 'speech recognition started');
             };
 
+            let _sendTimer = null;
             recognition.onresult = (e) => {
                 let text = '';
                 for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -747,8 +758,12 @@
                 text = text.trim();
                 if (text) {
                     document.getElementById('interimText').textContent = text;
-                    logEvent('SEND', text.substring(0,60));
-                    submitTranscript(text);
+                    // 30ms debounce - kills old request, only latest survives
+                    clearTimeout(_sendTimer);
+                    _sendTimer = setTimeout(() => {
+                        logEvent('SEND', text.substring(0,60));
+                        submitTranscript(text);
+                    }, 30);
                 }
             };
 
@@ -798,6 +813,7 @@
                     if (data.p5) {
                         document.getElementById('p5Word').textContent = data.p5;
                         logEvent('P5', data.p5 + ' (' + ms + 'ms)');
+                        logEvent('TD', '-> TouchDesigner: ' + data.p5);
                     }
                     if (data.p6) document.getElementById('p6Display').textContent = data.p6;
                     document.getElementById('interimText').textContent = '';
