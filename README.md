@@ -69,3 +69,10 @@ Currently configured for:
 - **Room**: `claymation-live`
 
 To change, edit the constants at the top of `transcribe_livekit_to_udp.py`.
+
+## License
+
+Dual-licensed:
+
+- **Open source:** [GNU AGPL-3.0](LICENSE) — free to use, modify, and self-host, with the AGPL network-copyleft obligation (if you run a modified version as a network service, you must publish your source).
+- **Commercial:** a commercial license is available for teams that need to ship closed-source or SaaS integrations without AGPL obligations. Contact the author for terms.
